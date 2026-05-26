@@ -10,6 +10,7 @@ import { ChannelStats } from "@/components/ChannelStats";
 
 import { ExportModule } from "@/components/ExportModule";
 import { VisionModule } from "@/components/VisionModule";
+import { SunoModule } from "@/components/SunoModule";
 import { Tabs } from "@/components/Tabs";
 
 export default function Home() {
@@ -103,8 +104,10 @@ export default function Home() {
           )
         ) : activeView === "export" ? (
           <ExportModule />
-        ) : (
+        ) : activeView === "vision" ? (
           <VisionModule />
+        ) : (
+          <SunoModule />
         )}
       </div>
     </div>

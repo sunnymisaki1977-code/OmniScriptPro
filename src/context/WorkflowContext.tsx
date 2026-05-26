@@ -13,8 +13,8 @@ interface WorkflowContextType {
   resetWorkflow: () => void;
   getStepContext: (stepId: number) => any;
   isStepComplete: (stepId: number) => boolean;
-  activeView: "workflow" | "export" | "vision";
-  setActiveView: (view: "workflow" | "export" | "vision") => void;
+  activeView: "workflow" | "export" | "vision" | "suno";
+  setActiveView: (view: "workflow" | "export" | "vision" | "suno") => void;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -23,7 +23,7 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [theme, setTheme] = useState("");
   const [currentStep, setCurrentStep] = useState(0); // 0 is theme input
   const [stepsData, setStepsData] = useState<Record<number, string>>({});
-  const [activeView, setActiveView] = useState<"workflow" | "export" | "vision">("workflow");
+  const [activeView, setActiveView] = useState<"workflow" | "export" | "vision" | "suno">("workflow");
 
   // Persistence
   useEffect(() => {

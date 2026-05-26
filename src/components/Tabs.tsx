@@ -3,7 +3,7 @@
 import React from "react";
 import { useWorkflow } from "@/context/WorkflowContext";
 import { cn } from "./ui";
-import { LayoutGrid, Cloud, Image as ImageIcon } from "lucide-react";
+import { LayoutGrid, Cloud, Image as ImageIcon, Music } from "lucide-react";
 
 export const Tabs = () => {
   const { activeView, setActiveView } = useWorkflow();
@@ -45,6 +45,18 @@ export const Tabs = () => {
       >
         <ImageIcon size={16} />
         Gemini 視覺發控中心
+      </button>
+      <button
+        onClick={() => setActiveView("suno")}
+        className={cn(
+          "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all",
+          activeView === "suno"
+            ? "bg-white text-stone-900 shadow-sm"
+            : "text-stone-400 hover:text-stone-600 hover:bg-white/50"
+        )}
+      >
+        <Music size={16} />
+        Suno 配樂發控中心
       </button>
     </div>
   );
