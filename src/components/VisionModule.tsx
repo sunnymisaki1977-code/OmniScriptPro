@@ -25,7 +25,7 @@ const extractOptions = (text: string, title: string) => {
 
   const options = [];
 
-  const getTemplate = (content: string, mTitle: string, poem: string) => {
+  const getTemplate = (content: string, mTitle: string, poem: string, subTitle: string = "") => {
     if (title === "道・大象無形") {
       let fullContent = content;
       if (poem) {
@@ -33,9 +33,13 @@ const extractOptions = (text: string, title: string) => {
         fullContent += `，搭配藝術詩詞文字直式排版（由上到下，從右到左）設計詩詞：${poem}`;
       }
       return `（colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, , no humans, ultra detailed和文字設計風格。) ${fullContent}`;
-    } else {
-      const titlePrefix = mTitle ? `${mTitle} ` : "";
-      return `（一幅具有強烈視覺衝擊力的YouTube縮圖，融合了(colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed和文字設計風格。) 大而醒目的藝術文字設計用於放置粗體大字。* **主標**：${titlePrefix}${content}`;
+    } else if (title === "道・見素抱樸") { // 短影音
+      const textTitle = mTitle ? `* **高點擊文案**：${mTitle}\n` : "";
+      return `（一幅具有強烈視覺衝擊力的YouTube縮圖，融合了(colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed和文字設計風格。) 大而醒目的藝術文字設計用於放置粗體大字。\n${textTitle}${content}`;
+    } else { // 長影音
+      const mainPrefix = mTitle ? `* **主標**：${mTitle}\n` : "";
+      const subPrefix = subTitle ? `* **副標**：${subTitle}\n` : "";
+      return `（一幅具有強烈視覺衝擊力的YouTube縮圖，融合了(colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed和文字設計風格。) 大而醒目的藝術文字設計用於放置粗體大字。\n${mainPrefix}${subPrefix}${content}`;
     }
   };
   
@@ -62,7 +66,8 @@ const extractOptions = (text: string, title: string) => {
         poem = poemMatch[1].trim().replace(/\s+/g, ' '); // replace newlines/spaces with a single space
       }
 
-      const template = getTemplate(content, mTitle, poem);
+      const extractedSubTitle = subTitleMatch ? subTitleMatch[1].trim() : "";
+      const template = getTemplate(content, mTitle, poem, extractedSubTitle);
       
       // Optionally extract group name as title if mTitle is empty
       const groupMatch = block.match(/(意象圖組?\s*\d+|第[一二三四五六七八九十\d]+組|設計組?\s*\d+)/);
@@ -73,7 +78,7 @@ const extractOptions = (text: string, title: string) => {
       options.push({
         prompt: template,
         mainTitle: mTitle,
-        subTitle: subTitleMatch ? subTitleMatch[1].trim() : ""
+        subTitle: extractedSubTitle
       });
     }
   }
@@ -84,13 +89,13 @@ const extractOptions = (text: string, title: string) => {
        return globalMatches.map(m => {
          const content = m[1].replace(/(?:畫面風格|風格)\s*[：:].*$/i, "").trim();
          return { 
-           prompt: getTemplate(content, "", ""), 
+           prompt: getTemplate(content, "", "", ""), 
            mainTitle: "", 
            subTitle: "" 
          };
        });
     }
-    return [{ prompt: getTemplate(text.trim(), "", ""), mainTitle: "", subTitle: "" }];
+    return [{ prompt: getTemplate(text.trim(), "", "", ""), mainTitle: "", subTitle: "" }];
   }
   return options;
 };
