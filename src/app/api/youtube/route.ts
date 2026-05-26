@@ -14,7 +14,8 @@ export async function GET() {
     // 1. 先用 Handle 找出 Channel ID (使用 search 或 channels?forHandle)
     // 注意：v3 API 目前支援 forHandle 參數
     const channelRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&forHandle=${HANDLE}&key=${API_KEY}`
+      `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&forHandle=${HANDLE}&key=${API_KEY}`,
+      { cache: 'no-store' }
     );
     const channelData = await channelRes.json();
 
