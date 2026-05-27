@@ -73,18 +73,32 @@ const SunoCard = ({
   subtitle: string;
   promptData: { prompt: string; mainTitle: string; subTitle: string };
 }) => {
-  const [editablePrompt, setEditablePrompt] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [fullText, setFullText] = useState("");
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setEditablePrompt(promptData?.prompt || "");
+    setFullText(promptData?.prompt || "");
   }, [promptData]);
 
+  const getSelectedText = () => {
+    if (textareaRef.current) {
+      const { selectionStart, selectionEnd, value } = textareaRef.current;
+      if (selectionStart !== selectionEnd) {
+        return value.substring(selectionStart, selectionEnd);
+      }
+    }
+    return fullText;
+  };
+
   const handleCopyAndGo = () => {
-    if (!editablePrompt) return;
-    navigator.clipboard.writeText(editablePrompt)
+    const selected = getSelectedText();
+    if (!selected.trim()) {
+      toast.error("無可複製的內容");
+      return;
+    }
+    navigator.clipboard.writeText(selected)
       .then(() => {
-        toast.success("指令已複製！正在開啟 Suno...");
+        toast.success("已複製！正在開啟 Suno...");
         window.open("https://suno.com/create", "_blank");
       })
       .catch(() => {
@@ -93,149 +107,65 @@ const SunoCard = ({
   };
 
   const handleCopyOnly = () => {
-    if (!editablePrompt) return;
-    navigator.clipboard.writeText(editablePrompt)
+    const selected = getSelectedText();
+    if (!selected.trim()) {
+      toast.error("無可複製的內容");
+      return;
+    }
+    navigator.clipboard.writeText(selected)
       .then(() => {
-        toast.success("指令已複製！");
+        toast.success("已複製！");
       })
       .catch(() => {
         toast.error("複製失敗，請手動複製");
       });
   };
 
-  const CardContent = (
-    <>
-      <div className="bg-stone-900 px-6 py-4 flex items-center justify-between shrink-0">
-        <div>
-          <div className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-1">{subtitle}</div>
-          <h3 className="text-white text-lg font-bold tracking-wider">{title}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)} 
-            className="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white/70 hover:text-white transition-colors"
-            title={isExpanded ? "縮小" : "放大"}
-          >
-            {isExpanded ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-          </button>
-          {isExpanded && (
-            <button 
-              onClick={() => setIsExpanded(false)} 
-              className="bg-red-500/20 hover:bg-red-500 p-2 rounded-lg text-red-100 hover:text-white transition-colors"
-              title="關閉"
-            >
-              <X size={20} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="p-6 flex-1 flex flex-col gap-4 overflow-hidden bg-stone-50">
-        <div className={`bg-white rounded-2xl p-4 border border-stone-200 overflow-y-auto text-xs font-mono text-stone-500 leading-relaxed whitespace-pre-wrap shrink-0 shadow-inner ${isExpanded ? 'max-h-40' : 'flex-1 max-h-24'} relative`}>
-          <div className="absolute top-2 right-2 text-stone-300">
-             <Database size={16}/>
-          </div>
-          {promptData?.prompt || <span className="text-stone-400 italic">尚未載入 Prompt...</span>}
-        </div>
-
-        <div className={`relative bg-stone-100 rounded-2xl border-2 border-dashed border-stone-300 overflow-y-auto flex flex-col gap-6 transition-all ${isExpanded ? 'flex-1 p-8' : 'h-80 p-4'}`}>
-          <div className="sticky top-0 z-10 flex justify-center mb-2 pointer-events-none">
-            <span className="bg-stone-200/80 backdrop-blur text-stone-500 text-xs px-4 py-1.5 rounded-full font-bold shadow-sm border border-stone-300">
-              對話氣泡與派發中心
-            </span>
-          </div>
-          
-          <AnimatePresence mode="wait">
-            {promptData?.prompt ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-end w-full"
-                >
-                  <div className={`bg-stone-800 text-stone-100 rounded-[2rem] rounded-tr-sm ${isExpanded ? 'p-6 max-w-[85%]' : 'p-4 max-w-[95%]'} shadow-xl border border-stone-700 relative flex flex-col gap-3 group hover:border-amber-500/50 transition-colors`}>
-                    <div className="flex justify-between items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <BotMessageSquare size={16} className="text-amber-500" />
-                        <span className="text-amber-400 font-bold text-sm tracking-wider truncate max-w-[200px]">
-                          {promptData.mainTitle || `預設設計組`}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          onClick={handleCopyOnly} 
-                          className="bg-stone-700 hover:bg-stone-600 text-stone-200 h-9 px-4 rounded-full text-xs font-bold transition-all flex shrink-0"
-                        >
-                          <Copy className="w-3.5 h-3.5 mr-1.5"/> 複製
-                        </Button>
-                        <Button 
-                          onClick={handleCopyAndGo} 
-                          className="bg-amber-500 hover:bg-amber-400 text-stone-900 h-9 px-4 rounded-full text-xs font-bold shadow-[0_4px_14px_0_rgba(245,158,11,0.39)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.23)] transition-all flex shrink-0"
-                        >
-                          <Copy className="w-3.5 h-3.5 mr-1.5"/> 複製並前往
-                          <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {promptData.subTitle && (
-                       <p className="text-stone-400 text-xs font-medium -mt-1">{promptData.subTitle}</p>
-                    )}
-
-                    <div className="relative">
-                      <textarea 
-                        value={editablePrompt}
-                        onChange={(e) => setEditablePrompt(e.target.value)}
-                        className={`w-full bg-stone-900/50 rounded-xl p-3.5 text-sm text-stone-300 font-mono resize-none focus:outline-none focus:ring-1 focus:ring-amber-500/50 shadow-inner ${isExpanded ? 'h-48' : 'h-32'}`}
-                        spellCheck={false}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-stone-400 flex flex-col items-center gap-3 m-auto"
-              >
-                <BotMessageSquare size={40} className="opacity-40" />
-                <span className="text-sm font-medium tracking-widest uppercase">解析失敗或無指令</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </>
-  );
-
   return (
-    <>
-      <div className="bg-white/70 backdrop-blur-xl rounded-[2rem] border border-stone-200 shadow-xl overflow-hidden flex flex-col h-full">
-        {!isExpanded && CardContent}
+    <div className="bg-white/70 backdrop-blur-xl rounded-[2rem] border border-stone-200 shadow-xl overflow-hidden flex flex-col lg:flex-row w-full min-h-[400px]">
+      {/* Left Panel */}
+      <div className="bg-stone-900 w-full lg:w-72 p-6 md:p-8 flex flex-col justify-between shrink-0">
+        <div>
+          <div className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">{subtitle}</div>
+          <h3 className="text-white text-2xl font-bold tracking-wider mb-6">{title}</h3>
+          <p className="text-stone-400 text-sm leading-relaxed">
+            請在右側文字框中反白框選您需要的段落，然後點擊下方按鈕進行複製。未框選則複製全部。
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 mt-8">
+          <Button 
+            onClick={handleCopyOnly} 
+            className="w-full bg-stone-700 hover:bg-stone-600 text-stone-200 h-12 rounded-xl text-sm font-bold transition-all flex justify-center items-center"
+          >
+            <Copy className="w-4 h-4 mr-2"/> 複製框選文字
+          </Button>
+          <Button 
+            onClick={handleCopyAndGo} 
+            className="w-full bg-amber-500 hover:bg-amber-400 text-stone-900 h-12 rounded-xl text-sm font-bold shadow-[0_4px_14px_0_rgba(245,158,11,0.39)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.23)] transition-all flex justify-center items-center"
+          >
+            <Copy className="w-4 h-4 mr-2"/> 複製並前往
+            <ExternalLink className="w-4 h-4 ml-1.5 opacity-50" />
+          </Button>
+        </div>
       </div>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 md:p-12"
-          >
-            <div className="absolute inset-0 cursor-zoom-out" onClick={() => setIsExpanded(false)} />
-            <motion.div 
-              layoutId={`suno-card-${title}`}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white/95 backdrop-blur-2xl rounded-[2.5rem] border border-stone-200 shadow-2xl overflow-hidden flex flex-col w-full max-w-5xl h-full max-h-[90vh] z-10 ring-1 ring-white/50"
-            >
-              {CardContent}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+      {/* Right Panel */}
+      <div className="flex-1 p-6 md:p-8 bg-stone-50 flex flex-col relative">
+         <div className="absolute top-10 right-10 text-stone-300 pointer-events-none">
+            <Music size={24}/>
+         </div>
+         <div className="flex-1 flex flex-col relative z-10">
+           <textarea 
+             ref={textareaRef}
+             value={fullText}
+             onChange={(e) => setFullText(e.target.value)}
+             className="w-full flex-1 min-h-[300px] bg-white rounded-2xl p-6 text-sm text-stone-600 font-mono resize-y focus:outline-none focus:ring-2 focus:ring-amber-500/50 shadow-sm border border-stone-200 leading-relaxed"
+             spellCheck={false}
+             placeholder={promptData?.prompt ? "解析中..." : "尚未載入 Prompt..."}
+           />
+         </div>
+      </div>
+    </div>
   );
 };
 
@@ -362,7 +292,7 @@ export const SunoModule = () => {
             <p className="font-medium tracking-widest uppercase">解析脈絡中...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-8">
             <SunoCard 
               title="音・史詩開場"
               subtitle="史詩感配樂"
