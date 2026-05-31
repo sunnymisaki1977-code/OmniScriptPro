@@ -190,7 +190,7 @@ export const SocialModule = () => {
       toast.success(
         <div>
           <p>成功發佈至 Facebook！</p>
-          <a href={\`https://facebook.com/\${data.post_id}\`} target="_blank" rel="noreferrer" className="underline font-bold mt-1 block">
+          <a href={`https://facebook.com/${data.post_id}`} target="_blank" rel="noreferrer" className="underline font-bold mt-1 block">
             點此查看貼文
           </a>
         </div>,
@@ -284,7 +284,7 @@ export const SocialModule = () => {
               disabled={isGenerating || fetchingPrompts || !prompts.step2}
               className="bg-amber-500 hover:bg-amber-600 text-white h-auto py-5 px-8 rounded-2xl font-bold shadow-lg shadow-amber-500/20 text-lg"
             >
-              <Sparkles size={20} className={\`mr-2 \${isGenerating ? 'animate-spin' : ''}\`} />
+              <Sparkles size={20} className={`mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
               {isGenerating ? "生成中..." : "AI 自動生成貼文"}
             </Button>
           </div>
