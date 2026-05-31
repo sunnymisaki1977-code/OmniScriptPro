@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     }
 
     const prompts: Record<string, string> = {
+      step2: "",
       step6: "",
       step7: "",
       step8: "",
@@ -38,7 +39,9 @@ export async function POST(req: Request) {
     for (const block of blocks) {
       if (block.type === "heading_2") {
         const text = block.heading_2.rich_text.map((t: any) => t.plain_text).join("");
-        if (text.includes("Step 6")) {
+        if (text.includes("Step 2")) {
+          currentStep = "step2";
+        } else if (text.includes("Step 6")) {
           currentStep = "step6";
         } else if (text.includes("Step 7")) {
           currentStep = "step7";

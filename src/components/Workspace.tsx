@@ -73,10 +73,10 @@ export const Workspace = () => {
     setAutoProgress(1);
     setCurrentStep(1);
     
-    // Start a visual timer to cycle through steps 1-10 to simulate progress
+    // Start a visual timer to cycle through steps 1-9 to simulate progress
     const visualTimer = setInterval(() => {
-      setAutoProgress((prev) => (prev < 10 ? prev + 1 : 1));
-      setCurrentStep((prev) => (prev < 10 ? prev + 1 : 1));
+      setAutoProgress((prev) => (prev < 9 ? prev + 1 : 1));
+      setCurrentStep((prev) => (prev < 9 ? prev + 1 : 1));
     }, 3500);
     
     try {
@@ -93,8 +93,8 @@ export const Workspace = () => {
 
       const newData = json.data;
       
-      // Update all 10 steps sequentially
-      for (let i = 1; i <= 10; i++) {
+      // Update all 9 steps sequentially
+      for (let i = 1; i <= 9; i++) {
          if (newData[i]) {
             updateStepData(i, newData[i]);
          }
@@ -169,10 +169,10 @@ export const Workspace = () => {
       {/* Dynamic Background Image - Moved to cover entire Workspace including header */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-[#f5f2eb] bg-[url('/color_ink_bg.jpg')] bg-cover bg-center bg-blend-soft-light">
         <AnimatePresence mode="wait">
-          {currentStep >= 1 && currentStep <= 10 && (
+          {currentStep >= 1 && currentStep <= 9 && (
             <motion.img
               key={currentStep}
-              src={STEP_CONFIGS[currentStep]?.image || STEP_CONFIGS[9]?.image}
+              src={STEP_CONFIGS[currentStep]?.image}
               alt={`Step ${currentStep} Background`}
               className="absolute inset-0 w-full h-full object-cover opacity-90"
               initial={{ opacity: 0, scale: 1.05 }}
@@ -202,7 +202,7 @@ export const Workspace = () => {
             <Sparkles size={16} className={isGenerating ? "animate-spin" : "text-amber-600"} />
             {editedContent ? "重新生成稿件" : "AI 撰稿"}
           </Button>
-          {currentStep === 10 ? (
+          {currentStep === 9 ? (
             <Button 
               variant="primary" 
               onClick={handleArchive} 
@@ -332,12 +332,12 @@ export const Workspace = () => {
                   AI 脈絡生成中
                 </div>
                 <div className="text-4xl font-black text-white drop-shadow-lg tracking-widest">
-                  STEP {autoProgress} <span className="text-2xl text-white/50">/ 10</span>
+                  STEP {autoProgress} <span className="text-2xl text-white/50">/ 9</span>
                 </div>
                 <div className="w-full h-1.5 bg-stone-800/80 rounded-full overflow-hidden border border-white/10 mt-2">
                   <div 
                     className="h-full bg-amber-500 transition-all duration-1000 shadow-[0_0_15px_rgba(245,158,11,1)]" 
-                    style={{ width: `${(autoProgress / 10) * 100}%` }} 
+                    style={{ width: `${(autoProgress / 9) * 100}%` }} 
                   />
                 </div>
               </div>

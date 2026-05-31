@@ -120,12 +120,12 @@ export const Sidebar = () => {
         <div className="px-1">
           <div className="flex justify-between items-center mb-1.5">
             <span className="text-[9px] font-bold text-stone-400 uppercase">工作進度</span>
-            <span className="text-[9px] font-bold text-stone-900">{Math.round((completedStepsCount / 10) * 100)}%</span>
+            <span className="text-[9px] font-bold text-stone-900">{Math.round((completedStepsCount / 9) * 100)}%</span>
           </div>
           <div className="h-1 w-full bg-stone-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-stone-900 transition-all duration-700 ease-out"
-              style={{ width: `${(completedStepsCount / 10) * 100}%` }}
+              style={{ width: `${(completedStepsCount / 9) * 100}%` }}
             />
           </div>
         </div>

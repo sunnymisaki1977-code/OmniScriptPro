@@ -82,19 +82,19 @@ ${ctx.step4}
     prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
 參考背景：${ctx.step3}
 
-每組必須包含：
-1. 【縮圖名稱】
-2. 高點擊文案：主標與副標
-3. AI Prompt (中文)：必須包含風格設定 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，並詳述畫面細節與文字擺放。
-4. AI Prompt (English)：對應的英文 Prompt，結尾註明 16:9。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（**）。
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。
+AI Prompt (English) 結尾必須包含：--ar 16:9
 
-請【嚴格】依照以下格式輸出，不要改變標題名稱或新增無謂的符號：
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
-### 第一組：[縮圖名稱]
-主標：[主標內容]
-副標：[副標內容]
-中文：[中文Prompt]
-English：[英文Prompt]`,
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入中文 Prompt]
+English：[請填入英文 Prompt]`,
   },
   {
     id: 7,
@@ -106,18 +106,18 @@ English：[英文Prompt]`,
     prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
 參考背景：${ctx.step5}
 
-每組必須包含：
-1. 【短影音縮圖 [編號]】
-2. 高點擊文案：衝擊力強的主標
-3. AI Prompt (中文)：包含風格設定 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，強調直式構圖與快速吸睛的視覺要素。
-4. AI Prompt (English)：對應的英文 Prompt，結尾註明 9:16。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（**）。
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。
+AI Prompt (English) 結尾必須包含：--ar 9:16
 
-請【嚴格】依照以下格式輸出，不要改變標題名稱或新增無謂的符號：
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
-### 第一組：[短影音縮圖名稱]
-高點擊文案：[主標內容]
-中文：[中文Prompt]
-English：[英文Prompt]`,
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[請填入中文 Prompt]
+English：[請填入英文 Prompt]`,
   },
   {
     id: 8,
@@ -127,19 +127,19 @@ English：[英文Prompt]`,
     language: "markdown",
     dependsOn: ["theme"],
     prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組 16:9 彩墨風格意象圖。
-要求：
-1. 每組需有【意象圖名稱】。
-2. 視覺設計：詳述畫面構成，必須包含風格標籤 (colorful ink wash, vivid diffusion...)，強調無人物、充滿禪意或史詩感的氛圍。
-3. 搭配詩詞：撰寫一首七言四句或相關風格的詩詞，呼應畫面意象。
+視覺設計必須包含風格標籤 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，強調無人物、充滿禪意或史詩感的氛圍。
 
-風格需維持統一的高級感與傳統文化底蘊。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（**）。
+English 結尾必須包含：--ar 16:9
 
-請【嚴格】依照以下格式輸出，不要改變標題名稱或新增無謂的符號：
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
-### 第一組：[意象圖名稱]
-詩詞：[七言四句詩詞]
-中文：[中文畫面描述]
-English：[英文Prompt]`,
+### 第一組：[請填入意象圖名稱]
+詩詞：[由上到下，由右到左，請填入七言四句詩詞，]
+中文：[請填入中文畫面描述]
+English：[請填入英文 Prompt]`,
   },
   {
     id: 9,
@@ -149,20 +149,25 @@ English：[英文Prompt]`,
     language: "markdown",
     dependsOn: ["theme", "step1"],
     prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
-請依據以下三種場景設計：
-1. 史詩感：講述神話或宏大開場。
-2. 敘事感：講述文化細節或溫暖歷史。
-3. 活力感：實用攻略或現代交織節奏。
+場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
 
-每組需包含：
-- 【音樂 [編號]：[場景描述]】
-- 適用場景說明。
-- Suno AI Prompt：包含 Music Style、Instruments、Tempo 等參數。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（**）。
+Suno AI Prompt 必須包含 Music Style、Instruments、Tempo 等英文參數。
 
-請【嚴格】依照以下格式輸出，不要改變標題名稱或新增無謂的符號：
+請直接輸出以下格式，依照三種場景順序生成：
 
-### 第一組：[史詩感/敘事感/活力感]
-適用場景：[適用場景說明]
-Suno AI Prompt：[包含參數的Prompt內容]`,
+### 第一組：史詩感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]
+
+### 第二組：敘事感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]
+
+### 第三組：活力感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]`,
   },
 ];
