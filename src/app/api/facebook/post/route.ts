@@ -8,13 +8,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields (pageId, accessToken, message, imageUrl)" }, { status: 400 });
     }
 
+    // Check if the URL is an image file
+    const isImage = /\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i.test(imageUrl);
+
     // Prepare form data for Facebook Graph API
     const fbFormData = new URLSearchParams();
     fbFormData.append("access_token", accessToken);
     fbFormData.append("message", message);
-    fbFormData.append("url", imageUrl); // Send URL directly to FB
+    
+    let endpoint = "";
+    if (isImage) {
+      fbFormData.append("url", imageUrl); // Send URL directly to FB for photos
+      endpoint = `https://graph.facebook.com/v19.0/${pageId}/photos`;
+    } else {
+      fbFormData.append("link", imageUrl); // Send as a link post
+      endpoint = `https://graph.facebook.com/v19.0/${pageId}/feed`;
+    }
 
-    const response = await fetch(`https://graph.facebook.com/v19.0/${pageId}/photos`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       body: fbFormData,
     });

@@ -409,14 +409,27 @@ export const SocialModule = () => {
                 </div>
                 
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold text-stone-500">預覽圖像</label>
-                  <div className="flex-1 w-full bg-white rounded-xl border border-stone-200 overflow-hidden flex items-center justify-center min-h-[250px] relative">
+                  <label className="text-sm font-bold text-stone-500">預覽圖像 / 連結</label>
+                  <div className="flex-1 w-full bg-white rounded-xl border border-stone-200 overflow-hidden flex items-center justify-center min-h-[250px] relative p-4">
                     {selectedImageUrl ? (
-                      <img src={selectedImageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain bg-stone-100" />
+                      /\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i.test(selectedImageUrl) || selectedImageUrl.startsWith("data:image") ? (
+                        <img src={selectedImageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain bg-stone-100" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-4 text-stone-500 text-center">
+                          <ExternalLink size={48} className="text-amber-500" />
+                          <div>
+                            <span className="font-bold text-sm block mb-2">這是外部網頁連結</span>
+                            <a href={selectedImageUrl} target="_blank" rel="noreferrer" className="text-xs text-[#1877F2] hover:underline break-all">
+                              {selectedImageUrl}
+                            </a>
+                          </div>
+                          <span className="text-xs text-stone-400 mt-2 bg-stone-100 px-3 py-1 rounded-full">此連結將作為 FB 貼文的分享連結發佈</span>
+                        </div>
+                      )
                     ) : (
                       <div className="flex flex-col items-center gap-3 text-stone-300">
                         <ImagePlus size={48} className="opacity-50" />
-                        <span className="font-bold text-sm">無圖像預覽</span>
+                        <span className="font-bold text-sm">無預覽項目</span>
                       </div>
                     )}
                   </div>

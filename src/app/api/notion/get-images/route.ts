@@ -35,6 +35,8 @@ export async function POST(req: Request) {
         } else if (block.image.type === "file" && block.image.file.url) {
           imageUrls.push(block.image.file.url);
         }
+      } else if (block.type === "bookmark" && block.bookmark.url) {
+        imageUrls.push(block.bookmark.url);
       }
     }
 
