@@ -203,7 +203,8 @@ const VisionCard = ({
   pageId: string;
 }) => {
   const [options, setOptions] = useState<{prompt: string, mainTitle: string, subTitle: string}[]>([]);
-  const [url, setUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
@@ -224,37 +225,62 @@ const VisionCard = ({
 
           <div className="flex flex-col gap-2 p-4 bg-white/5 rounded-xl border border-white/10">
             <label className="text-xs font-bold text-stone-300">匯入生成圖像至 Notion</label>
-            <input 
-              type="text" 
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="貼上 Gemini 分享網址或圖片連結..."
-              className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-500 placeholder-stone-600"
-            />
+            <label className="flex flex-col items-center justify-center w-full min-h-[100px] border-2 border-dashed border-stone-700 hover:border-amber-500 bg-stone-900/50 rounded-lg cursor-pointer transition-colors relative overflow-hidden group">
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                    const reader = new FileReader();
+                    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+                    reader.readAsDataURL(file);
+                  }
+                }} 
+              />
+              {imagePreview ? (
+                <>
+                  <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-opacity" />
+                  <span className="text-white text-xs font-bold z-10 bg-black/50 px-2 py-1 rounded shadow">點擊更換圖片</span>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-2 p-4 text-center">
+                  <ImageIcon size={24} className="text-stone-500 group-hover:text-amber-500 transition-colors" />
+                  <span className="text-stone-400 text-xs font-medium">點擊上傳 Gemini 下載圖片</span>
+                </div>
+              )}
+            </label>
             <Button 
               onClick={async () => {
-                if (!url) return;
+                if (!imageFile) return;
                 setIsImporting(true);
                 try {
-                  const res = await fetch("/api/notion/append-url", {
+                  const formData = new FormData();
+                  formData.append("pageId", pageId);
+                  formData.append("stepName", subtitle);
+                  formData.append("file", imageFile);
+
+                  const res = await fetch("/api/notion/upload-file", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ pageId, url, stepName: subtitle }),
+                    body: formData,
                   });
                   const data = await res.json();
                   if (data.error) throw new Error(data.error);
-                  toast.success("成功匯入 Notion！");
-                  setUrl("");
+                  toast.success("成功上傳實體圖片至 Notion！");
+                  setImageFile(null);
+                  setImagePreview(null);
                 } catch (error: any) {
                   toast.error("匯入失敗: " + error.message);
                 } finally {
                   setIsImporting(false);
                 }
               }}
-              disabled={!url || isImporting || !pageId}
-              className="w-full bg-stone-700 hover:bg-amber-500 text-white hover:text-stone-900 rounded-lg h-8 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!imageFile || isImporting || !pageId}
+              className="w-full bg-stone-700 hover:bg-amber-500 text-white hover:text-stone-900 rounded-lg h-8 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
-              {isImporting ? "匯入中..." : "寫入 Notion"}
+              {isImporting ? "上傳中..." : "寫入 Notion"}
             </Button>
           </div>
         </div>
