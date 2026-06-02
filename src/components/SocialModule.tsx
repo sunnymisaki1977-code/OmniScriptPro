@@ -31,7 +31,7 @@ export const SocialModule = () => {
   const [showSettings, setShowSettings] = useState(false);
   
   // Notion Images
-  const [notionImages, setNotionImages] = useState<string[]>([]);
+  const [notionImages, setNotionImages] = useState<{url: string; name: string}[]>([]);
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
   const [isFetchingImages, setIsFetchingImages] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -65,7 +65,7 @@ export const SocialModule = () => {
       const data = await res.json();
       if (data.images && data.images.length > 0) {
         setNotionImages(data.images);
-        setSelectedImageUrl(data.images[0]);
+        setSelectedImageUrl(data.images[0].url);
       }
     } catch (err) {
       console.error("Failed to fetch images", err);
@@ -392,9 +392,9 @@ export const SocialModule = () => {
                         {isFetchingImages ? (
                           <option>載入圖片中...</option>
                         ) : notionImages.length > 0 ? (
-                          notionImages.map((url, i) => (
-                            <option key={i} value={url}>
-                              Notion 圖像 {i + 1}
+                          notionImages.map((img, i) => (
+                            <option key={i} value={img.url}>
+                              {img.name}
                             </option>
                           ))
                         ) : (

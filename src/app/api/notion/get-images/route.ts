@@ -26,21 +26,37 @@ export async function POST(req: Request) {
       nextCursor = response.next_cursor || undefined;
     }
 
-    const imageUrls: string[] = [];
+    const images: { url: string; name: string }[] = [];
+    let lastHeading = "";
+    let imageCount = 1;
 
     for (const block of blocks) {
-      if (block.type === "image") {
+      if (block.type === "heading_3" && block.heading_3.rich_text?.length > 0) {
+        lastHeading = block.heading_3.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (block.type === "heading_2" && block.heading_2.rich_text?.length > 0) {
+        lastHeading = block.heading_2.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (block.type === "heading_1" && block.heading_1.rich_text?.length > 0) {
+        lastHeading = block.heading_1.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (block.type === "image") {
+        let url = "";
         if (block.image.type === "external" && block.image.external.url) {
-          imageUrls.push(block.image.external.url);
+          url = block.image.external.url;
         } else if (block.image.type === "file" && block.image.file.url) {
-          imageUrls.push(block.image.file.url);
+          url = block.image.file.url;
+        }
+        if (url) {
+          images.push({ url, name: lastHeading || `Notion 圖像 ${imageCount}` });
+          imageCount++;
+          lastHeading = ""; // Reset heading after use
         }
       } else if (block.type === "bookmark" && block.bookmark.url) {
-        imageUrls.push(block.bookmark.url);
+        images.push({ url: block.bookmark.url, name: lastHeading || `Notion 網址 ${imageCount}` });
+        imageCount++;
+        lastHeading = ""; // Reset heading after use
       }
     }
 
-    return NextResponse.json({ images: imageUrls });
+    return NextResponse.json({ images });
   } catch (error: any) {
     console.error("Notion API Error (get-images):", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
