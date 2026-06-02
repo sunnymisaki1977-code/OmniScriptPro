@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useWorkflow } from "@/context/WorkflowContext";
 import { WORKFLOW_STEPS } from "@/utils/promptConfigs";
-import { CheckCircle2, Circle, ChevronRight, Youtube, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight, Youtube, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { cn } from "./ui";
 import { AlmanacCard } from "./AlmanacCard";
 
