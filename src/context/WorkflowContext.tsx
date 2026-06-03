@@ -15,6 +15,8 @@ interface WorkflowContextType {
   isStepComplete: (stepId: number) => boolean;
   activeView: "workflow" | "export" | "vision" | "suno" | "social";
   setActiveView: (view: "workflow" | "export" | "vision" | "suno" | "social") => void;
+  isUnlocked: boolean;
+  unlockSystem: (key: string) => boolean;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -24,23 +26,33 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [currentStep, setCurrentStep] = useState(0); // 0 is theme input
   const [stepsData, setStepsData] = useState<Record<number, string>>({});
   const [activeView, setActiveView] = useState<"workflow" | "export" | "vision" | "suno" | "social">("workflow");
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
   // Persistence
   useEffect(() => {
     const saved = localStorage.getItem("gen_imprint_workflow");
     if (saved) {
-      const { theme, currentStep, stepsData } = JSON.parse(saved);
-      setTheme(theme);
-      setCurrentStep(currentStep);
-      setStepsData(stepsData);
+      const { theme, currentStep, stepsData, isUnlocked } = JSON.parse(saved);
+      if (theme) setTheme(theme);
+      if (currentStep) setCurrentStep(currentStep);
+      if (stepsData) setStepsData(stepsData);
+      if (isUnlocked) setIsUnlocked(isUnlocked);
     }
   }, []);
 
   useEffect(() => {
-    if (theme || currentStep > 0) {
-      localStorage.setItem("gen_imprint_workflow", JSON.stringify({ theme, currentStep, stepsData }));
+    if (theme || currentStep > 0 || isUnlocked) {
+      localStorage.setItem("gen_imprint_workflow", JSON.stringify({ theme, currentStep, stepsData, isUnlocked }));
     }
-  }, [theme, currentStep, stepsData]);
+  }, [theme, currentStep, stepsData, isUnlocked]);
+
+  const unlockSystem = (key: string) => {
+    if (key === "GENIMPRINT2026") {
+      setIsUnlocked(true);
+      return true;
+    }
+    return false;
+  };
 
   const updateStepData = (stepId: number, data: string) => {
     setStepsData((prev) => ({ ...prev, [stepId]: data }));
@@ -83,6 +95,8 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         isStepComplete,
         activeView,
         setActiveView,
+        isUnlocked,
+        unlockSystem,
       }}
     >
       {children}
