@@ -16,7 +16,7 @@ import { Tabs } from "@/components/Tabs";
 import { LockedOverlay } from "@/components/LockedOverlay";
 
 export default function Home() {
-  const { theme, setTheme, currentStep, setCurrentStep, resetWorkflow, stepsData, activeView } = useWorkflow();
+  const { theme, setTheme, currentStep, setCurrentStep, resetWorkflow, stepsData, activeView, isUnlocked } = useWorkflow();
   const [inputTheme, setInputTheme] = useState(theme);
 
   const handleStart = () => {
@@ -34,7 +34,7 @@ export default function Home() {
 
       <div className="flex-1 overflow-y-auto">
         {activeView === "workflow" ? (
-          <div className="relative w-full h-full overflow-hidden flex flex-col">
+          <div className={`relative w-full flex flex-col ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             {currentStep === 0 ? (
               <div className="flex-1 flex flex-col items-start p-6 bg-transparent">
                 {/* Top Stats Bar */}
@@ -108,22 +108,22 @@ export default function Home() {
             <LockedOverlay title="主工作流" subtitle="解鎖全自動化 AI 內容產製與控管中樞" />
           </div>
         ) : activeView === "export" ? (
-          <div className="relative w-full h-full">
+          <div className={`relative w-full ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             <ExportModule />
             <LockedOverlay title="純淨資料匯出" subtitle="解鎖原始數據與未經修飾的文本資料" />
           </div>
         ) : activeView === "vision" ? (
-          <div className="relative w-full h-full overflow-hidden">
+          <div className={`relative w-full ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             <VisionModule />
             <LockedOverlay title="Gemini 視覺" subtitle="解鎖全自動視覺產製與 Notion 雲端同步" />
           </div>
         ) : activeView === "suno" ? (
-          <div className="relative w-full h-full overflow-hidden">
+          <div className={`relative w-full ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             <SunoModule />
             <LockedOverlay title="Suno 配樂" subtitle="解鎖專屬配樂產製與情緒節奏控制" />
           </div>
         ) : (
-          <div className="relative w-full h-full overflow-hidden">
+          <div className={`relative w-full ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             <SocialModule />
             <LockedOverlay title="社群推播" subtitle="解鎖社群一鍵發佈與智慧分發核心" />
           </div>
