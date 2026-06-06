@@ -13,17 +13,19 @@ import { VisionModule } from "@/components/VisionModule";
 import { SunoModule } from "@/components/SunoModule";
 import { SocialModule } from "@/components/SocialModule";
 import { TeamModule } from "@/components/TeamModule";
+import { UserSelectorModal, ActivityFeed } from "@/components/ActivityModule";
 import { Tabs } from "@/components/Tabs";
 import { LockedOverlay } from "@/components/LockedOverlay";
 
 export default function Home() {
-  const { theme, setTheme, currentStep, setCurrentStep, resetWorkflow, stepsData, activeView, isUnlocked } = useWorkflow();
+  const { theme, setTheme, currentStep, setCurrentStep, resetWorkflow, stepsData, activeView, isUnlocked, logActivity } = useWorkflow();
   const [inputTheme, setInputTheme] = useState(theme);
 
   const handleStart = () => {
     if (!inputTheme.trim()) return;
     setTheme(inputTheme);
     setCurrentStep(1);
+    logActivity("建立了一個新專案");
   };
 
   const hasProgress = Object.keys(stepsData).length > 0;
@@ -32,15 +34,22 @@ export default function Home() {
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Top Navigation Tabs */}
       <Tabs />
+      <UserSelectorModal />
 
+      {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
         {activeView === "workflow" ? (
           <div className={`relative w-full flex flex-col ${!isUnlocked ? 'h-full overflow-hidden' : 'min-h-full'}`}>
             {currentStep === 0 ? (
               <div className="flex-1 flex flex-col items-start p-6 bg-transparent">
                 {/* Top Stats Bar */}
-                <div className="w-full max-w-6xl mb-12">
-                  <ChannelStats />
+                <div className="w-full max-w-6xl mb-12 flex gap-6 items-start">
+                  <div className="flex-1">
+                    <ChannelStats />
+                  </div>
+                  <div className="w-80">
+                    <ActivityFeed />
+                  </div>
                 </div>
 
                 <div className="max-w-2xl w-full space-y-12 flex flex-col items-center text-center mt-4 mx-auto">

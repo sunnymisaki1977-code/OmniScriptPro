@@ -13,7 +13,7 @@ import { LoadingOverlay, STEP_CONFIGS } from "./LoadingOverlay";
 import { SequentialVideoPlayer } from "./SequentialVideoPlayer";
 
 export const Workspace = () => {
-  const { currentStep, setCurrentStep, stepsData, updateStepData, getStepContext, theme } = useWorkflow();
+  const { currentStep, setCurrentStep, stepsData, updateStepData, getStepContext, theme, logActivity } = useWorkflow();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
   const [autoProgress, setAutoProgress] = useState(0);
@@ -103,6 +103,7 @@ export const Workspace = () => {
       setCurrentStep(1);
       setEditedContent(newData[1] || "");
       toast.success("全自動生成完成！您可以開始審閱與編輯。");
+      logActivity("完成了自動內容產製");
     } catch (err: any) {
       clearInterval(visualTimer);
       console.error("Auto generate failed", err);
@@ -142,6 +143,7 @@ export const Workspace = () => {
       if (data.error) throw new Error(data.error);
 
       toast.success("成功歸檔至 Notion！");
+      logActivity("將專案歸檔至雲端文庫");
     } catch (err: any) {
       toast.error(err.message || "歸檔失敗");
     } finally {
