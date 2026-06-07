@@ -16,11 +16,23 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = step.prompt(context);
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    return NextResponse.json({ text });
+    const MAX_RETRIES = 5;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        return NextResponse.json({ text });
+      } catch (err: any) {
+        if (err.message?.includes("503") && attempt < MAX_RETRIES) {
+          console.warn(`[Gemini API] 503 Error on single generate. Retrying attempt ${attempt + 1}...`);
+          const delay = Math.pow(2, attempt) * 1500;
+          await new Promise(res => setTimeout(res, delay));
+          continue;
+        }
+        throw err;
+      }
+    }
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return NextResponse.json({ error: error.message || "AI Generation failed" }, { status: 500 });

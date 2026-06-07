@@ -42,7 +42,8 @@ export async function POST(req: Request) {
 請現在開始生成，並只回傳嚴格的 JSON 物件。`;
 
     let text = "";
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    const MAX_RETRIES = 5;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -58,9 +59,10 @@ export async function POST(req: Request) {
         
         return NextResponse.json({ data: parsedData });
       } catch (err: any) {
-        if ((err.message?.includes("503") || err instanceof SyntaxError || err.name === 'SyntaxError') && attempt < 3) {
+        if ((err.message?.includes("503") || err instanceof SyntaxError || err.name === 'SyntaxError') && attempt < MAX_RETRIES) {
           console.warn(`[Gemini API] Error or Invalid JSON. Retrying attempt ${attempt + 1}...`);
-          await new Promise(res => setTimeout(res, 3000));
+          const delay = Math.pow(2, attempt) * 1500; // Exponential backoff: 3s, 6s, 12s, 24s
+          await new Promise(res => setTimeout(res, delay));
           continue;
         }
         throw err;
