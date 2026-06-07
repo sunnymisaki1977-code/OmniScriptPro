@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -25,7 +25,8 @@ export async function POST(req: Request) {
 現在我們要為主題「${theme}」進行一個 9 步驟的內容生產流程。
 
 請嚴格依照這 9 個步驟的邏輯順序進行生成，後續步驟必須參考前面的產出。
-你必須直接輸出 JSON 格式的結果，包含 9 個 key："1", "2", "3", "4", "5", "6", "7", "8", "9"。每個 key 對應的 value **必須是純文字字串** (可用 Markdown 格式排版)，**絕對不可使用巢狀 JSON 物件或陣列**。請確保輸出的 JSON 格式絕對正確，不要包含額外的說明。
+你必須直接輸出 JSON 格式的結果，包含 9 個 key："1", "2", "3", "4", "5", "6", "7", "8", "9"。每個 key 對應的 value **必須是純文字字串** (可用 Markdown 格式排版)，**絕對不可使用巢狀 JSON 物件或陣列**。
+⚠️ **極度重要：所有的換行符號都必須使用 "\\n" (跳脫字元)，絕對不可在 JSON 字串中產生真實的換行，否則會導致 JSON 解析失敗 (Unterminated string)。**
 
 【9 個步驟的要求如下】：
 步驟 1：針對主題「${theme}」進行深入的文化、歷史或背景資料彙整。包含：文化由來、核心意義、相關傳說或歷史紀錄。
