@@ -81,6 +81,10 @@ export async function POST(req: Request) {
     }
   } catch (error: any) {
     console.error("Gemini API Error (Batch):", error);
-    return NextResponse.json({ error: error.message || "AI Batch Generation failed" }, { status: 500 });
+    const errorMsg = error.message || "";
+    if (errorMsg.includes("429") || errorMsg.includes("quota")) {
+      return NextResponse.json({ error: "Google API 免費額度已達上限 (429 Too Many Requests)。請等待約 1 分鐘後再重新嘗試！" }, { status: 429 });
+    }
+    return NextResponse.json({ error: errorMsg || "AI Batch Generation failed" }, { status: 500 });
   }
 }
