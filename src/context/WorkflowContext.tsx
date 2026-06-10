@@ -13,8 +13,8 @@ interface WorkflowContextType {
   resetWorkflow: () => void;
   getStepContext: (stepId: number) => any;
   isStepComplete: (stepId: number) => boolean;
-  activeView: "workflow" | "export" | "vision" | "suno" | "social" | "team";
-  setActiveView: (view: "workflow" | "export" | "vision" | "suno" | "social" | "team") => void;
+  activeView: "workflow" | "export" | "vision" | "suno" | "social";
+  setActiveView: (view: "workflow" | "export" | "vision" | "suno" | "social") => void;
   isUnlocked: boolean;
   unlockSystem: (key: string) => boolean;
 }
@@ -25,7 +25,7 @@ export const WorkflowProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [theme, setTheme] = useState("");
   const [currentStep, setCurrentStep] = useState(0); // 0 is theme input
   const [stepsData, setStepsData] = useState<Record<number, string>>({});
-  const [activeView, setActiveView] = useState<"workflow" | "export" | "vision" | "suno" | "social" | "team">("workflow");
+  const [activeView, setActiveView] = useState<"workflow" | "export" | "vision" | "suno" | "social">("workflow");
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   // Persistence
