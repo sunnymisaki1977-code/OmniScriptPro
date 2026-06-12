@@ -5,6 +5,11 @@ import { Button } from "./ui";
 import { ChevronDown, Database, AlertCircle, MessageSquareShare, Sparkles, Copy, ExternalLink, BotMessageSquare, ImagePlus, Settings, Send } from "lucide-react";
 import { toast } from "react-hot-toast";
 
+interface NotionPage {
+  id: string;
+  title: string;
+}
+
 const extractSection = (text: string, keyword: string) => {
   if (!text) return "";
   
