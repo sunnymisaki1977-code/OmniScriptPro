@@ -74,10 +74,10 @@ export const Workspace = () => {
     setAutoProgress(1);
     setCurrentStep(1);
     
-    // Start a visual timer to cycle through steps 1-9 to simulate progress
+    // Start a visual timer to cycle through steps 1-10 to simulate progress
     const visualTimer = setInterval(() => {
-      setAutoProgress((prev) => (prev < 9 ? prev + 1 : 1));
-      setCurrentStep((prev) => (prev < 9 ? prev + 1 : 1));
+      setAutoProgress((prev) => (prev < 10 ? prev + 1 : 1));
+      setCurrentStep((prev) => (prev < 10 ? prev + 1 : 1));
     }, 3500);
     
     try {
@@ -94,8 +94,8 @@ export const Workspace = () => {
 
       const newData = json.data;
       
-      // Update all 9 steps sequentially
-      for (let i = 1; i <= 9; i++) {
+      // Update all 10 steps sequentially
+      for (let i = 1; i <= 10; i++) {
          if (newData[i]) {
             updateStepData(i, newData[i]);
          }
@@ -132,13 +132,17 @@ export const Workspace = () => {
   };
 
   const handleArchive = async () => {
-    updateStepData(10, editedContent);
+    // If not on step 10, save the current edited content
+    if (currentStep !== 10) {
+      updateStepData(currentStep, editedContent);
+    }
+    
     setIsArchiving(true);
     try {
       const res = await fetch("/api/notion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme, stepsData: { ...stepsData, [10]: editedContent } }),
+        body: JSON.stringify({ theme, stepsData: currentStep === 10 ? stepsData : { ...stepsData, [currentStep]: editedContent } }),
       });
 
       const data = await res.json();
@@ -204,11 +208,11 @@ export const Workspace = () => {
             <Sparkles size={16} className={isGenerating ? "animate-spin" : "text-amber-600"} />
             {editedContent ? "重新生成稿件" : "AI 撰稿"}
           </Button>
-          {currentStep === 9 ? (
+          {currentStep === 10 ? (
             <Button 
               variant="primary" 
               onClick={handleArchive} 
-              disabled={isArchiving || !editedContent}
+              disabled={isArchiving || !stepsData[10]}
               className="bg-cinnabar/90 backdrop-blur hover:bg-red-800 text-white shadow-lg shadow-red-900/20 border border-white/20"
             >
               <Send size={16} className={isArchiving ? "animate-bounce" : ""} />

@@ -53,33 +53,7 @@ const SocialSubCard = ({ title, content, icon: Icon }: { title: string; content:
 
 export const SocialModule = () => {
   const { theme, stepsData } = useWorkflow();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [fbContent, setFbContent] = useState("");
-
-  const generateSocialPost = async () => {
-    if (!stepsData[1]) {
-      toast.error("缺少 Step 1 基礎背景研究內容作為背景");
-      return;
-    }
-    
-    setIsGenerating(true);
-    try {
-      const res = await fetch("/api/social/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme: theme || "未知主題", step1Content: stepsData[1] }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      
-      setFbContent(data.content);
-      toast.success("成功生成社群圖文懶人包！");
-    } catch (err: any) {
-      toast.error("生成失敗: " + err.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  const fbContent = stepsData[10] || "";
 
   return (
     <div className="flex flex-col gap-8 h-full w-full">
@@ -90,16 +64,8 @@ export const SocialModule = () => {
               <MessageSquareShare size={28} className="text-amber-500"/>
               社群推播發控中心
             </h3>
-            <p className="text-stone-500 text-sm ml-10">一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文</p>
+            <p className="text-stone-500 text-sm ml-10">由主工作流自動生成的動態視覺提示詞、圖卡排版字卡與社群正文</p>
           </div>
-          <Button 
-            onClick={generateSocialPost} 
-            disabled={isGenerating || !stepsData[1]}
-            className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-6 text-lg font-bold rounded-2xl shadow-[0_8px_30px_rgb(245,158,11,0.3)] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3"
-          >
-            <Sparkles size={20} className={isGenerating ? 'animate-spin' : ''} />
-            {isGenerating ? "AI 煉製中..." : "一鍵生成社群懶人包"}
-          </Button>
         </div>
 
         {fbContent ? (
@@ -125,7 +91,7 @@ export const SocialModule = () => {
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm">
               <Sparkles size={32} className="text-stone-300" />
             </div>
-            <p className="font-medium text-stone-500 tracking-wide">點擊右上角按鈕，即可一鍵產出完整圖文懶人包</p>
+            <p className="font-medium text-stone-500 tracking-wide">請點擊主工作流的「開始生成流程」以全自動產出完整圖文懶人包</p>
           </div>
         )}
       </div>
