@@ -15,7 +15,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
     description: "針對主題進行深入的文化、歷史或背景資料彙整。",
     type: "text",
     dependsOn: ["theme"],
-    prompt: (ctx) => `你是一位民俗文化專家，請針對主題「${ctx.theme}」進行深入的背景研究。
+    prompt: (ctx) => `你是一位民俗文化專家，請針對主題「${ctx.theme}」進行1500字深入的背景研究。
 內容需包含：文化由來、核心意義、相關傳說或歷史紀錄。
 請以結構化、易讀的段落撰寫。
 【最高指導原則】：
@@ -169,5 +169,14 @@ Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]
 ### 第三組：活力感
 適用場景：[請填入適用場景說明]
 Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]`,
+  },
+  {
+    id: 10,
+    title: "社群推播發控中心",
+    description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx) => ``, // Used via /api/social/generate directly by custom UI
   },
 ];
