@@ -177,6 +177,62 @@ Suno AI Prompt：[請填入包含參數的英文 Prompt 內容]`,
     type: "social",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx) => ``, // Used via /api/social/generate directly by custom UI
+    prompt: (ctx) => `你現在是首席視覺藝術總監與頂級社群文案主編。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.theme}」打造一組「新國風彩墨」社群圖文懶人包。
+
+【基礎背景史料】：
+${ctx.step1}
+
+請嚴格遵循以下三大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從史料中萃取 4 到 5 個最震撼的「歷史高光時刻 / 核心傳說」，將其轉化為畫面描述。
+**視覺公式（必須包含）**：
+- 傳統底蘊：colorful ink wash, rice paper texture.
+- 現代奇幻：energy flow, golden particles, neon ink.
+- 史詩構圖：documentary style layout, dynamic segmented composition with distinct epic panels.
+- 極致光影：cinematic lighting, strong chiaroscuro.
+
+### 任務二：設計 4 張圖卡排版字卡
+請將史料轉化為 4 張社群圖卡（1:1 正方形）的排版字卡。每張字卡必須具備強烈的敘事性，並符合現代社群閱讀習慣（字數精簡、標題吸睛）。
+
+### 任務三：撰寫社群發布正文
+使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
+
+---
+【格式絕對鎖定指令】（請直接輸出以下格式，禁止任何問候與結語）：
+
+### 🎨 視覺 Prompt
+**16:9 動態分割構圖提示詞：**
+English: A masterpiece neo-Chinese fantasy illustration of ${ctx.theme}, documentary style layout, dynamic segmented composition with distinct epic panels. In the center, [請填寫主角名稱/核心意象與動作]. The background is divided into panels: [請根據史料，填寫4-5個場景的英文描述]. Traditional Texture: colorful ink wash, thick impasto ink, rice paper texture. Modern Fantasy Effects: energy flow, golden particles crossing between panels. Cinematic Render: cinematic lighting, strong chiaroscuro, 8k, ultra-detailed --ar 16:9 --v 6.0 --style raw
+
+**9:16 動態分割構圖提示詞：**
+English: A masterpiece neo-Chinese fantasy illustration of ${ctx.theme}, vertical scroll format, documentary style layout, dynamic segmented composition stacked vertically. The central focal point is [主角名稱]. The background is divided by shattered glass effects into epic scenes: [請根據史料，填寫4-5個場景的英文描述]. Traditional Texture: colorful ink wash, rice paper texture. Modern Fantasy Effects: neon ink, golden particles flowing upwards. Cinematic Render: dramatic backlighting, 8k, ultra-detailed --ar 9:16 --v 6.0 --style raw
+
+### 🖼️ 圖卡排版字卡
+1. **圖卡標題：** [15字內，包含主題名稱]
+   **一句話說明：** [20字內，點出核心精神]
+   **排版建議：** [20字內，說明畫面情感或建議底圖風格]
+2. **圖卡標題：** [15字內，包含主題名稱]
+   **一句話說明：** [20字內，點出核心精神]
+   **排版建議：** [20字內，說明畫面情感或建議底圖風格]
+3. **圖卡標題：** [15字內，包含主題名稱]
+   **一句話說明：** [20字內，點出核心精神]
+   **排版建議：** [20字內，說明畫面情感或建議底圖風格]
+4. **圖卡標題：** [15字內，包含主題名稱]
+   **一句話說明：** [20字內，點出核心精神]
+   **排版建議：** [20字內，說明畫面情感或建議底圖風格]
+
+### 📱 社群發布正文
+[請填入帶有 Emoji 的 Hook 開場白，製造懸念或情感共鳴]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，必須基於史料]
+
+[互動提問：請邀請粉絲留言分享經驗]
+祈福點燈、消災延壽，讓神明的靈光持續護佑您的日常 ➔ [此處自動帶入廟方數位功德箱/點燈連結]
+
+#世代銘印 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
+`,
   },
 ];
