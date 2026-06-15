@@ -152,7 +152,10 @@ const VisionSubCard = ({
       return;
     }
     const ratio = opt.aspectRatio || aspectRatio;
-    const textToCopy = ratio === "文字" ? selected : `${selected}\n--ar ${ratio}`;
+    let textToCopy = selected;
+    if (ratio !== "文字" && !textToCopy.includes(`--ar ${ratio}`)) {
+      textToCopy = `${selected}\n--ar ${ratio}`;
+    }
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
         toast.success(`已複製！正在開啟 Gemini...`);
@@ -170,7 +173,10 @@ const VisionSubCard = ({
       return;
     }
     const ratio = opt.aspectRatio || aspectRatio;
-    const textToCopy = ratio === "文字" ? selected : `${selected}\n--ar ${ratio}`;
+    let textToCopy = selected;
+    if (ratio !== "文字" && !textToCopy.includes(`--ar ${ratio}`)) {
+      textToCopy = `${selected}\n--ar ${ratio}`;
+    }
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
         toast.success(`已複製！`);
