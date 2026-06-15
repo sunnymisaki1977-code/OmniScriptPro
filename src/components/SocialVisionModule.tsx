@@ -13,7 +13,7 @@ interface NotionPage {
 // 提取視覺 Prompt (16:9 和 9:16)
 const extractVisionPrompts = (text: string) => {
   if (!text) return [];
-  const sectionMatch = text.match(/### 視覺 Prompt[\s\S]*?(?=###|$)/i);
+  const sectionMatch = text.match(/###.*?視覺.*Prompt[\s\S]*?(?=###|$)/i);
   if (!sectionMatch) return [];
   const section = sectionMatch[0];
   
@@ -44,7 +44,7 @@ const extractVisionPrompts = (text: string) => {
   // Fallback
   if (options.length === 0) {
      options.push({
-        prompt: section.replace(/### 視覺 Prompt/i, '').trim(),
+        prompt: section.replace(/###.*?視覺.*?Prompt/i, '').trim(),
         mainTitle: "視覺動態 Prompt",
         subTitle: "預設抓取",
         aspectRatio: "16:9"
@@ -57,7 +57,7 @@ const extractVisionPrompts = (text: string) => {
 // 提取圖卡排版字卡
 const extractTextCards = (text: string) => {
   if (!text) return [];
-  const sectionMatch = text.match(/### 圖卡排版字卡[\s\S]*?(?=###|$)/i);
+  const sectionMatch = text.match(/###.*?圖卡排版字卡[\s\S]*?(?=###|$)/i);
   if (!sectionMatch) return [];
   const section = sectionMatch[0];
   
@@ -66,9 +66,9 @@ const extractTextCards = (text: string) => {
   const blocks = section.split(/(?=\n\s*\d+\.\s*)/);
   for (const block of blocks) {
     if (block.trim().length < 10) continue;
-    if (block.includes("### 圖卡排版字卡") && block.replace(/### 圖卡排版字卡/i, '').trim().length < 10) continue;
+    if (block.includes("圖卡排版字卡") && block.replace(/###.*?圖卡排版字卡/i, '').trim().length < 10) continue;
     
-    let cleanBlock = block.replace(/### 圖卡排版字卡/i, '').trim();
+    let cleanBlock = block.replace(/###.*?圖卡排版字卡/i, '').trim();
     
     const titleMatch = cleanBlock.match(/(?:圖卡標題|標題)[：:]\s*([^\n]+)/i);
     const descMatch = cleanBlock.match(/(?:一句話說明|說明)[：:]\s*([^\n]+)/i);
@@ -94,7 +94,7 @@ const extractTextCards = (text: string) => {
   
   if (options.length === 0 && section.trim().length > 20) {
       options.push({
-          prompt: section.replace(/### 圖卡排版字卡/i, '').trim(),
+          prompt: section.replace(/###.*?圖卡排版字卡/i, '').trim(),
           mainTitle: "排版字卡",
           subTitle: "預設內容",
           aspectRatio: "1:1"
@@ -107,9 +107,9 @@ const extractTextCards = (text: string) => {
 // 提取社群發布正文
 const extractSocialPost = (text: string) => {
   if (!text) return [];
-  const sectionMatch = text.match(/### 社群發布正文[\s\S]*?(?=###|$)/i);
+  const sectionMatch = text.match(/###.*?社群發布正文[\s\S]*?(?=###|$)/i);
   if (!sectionMatch) return [];
-  const section = sectionMatch[0].replace(/### 社群發布正文/i, '').trim();
+  const section = sectionMatch[0].replace(/###.*?社群發布正文/i, '').trim();
   
   if (section.length > 10) {
     return [{

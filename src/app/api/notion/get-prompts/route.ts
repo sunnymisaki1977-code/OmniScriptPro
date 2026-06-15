@@ -41,7 +41,9 @@ export async function POST(req: Request) {
     for (const block of blocks) {
       if (block.type === "heading_2") {
         const text = block.heading_2.rich_text.map((t: any) => t.plain_text).join("");
-        if (text.includes("Step 1")) {
+        if (text.includes("Step 10") || text.includes("Step10")) {
+          currentStep = "step10";
+        } else if (text.includes("Step 1")) {
           currentStep = "step1";
         } else if (text.includes("Step 2")) {
           currentStep = "step2";
@@ -53,8 +55,6 @@ export async function POST(req: Request) {
           currentStep = "step8";
         } else if (text.includes("Step 9")) {
           currentStep = "step9";
-        } else if (text.includes("Step 10") || text.includes("Step10")) {
-          currentStep = "step10";
         } else {
           currentStep = null; // stop collecting if it's another heading
         }
