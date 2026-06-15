@@ -1,4 +1,4 @@
-﻿import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -72,7 +72,9 @@ ${customDocText}
 (2) ### 🖼️ 圖卡排版字卡：為 4~5 個高光時刻設計適合放在圖片上的短標題與一句話說明；
 (3) ### 📱 社群發布正文：包含 Hook 開場白、3-5點亮點解析、互動提問、祈福導流與 Hashtags。
 
-請現在開始生成，並只回傳嚴格的 JSON 物件。`;
+請現在開始生成，並只回傳嚴格的 JSON 物件。
+
+⚠️極度重要：所有的 value 必須都是【單一的純文字字串(String)】(可使用 Markdown 格式)，絕對不可在步驟 1~10 的 value 裡面建立巢狀的 JSON Object 或 Array！例如步驟 3 如果需要標題與關鍵字，請直接在一行行文字裡用 Markdown 排版，絕對不要產生 "titles": [] 這樣的陣列！`;
     } else {
       prompt = `你是一位「世代銘印」頻道的專屬文化策展人與內容生成專家。
 現在我們要為主題「${theme}」進行一個 10 步驟的內容生產流程。
@@ -121,7 +123,9 @@ ${customDocText}
 (2) ### 🖼️ 圖卡排版字卡：為 4~5 個高光時刻設計適合放在圖片上的短標題與一句話說明；
 (3) ### 📱 社群發布正文：包含 Hook 開場白、3-5點亮點解析、互動提問、祈福導流與 Hashtags。
 
-請現在開始生成，並只回傳嚴格的 JSON 物件。`;
+請現在開始生成，並只回傳嚴格的 JSON 物件。
+
+⚠️極度重要：所有的 value 必須都是【單一的純文字字串(String)】(可使用 Markdown 格式)，絕對不可在步驟 1~10 的 value 裡面建立巢狀的 JSON Object 或 Array！例如步驟 3 如果需要標題與關鍵字，請直接在一行行文字裡用 Markdown 排版，絕對不要產生 "titles": [] 這樣的陣列！`;
     }
 
     let text = "";
@@ -145,7 +149,23 @@ ${customDocText}
         // Ensure all values are strings to prevent React rendering errors
         for (const key in parsedData) {
           if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
-            parsedData[key] = JSON.stringify(parsedData[key], null, 2);
+            let markdown = "";
+            const convertObjToMarkdown = (obj: any) => {
+              for (const subKey in obj) {
+                if (Array.isArray(obj[subKey])) {
+                  markdown += "**" + subKey + "**:\\n";
+                  obj[subKey].forEach((item: any) => markdown += "- " + item + "\\n");
+                  markdown += "\\n";
+                } else if (typeof obj[subKey] === "object" && obj[subKey] !== null) {
+                  markdown += "**" + subKey + "**:\\n";
+                  convertObjToMarkdown(obj[subKey]);
+                } else {
+                  markdown += "**" + subKey + "**:\\n" + obj[subKey] + "\\n\\n";
+                }
+              }
+            };
+            convertObjToMarkdown(parsedData[key]);
+            parsedData[key] = markdown;
           }
         }
         
@@ -172,6 +192,7 @@ ${customDocText}
     return NextResponse.json({ error: errorMsg || "AI Batch Generation failed" }, { status: 500 });
   }
 }
+
 
 
 
