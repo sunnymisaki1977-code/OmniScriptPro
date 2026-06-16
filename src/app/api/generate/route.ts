@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       const modelName = MODELS[attempt - 1] || MODELS[0];
       const model = genAI.getGenerativeModel({ 
         model: modelName,
-        tools: [{ googleSearchRetrieval: {} }]
+        tools: [{ googleSearch: {} } as any]
       });
 
       try {
