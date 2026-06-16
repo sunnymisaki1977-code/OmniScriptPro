@@ -136,7 +136,6 @@ ${customDocText}
         model: modelName,
         tools: [{ googleSearchRetrieval: {} }],
         generationConfig: {
-          responseMimeType: "application/json",
           maxOutputTokens: 8192,
         }
       });
@@ -145,6 +144,9 @@ ${customDocText}
         const result = await model.generateContent(prompt);
         const response = await result.response;
         text = response.text();
+        
+        // Remove markdown backticks if AI outputs them
+        text = text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
         const parsedData = JSON.parse(text);
         
         // Ensure all values are strings to prevent React rendering errors
