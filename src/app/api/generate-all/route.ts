@@ -134,7 +134,7 @@ ${customDocText}
       const modelName = MODELS[attempt - 1] || MODELS[0];
       const model = genAI.getGenerativeModel({ 
         model: modelName,
-        tools: [{ googleSearch: {} }],
+        tools: [{ googleSearchRetrieval: {} }],
         generationConfig: {
           responseMimeType: "application/json",
           maxOutputTokens: 8192,
