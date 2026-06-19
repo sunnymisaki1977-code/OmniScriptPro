@@ -1,40 +1,95 @@
-﻿import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
+export const maxDuration = 60;
 
 function salvagePartialJSON(text: string) {
-  const result: Record<string, string> = {};
-  const matches = text.matchAll(/"(\d+)"\s*:\s*"([\s\S]*?)(?="\d+"\s*:|"\s*}|$)/g);
-  for (const match of Array.from(matches)) {
-    let val = match[2];
-    if (val.endsWith('",') || val.endsWith('"\n,')) {
-      val = val.substring(0, val.lastIndexOf('"'));
+  try {
+    let clean = text.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
+    let partialJSON = '{';
+    let foundAny = false;
+    for (let i = 1; i <= 10; i++) {
+      const regex = new RegExp(`"${i}"\\s*:\\s*"([^"]*)"`, 'g');
+      const match = regex.exec(clean);
+      if (match) {
+        if (foundAny) partialJSON += ',';
+        partialJSON += `"${i}": "${match[1].replace(/\\n/g, '\\\\n').replace(/"/g, '\\"')}"`; // escape inner quotes/newlines just in case
+        foundAny = true;
+      }
     }
-    // simple unescape for JSON strings (handle quotes and newlines)
-    val = val.replace(/\\n/g, '\n').replace(/\\"/g, '"');
-    result[match[1]] = val;
+    partialJSON += '}';
+    if (foundAny) return JSON.parse(partialJSON);
+  } catch (e) {
+    console.error("Salvage failed", e);
   }
-  return Object.keys(result).length > 0 ? result : null;
+  return null;
 }
 
-export const maxDuration = 60;
+// 建立一個共用的重試執行函式
+async function fetchWithRetry(model: any, prompt: string, maxRetries = 5) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      return result; // 成功則直接回傳
+    } catch (err: any) {
+      const errorMsg = err.message || "";
+      // 檢查是否為 429 額度問題 或 503 伺服器問題
+      const shouldRetry = errorMsg.includes("429") || errorMsg.includes("503") || errorMsg.includes("quota");
+      
+      if (shouldRetry && attempt < maxRetries) {
+        // 指數退避延遲：約 3秒, 6秒, 12秒...
+        const delay = Math.pow(2, attempt) * 1500; 
+        console.warn(`[Gemini API] 遇到 429 限制，第 ${attempt} 次重試將在 ${delay} 毫秒後執行...`);
+        await new Promise(res => setTimeout(res, delay));
+        continue;
+      }
+      throw err; // 超過重試次數或遇到其他無法重試的錯誤，則拋出
+    }
+  }
+}
 
 export async function POST(req: Request) {
   try {
     const { theme, customDocText, startFromStep = 1, existingData = {} } = await req.json();
 
     if (!theme) {
-      return NextResponse.json({ error: "Missing theme" }, { status: 1500 });
+      return NextResponse.json({ error: "Missing theme" }, { status: 400 });
     }
 
-    const MODELS = [
-      "gemini-2.5-pro",
-      "gemini-2.5-flash",
-      "gemini-2.5-flash-lite"
-    ];
+    let verifiedContext = customDocText || "";
 
+    // ==========================================
+    // Stage 1: 專注事實查核 (只有當沒有自訂文獻時才執行)
+    // ==========================================
+    if (!verifiedContext && startFromStep <= 1) {
+      // 使用 Pro 模型進行深度檢索，並開啟 Google Search
+      const researchModel = genAI.getGenerativeModel({
+        model: "gemini-2.5-pro",
+        tools: [{ googleSearch: {} } as any],
+      });
+
+      // 針對文化信仰設計的「防禦性查核 Prompt」
+      const researchPrompt = `
+你是一位嚴謹的台灣民俗與歷史學家。請使用 Google Search 徹底調查主題：「${theme}」。
+請注意，這類名詞常有字面誤導（例如數字不代表數量，姓氏不代表特定歷史名人）。
+請提供一份約 800 字的精確事實報告，必須涵蓋：
+1. 該信仰/名詞的「真實定義」與「數量」（如：五年千歲實際上是幾位？五年代表什麼？）。
+2. 該神祇的歷史起源、生平背景（切勿與民間小說人物混淆，若無明確文獻請說明「由來不可考或具多種說法」）。
+3. 核心精神、獨特科儀（如：馬鳴山鎮安宮的吃飯擔、建醮，請確認是否真的有王船祭）。
+4. 藝術表徵。
+請絕對基於搜尋到的客觀事實撰寫，嚴禁任何 AI 腦補。
+`;
+      console.log("[Stage 1] 開始查核...");
+      // ✅ 使用重試機制呼叫 Stage 1
+      const researchResult = await fetchWithRetry(researchModel, researchPrompt);
+      verifiedContext = researchResult.response.text();
+      console.log("[Stage 1] 事實查核完成");
+    }
+
+    // ==========================================
+    // Stage 2: 專注格式化與創意生成
+    // ==========================================
     
     let keysRequired = [];
     for (let i = startFromStep; i <= 10; i++) {
@@ -42,25 +97,27 @@ export async function POST(req: Request) {
     }
     const keysString = keysRequired.join(", ");
 
-    let prompt = "";
-    let backgroundContext = customDocText ? `我們已經有一份關於「${theme}」的聖蹟文獻（基礎背景）如下：\n---\n${customDocText}\n---` : ``;
+        let backgroundContext = customDocText ? `我們已經有一份關於「${theme}」的聖蹟文獻（基礎背景）如下：\n---\n${customDocText}\n---` : ``;
 
-    prompt = `你是一位「世代銘印」頻道的專屬文化策展人與內容生成專家。現在我們要為主題「${theme}」進行一個 10 步驟的內容生產流程。\n${backgroundContext}\n`;
+    // 強調「錨定效應」的 Prompt
+    let prompt = `你是一位「世代銘印」頻道的專屬文化策展人與內容生成專家。現在我們要為主題「${theme}」進行一個 10 步驟的內容生產流程。\n\n`;
+    
+    prompt += `【⚠️ 絕對真實性指令】：\n以下是經過專家查核的「基礎背景文獻」。你在後續所有步驟中，**無論是生平、數量、科儀、神話，都必須 100% 遵守這份文獻的設定，絕對不可自行延伸小說情節或修改名詞定義**。\n\n---\n${verifiedContext}\n---\n\n`;
 
     if (startFromStep > 1) {
-      prompt += `\n請注意，使用者已經確認了前 ${startFromStep - 1} 步的內容如下（作為後續步驟的背景參考）：\n---已確認內容---\n${JSON.stringify(existingData, null, 2)}\n------\n\n`;
+      prompt += `請注意，使用者已經確認了前 ${startFromStep - 1} 步的內容如下（作為後續步驟的背景參考）：\n---已確認內容---\n${JSON.stringify(existingData, null, 2)}\n------\n\n`;
       prompt += `現在請你基於上述已確認內容與背景，接續完成第 ${startFromStep} 到 10 步。\n`;
     }
 
     prompt += `請嚴格依照邏輯順序進行生成，後續步驟必須參考前面的產出。
 你必須直接輸出 JSON 格式的結果，包含 ${11 - startFromStep} 個 key：${keysString}。每個 key 對應的 value **必須是純文字字串** (可用 Markdown 格式排版)，**絕對不可使用巢狀 JSON 物件或陣列**。
-⚠️ **極度重要：所有的換行符號都必須使用 "\\n" (跳脫字元)，絕對不可在 JSON 字串中產生真實的換行，否則會導致 JSON 解析失敗 (Unterminated string)。**
+⚠️ **極度重要：所有的換行符號都必須使用 "\\n" (跳脫字元)，絕對不可在 JSON 字串中產生真實的換行，否則會導致 JSON 解析失敗。**
 
 【步驟的要求如下】：`;
 
-    // Only include steps that are requested
-    if (startFromStep <= 1 && !customDocText) {
-      prompt += `\n步驟 1：針對主題「${theme}」進行1500字深入的背景研究。內容需包含：文化與歷史起源神明、生平/由來、核心精神與當代象徵意義、經典神話、民間傳說或歷史史料記載、獨特的台灣民俗科儀、藝術表徵。嚴禁任何無根據的鄉野奇談或 AI 隨意編造的情節。`;
+    // 步驟 1 的要求需微調，讓它單純把 Stage 1 的內容擴寫並排版
+    if (startFromStep <= 1) {
+      prompt += `\n步驟 1：根據上方提供的【基礎背景文獻】，將內容整理並擴寫成一篇 1500 字深入、結構清晰的背景研究報告。嚴格禁止加入文獻中沒有的鄉野奇談。`;
     }
     if (startFromStep <= 2) {
       prompt += `\n步驟 2：根據${customDocText ? "上述文獻背景" : "步驟 1 的背景資料"}，撰寫一份 5-10 分鐘的 YouTube 長影片腳本。包含引人入勝的開場、深度內容解析、以及總結與互動引導。`;
@@ -110,80 +167,36 @@ export async function POST(req: Request) {
 (3) ### 📱 社群發布正文：包含 Hook 開場白、3-5點亮點解析、互動提問、祈福導流與 Hashtags。`;
     }
 
-    prompt += `\n\n請現在開始生成，並只回傳嚴格的 JSON 物件。\n\n⚠️極度重要：所有的 value 必須都是【單一的純文字字串(String)】(可使用 Markdown 格式)，絕對不可在步驟 1~10 的 value 裡面建立巢狀的 JSON Object 或 Array！\n⛔⛔ 絕對禁止：請直接輸出純 JSON 字串，前後【絕對不要】使用 Markdown 的 \`\`\`json 與 \`\`\` 標記包裝，也不要有任何其他文字說明！⛔⛔`;
+    prompt += `\n\n請現在開始生成，並只回傳嚴格的 JSON 物件。\n⛔⛔ 絕對禁止：請直接輸出純 JSON 字串，前後【絕對不要】使用 Markdown 的 \`\`\`json 與 \`\`\` 標記包裝，也不要有任何其他文字說明！⛔⛔`;
 
-    let text = "";
-    const MAX_RETRIES = 5;
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      const modelName = MODELS[attempt - 1] || MODELS[0];
-      const model = genAI.getGenerativeModel({ 
-        model: modelName,
-        tools: [
-          {
-            googleSearch: {} } as any
-        ],
-        // 🚨 修正 1：移除了 responseMimeType: "application/json"，避開 400 Bad Request
-        generationConfig: {
-          maxOutputTokens: 8192,
-        }
-      });
-
-      try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        text = response.text();
-        
-        // 🚨 修正 2：加入防呆機制，清理模型不聽話硬加的 Markdown 代碼區塊標記
-        const cleanedText = text.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
-        
-        const parsedData = JSON.parse(cleanedText);
-        
-        // Ensure all values are strings to prevent React rendering errors
-        for (const key in parsedData) {
-          if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
-            let markdown = "";
-            const convertObjToMarkdown = (obj: any) => {
-              for (const subKey in obj) {
-                if (Array.isArray(obj[subKey])) {
-                  markdown += "**" + subKey + "**:\n";
-                  obj[subKey].forEach((item: any) => markdown += "- " + item + "\n");
-                  markdown += "\n";
-                } else if (typeof obj[subKey] === "object" && obj[subKey] !== null) {
-                  markdown += "**" + subKey + "**:\n";
-                  convertObjToMarkdown(obj[subKey]);
-                } else {
-                  markdown += "**" + subKey + "**:\n" + obj[subKey] + "\n\n";
-                }
-              }
-            };
-            convertObjToMarkdown(parsedData[key]);
-            parsedData[key] = markdown;
-          }
-        }
-        
-        return NextResponse.json({ data: parsedData, modelUsed: modelName });
-      } catch (err: any) {
-        const errorMsg = err.message || "";
-        // 將 JSON 解析錯誤 (SyntaxError) 也納入重試條件
-        const shouldRetry = errorMsg.includes("503") || errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("not found") || err instanceof SyntaxError || err.name === 'SyntaxError';
-        
-        if (shouldRetry && attempt < MAX_RETRIES) {
-          console.warn(`[Gemini API] Error (${errorMsg}) with model ${modelName}. Retrying attempt ${attempt + 1}...`);
-          const delay = Math.pow(2, attempt) * 1500; // Exponential backoff: 3s, 6s, 12s, 24s
-          await new Promise(res => setTimeout(res, delay));
-          continue;
-        }
-        if (attempt === MAX_RETRIES) {
-          const partialData = salvagePartialJSON(text);
-          if (partialData) {
-            return NextResponse.json({ data: partialData, isPartial: true, modelUsed: modelName, error: "Generated data was partial due to API quota or syntax error." });
-          }
-        }
-        throw err;
+    const formatterModel = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-pro",
+      generationConfig: {
+        maxOutputTokens: 8192,
       }
+    });
+
+    console.log("[Stage 2] 開始生成格式化內容...");
+    // ✅ 使用重試機制呼叫 Stage 2
+    const result = await fetchWithRetry(formatterModel, prompt);
+    let text = result.response.text();
+    
+    const cleanedText = text.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
+    
+    try {
+      const parsedData = JSON.parse(cleanedText);
+      return NextResponse.json({ data: parsedData, modelUsed: "gemini-2.5-pro", contextUsed: verifiedContext });
+    } catch (parseError) {
+      console.warn("JSON parse failed, attempting partial salvage...");
+      const partialData = salvagePartialJSON(text);
+      if (partialData) {
+        return NextResponse.json({ data: partialData, isPartial: true, modelUsed: "gemini-2.5-pro", contextUsed: verifiedContext, error: "Generated data was partial due to syntax error." });
+      }
+      throw parseError;
     }
+
   } catch (error: any) {
-    console.error("Gemini API Error (Batch):", error);
+    console.error("API Error:", error);
     const errorMsg = error.message || "";
     if (errorMsg.includes("429") || errorMsg.includes("quota")) {
       return NextResponse.json({ error: "Google API 免費額度已達上限 (429 Too Many Requests)。請等待約 1 分鐘後再重新嘗試！" }, { status: 429 });
@@ -191,4 +204,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: errorMsg || "AI Batch Generation failed" }, { status: 500 });
   }
 }
-

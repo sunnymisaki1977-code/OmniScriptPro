@@ -115,8 +115,20 @@ export const Sidebar = () => {
         )}
       </nav>
 
+      {/* Resume Auto Generate Button */}
+      {completedStepsCount > 0 && completedStepsCount < 10 && (
+        <div className="mt-4 px-1">
+          <button
+            onClick={() => window.dispatchEvent(new Event("resume-auto-generate"))}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white py-3 px-4 rounded-xl text-xs font-bold shadow-md shadow-amber-900/20 transition-all active:scale-95"
+          >
+            <span>⚡ 接續全自動生成</span>
+          </button>
+        </div>
+      )}
+
       {/* Progress Bar */}
-      <div className="mt-8 pt-6 border-t border-stone-100">
+      <div className="mt-6 pt-6 border-t border-stone-100">
         <div className="px-1">
           <div className="flex justify-between items-center mb-1.5">
             <span className="text-[9px] font-bold text-stone-400 uppercase">工作進度</span>

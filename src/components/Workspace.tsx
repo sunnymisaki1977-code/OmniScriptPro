@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useWorkflow } from "@/context/WorkflowContext";
 import { WORKFLOW_STEPS } from "@/utils/promptConfigs";
 import { Button, Skeleton, cn } from "./ui";
@@ -17,7 +17,6 @@ export const Workspace = () => {
   const { currentStep, setCurrentStep, stepsData, updateStepData, getStepContext, theme } = useWorkflow();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
-  const hasStartedAutoGenerate = useRef(false);
   const [autoProgress, setAutoProgress] = useState(0);
   const [isArchiving, setIsArchiving] = useState(false);
   const [editedContent, setEditedContent] = useState("");
@@ -70,8 +69,25 @@ export const Workspace = () => {
     }
   };
 
-  const startAutoGenerate = async (startFromStep: number = 1) => {
+  const startAutoGenerate = async (isResume = false) => {
     setIsAutoGenerating(true);
+    
+    // 判斷要從哪一步開始
+    let startFromStep = 1;
+    if (isResume) {
+      for (let i = 1; i <= 10; i++) {
+        if (!stepsData[i]) {
+          startFromStep = i;
+          break;
+        }
+      }
+      if (startFromStep > 10) {
+        toast.success("所有步驟已完成！");
+        setIsAutoGenerating(false);
+        return;
+      }
+    }
+    
     setAutoProgress(startFromStep);
     setCurrentStep(startFromStep);
     
@@ -85,30 +101,36 @@ export const Workspace = () => {
       const res = await fetch("/api/generate-all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme, customDocText: stepsData[1] || "", startFromStep, existingData: stepsData }),
+        body: JSON.stringify({ 
+          theme, 
+          customDocText: stepsData[1] || "",
+          startFromStep,
+          existingData: isResume ? stepsData : {}
+        }),
       });
 
       const json = await res.json();
       clearInterval(visualTimer);
       
-      // 如果有錯誤，且沒有伴隨部分資料，則拋出例外
       if (json.error && !json.isPartial) throw new Error(json.error);
 
-      const newData = json.data || {};
+      const newData = json.data;
       
-      // Update steps sequentially
+      // Update all 10 steps sequentially
+      let lastSuccessStep = startFromStep - 1;
       for (let i = startFromStep; i <= 10; i++) {
          if (newData[i]) {
             updateStepData(i, newData[i]);
+            lastSuccessStep = i;
          }
       }
       
-      setCurrentStep(startFromStep);
-      setEditedContent(stepsData[startFromStep] || newData[startFromStep] || "");
-      
       if (json.isPartial) {
-        toast.error(`部分生成成功，後續步驟因 API 限制中斷。您可以確認目前步驟後，點擊下一步接續生成。`, { duration: 5000 });
+        setCurrentStep(lastSuccessStep + 1 > 10 ? 10 : lastSuccessStep + 1);
+        toast.error(`自動生成中斷！已為您自動存檔至第 ${lastSuccessStep} 步。您可以點擊左側「接續全自動生成」繼續。`);
       } else {
+        setCurrentStep(1);
+        setEditedContent(stepsData[1] || newData[1] || "");
         toast.success("全自動生成完成！您可以開始審閱與編輯。");
       }
     } catch (err: any) {
@@ -121,11 +143,17 @@ export const Workspace = () => {
     }
   };
 
+  useEffect(() => {
+    const handler = () => startAutoGenerate(true);
+    window.addEventListener("resume-auto-generate", handler);
+    return () => window.removeEventListener("resume-auto-generate", handler);
+  }, [theme, stepsData]);
+
+
   // Trigger auto-generate if we just entered Step 1 and it's empty, OR entered Step 2 and it's empty but Step 1 has custom document (Mode B)
   useEffect(() => {
     if ((currentStep === 1 && !stepsData[1]) || (currentStep === 2 && !stepsData[2] && stepsData[1])) {
-      if (!isAutoGenerating && !hasStartedAutoGenerate.current) {
-        hasStartedAutoGenerate.current = true;
+      if (!isAutoGenerating) {
         startAutoGenerate();
       }
     }
@@ -134,14 +162,8 @@ export const Workspace = () => {
   const handleConfirmNext = () => {
     updateStepData(currentStep, editedContent);
     if (currentStep < 10) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
+      setCurrentStep(currentStep + 1);
       toast.success("已確認，進入下一步");
-      
-      // 如果下一步是空的，自動發起斷點接續生成
-      if (!stepsData[nextStep] && !isAutoGenerating) {
-        startAutoGenerate(nextStep);
-      }
     }
   };
 
