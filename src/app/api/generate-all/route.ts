@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+﻿import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -237,3 +237,4 @@ if (startFromStep <= 1) prompt += `\n步驟 1：根據上方提供的【基礎�
     return NextResponse.json({ error: errorMsg || "Generation failed" }, { status: 500 });
   }
 }
+
