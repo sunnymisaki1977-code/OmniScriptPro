@@ -7,6 +7,8 @@ import { Button, Skeleton, cn } from "./ui";
 import { Sparkles, Save, ArrowRight, BookOpen, Edit3, Send, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
+import { GoogleGenAI } from "@google/genai";
+import { List, X } from "lucide-react";
 
 import { ChannelStats } from "./ChannelStats";
 import { LoadingOverlay, STEP_CONFIGS } from "./LoadingOverlay";
@@ -19,7 +21,46 @@ export const Workspace = () => {
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
   const [autoProgress, setAutoProgress] = useState(0);
   const [isArchiving, setIsArchiving] = useState(false);
+  
   const [editedContent, setEditedContent] = useState("");
+  const [historyList, setHistoryList] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch("/api/notion/history");
+      const data = await res.json();
+      if (data.history) setHistoryList(data.history);
+    } catch (err) {
+      console.error("載入歷史紀錄失敗", err);
+    }
+  };
+
+  const loadHistoryItem = async (id: string) => {
+    setIsLoadingHistory(true);
+    try {
+      const res = await fetch(`/api/notion/history?id=${id}`);
+      const data = await res.json();
+      if (data.stepsData) {
+        for (let i = 1; i <= 10; i++) {
+           updateStepData(i, data.stepsData[i] || "");
+        }
+        setCurrentStep(1);
+        toast.success("成功載入歷史紀錄");
+        setShowHistory(false);
+      }
+    } catch (err) {
+      toast.error("載入紀錄失敗");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
 
   const step = WORKFLOW_STEPS.find((s) => s.id === currentStep);
 
@@ -434,7 +475,47 @@ export const Workspace = () => {
             </motion.div>
           )}
         </AnimatePresence>
+      
+        {/* Notion History Sidebar */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              className="absolute top-0 left-0 bottom-0 w-80 bg-stone-900/95 backdrop-blur-xl border-r border-white/20 z-50 p-6 flex flex-col shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                  <BookOpen size={18} className="text-amber-400" />
+                  Notion 歷史紀錄
+                </h3>
+                <button onClick={() => setShowHistory(false)} className="text-white/50 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                {historyList.length === 0 ? (
+                  <div className="text-white/50 text-sm text-center mt-10">尚無紀錄</div>
+                ) : (
+                  historyList.map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => loadHistoryItem(item.id)}
+                      disabled={isLoadingHistory}
+                      className="w-full text-left p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition group"
+                    >
+                      <div className="text-white font-medium text-sm line-clamp-2 group-hover:text-amber-400">{item.title}</div>
+                      <div className="text-white/40 text-xs mt-2">{new Date(item.createdAt).toLocaleString()}</div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
+
     </motion.div>
   );
 };
