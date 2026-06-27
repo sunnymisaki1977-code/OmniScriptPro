@@ -167,8 +167,9 @@ const STEPS = [
   { id: 5, name: "短影音 SEO 優化", icon: Search, category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
   { id: 6, name: "長影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"] },
   { id: 7, name: "短影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"] },
-  { id: 8, name: "Suno AI 配樂設計", icon: Music, category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
-  { id: 9, name: "社群推播發控中心", icon: Facebook, category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+  { id: 8, name: "彩墨風格意象圖", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"] },
+  { id: 9, name: "Suno AI 配樂設計", icon: Music, category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+  { id: 10, name: "社群推播發控中心", icon: Facebook, category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
 ];
 
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
@@ -287,7 +288,7 @@ export default function App() {
     
     let currentContextContents = {}; 
 
-    for (let step = 1; step <= 9; step++) {
+    for (let step = 1; step <= 10; step++) {
       setActiveStep(step);
       addLog(`[Process] 正在向 Vercel 請求真實生成 Step ${step}: ${STEPS[step - 1].name}...`);
 
@@ -323,7 +324,7 @@ export default function App() {
     }
 
     setIsGenerating(false);
-    addLog("[System] ✨ 9-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
+    addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
     setCredits(prevCredits => Math.max(0, prevCredits - 15));
   };
 
@@ -378,7 +379,7 @@ export default function App() {
   const handleStartAuto = () => {
     const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
     if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
-    addLog(`[System] 🚀 啟動 9-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
+    addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
 
@@ -752,14 +753,14 @@ const startNotionExport = async () => {
                 </div>
               </div>
             ) : (
-              /* --- STREAMING_CHUNK:Rendering 9-Step Flow Editor Workspace --- */
+              /* --- STREAMING_CHUNK:Rendering 10-Step Flow Editor Workspace --- */
               <div className="flex-1 flex overflow-hidden">
                 
                 {/* Steps Navigator Left Column */}
                 <div className="w-64 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar shrink-0">
                   <div className="flex items-center justify-between mb-4 px-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">9-Step Flow</span>
-                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/9 已完成</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">10-Step Flow</span>
+                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/10 已完成</span>
                   </div>
                   {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
@@ -934,7 +935,8 @@ const startNotionExport = async () => {
                         className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">
                           <option value={6}>16:9 - 橫幅縮圖 (YouTube / FB)</option>
   <option value={7}>9:16 - 短片直式封面 (Shorts / Reels)</option>
-  <option value={9}>1:1 / 4:5 - 社群視覺素材 (IG Post)</option>
+  <option value={8}>16:9 - 彩墨風格意象圖</option>
+  <option value={10}>1:1 / 4:5 - 社群視覺素材 (IG Post)</option>
                         </select>
 
                       </div>
