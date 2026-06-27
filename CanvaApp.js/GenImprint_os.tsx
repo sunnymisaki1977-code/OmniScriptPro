@@ -1319,6 +1319,16 @@ const startNotionExport = async () => {
 
         </div>
 
+        {/* 返回創作大廳 */}
+        <div className="flex justify-center pb-2 pt-2 border-t border-slate-900 bg-slate-950/20">
+          <button
+            onClick={() => setViewState('lobby')}
+            className="py-1.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white border border-slate-800 rounded transition-colors"
+          >
+            返回創作大廳
+          </button>
+        </div>
+
         {/* Bottom Part: Notion Synchronization Center */}
         <div className="p-5 border-t border-slate-900 bg-slate-950/40">
           <div className="flex items-center gap-2 mb-3.5">
