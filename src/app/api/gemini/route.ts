@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { stepId, context } = await req.json();
+    const { stepId, context, apiKey: clientApiKey } = await req.json();
 
     if (!stepId) {
       return NextResponse.json({ error: "Missing stepId" }, { status: 400 });
@@ -33,12 +33,12 @@ export async function POST(req: Request) {
 ${step.prompt(context || {})}
 ====================`;
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key is missing" }, { status: 500 });
+    const finalApiKey = clientApiKey || process.env.GEMINI_API_KEY;
+    if (!finalApiKey) {
+      return NextResponse.json({ error: "API key is missing (both client and server)" }, { status: 500 });
     }
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${finalApiKey}`;
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
