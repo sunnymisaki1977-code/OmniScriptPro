@@ -228,6 +228,7 @@ export default function App() {
   const [credits, setCredits] = useState(125);
   const [isNotionExporting, setIsNotionExporting] = useState(false);
   const [notionStatus, setNotionStatus] = useState('尚未歸檔');
+  const [notionUrl, setNotionUrl] = useState('');
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [musicProgress, setMusicProgress] = useState(35);
   const [musicGenre, setMusicGenre] = useState('Synthwave');
@@ -356,6 +357,8 @@ export default function App() {
           10: data.stepsData[10] || ""
         });
         addLog(`[Notion] ✨ 專案載入成功！`, 'success');
+        setNotionStatus('✅ 已成功歸檔');
+        setNotionUrl(`https://www.notion.so/${pageId.replace(/-/g, '')}`);
         setViewState('workspace');
       }
     } catch (error) {
@@ -451,8 +454,9 @@ const startNotionExport = async () => {
     setNotionStatus('✅ 已成功歸檔');
     addLog(`[Notion] ✨ 企劃匯出成功！`, 'success');
     
-    // 自動開啟剛剛建好的 Notion 頁面
+    // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (data.url) {
+      setNotionUrl(data.url);
       window.open(data.url, '_blank');
     }
     
@@ -1333,12 +1337,18 @@ const startNotionExport = async () => {
 
             {/* Notion sync execution button */}
             <button
-              onClick={startNotionExport}
+              onClick={notionStatus === '✅ 已成功歸檔' ? () => window.open(notionUrl, '_blank') : startNotionExport}
               disabled={isNotionExporting}
               className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
             >
-              <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
-              <span>{isNotionExporting ? '正在傳輸數據庫...' : '一鍵匯出 Notion'}</span>
+              {notionStatus === '✅ 已成功歸檔' ? (
+                <Link className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
+              )}
+              <span className={notionStatus === '✅ 已成功歸檔' ? 'text-emerald-400' : ''}>
+                {isNotionExporting ? '正在傳輸數據庫...' : notionStatus === '✅ 已成功歸檔' ? '讀取notion檔案' : '一鍵匯出 Notion'}
+              </span>
             </button>
           </div>
         </div>

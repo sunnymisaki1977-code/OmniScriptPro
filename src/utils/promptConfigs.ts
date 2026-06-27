@@ -1,4 +1,4 @@
-﻿export interface WorkflowStep {
+export interface WorkflowStep {
   id: number;
   title: string;
   description: string;
@@ -76,8 +76,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
 
 ---
 
-現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。
-請以結構化、易讀的段落撰寫，確保每一個字皆為客觀事實。`
+現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。`,
   },
   {
     id: 2,
