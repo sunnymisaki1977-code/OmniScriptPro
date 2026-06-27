@@ -326,6 +326,9 @@ export default function App() {
     setIsGenerating(false);
     addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
     setCredits(prevCredits => Math.max(0, prevCredits - 15));
+    
+    // 自動匯出至 Notion
+    await startNotionExport(currentContextContents, startTheme);
   };
 
     const handleLoadArchive = async (e) => {
@@ -430,19 +433,22 @@ export default function App() {
   };
 
 // --- 匯出資料至 Notion ---
-const startNotionExport = async () => {
+const startNotionExport = async (customContents = null, customTheme = null) => {
   setIsNotionExporting(true);
   setNotionStatus('正在同步至 Notion...');
-  addLog(`[System] 開始封裝 9 大步驟企劃資料，準備匯出...`, 'info');
+  addLog(`[System] 開始封裝企劃資料，自動準備匯出...`, 'info');
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
     const VERCEL_NOTION_URL = 'https://gen-imprint.vercel.app/api/notion';
     
+    const targetTheme = customTheme || theme || "未命名企劃主題";
+    const targetContents = customContents || stepContents;
+
     // 封裝目前所有的輸入與生成結果，符合後端 /api/notion 預期的格式
     const payload = {
-      theme: theme || "未命名企劃主題",
-      stepsData: stepContents,
+      theme: targetTheme,
+      stepsData: targetContents,
       creatorName: curTheme.title // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
     };
 
@@ -1380,7 +1386,7 @@ const startNotionExport = async () => {
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
               >
                 <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
-                <span>{isNotionExporting ? '正在傳輸數據庫...' : '一鍵匯出 Notion'}</span>
+                <span>{isNotionExporting ? '正在傳輸數據庫...' : '自動匯出 Notion'}</span>
               </button>
             )}
           </div>
