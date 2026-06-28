@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
   Play, Pause, FastForward, Sparkles, CheckCircle2, Circle, 
@@ -238,10 +238,88 @@ export default function App() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const [generatedImages, setGeneratedImages] = useState([
-    { id: 1, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80', engine: 'Midjourney v6', prompt: 'Modern neon creator desk, high-end synthwave vibe' },
-    { id: 2, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80', engine: 'DALL-E 3', prompt: 'Holographic dashboard representing multiple social feeds' },
-    { id: 3, url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80', engine: 'Midjourney v6', prompt: 'An abstract floating grid of multi-platform branding visual structure' }
+    { id: 1, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第一組中文Prompt' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第二組中文Prompt' },
+    { id: 3, url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第三組中文Prompt' }
   ]);
+
+  const [groupImages, setGroupImages] = useState({});
+  const [generatingGroups, setGeneratingGroups] = useState({});
+
+  const visualGroups = useMemo(() => {
+    const text = stepContents[visualStep];
+    if (!text) return [];
+    
+    // Pattern to match "### 第一組" or "1. 畫格 1"
+    const regex = /(?:###\s*(第[一二三四五六七八九十\d]+組)|(?:^|\n)\s*\d+\.\s*(畫格\s*\d+))[^\n]*\n([\s\S]*?)(?=(?:###\s*第[一二三四五六七八九十\d]+組)|(?:^|\n)\s*\d+\.\s*畫格\s*\d+|$)/g;
+    const groups = [];
+    let match;
+    let index = 0;
+    while ((match = regex.exec(text)) !== null) {
+      const groupName = match[1] || match[2];
+      const content = match[3];
+      const promptMatch = content.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+      const promptText = promptMatch ? promptMatch[1].trim() : "無法自動擷取提示詞，請手動確認";
+      
+      groups.push({
+        id: `group-${visualStep}-${index}`,
+        title: groupName,
+        prompt: promptText
+      });
+      index++;
+    }
+    
+    // Fallback if no groups matched but there is text
+    if (groups.length === 0 && text.trim().length > 10) {
+       const promptMatch = text.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+       groups.push({
+         id: `group-${visualStep}-fallback`,
+         title: "主要視覺",
+         prompt: promptMatch ? promptMatch[1].trim() : text.substring(0, 150)
+       });
+    }
+    
+    return groups;
+  }, [stepContents, visualStep]);
+
+  const generateGroupImage = async (groupId, prompt) => {
+    if (!prompt) return;
+    setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
+    addLog(`[Imagen 4.0] 啟動 ${groupId} 繪製進程...`, 'info');
+    
+    try {
+      const apiKey = ""; // Canvas 預覽環境會自動帶入
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+      
+      let aspectRatio = "1:1";
+      if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
+      if (visualStep === 7) aspectRatio = "9:16";
+      if (visualStep === 10) aspectRatio = "4:3";
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt: prompt }],
+          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+        })
+      });
+      
+      const data = await response.json();
+      if (data.predictions && data.predictions[0]) {
+        const base64 = data.predictions[0].bytesBase64Encoded;
+        setGroupImages(prev => ({ ...prev, [groupId]: `data:image/png;base64,${base64}` }));
+        addLog(`[Imagen 4.0] ✨ ${groupId} 渲染完成！`, 'success');
+        setCredits(prev => Math.max(0, prev - 5));
+      } else {
+        throw new Error(data.error?.message || "未收到圖片資料");
+      }
+    } catch (err) {
+      addLog(`[Imagen 4.0] 繪製失敗: ${err.message}`, 'error');
+    } finally {
+      setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
+    }
+  };
 
   const logsEndRef = useRef(null);
 
@@ -482,22 +560,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   }
 };
 
-  const generateNewImage = () => {
-    if (!midjourneyPrompt) return;
+  const generateNewImage = async () => {
+    if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
-    addLog(`[Visual Hub] 發送繪圖 Prompt 至 Midjourney v6 API 端點...`, 'info');
-    setTimeout(() => {
-      const newImg = {
-        id: Date.now(),
-        url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
-        engine: 'Midjourney v6',
-        prompt: midjourneyPrompt
-      };
-      setGeneratedImages(prev => [newImg, ...prev]);
-      setIsGeneratingImage(false);
-      setCredits(prevCredits => Math.max(0, prevCredits - 5));
-      addLog(`[Visual Hub] 🎨 Midjourney 影像生成成功，已回傳並渲染至調度面板！`, 'success');
-    }, 2000);
+    addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt 至 Imagen 4.0 API 端點...`, 'info');
+    
+    await Promise.all(visualGroups.map(group => generateGroupImage(group.id, group.prompt)));
+    
+    setIsGeneratingImage(false);
+    addLog(`[Visual Hub] 🎨 所有 Imagen 4.0 影像生成完畢！`, 'success');
   };
 
   
@@ -561,21 +632,21 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <span className="font-semibold">{tab.label}</span>
                   </button>
                   
-                  {/* AI 畫圖參量設定 (在左側選單視覺發控中心下) */}
+                  {/* 視覺裂變 (在左側選單視覺發控中心下) */}
                   {isActive && tab.id === 'visual' && (
                     <div className="mx-2 p-4 bg-[#0f172a]/70 border border-slate-800/80 rounded-xl space-y-4 backdrop-blur-md">
                       <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-                        AI 畫圖參量設定
+                        視覺裂變
                       </h4>
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">畫圖模型</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影音縮圖</label>
                           <select className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none">
-                            <option>Midjourney v6.1 (Ultra High)</option>
-                            <option>DALL-E 3 (High fidelity)</option>
-                            <option>Stable Diffusion XL (Custom)</option>
+                            <option>長影音</option>
+                            <option>短影音</option>
+                            <option>社群FB/IG</option>
                           </select>
                         </div>
 
@@ -589,7 +660,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             <option value={6}>16:9 - 橫幅縮圖 (YouTube / FB)</option>
                             <option value={7}>9:16 - 短片直式封面 (Shorts / Reels)</option>
                             <option value={8}>16:9 - 彩墨風格意象圖</option>
-                            <option value={10}>1:1 / 4:5 - 社群視覺素材 (IG Post)</option>
+                            <option value={10}>1:1 / 4:3 - 社群視覺素材 (IG Post)</option>
                           </select>
                         </div>
 
@@ -1004,35 +1075,65 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     <button
                       onClick={generateNewImage}
-                      disabled={isGeneratingImage || !midjourneyPrompt}
+                      disabled={isGeneratingImage || visualGroups.length === 0}
                       className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{isGeneratingImage ? '正在渲染中...' : 'AI 繪製影像 (-5 點)'}</span>
+                      <span>{isGeneratingImage ? '正在批次渲染中...' : '✨ AI 批次繪製全部影像'}</span>
                     </button>
                   </div>
 
                   {/* Right Masonry Grid of images */}
                   <div className="col-span-2 space-y-4">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({generatedImages.length})</h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
                     
                     <div className="grid grid-cols-2 gap-4">
-                      {generatedImages.map((img) => (
-                        <div key={img.id} className="group bg-[#0f172a]/40 border border-slate-900 rounded-2xl overflow-hidden relative shadow-lg">
-                          <img src={img.url} alt="Gen" className="w-full h-40 object-cover group-hover:scale-102 transition-all duration-500" />
-                          <div className="p-3 space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="px-1.5 py-0.5 rounded text-[9px] bg-slate-900 text-slate-400 border border-slate-800 font-semibold">{img.engine}</span>
-                              <div className="flex gap-1.5">
-                                <button className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
-                                  <Download className="w-3.5 h-3.5" />
-                                </button>
-                                <button className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
-                                  <Share2 className="w-3.5 h-3.5" />
-                                </button>
+                      {visualGroups.map((group) => (
+                        <div key={group.id} className="group bg-[#0f172a]/40 border border-slate-900 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
+                          {/* Image Area */}
+                          <div className="w-full h-40 bg-[#070b16] relative flex items-center justify-center overflow-hidden">
+                            {groupImages[group.id] ? (
+                               <img src={groupImages[group.id]} alt={group.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+                            ) : generatingGroups[group.id] ? (
+                               <div className="flex flex-col items-center gap-2">
+                                 <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
+                                 <span className="text-[10px] text-purple-400">正在透過 Imagen 4 生成...</span>
+                               </div>
+                            ) : (
+                               <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
+                                 <ImageIcon className="w-4 h-4" /> 尚未生成影像
+                               </div>
+                            )}
+                          </div>
+                          
+                          {/* Content Area */}
+                          <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
+                                  Imagen 4.0
+                                </span>
+                                <div className="flex gap-1.5">
+                                  <button className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                                    <Download className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                                    <Share2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                               </div>
+                              <h5 className="text-[11px] font-bold text-slate-200">{group.title}</h5>
+                              <p className="text-[9px] text-slate-500 font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
                             </div>
-                            <p className="text-[10px] text-slate-400 font-mono truncate">{img.prompt}</p>
+                            
+                            <button
+                              onClick={() => generateGroupImage(group.id, group.prompt)}
+                              disabled={generatingGroups[group.id]}
+                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>{generatingGroups[group.id] ? '正在渲染...' : '✨ AI 繪製影像 (-5 點)'}</span>
+                            </button>
                           </div>
                         </div>
                       ))}
