@@ -263,7 +263,7 @@ export default function App() {
       
       const mainTitleMatch = content.match(/(?:主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
       const subTitleMatch = content.match(/(?:副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-      const poetryMatch = content.match(/詩詞(?:（由上到下，由右到左）)?\s*[：:]\s*(.*?)(?=\n|$)/);
+      const poetryMatch = content.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|高點擊文案|主標題|副標題)\s*[：:]|$)/);
       
       groups.push({
         id: `group-${visualStep}-${index}`,
@@ -281,7 +281,7 @@ export default function App() {
        const promptMatch = text.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
        const mainTitleMatch = text.match(/(?:主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
        const subTitleMatch = text.match(/(?:副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-       const poetryMatch = text.match(/詩詞(?:（由上到下，由右到左）)?\s*[：:]\s*(.*?)(?=\n|$)/);
+       const poetryMatch = text.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|高點擊文案|主標題|副標題)\s*[：:]|$)/);
        groups.push({
          id: `group-${visualStep}-fallback`,
          title: "主要視覺",
