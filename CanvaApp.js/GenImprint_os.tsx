@@ -314,17 +314,33 @@ export default function App() {
         const subFontSize = Math.floor(width * 0.028);
         
         const mainX = width / 2;
-        const mainY = height * 0.15;
+        const mainY = height * 0.25;
         
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
+        // --- 隨機多樣化風格定義 (由 AI 隨機取樣) ---
+        const palettes = [
+          // 1. 象牙白主標 + 耀眼金副標 + 深咖陰影 (原本的預設)
+          { main: 'rgba(255, 251, 240, 1)', mainShadow: 'rgba(20, 10, 0, 0.7)', sub: 'rgba(240, 200, 80, 1)', subShadow: 'rgba(0, 0, 0, 0.58)' },
+          // 2. 華麗淡金主標 + 純白副標 + 純黑陰影
+          { main: 'rgba(255, 223, 130, 1)', mainShadow: 'rgba(0, 0, 0, 0.8)', sub: 'rgba(255, 255, 255, 1)', subShadow: 'rgba(0, 0, 0, 0.7)' },
+          // 3. 冰雪銀白主標 + 青藍色副標 + 深藍陰影
+          { main: 'rgba(240, 245, 255, 1)', mainShadow: 'rgba(5, 15, 40, 0.8)', sub: 'rgba(150, 220, 255, 1)', subShadow: 'rgba(0, 5, 20, 0.7)' },
+          // 4. 琥珀金主標 + 暖橘色副標 + 墨綠/深褐陰影
+          { main: 'rgba(255, 200, 100, 1)', mainShadow: 'rgba(20, 10, 5, 0.8)', sub: 'rgba(255, 150, 80, 1)', subShadow: 'rgba(20, 5, 0, 0.7)' },
+          // 5. 櫻花粉白主標 + 紫金副標 + 深紫陰影
+          { main: 'rgba(255, 240, 245, 1)', mainShadow: 'rgba(30, 10, 40, 0.8)', sub: 'rgba(230, 180, 255, 1)', subShadow: 'rgba(20, 0, 30, 0.7)' }
+        ];
+        
+        const style = palettes[Math.floor(Math.random() * palettes.length)];
+        
         if (mainTitle) {
           ctx.font = `bold ${mainFontSize}px "Noto Sans TC", sans-serif`;
           const shadowOffset = Math.max(1, Math.floor(width * 0.003));
-          ctx.fillStyle = 'rgba(20, 10, 0, 0.7)';
+          ctx.fillStyle = style.mainShadow;
           ctx.fillText(mainTitle, mainX + shadowOffset, mainY + shadowOffset);
-          ctx.fillStyle = 'rgba(255, 251, 240, 1)';
+          ctx.fillStyle = style.main;
           ctx.fillText(mainTitle, mainX, mainY);
         }
         
@@ -332,9 +348,9 @@ export default function App() {
           const subX = width / 2;
           const subY = mainY + (mainFontSize * 0.8);
           ctx.font = `bold ${subFontSize}px "Noto Sans TC", sans-serif`;
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.58)';
+          ctx.fillStyle = style.subShadow;
           ctx.fillText(subTitle, subX + 1, subY + 1);
-          ctx.fillStyle = 'rgba(240, 200, 80, 1)';
+          ctx.fillStyle = style.sub;
           ctx.fillText(subTitle, subX, subY);
         }
         
