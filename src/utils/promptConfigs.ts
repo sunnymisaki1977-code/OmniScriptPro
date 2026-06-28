@@ -271,23 +271,12 @@ AI Prompt (中文)： [colorful ink wash, vivid diffusion, golden particles, ene
 
 ### 🖼️ 4:3 4 張圖卡排版字卡提示詞：
 【格式絕對鎖定指令】：
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。 
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, 結尾必須包含--4:3。 
 
-1.   圖卡 1：   [15字內，包含主題名稱]
-     ###一句話說明：   [20字內，點出核心精神]
-     視覺描述：  [請填入主題名稱，核心精神，視覺描述中文 Prompt--4:3]
-
-2.   圖卡 2：   [15字內，包含主題名稱]
-     ###一句話說明：   [20字內，點出核心精神]
-     視覺描述：  [請填入主題名稱，核心精神，視覺描述中文 Prompt--4:3]
-
-3.   圖卡 3：   [15字內，包含主題名稱]
-     ###一句話說明：   [20字內，點出核心精神]
-     視覺描述：  [請填入主題名稱，核心精神，視覺描述中文 Prompt--4:3]
-
-4.   圖卡 4：   [15字內，包含主題名稱]
-     ###一句話說明：   [20字內，點出核心精神]
-     視覺描述：  [請填入主題名稱，核心精神，視覺描述中文 Prompt--4:3]
+請直接輸出以下格式，重複四次（圖卡 1、圖卡 2、圖卡 3、圖卡 4）：
+圖卡 1：[15字內標題]
+文案：[20字內核心精神]
+中文：[請填入中文 Prompt--4:3]
 
 
 ### 📱 社群發布正文
