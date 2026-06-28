@@ -258,25 +258,41 @@ ${ctx.step1}
   16:9 動態分割構圖提示詞：  
 以「${ctx.theme}」為核心主角，從史料萃取五個【蒙太奇資訊】，以【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張16:9【蒙太奇資訊圖表（Montage Infographic）】。
 
-【格式絕對鎖定指令】：請直接輸出以下格式
-AI Prompt (中文)： [colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，主標題，核心主角五個蒙太奇資訊與視覺描述，運用動態分割構圖與美式漫畫跨頁插圖組合併接成一張蒙太奇資訊圖表 --16:9]
+主標題：  [請填入主標題]
+1.   畫格 1：   [蒙太奇資訊名稱 1]
+   視覺描述：  [請填入視覺描述]
+2.   畫格 2：   [蒙太奇資訊名稱 2]
+   視覺描述：  [請填入視覺描述]
+3.   畫格 3：   [蒙太奇資訊名稱 3]
+   視覺描述：  [請填入視覺描述]
+4.   畫格 4：   [蒙太奇資訊名稱 4]
+   視覺描述：  [請填入視覺描述]
+5.   畫格 5：   [蒙太奇資訊名稱 5]
+   視覺描述：  [請填入視覺描述]
 
+現在，請開始撰寫16:9 動態分割構圖提示詞：
+【格式絕對鎖定指令】：
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】--16:9。
 
   9:16 動態分割構圖提示詞：  
 以「${ctx.theme}」為核心主角，從史料萃取五個【蒙太奇資訊】，以【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張9:16【蒙太奇資訊圖表（Montage Infographic）】。
 
-【格式絕對鎖定指令】：請直接輸出以下格式
-AI Prompt (中文)： [colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，主標題，核心主角五個蒙太奇資訊與視覺描述，運用動態分割構圖與美式漫畫跨頁插圖組合併接成一張蒙太奇資訊圖表 --9:16]
+主標題：  [請填入主標題]
+1.   畫格 1：   [蒙太奇資訊名稱 1]
+   視覺描述：  [請填入視覺描述中文 Prompt]
+2.   畫格 2：   [蒙太奇資訊名稱 2]
+   視覺描述：  [請填入視覺描述中文 Prompt]
+3.   畫格 3：   [蒙太奇資訊名稱 3]
+   視覺描述：  [請填入視覺描述中文 Prompt]
+4.   畫格 4：   [蒙太奇資訊名稱 4]
+   視覺描述：  [請填入視覺描述中文 Prompt]
+5.   畫格 5：   [蒙太奇資訊名稱 5]
+   視覺描述：  [請填入視覺描述中文 Prompt]
 
 
-### 🖼️ 4:3 4 張圖卡排版字卡提示詞：
+現在，請開始撰寫9:16 動態分割構圖提示詞：
 【格式絕對鎖定指令】：
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, 結尾必須包含--4:3。 
-
-請直接輸出以下格式，重複四次（圖卡 1、圖卡 2、圖卡 3、圖卡 4）：
-圖卡 1：[15字內標題]
-文案：[20字內核心精神]
-中文：[請填入中文 Prompt--4:3]
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】--9:16。
 
 
 ### 📱 社群發布正文
