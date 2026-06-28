@@ -266,11 +266,12 @@ export default function App() {
         const mainTitleMatch = block.match(/(?:主標|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
         const subTitleMatch = block.match(/(?:副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
         
-        const frameRegex = /\d+\.\s*(畫格\s*\d+)[^\n]*\n([\s\S]*?)(?=(?:\n\s*\d+\.\s*畫格\s*\d+|$))/g;
+        // 兼容「1. 畫格 1：」與「1. ###圖卡標題：」
+        const frameRegex = /\d+\.\s*(?:畫格|###圖卡)[^\n]*\n([\s\S]*?)(?=(?:\n\s*\d+\.\s*(?:畫格|###圖卡)|$))/g;
         const frames = [];
         let frameMatch;
         while ((frameMatch = frameRegex.exec(block)) !== null) {
-          const frameContent = frameMatch[2];
+          const frameContent = frameMatch[1];
           const promptMatch = frameContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
           frames.push(promptMatch ? promptMatch[1].trim() : "無法自動擷取提示詞");
         }
@@ -594,7 +595,11 @@ export default function App() {
       const apiKey = ""; 
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
       
-      const base64Images = await Promise.all(frames.map(async (prompt) => {
+      const base64Images = [];
+      // 依序執行避免 API Rate Limit
+      for (let i = 0; i < frames.length; i++) {
+        const prompt = frames[i];
+        addLog(`[Imagen 4.0] 正在繪製第 ${i + 1}/${frames.length} 張畫格...`, 'info');
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -605,10 +610,11 @@ export default function App() {
         });
         const data = await response.json();
         if (data.predictions && data.predictions[0]) {
-           return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+           base64Images.push(`data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`);
+        } else {
+           throw new Error(data.error?.message || `第 ${i + 1} 張畫格未收到圖片資料`);
         }
-        throw new Error(data.error?.message || "未收到圖片資料");
-      }));
+      }
       
       const compositedImage = await createCompositeCanvas(base64Images, layoutType, mainTitle, subTitle);
       
@@ -1047,10 +1053,10 @@ export default function App() {
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl z-10 backdrop-blur-md">
        
       <video 
-        Url= "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4" 
+        src="https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4" 
         autoPlay 
         loop 
-         
+        muted 
         playsInline
         className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
       />
@@ -1131,12 +1137,12 @@ export default function App() {
                             </div>
                             
                             <button
-                              onClick={() => generateGroupImage(group)}
+                              onClick={() => group.frames ? generateCompositeImage(group) : generateGroupImage(group)}
                               disabled={generatingGroups[group.id]}
                               className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '正在渲染...' : '✨ AI 繪製影像 (-5 點)'}</span>
+                              <span>{generatingGroups[group.id] ? '正在渲染...' : `✨ AI 繪製影像 (-${group.frames ? 5 * group.frames.length : 5} 點)`}</span>
                             </button>
                           </div>
                         </div>
