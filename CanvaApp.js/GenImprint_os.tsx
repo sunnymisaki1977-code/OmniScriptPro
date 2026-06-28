@@ -279,13 +279,18 @@ export default function App() {
     
     // Fallback if no groups matched but there is text
     if (groups.length === 0 && text.trim().length > 10) {
-       const promptMatch = text.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+       let fallbackTitle = "主要視覺";
+       if (text.includes("16:9 動態分割構圖提示詞")) fallbackTitle = "16:9 動態分割構圖";
+       else if (text.includes("9:16 動態分割構圖提示詞")) fallbackTitle = "9:16 動態分割構圖";
+       
+       const promptMatch = text.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt|AI Prompt\s*\(中文\)|AI Prompt\s*（中文）)\s*[：:]\s*(.*?)(?=\n|$)/);
        const mainTitleMatch = text.match(/(?:主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
        const subTitleMatch = text.match(/(?:副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-       const poetryMatch = text.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|高點擊文案|主標題|副標題)\s*[：:]|$)/);
+       const poetryMatch = text.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|高點擊文案|主標題|副標題|AI Prompt)\s*[：:]|$)/);
+       
        groups.push({
          id: `group-${visualStep}-fallback`,
-         title: "主要視覺",
+         title: fallbackTitle,
          prompt: promptMatch ? promptMatch[1].trim() : text.substring(0, 150),
          mainTitle: mainTitleMatch ? mainTitleMatch[1].trim() : "",
          subTitle: subTitleMatch ? subTitleMatch[1].trim() : "",
@@ -431,8 +436,16 @@ export default function App() {
       if (imageEngine === 'flash') {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
         
+        let flashPrompt = prompt;
+        if (mainTitle || subTitle || poetry) {
+          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
+          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
+          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
+          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
+        }
+        
         // Flash Image 尚未直接支援 aspectRatio 參數，因此附加在 Prompt 結尾引導模型
-        const finalPrompt = `${prompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
+        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -483,11 +496,14 @@ export default function App() {
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
         
-        // 套用完美中文字型疊加 (若有主/副標或詩詞)
-        const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+        let finalImage = originalImage;
+        if (imageEngine !== 'flash') {
+          // 只有 Imagen 4 需要本地端字型疊加，Gemini 2.5 Flash 直接由模型產出內建字體
+          finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+        }
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
-        addLog(`[${engineName}] ✨ ${groupId} 渲染及字型疊加完成！`, 'success');
+        addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
         setCredits(prev => Math.max(0, prev - 5));
       }
     } catch (err) {
