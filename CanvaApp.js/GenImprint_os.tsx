@@ -268,7 +268,7 @@ export default function App() {
             titleMatch = "16:9 動態分割構圖";
         } else if (line.match(/9:16\s*動態分割構圖/)) {
             titleMatch = "9:16 動態分割構圖";
-        } else if (line.match(/\d+\.\s*###\s*圖卡標籤/)) {
+        } else if (line.match(/\d+\.\s*(?:###\s*圖卡標籤|圖卡\s*\d+\s*[：:])/)) {
             titleMatch = `圖卡 ${cardCount}`;
             cardCount++;
         }
