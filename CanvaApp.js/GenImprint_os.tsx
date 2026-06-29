@@ -187,6 +187,12 @@ const THEME_STEPS = {
   ]
 };
 
+// 新增：MP4 輪播影片清單 (您可以在此陣列加入多個影片網址)
+const LOADING_VIDEOS_LIST = [
+  "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4",
+  "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4" // 請替換成您的第二個影片網址
+];
+
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
   if (!stepId) return "請選擇一個步驟進行檢視。";
   
@@ -202,6 +208,7 @@ export default function App() {
   const [viewState, setViewState] = useState('hub'); 
   const [mode, setMode] = useState('manual'); 
   const [activeStep, setActiveStep] = useState(1);
+  const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
    const [theme, setTheme] = useState('');
    const [completedSteps, setCompletedSteps] = useState([1]); 
@@ -1278,11 +1285,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         {isGenerating ? (
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
                             <video 
-                              src="https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4" 
+                              src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
                               autoPlay 
-                              loop 
-                               
+                              
                               playsInline
+                              onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
                               className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
                             />
                             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse tracking-wider">
@@ -1340,11 +1347,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl z-10 backdrop-blur-md">
        
       <video 
-        Url= "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4" 
+        src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
         autoPlay 
-        loop 
-         
+        
         playsInline
+        onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
         className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
       />
       <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 animate-pulse tracking-wider">
