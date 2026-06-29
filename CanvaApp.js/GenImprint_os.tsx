@@ -125,7 +125,7 @@ const AUDIENCE_THEMES = {
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId: any, context: any) {
+async function callVercelApi(stepId: any, context: any, audienceTheme: string) {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
     const VERCEL_API_URL = 'https://gen-imprint.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
@@ -660,7 +660,7 @@ export default function App() {
         };
 
         // 直接向 Vercel 要資料
-        const resultText = await callVercelApi(step, context);
+        const resultText = await callVercelApi(step, context, audienceTheme);
 
         currentContextContents[step] = resultText;
         setStepContents(prev => ({
@@ -773,9 +773,9 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      const resultText = await callVercelApi(activeStep, context);
+      const content = await callVercelApi(activeStep, context, audienceTheme);
 
-      setStepContents(prev => ({ ...prev, [activeStep]: resultText }));
+      setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
       setCredits(prevCredits => Math.max(0, prevCredits - 2));
       addLog(`[AI] ✨ Step ${activeStep} 內容生成完畢！已成功渲染至編輯器。`, 'success');
