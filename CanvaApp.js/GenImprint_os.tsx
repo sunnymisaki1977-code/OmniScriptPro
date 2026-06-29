@@ -145,7 +145,8 @@ async function callVercelApi(stepId: any, context: any) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
+            contents: [{ parts: [{ text: prompt }] }],
+            tools: [{ "google_search": {} }]
         })
     });
     if (!aiResponse.ok) {
