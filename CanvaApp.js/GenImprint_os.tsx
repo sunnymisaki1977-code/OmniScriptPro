@@ -344,7 +344,7 @@ export default function App() {
         const subPromoMatch = content.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
         if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
         
-        const zhPromptMatch = content.match(/中文\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
+        const zhPromptMatch = content.match(/(?:中文|中文\s*Prompt|中文Prompt)\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
         if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
 
         if (promptTextParts.length > 0) {
