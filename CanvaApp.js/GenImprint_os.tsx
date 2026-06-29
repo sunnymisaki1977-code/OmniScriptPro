@@ -275,14 +275,14 @@ export default function App() {
         const line = lines[i];
         
         let titleMatch = null;
-        if (line.match(/###\s*(第[一二三四五六七八九十\d]+組)/)) {
-            titleMatch = line.match(/###\s*(第[一二三四五六七八九十\d]+組)/)[1];
-        } else if (line.match(/\d+\.\s*(畫格\s*\d+)/)) {
-            titleMatch = line.match(/\d+\.\s*(畫格\s*\d+)/)[1];
-        } else if (line.match(/16:9\s*動態分割構圖/)) {
-            titleMatch = "16:9 動態分割構圖";
-        } else if (line.match(/9:16\s*動態分割構圖/)) {
-            titleMatch = "9:16 動態分割構圖";
+        if (line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)) {
+            titleMatch = line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)[1].trim();
+        } else if (line.match(/\d+\.\s*(畫格\s*\d+.*)/)) {
+            titleMatch = line.match(/\d+\.\s*(畫格\s*\d+.*)/)[1].trim();
+        } else if (line.match(/(16:9\s*動態分割構圖.*)/)) {
+            titleMatch = line.match(/(16:9\s*動態分割構圖.*)/)[1].trim();
+        } else if (line.match(/(9:16\s*動態分割構圖.*)/)) {
+            titleMatch = line.match(/(9:16\s*動態分割構圖.*)/)[1].trim();
         } else if (line.match(/\d+\.\s*###\s*圖卡標籤/)) {
             titleMatch = `圖卡 ${cardCount}`;
             cardCount++;
