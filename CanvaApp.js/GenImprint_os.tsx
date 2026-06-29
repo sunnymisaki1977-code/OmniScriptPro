@@ -1208,8 +1208,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         <div className="flex items-center gap-2 mb-1">
                           <button 
                             onClick={() => {
-                              setViewState('hub');
                               setActiveTab('creation');
+                              setViewState('hub');
                             }}
                             className="text-xs text-slate-500 hover:text-indigo-400 flex items-center gap-1 font-bold transition-all"
                           >
@@ -1655,8 +1655,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      {viewState === 'workspace' && (
-        <aside className="w-80 bg-[#070b16] border-l border-slate-900/80 flex flex-col justify-between z-20 shrink-0">
+      <aside className="w-80 bg-[#070b16] border-l border-slate-900/80 flex flex-col justify-between z-20 shrink-0">
         
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -1727,8 +1726,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         <div className="flex justify-center pb-2 pt-2 border-t border-slate-900 bg-slate-950/20">
           <button
             onClick={() => {
-              setViewState('hub');
               setActiveTab('creation');
+              setViewState('hub');
             }}
             className="py-1.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white border border-slate-800 rounded transition-colors"
           >
@@ -1786,7 +1785,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         </div>
 
       </aside>
-      )}
 
     </div>
   );
