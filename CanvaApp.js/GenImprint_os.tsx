@@ -187,8 +187,7 @@ const THEME_STEPS = {
 };
 
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
-  const step = STEPS.find(s => s.id === stepId);
-  if (!step) return "請選擇一個步驟進行檢視。";
+  if (!stepId) return "請選擇一個步驟進行檢視。";
   
   return `【等待從 Vercel 伺服器獲取資料...】\n\n點擊「一鍵全自動模式」或單步「重新生成」來向伺服器發送請求。`;
 };
