@@ -222,7 +222,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch('/api/config')
+    fetch('https://gen-imprint.vercel.app/api/config')
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -317,7 +317,7 @@ export default function App() {
     if (!content || !isConfigLoaded) return;
     
     setIsParsingVisuals(true);
-    fetch('/api/parse-visuals', {
+    fetch('https://gen-imprint.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
