@@ -179,9 +179,9 @@ const THEME_STEPS = {
   { id: 3, name: "長影音 SEO 優化", icon: Search, category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },
   { id: 4, name: "短影音腳本撰寫", icon: Video, category: 'Content', desc: "產出 60 秒內的精簡爆款短影片文案。", type: "text", dependsOn: ["theme", "step1"] },
   { id: 5, name: "短影音 SEO 優化", icon: Search, category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
-  { id: 6, name: "長影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"] },
-  { id: 7, name: "短影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"] },
-  { id: 8, name: "彩墨風格意象圖", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"] },
+  { id: 6, name: "長影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+  { id: 7, name: "短影音縮圖設計", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+  { id: 8, name: "彩墨風格意象圖", icon: ImageIcon, category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
   { id: 9, name: "Suno AI 配樂設計", icon: Music, category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
   { id: 10, name: "社群推播發控中心", icon: Facebook, category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
 ],
@@ -191,9 +191,9 @@ const THEME_STEPS = {
     { id: 3, name: '長影音 SEO 優化', icon: Search, category: 'Optimization', desc: '生成標題、標籤與說明欄內容。', type: "text", dependsOn: ["theme", "step2"] },
     { id: 4, name: '短影音腳本撰寫', icon: Video, category: 'Content', desc: '產出 60 秒內的精簡爆款短影片文案。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 5, name: '短影音 SEO 優化', icon: Search, category: 'Optimization', desc: '生成短影片標題與標籤。', type: "text", dependsOn: ["theme", "step4"] },
-    { id: 6, name: '長影音縮圖設計', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step3"] },
-    { id: 7, name: '短影音縮圖設計', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step5"] },
-    { id: 8, name: '品牌高奢圖', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 16:9 高奢圖指令與搭配核心文案。', type: "code", language: "markdown", dependsOn: ["theme"] },
+    { id: 6, name: '長影音縮圖設計', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+    { id: 7, name: '短影音縮圖設計', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+    { id: 8, name: '品牌高奢行銷海報', icon: ImageIcon, category: 'Visuals', desc: '生成 3 組 9:16 高奢行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
     { id: 9, name: 'Suno AI 配樂設計', icon: Music, category: 'Audio', desc: '生成 3 組符合主題氛圍的音樂生成指令。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
     { id: 10, name: '社群推播發控中心', icon: Facebook, category: 'Distribution', desc: '一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
@@ -335,21 +335,36 @@ export default function App() {
         const content = g.content;
         
         let promptText = "無法自動擷取提示詞，請手動確認";
-        // 優先嘗試擷取 AI Prompt (中文) 之後的所有內容 (支援多行)
-        const aiPromptMatch = content.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
-        if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
-            promptText = aiPromptMatch[1].trim();
+        
+        // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
+        let promptTextParts = [];
+        const coreCopyMatch = content.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+        if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
+        
+        const subPromoMatch = content.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+        if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
+        
+        const zhPromptMatch = content.match(/中文\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
+        if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
+
+        if (promptTextParts.length > 0) {
+            promptText = promptTextParts.join("\\n");
         } else {
-            // Fallback: 尋找舊的標籤格式 (單行)
-            const fallbackMatch = content.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
-            if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
-                promptText = fallbackMatch[1].trim();
+            // 2. Fallback: 尋找舊的標籤格式
+            const aiPromptMatch = content.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
+            if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
+                promptText = aiPromptMatch[1].trim();
+            } else {
+                const fallbackMatch = content.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+                if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
+                    promptText = fallbackMatch[1].trim();
+                }
             }
         }
         
-        const mainTitleMatch = content.match(/(?:主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-        const subTitleMatch = content.match(/(?:副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-        const poetryMatch = content.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|高點擊文案|主標題|副標題|AI Prompt)\s*[：:]|$)/);
+        const mainTitleMatch = content.match(/(?:主標|高點擊文案|主標題|核心文案)\s*[：:]\s*(.*?)(?=\n|$)/);
+        const subTitleMatch = content.match(/(?:副標|副標題|促銷副標(?:（.*?）)?)\s*[：:]\s*(.*?)(?=\n|$)/);
+        const poetryMatch = content.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|核心文案|促銷副標|高點擊文案|主標題|副標題|AI Prompt)\s*[：:]|$)/);
         
         return {
             id: `group-${visualStep}-${index}`,
@@ -528,9 +543,12 @@ export default function App() {
       const apiKey = ""; // Canvas 預覽環境會自動帶入
       
       let aspectRatio = "1:1";
-      if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
-      if (visualStep === 7) aspectRatio = "9:16";
-      if (visualStep === 10) aspectRatio = "4:3";
+      const currentStep = STEPS.find(s => s.id === visualStep);
+      if (currentStep && currentStep.aspectRatio) {
+        aspectRatio = currentStep.aspectRatio;
+      } else if (visualStep === 10) {
+        aspectRatio = "4:3";
+      }
       
       let base64 = "";
 
