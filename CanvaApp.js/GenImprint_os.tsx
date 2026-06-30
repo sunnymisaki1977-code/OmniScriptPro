@@ -981,15 +981,18 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <div className="flex justify-center gap-1.5 flex-wrap">
                       {Object.values(audienceThemes).map((themeObj) => {
                         const isSel = audienceTheme === themeObj.id;
+                        const isMaster = passcode.trim().toUpperCase() === 'MASTER';
                         return (
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel}
+                            disabled={!isSel && !isMaster}
                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : 'border-slate-900/50 text-slate-500 opacity-50 cursor-not-allowed'
+                                : isMaster 
+                                  ? 'border-slate-800 text-slate-400 hover:text-white hover:border-slate-500 cursor-pointer'
+                                  : 'border-slate-900/50 text-slate-500 opacity-50 cursor-not-allowed'
                             }`}
                           >
                             {themeObj.title}
