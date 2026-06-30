@@ -24,7 +24,7 @@ const ACCESS_CODES = {
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId: any, context: any, audienceTheme: string) {
+async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
     const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
@@ -37,7 +37,7 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string) {
     }
     const { prompt } = await promptResponse.json();
     // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
-    const apiKey = typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "";
+    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     
     const aiResponse = await fetch(apiUrl, {
@@ -110,6 +110,10 @@ export default function App() {
    
    // --- 新增：自訂背景資料狀態 ---
    const [customContext, setCustomContext] = useState('');
+   
+   // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
+   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
+   const [geminiApiKey, setGeminiApiKey] = useState('');
 
    const [completedSteps, setCompletedSteps] = useState([1]); 
      const [visualStep, setVisualStep] = useState(6);
@@ -318,7 +322,7 @@ export default function App() {
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
-      const apiKey = ""; // Canvas 預覽環境會自動帶入
+      const apiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : ""); // Canvas 預覽環境會自動帶入
       
       let aspectRatio = "1:1";
       const currentStep = STEPS.find(s => s.id === visualStep);
@@ -494,7 +498,7 @@ export default function App() {
         };
 
         // 直接向 Vercel 要資料
-        const resultText = await callVercelApi(step, context, audienceTheme);
+        const resultText = await callVercelApi(step, context, audienceTheme, geminiApiKey);
 
         currentContextContents[step] = resultText;
         setStepContents(prev => ({
@@ -632,7 +636,7 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      const content = await callVercelApi(activeStep, context, audienceTheme);
+      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey);
 
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
@@ -922,11 +926,18 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-4">
-            {/* 移除手動輸入金鑰框，改為顯示已連接狀態 */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Canvas 環境已授權</span>
-            </div>
+            {/* 動態顯示環境授權狀態 */}
+            {isCanvasEnv ? (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Canvas 環境已授權</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/50 border border-slate-700 text-slate-400 font-bold text-[10px]">
+                <Key className="w-3.5 h-3.5" />
+                <span>Vercel 獨立運行</span>
+              </div>
+            )}
 
             {/* 一鍵全自動模式 Header Button */}
             <button 
@@ -1041,6 +1052,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </button>
                       </div>
                     </div>
+
+                    {/* --- 新增：API Key 輸入區 --- */}
+                    {!isCanvasEnv && (
+                      <div className="space-y-2 pt-2 border-t border-slate-900/50">
+                        <label className="text-[10px] text-slate-400 font-bold">Gemini API Key (Vercel 獨立運行必須)</label>
+                        <div className="relative">
+                          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                          <input 
+                            type="password"
+                            placeholder="輸入您的 Gemini API Key (AI 平台生成的金鑰)..."
+                            value={geminiApiKey}
+                            onChange={(e) => setGeminiApiKey(e.target.value)}
+                            className="w-full bg-[#070b16] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Big Action Buttons */}
                     <div className="grid grid-cols-2 gap-4">
