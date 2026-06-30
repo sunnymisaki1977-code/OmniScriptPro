@@ -26,7 +26,7 @@ const ACCESS_CODES = {
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string) {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = 'https://gen-imprint.vercel.app/api/gemini';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,7 +82,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch('https://gen-imprint.vercel.app/api/config')
+    fetch('https://omni-script-pro.vercel.app/api/config')
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -133,7 +133,7 @@ export default function App() {
   useEffect(() => {
     const fetchArchives = async () => {
       try {
-        const response = await fetch('https://gen-imprint.vercel.app/api/notion/history');
+        const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
         const data = await response.json();
         if (data.history) {
           setArchiveList(data.history);
@@ -177,7 +177,7 @@ export default function App() {
     if (!content || !isConfigLoaded) return;
     
     setIsParsingVisuals(true);
-    fetch('https://gen-imprint.vercel.app/api/parse-visuals', {
+    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -481,7 +481,7 @@ export default function App() {
 
     for (let step = startStep; step <= 10; step++) {
       setActiveStep(step);
-      addLog(`[Process] 正在向 Vercel 請求真實生成 Step ${step}: ${STEPS[step - 1].name}...`);
+      addLog(`[Process] 正在撰寫 Step ${step}: ${STEPS[step - 1].name}...`);
 
       try {
         const context = {
@@ -538,7 +538,7 @@ export default function App() {
 
     try {
       // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(`https://gen-imprint.vercel.app/api/notion/history?id=${pageId}`);
+      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
@@ -619,7 +619,7 @@ export default function App() {
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
-    addLog(`[AI] 正在向 Vercel 雲端請求... 重新生成 Step ${activeStep}`, 'info');
+    addLog(`[AI] 正在雲端請求... 重新撰寫 Step ${activeStep}`, 'info');
         setIsGenerating(true);
     
     try {
@@ -656,7 +656,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = 'https://gen-imprint.vercel.app/api/notion';
+    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -1199,7 +1199,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
 
                       <div className="flex-1 relative min-h-[500px]">
-                        {/* AI 正在生成時，顯示 MP4 讀取動畫 */}
+                        {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
                         {isGenerating ? (
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
                             <video 
@@ -1215,7 +1215,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             </h3>
                             <p className="text-slate-400 mt-3 text-sm flex items-center gap-2">
                               <RefreshCw className="w-4 h-4 animate-spin" />
-                              正在從伺服器抓取資料，請稍候
+                              正在抓取資料，請稍候
                             </p>
                           </div>
                         ) : (
@@ -1260,7 +1260,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
-  {/* AI 正在生成時，顯示 MP4 讀取動畫 */}
+  {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
   {isGenerating ? (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl z-10 backdrop-blur-md">
        
@@ -1277,7 +1277,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       </h3>
       <p className="text-purple-300/60 mt-3 text-sm flex items-center gap-2">
         <RefreshCw className="w-4 h-4 animate-spin" />
-        正在從 Vercel 節點抓取資料，請稍候
+        正在抓取資料，請稍候
       </p>
     </div>
   ) : (
