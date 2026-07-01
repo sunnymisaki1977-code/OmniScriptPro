@@ -51,28 +51,39 @@ export async function POST(req: Request) {
         
         let promptText = "無法自動擷取提示詞，請手動確認";
         
-        // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
-        let promptTextParts = [];
-        const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-        if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
-        
-        const subPromoMatch = groupContent.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-        if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
-        
-        const zhPromptMatch = groupContent.match(/(?:中文|中文\s*Prompt|中文Prompt)\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
-        if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
-
-        if (promptTextParts.length > 0) {
-            promptText = promptTextParts.join("\\n");
+        if (g.title.includes("動態分割構圖")) {
+            const is169 = g.title.includes("16:9");
+            const pattern = is169 
+                ? /16:9\s*動態分割構圖.*?([\s\S]*?)(?=9:16\s*動態分割構圖|$)/i 
+                : /9:16\s*動態分割構圖.*?([\s\S]*)$/i;
+            const fullMatch = content.match(pattern);
+            if (fullMatch && fullMatch[1]) {
+                promptText = fullMatch[1].trim();
+            }
         } else {
-            // 2. Fallback: 尋找舊的標籤格式
-            const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
-            if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
-                promptText = aiPromptMatch[1].trim();
+            // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
+            let promptTextParts = [];
+            const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+            if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
+            
+            const subPromoMatch = groupContent.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+            if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
+            
+            const zhPromptMatch = groupContent.match(/(?:中文|中文\s*Prompt|中文Prompt)\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
+            if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
+
+            if (promptTextParts.length > 0) {
+                promptText = promptTextParts.join("\\n");
             } else {
-                const fallbackMatch = groupContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
-                if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
-                    promptText = fallbackMatch[1].trim();
+                // 2. Fallback: 尋找舊的標籤格式
+                const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
+                if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
+                    promptText = aiPromptMatch[1].trim();
+                } else {
+                    const fallbackMatch = groupContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+                    if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
+                        promptText = fallbackMatch[1].trim();
+                    }
                 }
             }
         }
