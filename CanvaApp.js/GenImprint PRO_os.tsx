@@ -39,7 +39,7 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
     const { prompt } = await promptResponse.json();
     // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
