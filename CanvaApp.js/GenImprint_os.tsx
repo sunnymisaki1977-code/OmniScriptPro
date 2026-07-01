@@ -184,7 +184,8 @@ export default function App() {
     fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, visualStep })
+      body: JSON.stringify({ content, visualStep }),
+      cache: 'no-store'
     })
       .then(res => res.json())
       .then(data => {
