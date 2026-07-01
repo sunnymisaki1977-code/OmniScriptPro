@@ -7,7 +7,7 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink
 } from 'lucide-react';
 
 // ============================================================================
