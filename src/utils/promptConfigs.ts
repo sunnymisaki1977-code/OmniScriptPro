@@ -809,14 +809,14 @@ Instruments
 Tempo`
   },
 
-  {
-    id:10,
-    title:"社群美食發布中心",
-    description:"生成Instagram、Facebook、小紅書貼文。",
-    type:"social",
-    language:"markdown",
-    dependsOn:["theme","step1"],
-    prompt:(ctx)=>`你是一位頂級美食雜誌總編輯與餐飲品牌社群行銷專家。
+    {
+      id:10,
+      title:"社群美食發布中心",
+      description:"生成Instagram、Facebook、小紅書貼文。",
+      type:"social",
+      language:"markdown",
+      dependsOn:["theme","step1"],
+      prompt:(ctx)=>`你是一位頂級美食雜誌總編輯與餐飲品牌社群行銷專家。
 
 根據以下資料：
 
@@ -845,8 +845,332 @@ ${ctx.step1}
 #${ctx.theme}
 
 並補充5個熱門美食Hashtags。`
-  }
-]
+    }
+  ],
+  travelpreneur: [
+    {
+      id: 1,
+      title: "旅遊目的地背景查核",
+      description: "蒐集目的地歷史、文化、景點、美食、交通與旅遊資訊，建立可信基礎資料。",
+      type: "text",
+      dependsOn: ["theme"],
+      prompt: (ctx) => `你是一位資深旅遊作家、旅遊規劃師與文化研究專家。
+
+請針對旅遊主題「${ctx.theme}」撰寫約1500字的完整旅遊背景報告。
+
+請依照以下架構：
+
+## 一、目的地介紹
+- 國家／城市
+- 地理位置
+- 最佳旅遊季節
+- 氣候特色
+
+## 二、歷史文化
+- 發展歷史
+- 在地文化
+- 世界文化遺產
+- 節慶活動
+
+## 三、必去景點
+- Top 10 景點
+- 推薦理由
+- 建議停留時間
+- 最佳拍照時間
+
+## 四、在地美食
+- 必吃料理
+- 必喝飲品
+- 在地甜點
+- 夜市／市場推薦
+
+## 五、交通攻略
+- 國際交通
+- 市區交通
+- 一日券
+- IC卡
+- 租車建議
+
+## 六、住宿推薦
+- 豪華飯店
+- 商務飯店
+- 民宿
+- 青年旅館
+
+## 七、旅遊預算
+- 一日預算
+- 三天兩夜
+- 五天四夜
+
+## 八、旅遊注意事項
+- 簽證
+- 網路
+- 插座
+- 貨幣
+- 小費文化
+- 安全提醒
+
+## 九、推薦行程
+提供三種玩法：
+- 一日遊
+- 三日遊
+- 五日深度旅行
+
+最後總結此目的地最值得造訪的原因。`
+    },
+
+    {
+      id: 2,
+      title: "長影音腳本",
+      description: "產出8~12分鐘YouTube旅遊攻略影片。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx) => `根據以下旅遊背景資料：
+
+${ctx.step1}
+
+請撰寫「${ctx.theme}」8~12分鐘YouTube旅遊攻略。
+
+內容包含：
+
+1. Hook
+2. 地點介紹
+3. 必去景點
+4. 美食推薦
+5. 交通攻略
+6. 住宿推薦
+7. 花費公開
+8. 行程建議
+9. 結尾CTA
+
+風格像旅遊YouTuber分享攻略。`
+    },
+
+    {
+      id: 3,
+      title: "長影音SEO",
+      description: "產生YouTube SEO內容。",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx) => `依據影片腳本：
+
+${ctx.step2}
+
+請提供：
+
+1. 五個高CTR標題
+2. 十個熱門Hashtags
+3. 約200字影片介紹
+4. YouTube Timestamp
+5. SEO關鍵字20組`
+    },
+
+    {
+      id: 4,
+      title: "Shorts腳本",
+      description: "生成60秒旅遊Shorts腳本。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx) => `根據背景資料：
+
+${ctx.step1}
+
+請撰寫60秒Shorts腳本。
+
+需求：
+
+• 前3秒Hook
+• 景點快速介紹
+• 美食亮點
+• 必玩特色
+• CTA
+
+節奏快速，適合TikTok與YouTube Shorts。`
+    },
+
+    {
+      id: 5,
+      title: "Shorts SEO",
+      description: "生成Shorts SEO。",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx) => `根據以下Shorts：
+
+${ctx.step4}
+
+請提供：
+
+- 三個爆款標題
+- 五個熱門Hashtags
+- 一段Shorts說明。`
+    },
+
+    {
+      id: 6,
+      title: "YouTube縮圖",
+      description: "生成16:9縮圖Prompt。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step3"],
+      prompt: (ctx) => `請針對「${ctx.theme}」生成三組YouTube縮圖。
+
+格式：
+
+### 第一組
+主標：
+副標：
+中文Prompt：
+
+Prompt需包含：
+
+travel photography,
+cinematic travel,
+golden hour,
+drone aerial,
+vibrant colors,
+luxury travel,
+editorial travel magazine,
+ultra detailed,
+8k
+
+最後加入：
+
+--ar 16:9`
+    },
+
+    {
+      id: 7,
+      title: "Shorts封面",
+      description: "生成9:16 Shorts封面。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step5"],
+      prompt: (ctx) => `請生成三組9:16 Shorts封面。
+
+格式：
+
+### 第一組
+標題：
+中文Prompt：
+
+Prompt需包含：
+
+travel photography,
+vacation mood,
+golden hour,
+drone shot,
+cinematic,
+ultra detailed
+
+最後加入：
+
+--ar 9:16`
+    },
+
+    {
+      id: 8,
+      title: "旅遊品牌海報",
+      description: "生成高質感旅遊宣傳海報。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme"],
+      prompt: (ctx) => `請設計三組旅遊品牌海報。
+
+格式：
+
+### 第一組
+主文案：
+副文案：
+中文Prompt：
+
+Prompt需包含：
+
+luxury travel poster,
+editorial travel,
+cinematic lighting,
+golden hour,
+drone view,
+vibrant colors,
+premium tourism,
+ultra detailed
+
+最後加入：
+
+--ar 9:16`
+    },
+
+    {
+      id: 9,
+      title: "Suno AI 配樂",
+      description: "生成旅遊影片背景音樂。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx) => `請設計三組旅遊影片背景音樂。
+
+第一組：
+史詩旅行
+
+第二組：
+咖啡廳Vlog
+
+第三組：
+Road Trip
+
+格式：
+
+### 第一組
+適用場景：
+Suno AI Prompt：
+
+Prompt包含：
+
+Music Style
+Mood
+Instruments
+Tempo`
+    },
+
+    {
+      id: 10,
+      title: "社群發布中心",
+      description: "生成IG、Facebook、Threads、小紅書旅遊貼文。",
+      type: "social",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx) => `你是一位旅遊雜誌總編輯與旅遊品牌社群行銷專家。
+
+根據：
+
+${ctx.step1}
+
+請製作一篇完整社群貼文。
+
+內容包含：
+
+📍吸睛Hook
+
+✨ 3~5個旅遊亮點
+
+📸 最美拍照景點
+
+🍜 必吃美食
+
+🚆 交通小技巧
+
+💰 預算建議
+
+💬 留言互動
+
+📌 收藏CTA
+
+最後加入：
+
+#${ctx.theme}
+
+以及5~10個熱門旅遊Hashtags。`
+    }
+  ]
 };
 
 export const getWorkflowSteps = (themeId: string): WorkflowStep[] => {

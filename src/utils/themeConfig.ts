@@ -147,5 +147,17 @@ export const THEME_STEPS = {
     { id: 8, name: '品牌級美食海報', icon: 'ImageIcon', category: 'Visuals', desc: '生成高質感餐飲行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
     { id: 9, name: 'Suno AI 美食配樂', icon: 'Music', category: 'Audio', desc: '生成三組美食影片音樂。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
     { id: 10, name: '社群美食發布中心', icon: 'Facebook', category: 'Distribution', desc: '生成Instagram、Facebook、小紅書貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+  ],
+  travelpreneur: [
+    { id: 1, name: '旅遊目的地背景查核', icon: 'Database', category: 'Research', desc: '蒐集目的地歷史、文化、景點、美食、交通與旅遊資訊，建立可信基礎資料。', type: "text", dependsOn: ["theme"] },
+    { id: 2, name: '長影音腳本', icon: 'FileText', category: 'Content', desc: '產出8~12分鐘YouTube旅遊攻略影片。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 3, name: '長影音SEO', icon: 'Search', category: 'Optimization', desc: '產生YouTube SEO內容。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: 'Shorts腳本', icon: 'Video', category: 'Content', desc: '生成60秒旅遊Shorts腳本。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: 'Shorts SEO', icon: 'Search', category: 'Optimization', desc: '生成Shorts SEO。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: 'YouTube縮圖', icon: 'ImageIcon', category: 'Visuals', desc: '生成16:9縮圖Prompt。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+    { id: 7, name: 'Shorts封面', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16 Shorts封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+    { id: 8, name: '旅遊品牌海報', icon: 'ImageIcon', category: 'Visuals', desc: '生成高質感旅遊宣傳海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
+    { id: 9, name: 'Suno AI 配樂', icon: 'Music', category: 'Audio', desc: '生成旅遊影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '社群發布中心', icon: 'Facebook', category: 'Distribution', desc: '生成IG、Facebook、Threads、小紅書旅遊貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
 };
