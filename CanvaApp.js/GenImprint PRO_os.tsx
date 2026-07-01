@@ -23,6 +23,29 @@ const ACCESS_CODES: Record<string, string> = {
   'MASTER': 'CultureTech'      // 管理員
 };
 
+const IMAGE_ENGINES = [
+  {
+    id: 'gemini-3.1-flash-lite-image',
+    name: 'Nano Banana 2 Lite',
+    desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
+  },
+  {
+    id: 'gemini-3.1-flash-image',
+    name: 'Nano Banana 2',
+    desc: '用途最廣泛的模型，適用於所有工作。可兼顧速度與最先進的 4K 生成技術、世界知識和可靠的文字轉譯功能。擅長處理多張參考圖像，並確保一致性。'
+  },
+  {
+    id: 'gemini-3-pro-image',
+    name: 'Nano Banana Pro',
+    desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
+  },
+  {
+    id: 'gemini-2.5-flash-image',
+    name: 'Nano Banana',
+    desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
+  }
+];
+
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
@@ -176,7 +199,7 @@ export default function App() {
 
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('imagen4'); // 'imagen4' | 'flash'
+  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
 
   useEffect(() => {
     const content = stepContents[visualStep];
@@ -320,7 +343,8 @@ export default function App() {
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
-    const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
+    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
+    const engineName = engineConfig.name;
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
@@ -336,81 +360,35 @@ export default function App() {
       
       let base64 = "";
 
-      if (imageEngine === 'flash') {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        
-        let flashPrompt = prompt;
-        if (mainTitle || subTitle || poetry) {
-          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
-          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
-          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
-          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
-        }
-        
-        // Flash Image 尚未直接支援 aspectRatio 參數，因此附加在 Prompt 結尾引導模型
-        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
-
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: finalPrompt }]
-              }
-            ],
-            generationConfig: {
-              responseModalities: ['TEXT', 'IMAGE']
-            }
-          })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-        
-        const parts = data.candidates?.[0]?.content?.parts || [];
-        const imagePart = parts.find(p => p.inlineData);
-        if (imagePart) {
-          base64 = imagePart.inlineData.data;
-        } else {
-          throw new Error("模型未回傳圖像資料");
-        }
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt: prompt }],
+          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+      if (data.predictions && data.predictions[0]) {
+        base64 = data.predictions[0].bytesBase64Encoded;
       } else {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            instances: [{ prompt: prompt }],
-            parameters: { sampleCount: 1, aspectRatio: aspectRatio }
-          })
-        });
-        
-        const data = await response.json();
-        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-        if (data.predictions && data.predictions[0]) {
-          base64 = data.predictions[0].bytesBase64Encoded;
-        } else {
-          throw new Error("未收到圖片資料");
-        }
+        throw new Error("未收到圖片資料");
       }
       
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
-        
-        let finalImage = originalImage;
-        if (imageEngine !== 'flash') {
-          // 只有 Imagen 4 需要本地端字型疊加，Gemini 2.5 Flash 直接由模型產出內建字體
-          finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
-        }
+        const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
         addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
         setCredits(prev => Math.max(0, prev - 5));
       }
     } catch (err) {
-      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
+      const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
+      const engineName = engineConfig.name;
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
@@ -862,9 +840,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             onChange={(e) => setImageEngine(e.target.value)}
                             className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none"
                           >
-                            <option value="imagen4">Imagen 4.0 (高畫質)</option>
-                            <option value="flash">Gemini 2.5 Flash (極速/雙向編輯)</option>
+                            {IMAGE_ENGINES.map(engine => (
+                              <option key={engine.id} value={engine.id}>{engine.name}</option>
+                            ))}
                           </select>
+                          <p className="text-[9px] text-slate-500/80 mt-1.5 leading-relaxed">
+                            {IMAGE_ENGINES.find(e => e.id === imageEngine)?.desc}
+                          </p>
                         </div>
 
                         <div>
@@ -1353,7 +1335,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             ) : generatingGroups[group.id] ? (
                                <div className="flex flex-col items-center gap-2">
                                  <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
-                                 <span className="text-[10px] text-purple-400">正在透過 {imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0'} 生成...</span>
+                                 <span className="text-[10px] text-purple-400">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
                                </div>
                             ) : (
                                <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
@@ -1367,7 +1349,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
                                 <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
-                                  {imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0'}
+                                  {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
                                 </span>
                                 <div className="flex gap-1.5">
                                   <button 
