@@ -1,7 +1,7 @@
 export const AUDIENCE_THEMES = {
   CultureTech: {
     id: 'CultureTech',
-    title: '科技文化創作者',
+    title: '科技文化・未來探索',
     subtitle: 'Cinematic Pink 賽博霓虹粉',
     desc: '冷冽科技感、高對比度的深邃紫與霓虹粉。專為科技產品、未來趨勢與歷史解密設計。',
     gradient: 'from-purple-500 via-pink-500 to-rose-500',
@@ -19,11 +19,11 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-purple-900/40 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.25)]',
     pipelineCurrentIcon: 'bg-purple-500 text-white animate-pulse',
     tagBg: 'bg-purple-500/10 border-purple-500/20 text-purple-300',
-    themeLogMessage: '[Theme] 已切換至「科技文化創作者 (Cinematic Pink)」模式。優化低光源剪輯視覺，啟動 RGB 電競靈感調幅機制 🟢'
+    themeLogMessage: '[Theme] 已切換至「科技文化・未來探索 (Cinematic Pink)」模式。優化低光源剪輯視覺，啟動 RGB 電競靈感調幅機制 🟢'
   },
   beauty: {
     id: 'beauty',
-    title: '「美妝保養悅己美學」',
+    title: '美妝保養・悅己美學',
     subtitle: 'Glamour Rose 奢華玫瑰金',
     desc: '高質感、溫柔優雅、奢華玫瑰粉與香檳金。專為美妝、穿搭與高感性生活視覺設計。',
     gradient: 'from-rose-400 via-pink-500 to-amber-500',
@@ -41,11 +41,11 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-pink-900/40 border-pink-500/50 shadow-[0_0_30px_rgba(236,72,153,0.25)]',
     pipelineCurrentIcon: 'bg-pink-500 text-white animate-pulse',
     tagBg: 'bg-pink-500/10 border-pink-500/20 text-pink-300',
-    themeLogMessage: '[Theme] 已切換至「「美妝保養悅己美學」 (Glamour Rose)」模式。啟動精緻暖色調高光補償，提升美感氛圍 🟢'
+    themeLogMessage: '[Theme] 已切換至「美妝保養・悅己美學 (Glamour Rose)」模式。啟動精緻暖色調高光補償，提升美感氛圍 🟢'
   },
   travelpreneur: {
     id: 'travelpreneur',
-    title: '旅遊先行者',
+    title: '旅遊生活・世界漫遊',
     subtitle: 'Indie Amber 極速金澄風',
     desc: '極速執行力、黃金極簡微光。專為單兵作業、產品發布與高商業價值轉換設計。',
     gradient: 'from-amber-500 via-orange-500 to-yellow-500',
@@ -63,11 +63,11 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-amber-900/40 border-amber-500/50 shadow-[0_0_30px_rgba(245,158,11,0.25)]',
     pipelineCurrentIcon: 'bg-amber-500 text-white animate-pulse',
     tagBg: 'bg-amber-500/10 border-amber-500/20 text-amber-300',
-    themeLogMessage: '[Theme] 已切換至「旅遊先行者 (Indie Amber)」模式。高對比金黃預警，啟動單兵作戰、快速發布極速模式 🟢'
+    themeLogMessage: '[Theme] 已切換至「旅遊生活・世界漫遊 (Indie Amber)」模式。高對比金黃預警，啟動單兵作戰、快速發布極速模式 🟢'
   },
   food: {
     id: 'food',
-    title: '「美食與餐飲文化（Gourmet & Culinary）」',
+    title: '美食料理・風味探索',
     subtitle: 'Gourmet Ruby 煙火赤紅風',
     desc: '挑逗食慾的寶石紅與珊瑚橘。專為料理探店、食譜分享與高誘惑力視覺設計。',
     gradient: 'from-rose-500 via-red-500 to-orange-500',
@@ -85,13 +85,13 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-red-900/40 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.25)]',
     pipelineCurrentIcon: 'bg-red-500 text-white animate-pulse',
     tagBg: 'bg-red-500/10 border-red-500/20 text-red-300',
-    themeLogMessage: '[Theme] 已切換至「「美食與餐飲文化（Gourmet & Culinary）」 (Gourmet Ruby)」模式。強化暖色系渲染，啟動高食慾誘惑力調色配置 🟢'
+    themeLogMessage: '[Theme] 已切換至「美食料理・風味探索 (Gourmet Ruby)」模式。強化暖色系渲染，啟動高食慾誘惑力調色配置 🟢'
   },
-  education: {
-    id: 'education',
-    title: '親子教育工作者',
+  pet: {
+    id: 'pet',
+    title: '寵物照護・幸福陪伴',
     subtitle: 'Nurturing Sky 溫和知性藍',
-    desc: '傳遞信任與安定的天空藍。專為課程設計、知識傳遞與溫和友善的排版設計。',
+    desc: '傳遞信任與安定的天空藍。專為寵物醫療、動物行為與溫和友善的排版設計。',
     gradient: 'from-sky-500 via-blue-500 to-indigo-500',
     primaryColor: 'blue-500',
     borderActive: 'border-blue-500/50',
@@ -107,7 +107,7 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-blue-900/40 border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.25)]',
     pipelineCurrentIcon: 'bg-blue-500 text-white animate-pulse',
     tagBg: 'bg-blue-500/10 border-blue-500/20 text-blue-300',
-    themeLogMessage: '[Theme] 已切換至「親子教育工作者 (Nurturing Sky)」模式。降低視覺刺激，啟動安定、知性與信任感佈局 🟢'
+    themeLogMessage: '[Theme] 已切換至「寵物照護・幸福陪伴 (Nurturing Sky)」模式。降低視覺刺激，啟動安定、知性與信任感佈局 🟢'
   }
 };
 
@@ -159,5 +159,17 @@ export const THEME_STEPS = {
     { id: 8, name: '旅遊品牌海報', icon: 'ImageIcon', category: 'Visuals', desc: '生成高質感旅遊宣傳海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
     { id: 9, name: 'Suno AI 配樂', icon: 'Music', category: 'Audio', desc: '生成旅遊影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
     { id: 10, name: '社群發布中心', icon: 'Facebook', category: 'Distribution', desc: '生成IG、Facebook、Threads、小紅書旅遊貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+  ],
+  pet: [
+    { id: 1, name: '寵物問題研究與專家查核', icon: 'Database', category: 'Research', desc: '深入分析寵物問題成因、行為學、獸醫觀點與最新研究，建立可信基礎資料。', type: "text", dependsOn: ["theme"] },
+    { id: 2, name: '長影音腳本', icon: 'FileText', category: 'Content', desc: '產出8~12分鐘問題解決型YouTube影片。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 3, name: '影片SEO優化', icon: 'Search', category: 'Optimization', desc: '產生YouTube SEO。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: 'Shorts腳本', icon: 'Video', category: 'Content', desc: '生成60秒爆款短影音。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: 'Shorts SEO', icon: 'Search', category: 'Optimization', desc: '生成Shorts SEO。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: 'YouTube縮圖', icon: 'ImageIcon', category: 'Visuals', desc: '生成三組高CTR縮圖。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+    { id: 7, name: 'Shorts封面', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+    { id: 8, name: '用品推薦與品牌合作', icon: 'FileText', category: 'Content', desc: '推薦相關用品、品牌合作與導購文案。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 9, name: 'Suno AI配樂', icon: 'Music', category: 'Audio', desc: '生成三組寵物影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme"] },
+    { id: 10, name: '社群內容中心', icon: 'Facebook', category: 'Distribution', desc: '生成IG、FB、Threads、小紅書完整貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
 };

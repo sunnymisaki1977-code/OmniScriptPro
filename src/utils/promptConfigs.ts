@@ -1170,6 +1170,308 @@ ${ctx.step1}
 
 以及5~10個熱門旅遊Hashtags。`
     }
+  ],
+  pet: [
+    {
+      id: 1,
+      title: "寵物問題研究與專家查核",
+      description: "深入分析寵物問題成因、行為學、獸醫觀點與最新研究，建立可信基礎資料。",
+      type: "text",
+      dependsOn: ["theme"],
+      prompt: (ctx: any) => `你是一位獸醫、動物行為學專家、寵物營養師與寵物媒體總編輯。
+
+請針對主題「${ctx.theme}」撰寫一份約1500字的完整分析。
+
+主題可能是：
+- 行為問題
+- 健康疾病
+- 飲食營養
+- 飼養技巧
+- 訓練方法
+- 品種問題
+
+請依照以下架構：
+
+## 一、問題介紹
+- 問題是什麼？
+- 常見程度
+- 哪些犬貓最容易發生？
+
+## 二、真正原因
+- 生理原因
+- 心理原因
+- 環境因素
+- 年齡因素
+
+## 三、如何判斷
+- 正常現象
+- 異常警訊
+- 什麼情況要看獸醫？
+
+## 四、解決方法
+- 在家可以做什麼？
+- 專家建議
+- 正確改善流程
+
+## 五、常見錯誤
+- 網路迷思
+- 錯誤訓練
+- 常犯錯誤
+
+## 六、預防方法
+- 日常照護
+- 飲食建議
+- 環境改善
+
+## 七、結論
+整理重點並提供飼主建議。`
+    },
+
+    {
+      id: 2,
+      title: "長影音腳本",
+      description: "產出8~12分鐘問題解決型YouTube影片。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `根據以下資料：
+
+${ctx.step1}
+
+請撰寫8~12分鐘YouTube腳本。
+
+內容包含：
+
+1. 前5秒Hook
+2. 常見迷思
+3. 問題真正原因
+4. 如何改善
+5. 什麼情況需要看獸醫
+6. 常見QA
+7. CTA
+
+語氣像專業寵物知識頻道。`
+    },
+
+    {
+      id: 3,
+      title: "影片SEO優化",
+      description: "產生YouTube SEO。",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `根據影片腳本：
+
+${ctx.step2}
+
+請提供：
+
+- 五個高CTR標題
+- 十個熱門Hashtags
+- 200字影片介紹
+- Timestamp
+- 20組SEO搜尋關鍵字
+
+請優先符合Google與YouTube搜尋習慣。`
+    },
+
+    {
+      id: 4,
+      title: "Shorts腳本",
+      description: "生成60秒爆款短影音。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `根據以下資料：
+
+${ctx.step1}
+
+請撰寫60秒Shorts。
+
+需求：
+
+前三秒必須Hook。
+
+例如：
+
+「狗一直舔腳？千萬別只擦藥！」
+
+內容需包含：
+
+Hook
+原因
+快速解法
+CTA`
+    },
+
+    {
+      id: 5,
+      title: "Shorts SEO",
+      description: "生成Shorts SEO。",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `依據Shorts：
+
+${ctx.step4}
+
+請提供：
+
+- 三個爆款標題
+- 五個熱門Hashtags
+- Shorts說明。`
+    },
+
+    {
+      id: 6,
+      title: "YouTube縮圖",
+      description: "生成三組高CTR縮圖。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step3"],
+      prompt: (ctx: any) => `請針對「${ctx.theme}」生成三組YouTube縮圖。
+
+格式：
+
+### 第一組
+主標：
+副標：
+中文Prompt：
+
+Prompt必須包含：
+
+cute pet,
+professional pet photography,
+veterinary clinic,
+emotional expression,
+soft natural lighting,
+high detail,
+editorial style,
+8k
+
+最後加入：
+
+--ar 16:9`
+    },
+
+    {
+      id: 7,
+      title: "Shorts封面",
+      description: "生成9:16封面。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step5"],
+      prompt: (ctx: any) => `請生成三組Shorts封面。
+
+格式：
+
+### 第一組
+
+標題：
+
+中文Prompt：
+
+Prompt需包含：
+
+cute puppy,
+cute kitten,
+close-up,
+soft lighting,
+adorable,
+high detail
+
+最後加入：
+
+--ar 9:16`
+    },
+
+    {
+      id: 8,
+      title: "用品推薦與品牌合作",
+      description: "推薦相關用品、品牌合作與導購文案。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `根據：
+
+${ctx.step1}
+
+請推薦：
+
+1. 五種適合商品
+2. 推薦理由
+3. 適合族群
+4. 商品比較
+5. 品牌合作建議
+6. 聯盟行銷CTA
+
+內容需保持客觀，不得誇大產品效果。`
+    },
+
+    {
+      id: 9,
+      title: "Suno AI配樂",
+      description: "生成三組寵物影片背景音樂。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme"],
+      prompt: (ctx: any) => `請設計三組背景音樂。
+
+第一組：
+可愛療癒
+
+第二組：
+知識教學
+
+第三組：
+活潑Vlog
+
+格式：
+
+### 第一組
+
+適用場景：
+
+Suno AI Prompt：
+
+包含：
+
+Music Style
+Mood
+Tempo
+Instruments`
+    },
+
+    {
+      id: 10,
+      title: "社群內容中心",
+      description: "生成IG、FB、Threads、小紅書完整貼文。",
+      type: "social",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `你是一位寵物媒體總編輯。
+
+依據：
+
+${ctx.step1}
+
+請製作一篇高互動社群貼文。
+
+內容包含：
+
+🐶 吸睛Hook
+
+📌 三至五個重點
+
+⚠️ 常見迷思
+
+❤️ 專家提醒
+
+💬 留言互動
+
+📣 CTA
+
+最後加入：
+
+#${ctx.theme}
+
+以及10個熱門寵物Hashtags。`
+    }
   ]
 };
 
