@@ -339,6 +339,10 @@ export default function App() {
   };
 
   const generateGroupImage = async (group) => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setShowApiKeyModal(true);
+      return;
+    }
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
@@ -360,41 +364,20 @@ export default function App() {
       
       let base64 = "";
 
-      let flashPrompt = prompt;
-      if (mainTitle || subTitle || poetry) {
-        flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
-        if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
-        if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
-        if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
-      }
-      
-      const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
-
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: finalPrompt }]
-            }
-          ],
-          generationConfig: {
-            responseModalities: ['TEXT', 'IMAGE']
-          }
+          instances: [{ prompt: prompt }],
+          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
         })
       });
       
       const data = await response.json();
       if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-      
-      const parts = data.candidates?.[0]?.content?.parts || [];
-      const imagePart = parts.find(p => p.inlineData);
-      
-      if (imagePart) {
-        base64 = imagePart.inlineData.data;
+      if (data.predictions && data.predictions[0]) {
+        base64 = data.predictions[0].bytesBase64Encoded;
       } else {
         throw new Error("未收到圖片資料");
       }
