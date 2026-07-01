@@ -337,7 +337,7 @@ export default function App() {
       let base64 = "";
 
       if (imageEngine === 'flash') {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         
         let flashPrompt = prompt;
         if (mainTitle || subTitle || poetry) {
@@ -710,6 +710,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
 
   const generateNewImage = async () => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setShowApiKeyModal(true);
+      return;
+    }
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
     addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt 至 Imagen 4.0 API 端點...`, 'info');
