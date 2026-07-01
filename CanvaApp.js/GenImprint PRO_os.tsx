@@ -115,6 +115,7 @@ export default function App() {
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
    const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
+   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
    const [completedSteps, setCompletedSteps] = useState([1]); 
      const [visualStep, setVisualStep] = useState(6);
@@ -577,6 +578,10 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setShowApiKeyModal(true);
+      return;
+    }
     const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
     if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
     addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
@@ -1801,6 +1806,62 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         </div>
       )}
 
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Key className="w-6 h-6 text-indigo-400" />
+                需要 Gemini API Key
+              </h3>
+              <button onClick={() => setShowApiKeyModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+              您目前處於獨立運行模式，必須輸入 Gemini API Key 才能執行「一鍵全自動模式」。請提供有效的金鑰以繼續操作。
+            </p>
+            
+            <div className="space-y-4">
+              <div className="relative">
+                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="password"
+                  placeholder="輸入您的 Gemini API Key..."
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowApiKeyModal(false);
+                    if (geminiApiKey.trim()) {
+                      handleStartAuto();
+                    }
+                  }}
+                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  確認並開始執行
+                </button>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors flex items-center justify-center gap-2"
+                >
+                  前往申請 Gemini API Key
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
