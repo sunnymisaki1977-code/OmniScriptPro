@@ -837,10 +837,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             onChange={(e) => setVisualStep(Number(e.target.value))}
                             className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
                           >
-                            <option value={6}>16:9 - 橫幅縮圖 (YouTube / FB)</option>
-                            <option value={7}>9:16 - 短片直式封面 (Shorts / Reels)</option>
-                            <option value={8}>16:9 - 彩墨風格意象圖</option>
-                            <option value={10}>1:1 / 4:3 - 社群視覺素材 (IG Post)</option>
+                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫幅縮圖 (YouTube / FB)'}</option>
+                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '短片直式封面 (Shorts / Reels)'}</option>
+                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '意象圖 / 海報'}</option>
+                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '社群推播 / 視覺素材'}</option>
                           </select>
                         </div>
 
