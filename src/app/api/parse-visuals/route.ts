@@ -29,13 +29,18 @@ export async function POST(req: Request) {
         } else if (line.match(/\d+\.\s*###\s*圖卡標籤/)) {
             titleMatch = `圖卡 ${cardCount}`;
             cardCount++;
+        } else if (line.match(/AI\s*Prompt\s*\(中文\)[：:]/i)) {
+            // For Step 10: "AI Prompt (中文):" acts as the start of a visual card
+            titleMatch = line.includes('16:9') ? '16:9 動態視覺構圖' : '9:16 直式蒙太奇圖卡';
         }
         
         if (titleMatch) {
             if (currentGroup) {
                 groups.push(currentGroup);
             }
-            currentGroup = { title: titleMatch, content: "" };
+            // Include the line itself if it's the AI Prompt start line, so it can be extracted later!
+            const initialContent = line.match(/AI\s*Prompt\s*\(中文\)[：:]/i) ? line + "\n" : "";
+            currentGroup = { title: titleMatch, content: initialContent };
         } else {
             if (currentGroup) {
                 currentGroup.content += line + "\n";
@@ -65,8 +70,8 @@ export async function POST(req: Request) {
         if (promptTextParts.length > 0) {
             promptText = promptTextParts.join("\\n");
         } else {
-            // 2. Fallback: 尋找舊的標籤格式
-            const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
+            // 2. Fallback: 尋找舊的標籤格式，或 Step 10 的 AI Prompt (中文) 到結尾
+            const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|📱|$)|$)/i);
             if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
                 promptText = aiPromptMatch[1].trim();
             } else {
