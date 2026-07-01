@@ -90,7 +90,7 @@ export async function POST(req: Request) {
       
       try {
         const searchResponse = await ai.models.generateContent({
-          model: "gemini-2.5-pro",
+          model: "gemini-2.5-flash",
           contents: researchPrompt,
           config: {
             tools: [{ googleSearch: {} }] // 開啟搜尋
@@ -155,7 +155,7 @@ export async function POST(req: Request) {
     // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
+    const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash",  "gemini-2.5-flash-lite"];
     let modelUsed = "";
     const MAX_RETRIES = 4;
 
