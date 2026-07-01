@@ -22,15 +22,10 @@ export async function POST(req: Request) {
             titleMatch = line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)![1].trim();
         } else if (line.match(/\d+\.\s*(畫格\s*\d+.*)/)) {
             titleMatch = line.match(/\d+\.\s*(畫格\s*\d+.*)/)![1].trim();
-        } else if (line.includes('16:9') && (line.includes('動態分割') || line.includes('構圖') || line.includes('卡片'))) {
-            // 放寬 16:9 的擷取條件，移除前面的符號
-            titleMatch = line.replace(/^[^a-zA-Z0-9]+/, '').trim();
-        } else if (line.includes('9:16') && (line.includes('動態分割') || line.includes('構圖') || line.includes('卡片'))) {
-            titleMatch = line.replace(/^[^a-zA-Z0-9]+/, '').trim();
-        } else if (line.includes('1:1') && (line.includes('動態分割') || line.includes('構圖') || line.includes('卡片'))) {
-            titleMatch = line.replace(/^[^a-zA-Z0-9]+/, '').trim();
-        } else if (line.match(/###\s*(.*(?:16:9|9:16|1:1).*)/)) {
-            titleMatch = line.match(/###\s*(.*)/)![1].trim();
+        } else if (line.match(/(16:9\s*動態分割構圖.*)/)) {
+            titleMatch = line.match(/(16:9\s*動態分割構圖.*)/)![1].trim();
+        } else if (line.match(/(9:16\s*動態分割構圖.*)/)) {
+            titleMatch = line.match(/(9:16\s*動態分割構圖.*)/)![1].trim();
         } else if (line.match(/\d+\.\s*###\s*圖卡標籤/)) {
             titleMatch = `圖卡 ${cardCount}`;
             cardCount++;
@@ -56,37 +51,28 @@ export async function POST(req: Request) {
         
         let promptText = "無法自動擷取提示詞，請手動確認";
         
-        // --- 針對 Step 10 (社群視覺素材) 的特殊處理 ---
-        // 使用者要求：「生成圖像Prompt 是該項全部內容」
-        if (visualStep === 10) {
-            promptText = `${g.title}\n${groupContent.trim()}`;
-        } else {
-            // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
-            let promptTextParts = [];
-            const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-            if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
-            
-            const subPromoMatch = groupContent.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
-            if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
+        // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
+        let promptTextParts = [];
+        const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+        if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
+        
+        const subPromoMatch = groupContent.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+        if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
         
         const zhPromptMatch = groupContent.match(/(?:中文|中文\s*Prompt|中文Prompt)\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
         if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
 
-            if (promptTextParts.length > 0) {
-                promptText = promptTextParts.join("\\n");
+        if (promptTextParts.length > 0) {
+            promptText = promptTextParts.join("\\n");
+        } else {
+            // 2. Fallback: 尋找舊的標籤格式
+            const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
+            if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
+                promptText = aiPromptMatch[1].trim();
             } else {
-                // 2. Fallback: 尋找舊的標籤格式
-                const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
-                if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
-                    promptText = aiPromptMatch[1].trim();
-                } else {
-                    const fallbackMatch = groupContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
-                    if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
-                        promptText = fallbackMatch[1].trim();
-                    } else if (groupContent.trim().length > 0) {
-                        // 終極 fallback: 如果什麼都抓不到，就把全部內容當 prompt (防止變成"無法自動擷取")
-                        promptText = groupContent.trim();
-                    }
+                const fallbackMatch = groupContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+                if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
+                    promptText = fallbackMatch[1].trim();
                 }
             }
         }
