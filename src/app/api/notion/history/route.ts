@@ -1,5 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
+import { THEME_STEPS } from "@/utils/themeConfig";
 
 export const dynamic = 'force-dynamic';
 
@@ -21,13 +22,26 @@ export async function GET(req: Request) {
       
       const stepsData: Record<number, string> = {};
       let currentStepId = 0;
+      let firstStepTitle = "";
+      let audienceThemeFromNotion = null;
 
       for (const block of blocksResponse.results as any[]) {
+        if (block.type === "paragraph") {
+           const text = block.paragraph.rich_text.map((rt: any) => rt.plain_text).join("");
+           const themeMatch = text.match(/\[AudienceTheme:\s*([a-zA-Z0-9_]+)\]/);
+           if (themeMatch) {
+             audienceThemeFromNotion = themeMatch[1];
+           }
+        }
+        
         if (block.type === "heading_2") {
           const text = block.heading_2.rich_text.map((rt: any) => rt.plain_text).join("");
-          const match = text.match(/Step (\d+):/);
+          const match = text.match(/Step (\d+):\s*(.*)/);
           if (match) {
             currentStepId = parseInt(match[1]);
+            if (currentStepId === 1) {
+                firstStepTitle = match[2].trim();
+            }
           }
         } else if (currentStepId > 0) {
           const typeData = block[block.type];
@@ -44,7 +58,6 @@ export async function GET(req: Request) {
             const contentToAdd = prefix + text;
             
             if (block.type === "quote") {
-              // quote blocks are chunked, we can join them without extra newlines if they are continuous
               stepsData[currentStepId] = stepsData[currentStepId] ? stepsData[currentStepId] + contentToAdd : contentToAdd;
             } else {
               stepsData[currentStepId] = stepsData[currentStepId] ? stepsData[currentStepId] + "\n\n" + contentToAdd : contentToAdd;
@@ -53,7 +66,17 @@ export async function GET(req: Request) {
         }
       }
       
-      return NextResponse.json({ id: pageId, stepsData });
+      // 反向工程：從 Step 1 的標題推斷 audienceTheme (為了相容舊的 Notion 存檔)
+      if (!audienceThemeFromNotion && firstStepTitle) {
+          for (const [key, steps] of Object.entries(THEME_STEPS)) {
+              if (steps[0] && steps[0].name === firstStepTitle) {
+                  audienceThemeFromNotion = key;
+                  break;
+              }
+          }
+      }
+      
+      return NextResponse.json({ id: pageId, stepsData, audienceTheme: audienceThemeFromNotion });
     }
 
     // 否則，讀取最近 10 筆清單

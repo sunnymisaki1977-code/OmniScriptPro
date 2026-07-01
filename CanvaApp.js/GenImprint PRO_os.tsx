@@ -549,6 +549,7 @@ export default function App() {
         // 成功抓取後，一鍵把內容填回編輯器！
         // 如果原本存檔有 theme 屬性就更新，沒有的話使用預設
         if (data.theme) setTheme(data.theme); 
+        if (data.audienceTheme) setAudienceTheme(data.audienceTheme);
         setStepContents({
           1: data.stepsData[1] || "",
           2: data.stepsData[2] || "",

@@ -64,6 +64,15 @@ export async function POST(req: Request) {
     const pageId = pageResponse.id;
     const children: any[] = [];
 
+    // 0. Add AudienceTheme metadata
+    children.push({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [{ type: "text", text: { content: `[AudienceTheme: ${audienceTheme}]` } }],
+      },
+    });
+
     // 2. Format each step's content into blocks
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
     for (const step of WORKFLOW_STEPS) {
