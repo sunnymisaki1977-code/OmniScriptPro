@@ -18,14 +18,18 @@ export async function POST(req: Request) {
         const line = lines[i];
         
         let titleMatch = null;
+        let shouldIncludeLine = false;
+
         if (line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)) {
             titleMatch = line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)![1].trim();
         } else if (line.match(/\d+\.\s*(畫格\s*\d+.*)/)) {
             titleMatch = line.match(/\d+\.\s*(畫格\s*\d+.*)/)![1].trim();
-        } else if (line.match(/(16:9\s*動態分割構圖.*)/)) {
-            titleMatch = line.match(/(16:9\s*動態分割構圖.*)/)![1].trim();
-        } else if (line.match(/(9:16\s*動態分割構圖.*)/)) {
-            titleMatch = line.match(/(9:16\s*動態分割構圖.*)/)![1].trim();
+        } else if (line.match(/16:9\s*動態分割構圖/) || (line.match(/AI Prompt/i) && line.includes("16:9"))) {
+            titleMatch = "16:9 動態分割構圖";
+            shouldIncludeLine = true;
+        } else if (line.match(/9:16\s*動態分割構圖/) || (line.match(/AI Prompt/i) && line.includes("9:16"))) {
+            titleMatch = "9:16 動態分割構圖";
+            shouldIncludeLine = true;
         } else if (line.match(/\d+\.\s*###\s*圖卡標籤/)) {
             titleMatch = `圖卡 ${cardCount}`;
             cardCount++;
@@ -35,7 +39,7 @@ export async function POST(req: Request) {
             if (currentGroup) {
                 groups.push(currentGroup);
             }
-            currentGroup = { title: titleMatch, content: "" };
+            currentGroup = { title: titleMatch, content: shouldIncludeLine ? line + "\n" : "" };
         } else {
             if (currentGroup) {
                 currentGroup.content += line + "\n";
@@ -53,12 +57,23 @@ export async function POST(req: Request) {
         
         if (g.title.includes("動態分割構圖")) {
             const is169 = g.title.includes("16:9");
-            const pattern = is169 
-                ? /16:9\s*動態分割構圖.*?([\s\S]*?)(?=9:16\s*動態分割構圖|$)/i 
-                : /9:16\s*動態分割構圖.*?([\s\S]*)$/i;
-            const fullMatch = content.match(pattern);
-            if (fullMatch && fullMatch[1]) {
-                promptText = fullMatch[1].trim();
+            
+            // 將整包原始內容依據 16:9 或 9:16 進行切塊，確保抓取所有畫格與主標題
+            const blocks = content.split(/(?=AI Prompt \(中文\):|16:9\s*動態分割構圖|9:16\s*動態分割構圖)/i);
+            let matchBlock = "";
+            for (let i = 0; i < blocks.length; i++) {
+                const b = blocks[i];
+                if (is169 && (b.includes("16:9 動態分割") || (b.match(/AI Prompt/i) && b.includes("16:9")))) {
+                    matchBlock = b;
+                    break;
+                }
+                if (!is169 && (b.includes("9:16 動態分割") || (b.match(/AI Prompt/i) && b.includes("9:16")))) {
+                    matchBlock = b;
+                    break;
+                }
+            }
+            if (matchBlock) {
+                promptText = matchBlock.trim();
             }
         } else {
             // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
