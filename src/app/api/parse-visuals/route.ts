@@ -19,10 +19,15 @@ export async function POST(req: Request) {
         
         let titleMatch = null;
         
-        if (visualStep === 10) {
-            if (line.match(/AI\s*Prompt\s*\(中文\)[：:]/i)) {
-                // For Step 10: "AI Prompt (中文):" acts as the start of a visual card
-                titleMatch = line.includes('16:9') ? '16:9 動態視覺構圖卡片' : '9:16 直式蒙太奇圖卡';
+        if (Number(visualStep) === 10) {
+            if (line.match(/AI\s*Prompt/i) || line.includes('16:9') || line.includes('9:16')) {
+                if (line.includes('16:9') && (!currentGroup || currentGroup.title.includes('9:16'))) {
+                    titleMatch = '🏆 16:9 動態視覺構圖卡片';
+                } else if (line.includes('9:16') && (!currentGroup || currentGroup.title.includes('16:9'))) {
+                    titleMatch = '📱 9:16 直式蒙太奇圖卡';
+                } else if (!currentGroup) {
+                    titleMatch = '🏆 16:9 動態視覺構圖卡片';
+                }
             }
         } else {
             if (line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)) {
@@ -43,8 +48,8 @@ export async function POST(req: Request) {
             if (currentGroup) {
                 groups.push(currentGroup);
             }
-            // Include the line itself if it's the AI Prompt start line, so it can be extracted later!
-            const initialContent = line.match(/AI\s*Prompt\s*\(中文\)[：:]/i) ? line + "\n" : "";
+            // Include the line itself if it's the start line, so it can be extracted later!
+            const initialContent = (Number(visualStep) === 10) ? line + "\n" : (line.match(/AI\s*Prompt\s*\(中文\)[：:]/i) ? line + "\n" : "");
             currentGroup = { title: titleMatch, content: initialContent };
         } else {
             if (currentGroup) {
@@ -64,9 +69,9 @@ export async function POST(req: Request) {
         let subTitle = "";
         let poetry = "";
         
-        if (visualStep === 10) {
-            // For Step 10, the prompt is EVERYTHING after AI Prompt (中文):
-            promptText = groupContent.replace(/AI\s*Prompt\s*\(中文\)[：:]\s*/i, '').trim();
+        if (Number(visualStep) === 10) {
+            // For Step 10, the prompt is EVERYTHING after AI Prompt (中文): or just the raw block
+            promptText = groupContent.replace(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*/i, '').trim();
             const mainTitleMatch = groupContent.match(/(?:主標|高點擊文案|主標題|核心文案)\s*[：:]\s*(.*?)(?=\n|$)/);
             if (mainTitleMatch) {
                 mainTitle = mainTitleMatch[1].trim();
