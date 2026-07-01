@@ -6,8 +6,8 @@ const noto = Noto_Sans_TC({ subsets: ["latin"], weight: ["300", "400", "500", "7
 const calligraphy = Ma_Shan_Zheng({ subsets: ["latin"], weight: ["400"], variable: "--font-calligraphy" });
 
 export const metadata: Metadata = {
-  title: "【世代銘印】創作者自動化升級藍圖",
-  description: "專為【世代銘印】打造的 Human-in-the-Loop AI 創作系統",
+  title: "OmniScript｜讓你的影響力，無所不在。あなたの影響力を、あらゆる場所へ。",
+  description: "讓你的影響力，無所不在。あなたの影響力を、あらゆる場所へ。",
 };
 
 export default function RootLayout({
