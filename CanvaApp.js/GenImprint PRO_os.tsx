@@ -929,15 +929,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-4">
             {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv ? (
+            {isCanvasEnv && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Canvas 環境已授權</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/50 border border-slate-700 text-slate-400 font-bold text-[10px]">
-                <Key className="w-3.5 h-3.5" />
-                <span>Vercel 獨立運行</span>
               </div>
             )}
 
@@ -1058,7 +1053,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     {/* --- 新增：API Key 輸入區 --- */}
                     {!isCanvasEnv && (
                       <div className="space-y-2 pt-2 border-t border-slate-900/50">
-                        <label className="text-[10px] text-slate-400 font-bold">Gemini API Key (Vercel 獨立運行必須)</label>
+                        <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
                         <div className="relative">
                           <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                           <input 
