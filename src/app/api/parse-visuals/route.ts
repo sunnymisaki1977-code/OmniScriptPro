@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         // --- 針對 Step 10 (社群視覺素材) 的特殊處理 ---
         // 使用者要求：「生成圖像Prompt 是該項全部內容」
         if (visualStep === 10) {
-            promptText = groupContent.trim();
+            promptText = `${g.title}\n${groupContent.trim()}`;
         } else {
             // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
             let promptTextParts = [];

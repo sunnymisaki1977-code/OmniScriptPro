@@ -150,7 +150,7 @@ export default function App() {
   }, []);
 
   const [logs, setLogs] = useState([
-    { time: "23:22:36", text: "[System] GenImprint Pro OS 初始化完畢。", type: "info" },
+    { time: "23:22:36", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
     { time: "23:22:40", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
   ]);
   
@@ -773,7 +773,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </div>
             <div>
               <h1 className="text-md font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-                GenImprint Pro
+                OmniScript Pro
               </h1>
             </div>
           </div>
@@ -1768,7 +1768,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">GenImprint Pro</h2>
+            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
             <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
             
             <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
