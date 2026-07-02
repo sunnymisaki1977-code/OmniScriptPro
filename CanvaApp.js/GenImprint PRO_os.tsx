@@ -106,7 +106,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch('https://omni-script-pro.vercel.app/api/config')
+    fetch(`https://omni-script-pro.vercel.app/api/config?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -1317,13 +1317,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </button>
                           <span className="text-slate-600">•</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
-                            STEP {activeStep} • {STEPS[activeStep-1].category}
+                            STEP {activeStep} • {STEPS[activeStep-1] ? STEPS[activeStep-1].category : 'Loading'}
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1].name}
+                          {STEPS[activeStep-1] ? STEPS[activeStep-1].name : '載入中'}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1] ? STEPS[activeStep-1].desc : ''}</p>
                       </div>
 
                       <button 
