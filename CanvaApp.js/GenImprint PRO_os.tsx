@@ -125,34 +125,90 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
-  const [viewState, setViewState] = useState('hub'); 
-  const [mode, setMode] = useState('manual'); 
-  const [activeStep, setActiveStep] = useState(1);
+  const [viewState, setViewState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('os_pro_viewState') || 'hub';
+    }
+    return 'hub';
+  }); 
+  const [mode, setMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('os_pro_mode') || 'manual';
+    }
+    return 'manual';
+  }); 
+  const [activeStep, setActiveStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('os_pro_activeStep');
+      if (saved) return parseInt(saved, 10);
+    }
+    return 1;
+  });
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
-   const [theme, setTheme] = useState('');
+   const [theme, setTheme] = useState(() => {
+     if (typeof window !== 'undefined') {
+       return localStorage.getItem('os_pro_theme') || '';
+     }
+     return '';
+   });
    
    // --- 新增：自訂背景資料狀態 ---
-   const [customContext, setCustomContext] = useState('');
+   const [customContext, setCustomContext] = useState(() => {
+     if (typeof window !== 'undefined') {
+       return localStorage.getItem('os_pro_customContext') || '';
+     }
+     return '';
+   });
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
    const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-   const [completedSteps, setCompletedSteps] = useState([1]); 
+   const [completedSteps, setCompletedSteps] = useState(() => {
+     if (typeof window !== 'undefined') {
+       const saved = localStorage.getItem('os_pro_completedSteps');
+       if (saved) return JSON.parse(saved);
+     }
+     return [1];
+   }); 
      const [visualStep, setVisualStep] = useState(6);
-  const [audienceTheme, setAudienceTheme] = useState('CultureTech');
+  const [audienceTheme, setAudienceTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('os_pro_audienceTheme') || 'CultureTech';
+    }
+    return 'CultureTech';
+  });
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
   const STEPS = themeSteps[audienceTheme] || themeSteps.CultureTech || [];
-  const [stepContents, setStepContents] = useState({
-    1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
-    4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
-    7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
-    10: getInitialStepContent(10, "")
+  const [stepContents, setStepContents] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('os_pro_stepContents');
+      if (saved) return JSON.parse(saved);
+    }
+    return {
+      1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
+      4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
+      7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
+      10: getInitialStepContent(10, "")
+    };
   });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('os_pro_theme', theme);
+      localStorage.setItem('os_pro_audienceTheme', audienceTheme);
+      localStorage.setItem('os_pro_stepContents', JSON.stringify(stepContents));
+      localStorage.setItem('os_pro_activeStep', activeStep.toString());
+      localStorage.setItem('os_pro_customContext', customContext);
+      localStorage.setItem('os_pro_completedSteps', JSON.stringify(completedSteps));
+      localStorage.setItem('os_pro_viewState', viewState);
+      localStorage.setItem('os_pro_mode', mode);
+    }
+  }, [theme, audienceTheme, stepContents, activeStep, customContext, completedSteps, viewState, mode]);
 
  // 🔽 新增這三個變數來控制 Notion 下拉選單 🔽
   const [archiveList, setArchiveList] = useState([]); 
