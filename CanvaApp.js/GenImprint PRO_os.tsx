@@ -7,7 +7,7 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2
 } from 'lucide-react';
 
 // ============================================================================
@@ -733,6 +733,23 @@ export default function App() {
     addLog('[System] 📝 參考資料已成功匯入 Step 1 畫布！', 'success');
   };
 
+  const clearAllData = () => {
+    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
+      setTheme('');
+      setCustomContext('');
+      setStepContents({
+        1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
+        4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
+        7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
+        10: getInitialStepContent(10, "")
+      });
+      setCompletedSteps([1]);
+      setActiveStep(1);
+      setViewState('hub');
+      addLog('[System] 🗑️ 舊企劃資料已全數清空，隨時可開始新專案。', 'info');
+    }
+  };
+
   // ============================================================================
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
@@ -1227,23 +1244,34 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     
                     {/* Simulated dropdown */}
                     <div className="w-full relative">
-  <select 
-    value={selectedArchive}
-    onChange={handleLoadArchive}
-    disabled={passcode.trim().toUpperCase() !== 'MASTER'}
-    className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
-  >
-    <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
-    
-    {/* 這裡會自動把 Notion 裡面的專案名稱跟日期列出來！ */}
-    {archiveList.map((item) => (
-      <option key={item.id} value={item.id}>
-        📄 {item.title} ({item.createdTime})
-      </option>
-    ))}
-  </select>
-  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-</div>
+                      <select 
+                        value={selectedArchive}
+                        onChange={handleLoadArchive}
+                        disabled={passcode.trim().toUpperCase() !== 'MASTER'}
+                        className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
+                        
+                        {/* 這裡會自動把 Notion 裡面的專案名稱跟日期列出來！ */}
+                        {archiveList.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            📄 {item.title} ({item.createdTime})
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  {/* 清空按鈕 */}
+                  <div className="pt-4 flex justify-center">
+                    <button 
+                      onClick={clearAllData}
+                      className="text-[10px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      清空畫布與舊企劃資料
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1318,14 +1346,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
                       </div>
 
-                      <button 
-                        onClick={triggerSingleStepAi}
-                        disabled={isGenerating}
-                        className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
-                      >
-                        <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                        {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={clearAllData}
+                          className="flex items-center gap-1.5 px-3 py-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          清空企劃
+                        </button>
+                        <button 
+                          onClick={triggerSingleStepAi}
+                          disabled={isGenerating}
+                          className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
+                        >
+                          <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                          {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Notion synced alert banner */}
