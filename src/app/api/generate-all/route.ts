@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const searchResponse = await ai.models.generateContent({
-            model: "gemini-2.5-pro",
+            model: "gemini-2.5-flash",
             contents: researchPrompt,
             config: {
               tools: [{ googleSearch: {} }] // 開啟搜尋
@@ -54,6 +54,15 @@ export async function POST(req: Request) {
       }
       if (!searchSuccess) {
         console.warn("事實查核多次失敗，將使用空字串繼續...");
+      }
+      
+      // 如果只要跑第一步，就直接回傳查核結果，不要再進 Stage 2 浪費時間與遇到 504
+      if (endStep === 1) {
+        return NextResponse.json({ 
+          data: { "1": verifiedContext }, 
+          modelUsed: "gemini-2.5-pro",
+          contextUsed: verifiedContext 
+        });
       }
     }
 
