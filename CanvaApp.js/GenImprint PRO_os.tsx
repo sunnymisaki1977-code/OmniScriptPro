@@ -492,9 +492,8 @@ export default function App() {
         setStepContents(prev => ({ ...prev, 1: resultText }));
         setCompletedSteps(prev => [...new Set([...prev, 1])]);
         
-        addLog(`[System] ⏸ 第一階段基礎研究已生成完畢！請檢閱內容，確認無誤後再次點擊「一鍵全自動模式」以執行 Stage 2 一口氣跑完。`, 'info');
-        setIsGenerating(false);
-        return; // 在此中斷，等待使用者確認
+        addLog(`[System] 第一階段基礎研究已生成完畢！系統自動接續進行 Stage 2 批次生成...`, 'info');
+        startStep = 2; // 自動接續進入第二階段
       } catch (error) {
         addLog(`[Error] Step 1 生成失敗: ${error.message}，中止全自動流程。`, 'error');
         setIsGenerating(false);
