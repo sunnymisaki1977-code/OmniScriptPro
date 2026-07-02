@@ -184,15 +184,7 @@ export default function App() {
      return [1];
    }); 
      const [visualStep, setVisualStep] = useState(6);
-  const [audienceTheme, setAudienceTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('os_pro_audienceTheme');
-      if (saved && saved !== 'undefined' && saved !== 'null') {
-          return saved === 'CultureTech' ? 'heritage' : saved;
-      }
-    }
-    return 'heritage';
-  });
+
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
