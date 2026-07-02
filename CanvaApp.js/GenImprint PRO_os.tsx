@@ -880,6 +880,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     };
   }, [isAuthenticated, showLoginPrompt]);
 
+  if (!isConfigLoaded) {
+    return (
+      <div className="h-screen bg-[#030712] flex items-center justify-center text-slate-400 font-mono tracking-widest text-sm animate-pulse">
+        系統初始化中 (Loading Configuration)...
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
       
