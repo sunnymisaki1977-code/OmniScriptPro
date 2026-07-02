@@ -599,20 +599,21 @@ export default function App() {
     // ==========================================
     addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`, 'info');
     
-    // 設定虛擬進度推播，舒緩使用者等待後端 30 秒的焦慮感
+    // 設定虛擬進度推播，舒緩使用者等待後端 30 秒的焦慮感，同時模擬側邊欄綠燈亮起
     const progressMessages = [
-      `[AI] 正在分析事實查核結果，展開長短影音腳本架構 (Step 2-5)...`,
-      `[AI] 腳本推演中，開始切換視覺模型生成意象圖 Prompt (Step 6-8)...`,
-      `[AI] 進入最後階段，生成 Suno 配樂指令與社群貼文 (Step 9-10)...`,
-      `[AI] 核心引擎即將完成高壓運算，正在打包回傳...`
+      { msg: `[AI] 正在分析事實查核結果，展開長短影音腳本架構 (Step 2-5)...`, steps: [2, 3, 4, 5] },
+      { msg: `[AI] 腳本推演中，開始切換視覺模型生成意象圖 Prompt (Step 6-8)...`, steps: [6, 7, 8] },
+      { msg: `[AI] 進入最後階段，生成 Suno 配樂指令與社群貼文 (Step 9-10)...`, steps: [9, 10] },
+      { msg: `[AI] 核心引擎即將完成高壓運算，正在打包回傳...`, steps: [] }
     ];
     let msgIndex = 0;
     const progressInterval = setInterval(() => {
       if (msgIndex < progressMessages.length) {
-        addLog(progressMessages[msgIndex], 'info');
+        addLog(progressMessages[msgIndex].msg, 'info');
+        setCompletedSteps(prev => [...new Set([...prev, ...progressMessages[msgIndex].steps])]);
         msgIndex++;
       }
-    }, 7000); // 每 7 秒推播一條狀態
+    }, 7000); // 每 7 秒推播一條狀態並點亮綠燈
 
     try {
       const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
