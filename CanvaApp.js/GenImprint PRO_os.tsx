@@ -1914,7 +1914,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
             {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
             <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 text-[9px] text-slate-600 font-mono relative z-10">
-              <span>TECH2026 (科技)</span>
+              <span>TECH2026 (民俗信仰)</span>
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>

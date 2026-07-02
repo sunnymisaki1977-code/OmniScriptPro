@@ -1,7 +1,7 @@
 export const AUDIENCE_THEMES = {
   CultureTech: {
     id: 'CultureTech',
-    title: '科技文化・未來探索',
+    title: '民俗信仰・文化傳承 heritage',
     subtitle: 'Cinematic Pink 賽博霓虹粉',
     desc: '冷冽科技感、高對比度的深邃紫與霓虹粉。專為科技產品、未來趨勢與歷史解密設計。',
     gradient: 'from-purple-500 via-pink-500 to-rose-500',
