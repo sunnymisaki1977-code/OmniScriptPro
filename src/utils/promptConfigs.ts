@@ -100,7 +100,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 ✔ 現代研究觀點
 
-現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。`,
+現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。
 
 第二類：民俗/節氣
   
@@ -251,7 +251,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 ----------------------------------
 請以「${ctx.theme}」開始撰寫完整研究報告。`
-  }
+  },
 
   {
     id: 2,
