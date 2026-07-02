@@ -9,7 +9,7 @@ export interface WorkflowStep {
 }
 
 export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
-  heritage: [
+  CultureTech: [
   {
     id: 1,
   title: "基礎背景事實查核",
