@@ -513,6 +513,24 @@ export default function App() {
     let currentContextContents = { ...stepContents }; 
     let startStep = 1;
 
+    // --- 新增：偵測主題變更並自動提示清空 ---
+    const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
+    const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
+    if (startTheme !== savedLastTheme && !isCanvasEmpty) {
+      const wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
+      if (wantsNew) {
+        currentContextContents = {
+          1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
+          4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
+          7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
+          10: getInitialStepContent(10, "")
+        };
+        setCompletedSteps([1]);
+        setCustomContext('');
+      }
+    }
+    localStorage.setItem('os_pro_lastGeneratedTheme', startTheme);
+
     // 如果使用者有自訂背景資料且 Step 1 為空，就把它當作 Step 1
     if (customContext.trim() && (!currentContextContents[1] || currentContextContents[1].trim() === '')) {
       currentContextContents[1] = customContext;
