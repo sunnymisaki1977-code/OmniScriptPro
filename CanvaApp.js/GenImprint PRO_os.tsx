@@ -1899,7 +1899,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   value={passcode}
                   onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
                   placeholder="輸入授權碼"
-                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-4 text-xl text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
                   autoFocus
                 />
               </div>
@@ -1918,8 +1918,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>
-              <span>SKY2026 (教育)</span>
-              <span>MASTER (管理)</span>
+              <span className="col-span-2 text-center">SKY2026 (教育)</span>
             </div>
           </div>
         </div>
