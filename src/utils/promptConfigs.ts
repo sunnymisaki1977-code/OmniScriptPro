@@ -688,7 +688,7 @@ ${ctx.step4}
     type:"code",
     language:"markdown",
     dependsOn:["theme","step3"],
-   prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
 參考背景：${ctx.step3}
 
 【格式絕對鎖定指令】：
@@ -718,7 +718,6 @@ ultra detailed
 主標：[請填入主標內容]
 副標：[請填副標內容]
 中文：[請填入中文 Prompt]`,
-
   },
 
   {
@@ -764,7 +763,7 @@ ultra detailed
     type:"code",
     language:"markdown",
     dependsOn:["theme"],
-    prompt:(ctx)=>`請針對「${ctx.theme}」設計三組9:16品牌級美食海報。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」設計三組9:16品牌級美食海報。
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
