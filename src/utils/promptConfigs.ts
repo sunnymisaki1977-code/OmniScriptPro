@@ -145,8 +145,8 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入縮圖名稱]
-主標：[請填入10字以內主標內容]
-副標：[請填入8字以內副標內容]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
 中文：[請填入中文 Prompt]`,
   },
   {
@@ -167,7 +167,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入短影音縮圖名稱]
-高點擊文案：[請填入10字以內主標內容]
+高點擊文案：[請填入主標內容]
 中文：[請填入中文 Prompt]`,
   },
   {
@@ -448,7 +448,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入短影音縮圖名稱]
-高點擊文案：[請填入10字以內主標內容]
+高點擊文案：[請填入	主標內容]
 中文：[請填入中文 Prompt，具體描述產品外觀、質地微距或膚質光澤]`,
   },
   {
@@ -688,9 +688,14 @@ ${ctx.step4}
     type:"code",
     language:"markdown",
     dependsOn:["theme","step3"],
-    prompt:(ctx)=>`請針對「${ctx.theme}」產生三組16:9 YouTube縮圖。
+   prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+參考背景：${ctx.step3}
 
-AI Prompt 必須包含：
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+
+AI Prompt (中文) 必須包含：
 
 high-end food photography,
 Michelin restaurant style,
@@ -707,13 +712,13 @@ ultra detailed
 
 --ar 16:9
 
-格式：
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
-### 第一組
-主標：
-副標：
-中文：
-`
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填副標內容]
+中文：[請填入中文 Prompt]`,
+
   },
 
   {
@@ -723,9 +728,13 @@ ultra detailed
     type:"code",
     language:"markdown",
     dependsOn:["theme","step5"],
-    prompt:(ctx)=>`請針對「${ctx.theme}」生成三組9:16短影音封面。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+參考背景：${ctx.step5}
 
-AI Prompt包含：
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：
 
 high-end food photography,
 cinematic lighting,
@@ -741,12 +750,11 @@ ultra detailed
 
 --ar 9:16
 
-格式：
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
-### 第一組
-高點擊文案：
-中文：
-`
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[請填入中文 Prompt]`,
   },
 
   {
@@ -758,7 +766,10 @@ ultra detailed
     dependsOn:["theme"],
     prompt:(ctx)=>`請針對「${ctx.theme}」設計三組9:16品牌級美食海報。
 
-Prompt必須包含：
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：
 
 Michelin food photography,
 luxury restaurant branding,
@@ -769,16 +780,16 @@ minimalist composition,
 editorial food magazine,
 ultra detailed
 
-最後加入--ar 9:16
+最後加入-- 16:9
 
 
 格式：
 
-### 第一組
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+### 第一組：[請填入名稱]
 核心文案：
 促銷副標：
-中文Prompt：
-`
+中文：[請填入中文畫面描述]`,
   },
 
   {
