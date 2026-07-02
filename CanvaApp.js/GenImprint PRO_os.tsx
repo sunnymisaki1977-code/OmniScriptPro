@@ -201,9 +201,6 @@ export default function App() {
   const [generatingGroups, setGeneratingGroups] = useState({});
   const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
 
-  // 計算是否可以接續
-  const canResume = stepContents[1] && stepContents[1].trim() !== '' && Array.from({length: 10}, (_, i) => i + 1).some(i => !stepContents[i] || stepContents[i].trim() === '');
-
   useEffect(() => {
     const content = stepContents[visualStep];
     if (!content || !isConfigLoaded) return;
@@ -514,13 +511,6 @@ export default function App() {
         addLog(`[AI] ✨ Step ${step} 內容從伺服器回傳完畢！`, 'success');
 
         await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // 兩階段生成邏輯：第一階段搜集完資料後先暫停，讓使用者確認
-        if (step === 1 && startStep === 1) {
-          addLog(`[System] ⏸ 第一階段基礎研究已生成完畢！請檢閱內容，確認無誤後再次點擊「一鍵全自動模式」以接續產生後續步驟。`, 'info');
-          setIsGenerating(false);
-          return;
-        }
 
       } catch (error) {
         addLog(`[Error] Step ${step} 生成失敗: ${error.message}，中止全自動流程。`, 'error');
@@ -964,7 +954,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>{canResume ? '▶ 接續全自動模式' : '一鍵全自動模式'}</span>
+              <span>一鍵全自動模式</span>
             </button>
 
             {/* Quota Metric Button */}
@@ -1216,26 +1206,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {canResume && (
-                          <button 
-                            onClick={handleStartAuto}
-                            disabled={isGenerating}
-                            className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-white disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
-                          >
-                            <Play className={`w-4 h-4 ${isGenerating ? 'animate-pulse' : ''}`} />
-                            {isGenerating ? '接續生成中...' : '接續全自動產生後續步驟'}
-                          </button>
-                        )}
-                        <button 
-                          onClick={triggerSingleStepAi}
-                          disabled={isGenerating}
-                          className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
-                        >
-                          <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                          {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
-                        </button>
-                      </div>
+                      <button 
+                        onClick={triggerSingleStepAi}
+                        disabled={isGenerating}
+                        className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
+                      >
+                        <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                        {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
+                      </button>
                     </div>
 
                     {/* Notion synced alert banner */}
