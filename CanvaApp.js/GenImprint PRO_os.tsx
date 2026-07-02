@@ -14,13 +14,13 @@ import {
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'CultureTech',   // 科技文化・未來探索
+  'TECH2026': 'heritage',   // 科技文化・未來探索
   'GLAM2026': 'beauty',        // 美妝保養・悅己美學
   'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
   'RUBY2026': 'food',          // 美食料理・風味探索
   'PET2026': 'pet',            // 寵物照護・幸福陪伴
   'SKY2026': 'pet',            // 相容舊碼
-  'MASTER': 'CultureTech'      // 管理員
+  'MASTER': 'heritage'      // 管理員
 };
 
 const IMAGE_ENGINES = [
@@ -176,14 +176,14 @@ export default function App() {
      const [visualStep, setVisualStep] = useState(6);
   const [audienceTheme, setAudienceTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_audienceTheme') || 'CultureTech';
+      return localStorage.getItem('os_pro_audienceTheme') || 'heritage';
     }
-    return 'CultureTech';
+    return 'heritage';
   });
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
-  const STEPS = themeSteps[audienceTheme] || themeSteps.CultureTech || [];
+  const STEPS = themeSteps[audienceTheme] || themeSteps.heritage || [];
   const [stepContents, setStepContents] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('os_pro_stepContents');
