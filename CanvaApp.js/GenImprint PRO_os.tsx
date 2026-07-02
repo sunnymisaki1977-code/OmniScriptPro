@@ -176,7 +176,10 @@ export default function App() {
      const [visualStep, setVisualStep] = useState(6);
   const [audienceTheme, setAudienceTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_audienceTheme') || 'heritage';
+      const saved = localStorage.getItem('os_pro_audienceTheme');
+      if (saved && saved !== 'undefined' && saved !== 'null') {
+          return saved === 'CultureTech' ? 'heritage' : saved;
+      }
     }
     return 'heritage';
   });
@@ -657,7 +660,7 @@ export default function App() {
         if (data.theme) setTheme(data.theme); 
         // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
         if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
-          setAudienceTheme(data.audienceTheme);
+          setAudienceTheme(data.audienceTheme === 'CultureTech' ? 'heritage' : data.audienceTheme);
         }
         setStepContents({
           1: data.stepsData[1] || "",
