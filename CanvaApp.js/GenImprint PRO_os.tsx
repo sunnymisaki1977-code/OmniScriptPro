@@ -471,60 +471,92 @@ export default function App() {
       }
     }
 
-    // 若全部 10 個步驟都有內容
     if (startStep > 10) {
       addLog(`[System] 10 個步驟皆已存在內容，接續完成！`, 'success');
       setIsGenerating(false);
       return;
     }
 
-    const alreadyCompleted = [];
-    for (let i = 1; i < startStep; i++) {
-      alreadyCompleted.push(i);
-    }
-    setCompletedSteps(alreadyCompleted);
-
-    for (let step = startStep; step <= 10; step++) {
-      setActiveStep(step);
-      addLog(`[Process] 正在撰寫 Step ${step}: ${STEPS[step - 1].name}...`);
-
+    // ==========================================
+    // Stage 1: 專注事實查核 (Step 1)
+    // ==========================================
+    if (startStep === 1) {
+      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0].name}...`);
+      setActiveStep(1);
+      
       try {
-        const context = {
-          theme: startTheme,
-          step1: currentContextContents[1] || "",
-          step2: currentContextContents[2] || "",
-          step3: currentContextContents[3] || "",
-          step4: currentContextContents[4] || "",
-          step5: currentContextContents[5] || "",
-        };
-
-        // 直接向 Vercel 要資料
-        const resultText = await callVercelApi(step, context, audienceTheme, geminiApiKey);
-
-        currentContextContents[step] = resultText;
-        setStepContents(prev => ({
-          ...prev,
-          [step]: resultText
-        }));
+        const context = { theme: startTheme };
+        const resultText = await callVercelApi(1, context, audienceTheme, geminiApiKey);
         
-        setCompletedSteps(prev => [...new Set([...prev, step])]);
-        addLog(`[AI] ✨ Step ${step} 內容從伺服器回傳完畢！`, 'success');
-
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-      } catch (error) {
-        addLog(`[Error] Step ${step} 生成失敗: ${error.message}，中止全自動流程。`, 'error');
+        currentContextContents[1] = resultText;
+        setStepContents(prev => ({ ...prev, 1: resultText }));
+        setCompletedSteps(prev => [...new Set([...prev, 1])]);
+        
+        addLog(`[System] ⏸ 第一階段基礎研究已生成完畢！請檢閱內容，確認無誤後再次點擊「一鍵全自動模式」以執行 Stage 2 一口氣跑完。`, 'info');
         setIsGenerating(false);
-        return; 
+        return; // 在此中斷，等待使用者確認
+      } catch (error) {
+        addLog(`[Error] Step 1 生成失敗: ${error.message}，中止全自動流程。`, 'error');
+        setIsGenerating(false);
+        return;
       }
     }
 
-    setIsGenerating(false);
-    addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
-    setCredits(prevCredits => Math.max(0, prevCredits - 15));
+    // ==========================================
+    // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
+    // ==========================================
+    addLog(`[Process] Stage 2：正在呼叫批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`);
     
-    // 自動匯出至 Notion
-    await startNotionExport(currentContextContents, startTheme);
+    try {
+      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+        },
+        body: JSON.stringify({
+          theme: startTheme,
+          customDocText: currentContextContents[1] || "",
+          startFromStep: startStep,
+          endStep: 10,
+          audienceTheme: audienceTheme,
+          existingData: currentContextContents
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `伺服器回應錯誤: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      const generatedData = responseData.data;
+
+      const newCompleted = [];
+      const updatedContents = { ...currentContextContents };
+      
+      for (let i = startStep; i <= 10; i++) {
+        if (generatedData[i]) {
+          updatedContents[i] = generatedData[i];
+          newCompleted.push(i);
+          addLog(`[AI] ✨ Step ${i} 內容從批次引擎回傳完畢！`, 'success');
+        }
+      }
+
+      setStepContents(updatedContents);
+      setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
+
+      addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
+      setCredits(prevCredits => Math.max(0, prevCredits - 15));
+      
+      // 自動匯出至 Notion
+      await startNotionExport(updatedContents, startTheme);
+
+    } catch (error) {
+      addLog(`[Error] 批次生成失敗: ${error.message}，請確認 API Key 額度或網路連線。`, 'error');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
     const handleLoadArchive = async (e) => {
