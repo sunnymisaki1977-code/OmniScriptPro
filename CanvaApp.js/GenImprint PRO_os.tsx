@@ -14,13 +14,13 @@ import {
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
+  'TECH2026': 'CultureTech',   // 科技文化・未來探索
   'GLAM2026': 'beauty',        // 美妝保養・悅己美學
   'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
   'RUBY2026': 'food',          // 美食料理・風味探索
   'PET2026': 'pet',            // 寵物照護・幸福陪伴
   'SKY2026': 'pet',            // 相容舊碼
-  'MASTER': 'heritage'      // 管理員
+  'MASTER': 'CultureTech'      // 管理員
 };
 
 const IMAGE_ENGINES = [
@@ -106,7 +106,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch(`https://omni-script-pro.vercel.app/api/config?t=${Date.now()}`, { cache: 'no-store' })
+    fetch('https://omni-script-pro.vercel.app/api/config')
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -176,14 +176,14 @@ export default function App() {
      const [visualStep, setVisualStep] = useState(6);
   const [audienceTheme, setAudienceTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_audienceTheme') || 'heritage';
+      return localStorage.getItem('os_pro_audienceTheme') || 'CultureTech';
     }
-    return 'heritage';
+    return 'CultureTech';
   });
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
-  const STEPS = themeSteps[audienceTheme] || themeSteps.heritage || [];
+  const STEPS = themeSteps[audienceTheme] || themeSteps.CultureTech || [];
   const [stepContents, setStepContents] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('os_pro_stepContents');
@@ -577,48 +577,50 @@ export default function App() {
     }
 
     // ==========================================
-    // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
+    // Stage 2: 依序生成其它步驟 (逐個步驟呼叫以避免 504 Timeout 並提供即時進度)
     // ==========================================
-    addLog(`[Process] Stage 2：正在呼叫批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`);
+    addLog(`[Process] Stage 2：正在啟動步進式生成引擎，準備依序產出 Step ${startStep} ~ 10...`, 'info');
     
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-        },
-        body: JSON.stringify({
-          theme: startTheme,
-          customDocText: currentContextContents[1] || "",
-          startFromStep: startStep,
-          endStep: 10,
-          audienceTheme: audienceTheme,
-          existingData: currentContextContents
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `伺服器回應錯誤: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      const generatedData = responseData.data;
-
-      const newCompleted = [];
       const updatedContents = { ...currentContextContents };
-      
-      for (let i = startStep; i <= 10; i++) {
-        if (generatedData[i]) {
-          updatedContents[i] = generatedData[i];
-          newCompleted.push(i);
-          addLog(`[AI] ✨ Step ${i} 內容從批次引擎回傳完畢！`, 'success');
+      const newCompleted = [];
+
+      for (let current = startStep; current <= 10; current++) {
+        addLog(`[Process] 正在生成 Step ${current}: ${STEPS[current-1]?.name}...`);
+        setActiveStep(current); // 同步切換畫布視角
+
+        const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+          },
+          body: JSON.stringify({
+            theme: startTheme,
+            customDocText: updatedContents[1] || "",
+            startFromStep: current,
+            endStep: current, // 每次只跑一個步驟
+            audienceTheme: audienceTheme,
+            existingData: updatedContents
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Step ${current} 伺服器回應錯誤: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        const generatedText = responseData.data[current];
+
+        if (generatedText) {
+          updatedContents[current] = generatedText;
+          newCompleted.push(current);
+          setStepContents(prev => ({ ...prev, [current]: generatedText }));
+          setCompletedSteps(prev => [...new Set([...prev, current])]);
+          addLog(`[AI] ✨ Step ${current} 內容生成完畢！`, 'success');
         }
       }
-
-      setStepContents(updatedContents);
-      setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
 
       addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
@@ -879,14 +881,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       window.removeEventListener('keydown', handleInteraction, { capture: true });
     };
   }, [isAuthenticated, showLoginPrompt]);
-
-  if (!isConfigLoaded) {
-    return (
-      <div className="h-screen bg-[#030712] flex items-center justify-center text-slate-400 font-mono tracking-widest text-sm animate-pulse">
-        系統初始化中 (Loading Configuration)...
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
@@ -1317,13 +1311,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </button>
                           <span className="text-slate-600">•</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
-                            STEP {activeStep} • {STEPS[activeStep-1] ? STEPS[activeStep-1].category : 'Loading'}
+                            STEP {activeStep} • {STEPS[activeStep-1].category}
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1] ? STEPS[activeStep-1].name : '載入中'}
+                          {STEPS[activeStep-1].name}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1] ? STEPS[activeStep-1].desc : ''}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
                       </div>
 
                       <button 
@@ -1873,7 +1867,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </div>
             ) : (
               <button
-                onClick={startNotionExport}
+                onClick={() => startNotionExport()}
                 disabled={isNotionExporting}
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
               >
@@ -1907,7 +1901,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   value={passcode}
                   onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
                   placeholder="輸入授權碼"
-                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-4 text-xl text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
                   autoFocus
                 />
               </div>
@@ -1926,7 +1920,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>
-              <span className="col-span-2 text-center">SKY2026 (教育)</span>
+              <span>SKY2026 (教育)</span>
+              <span>MASTER (管理)</span>
             </div>
           </div>
         </div>

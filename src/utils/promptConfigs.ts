@@ -28,7 +28,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 主題分類：
 判斷原因：
 
-接著依照對應模板撰寫。
+接著依照對應模板撰寫。`
 第一類：神佛/歷史人物
 請針對主題「${ctx.theme}」進行一份約 1500 字的精確事實報告。
 請注意，這類名詞常有字面誤導（姓氏不代表特定歷史名人）。
@@ -101,7 +101,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 ✔ 現代研究觀點
 
-現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。
+現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。`,
 
 第二類：民俗/節氣
   
@@ -252,7 +252,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 ----------------------------------
 請以「${ctx.theme}」開始撰寫完整研究報告。`
-  },
+  }
 
   {
     id: 2,

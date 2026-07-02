@@ -2,7 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { NextResponse } from "next/server";
 
-export const maxDuration = 60; // 延長 Vercel Pro/付費版預設截斷時間
+// 延長 Vercel 預設截斷時間。若為 Vercel Pro 建議設為 300；Hobby 版請注意上限通常為 10~60 秒
+export const maxDuration = 60; 
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
       const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請調查主題：「${theme}」並提供約 1500 字的事實報告。`;
+      
       let searchSuccess = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
@@ -52,15 +54,20 @@ export async function POST(req: Request) {
           if (attempt < 3) await new Promise(res => setTimeout(res, 2000 * attempt));
         }
       }
+      
       if (!searchSuccess) {
         console.warn("事實查核多次失敗，將使用空字串繼續...");
+        // 若明確只跑第一步卻全數失敗，直接回傳錯誤，避免前端拿到空資料
+        if (endStep === 1) {
+          return NextResponse.json({ error: "事實查核階段連線失敗，請稍後再試。" }, { status: 502 });
+        }
       }
       
-      // 如果只要跑第一步，就直接回傳查核結果，不要再進 Stage 2 浪費時間與遇到 504
+      // 如果只要跑第一步，就直接回傳查核結果
       if (endStep === 1) {
         return NextResponse.json({ 
           data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-pro",
+          modelUsed: "gemini-2.5-flash",
           contextUsed: verifiedContext 
         });
       }
@@ -69,16 +76,14 @@ export async function POST(req: Request) {
     // ==========================================
     // Stage 2: 模組化批次生成內容
     // ==========================================
-    // 1. 篩選出本次請求需要生成的步驟
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= startFromStep && step.id <= endStep);
+    
     if (targetSteps.length === 0) {
       return NextResponse.json({ error: "無效的步驟範圍" }, { status: 400 });
     }
 
-    const keysRequired = targetSteps.map(step => `"${step.id}"`); // 修改為直接使用 "${step.id}" 符合前端預期
-    
-    // 2. 建立大師級「自我參考」與「史料」上下文
+    // 建立大師級「自我參考」與「史料」上下文
     const stepContext = {
       theme: theme,
       step1: verifiedContext ? verifiedContext : "【請基於你在 Step 1 產出的內容】",
@@ -88,7 +93,7 @@ export async function POST(req: Request) {
       step5: existingData[5] || "【請基於你在 Step 5 產出的內容】",
     };
 
-    // 3. 組裝 Master Prompt
+    // 組裝 Master Prompt
     let masterPrompt = `你現在是頂尖的全域企劃 AI 助理。請針對主題「${theme}」產出指定步驟的內容。\n`;
 
     if (verifiedContext) {
@@ -102,12 +107,10 @@ export async function POST(req: Request) {
     masterPrompt += `
 【絕對要求】：
 1. 你必須直接回傳純 JSON 格式，絕對不要包含 markdown 區塊標記 (如 \`\`\`json)。
-2. 本次只需輸出 ${targetSteps.length} 個 key：${keysRequired.join(", ")}。
-3. 每個 key 的 value 請填入對應步驟生成的完整純文字內容（可用 Markdown 排版，換行請用 "\\n" 跳脫，絕對禁止巢狀物件或陣列）。
+2. 每個 key 的 value 請填入對應步驟生成的完整純文字內容（可用 Markdown 排版，換行請用 "\\n" 跳脫，絕對禁止巢狀物件或陣列）。
 
 以下是本次需執行的步驟指令：\n\n`;
 
-    // 4. 動態注入目標步驟的提示詞
     for (const step of targetSteps) {
       masterPrompt += `--- [步驟 ${step.id}：${step.title}] ---\n`;
       masterPrompt += step.prompt(stepContext) + "\n\n";
@@ -116,40 +119,46 @@ export async function POST(req: Request) {
     console.log(`[Stage 2] 開始生成步驟 ${startFromStep} 到 ${endStep}...`);
 
     // ==========================================
+    // 定義強型別 JSON 輸出結構 (Structured Outputs)
+    // ==========================================
+    const responseSchema = {
+      type: "OBJECT",
+      properties: targetSteps.reduce((acc, step) => {
+        // 動態生成屬性，強制要求模型輸出的值必須是純字串 (STRING)
+        acc[step.id.toString()] = { type: "STRING" };
+        return acc;
+      }, {} as Record<string, { type: "STRING" }>),
+      required: targetSteps.map(step => step.id.toString())
+    };
+
+    // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
-    let modelUsed = "";
+    // 補齊與 MAX_RETRIES 對應的模型陣列
+    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite"];
     const MAX_RETRIES = 4;
+    let modelUsed = "";
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
+      modelUsed = MODELS[attempt - 1];
 
       try {
         const response = await ai.models.generateContent({
           model: modelUsed,
           contents: masterPrompt,
           config: {
-            responseMimeType: "application/json", // 強制 JSON 模式
+            responseMimeType: "application/json", 
+            responseSchema: responseSchema, // 綁定 Schema，確保輸出格式 100% 正確
             maxOutputTokens: 8192,
           }
         });
 
         let cleanText = (response.text || "{}").trim();
         
-        // 雙重防禦：去除可能的 markdown 殘留
+        // 保險起見：去除可能的 markdown 殘留 (雖然綁了 schema，某些邊界情況仍可能帶有標記)
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
         const parsedData = JSON.parse(cleanText);
-
-        // 確保所有的值都被轉為字串，避免前端 React 渲染 Error
-        for (const key in parsedData) {
-          if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
-            parsedData[key] = JSON.stringify(parsedData[key], null, 2);
-          } else {
-            parsedData[key] = String(parsedData[key]);
-          }
-        }
 
         console.log(`[Stage 2] 成功使用模型 ${modelUsed} 完成生成。`);
         return NextResponse.json({ 
@@ -186,7 +195,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("API 致命錯誤:", error);
     if (error.message?.includes("429") || error.message?.includes("quota")) {
-      return NextResponse.json({ error: "Google API 額度已達上限。請稍後再試！" }, { status: 429 });
+      return NextResponse.json({ error: "Google API 額度已達上限，或所有金鑰皆遭限流。請稍後再試！" }, { status: 429 });
     }
     return NextResponse.json({ error: error.message || "生成失敗" }, { status: 500 });
   }
