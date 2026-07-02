@@ -654,9 +654,11 @@ export default function App() {
 
       if (data.stepsData) {
         // 成功抓取後，一鍵把內容填回編輯器！
-        // 如果原本存檔有 theme 屬性就更新，沒有的話使用預設
         if (data.theme) setTheme(data.theme); 
-        if (data.audienceTheme) setAudienceTheme(data.audienceTheme);
+        // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
+        if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
+          setAudienceTheme(data.audienceTheme);
+        }
         setStepContents({
           1: data.stepsData[1] || "",
           2: data.stepsData[2] || "",
@@ -781,7 +783,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     const payload = {
       theme: targetTheme,
       stepsData: targetContents,
-      creatorName: curTheme.title // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
+      creatorName: curTheme.title, // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
+      audienceTheme: audienceTheme
     };
 
     const response = await fetch(VERCEL_NOTION_URL, {
