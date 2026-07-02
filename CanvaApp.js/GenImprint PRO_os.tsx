@@ -728,7 +728,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (data.url) {
       setNotionUrl(data.url);
-      window.open(data.url, '_blank');
+      if (passcode.trim().toUpperCase() === 'MASTER') {
+        window.open(data.url, '_blank');
+      }
     }
     
   } catch (error) {
@@ -1151,7 +1153,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   <select 
     value={selectedArchive}
     onChange={handleLoadArchive}
-    className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center"
+    disabled={passcode.trim().toUpperCase() !== 'MASTER'}
+    className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
   >
     <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
     
@@ -1767,10 +1770,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             {notionStatus === '✅ 已成功歸檔' ? (
               <div className="w-full relative">
                 <select
-                  className="w-full py-2.5 pl-8 pr-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 text-xs font-bold appearance-none cursor-pointer outline-none text-center shadow-inner transition-all disabled:opacity-50"
+                  className="w-full py-2.5 pl-8 pr-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 text-xs font-bold appearance-none cursor-pointer outline-none text-center shadow-inner transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   onChange={handleLoadArchive}
                   value={selectedArchive}
-                  disabled={isLoadingArchive}
+                  disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
                 >
                   <option value="">點擊選擇團隊專案</option>
                   <option value="open_current">🔗 打開目前專案</option>
