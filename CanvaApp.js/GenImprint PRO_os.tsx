@@ -454,18 +454,35 @@ export default function App() {
         setMode('auto');
     setViewState('workspace');
     
-    let currentContextContents = {}; 
+    let currentContextContents = { ...stepContents }; 
     let startStep = 1;
 
-    // 如果使用者有自訂背景資料，就把它當作 Step 1，然後從 Step 2 開始跑
-    if (customContext.trim()) {
+    // 如果使用者有自訂背景資料且 Step 1 為空，就把它當作 Step 1
+    if (customContext.trim() && (!currentContextContents[1] || currentContextContents[1].trim() === '')) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
-      setCompletedSteps([1]);
-      startStep = 2;
-    } else {
-      setCompletedSteps([]);
     }
+
+    // 智能接續邏輯：尋找第一個沒有內容的步驟
+    for (let i = 1; i <= 10; i++) {
+      if (!currentContextContents[i] || currentContextContents[i].trim() === '') {
+        startStep = i;
+        break;
+      }
+    }
+
+    // 若全部 10 個步驟都有內容
+    if (startStep > 10) {
+      addLog(`[System] 10 個步驟皆已存在內容，接續完成！`, 'success');
+      setIsGenerating(false);
+      return;
+    }
+
+    const alreadyCompleted = [];
+    for (let i = 1; i < startStep; i++) {
+      alreadyCompleted.push(i);
+    }
+    setCompletedSteps(alreadyCompleted);
 
     for (let step = startStep; step <= 10; step++) {
       setActiveStep(step);
