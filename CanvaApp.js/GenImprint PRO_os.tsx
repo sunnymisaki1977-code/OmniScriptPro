@@ -153,6 +153,16 @@ export default function App() {
      return '';
    });
    
+   const [audienceTheme, setAudienceTheme] = useState(() => {
+     if (typeof window !== 'undefined') {
+       const saved = localStorage.getItem('os_pro_audienceTheme');
+       if (saved && saved !== 'undefined' && saved !== 'null') {
+           return saved === 'CultureTech' ? 'heritage' : saved;
+       }
+     }
+     return 'heritage';
+   });
+   
    // --- 新增：自訂背景資料狀態 ---
    const [customContext, setCustomContext] = useState(() => {
      if (typeof window !== 'undefined') {
@@ -540,7 +550,7 @@ export default function App() {
     // Stage 1: 專注事實查核 (Step 1)
     // ==========================================
     if (startStep === 1) {
-      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0].name}...`);
+      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0]?.name}...`);
       setActiveStep(1);
       
       try {
@@ -1312,13 +1322,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </button>
                           <span className="text-slate-600">•</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
-                            STEP {activeStep} • {STEPS[activeStep-1].category}
+                            STEP {activeStep} • {STEPS[activeStep-1]?.category}
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1].name}
+                          {STEPS[activeStep-1]?.name}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc}</p>
                       </div>
 
                       <button 
