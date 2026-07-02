@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     });
 
     // 2. Format each step's content into blocks
-    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     for (const step of WORKFLOW_STEPS) {
       const content = stepsData[step.id];
       if (!content) continue;

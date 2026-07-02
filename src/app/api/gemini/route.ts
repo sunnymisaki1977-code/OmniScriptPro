@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing stepId" }, { status: 400 });
     }
 
-    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const step = WORKFLOW_STEPS.find(s => s.id === stepId);
     if (!step) {
       return NextResponse.json({ error: "Invalid stepId" }, { status: 400 });

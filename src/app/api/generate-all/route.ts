@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // ==========================================
     if (!verifiedContext && startFromStep <= 1) {
       console.log("[Stage 1] 開始事實查核...");
-      const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
+      const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請調查主題：「${theme}」並提供約 1500 字的事實報告。`;
       let searchSuccess = false;
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     // Stage 2: 模組化批次生成內容
     // ==========================================
     // 1. 篩選出本次請求需要生成的步驟
-    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= startFromStep && step.id <= endStep);
     if (targetSteps.length === 0) {
       return NextResponse.json({ error: "無效的步驟範圍" }, { status: 400 });

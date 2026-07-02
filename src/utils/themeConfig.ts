@@ -1,6 +1,6 @@
 export const AUDIENCE_THEMES = {
-  CultureTech: {
-    id: 'CultureTech',
+  heritage: {
+    id: 'heritage',
     title: '民俗信仰・文化傳承 heritage',
     subtitle: 'Cinematic Pink 賽博霓虹粉',
     desc: '冷冽科技感、高對比度的深邃紫與霓虹粉。專為科技產品、未來趨勢與歷史解密設計。',
@@ -112,7 +112,7 @@ export const AUDIENCE_THEMES = {
 };
 
 export const THEME_STEPS = {
-  CultureTech: [
+  heritage: [
     { id: 1, name: '基礎背景事實查核', icon: 'Database', category: 'Research', desc: '針對主題進行定義釐清與客觀史料彙整', type: "text", dependsOn: ["theme"] },
     { id: 2, name: "長影音腳本撰寫", icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。", type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: "長影音 SEO 優化", icon: 'Search', category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },

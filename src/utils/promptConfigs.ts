@@ -9,7 +9,7 @@ export interface WorkflowStep {
 }
 
 export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
-  CultureTech: [
+  heritage: [
   {
     id: 1,
   title: "基礎背景事實查核",
@@ -1663,10 +1663,10 @@ ${ctx.step1}
 };
 
 export const getWorkflowSteps = (themeId: string): WorkflowStep[] => {
-  return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['CultureTech'];
+  return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage'];
 };
 
-export const WORKFLOW_STEPS: WorkflowStep[] = WORKFLOWS_REGISTRY['CultureTech'];
+export const WORKFLOW_STEPS: WorkflowStep[] = WORKFLOWS_REGISTRY['heritage'];
 
 
 
