@@ -33,19 +33,27 @@ export async function POST(req: Request) {
       const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請調查主題：「${theme}」並提供約 1500 字的事實報告。`;
-      
-      try {
-        const searchResponse = await ai.models.generateContent({
-          model: "gemini-2.5-pro",
-          contents: researchPrompt,
-          config: {
-            tools: [{ googleSearch: {} }] // 開啟搜尋
-          }
-        });
-        verifiedContext = searchResponse.text || "";
-        console.log("[Stage 1] 事實查核完成");
-      } catch (err) {
-        console.warn("事實查核發生錯誤，將使用空字串繼續...", err);
+      let searchSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const searchResponse = await ai.models.generateContent({
+            model: "gemini-2.5-pro",
+            contents: researchPrompt,
+            config: {
+              tools: [{ googleSearch: {} }] // 開啟搜尋
+            }
+          });
+          verifiedContext = searchResponse.text || "";
+          console.log("[Stage 1] 事實查核完成");
+          searchSuccess = true;
+          break;
+        } catch (err: any) {
+          console.warn(`[Stage 1] 事實查核第 ${attempt} 次發生錯誤: ${err.message}`);
+          if (attempt < 3) await new Promise(res => setTimeout(res, 2000 * attempt));
+        }
+      }
+      if (!searchSuccess) {
+        console.warn("事實查核多次失敗，將使用空字串繼續...");
       }
     }
 

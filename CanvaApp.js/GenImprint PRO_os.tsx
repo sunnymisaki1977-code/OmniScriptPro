@@ -485,8 +485,27 @@ export default function App() {
       setActiveStep(1);
       
       try {
-        const context = { theme: startTheme };
-        const resultText = await callVercelApi(1, context, audienceTheme, geminiApiKey);
+        // 改用後端 /api/generate-all 來跑 Step 1，享有自動重試與防 503 機制
+        const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+          },
+          body: JSON.stringify({
+            theme: startTheme,
+            startFromStep: 1,
+            endStep: 1,
+            audienceTheme: audienceTheme
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`伺服器回應錯誤: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        const resultText = responseData.data[1] || "";
         
         currentContextContents[1] = resultText;
         setStepContents(prev => ({ ...prev, 1: resultText }));
