@@ -512,6 +512,13 @@ export default function App() {
 
         await new Promise(resolve => setTimeout(resolve, 1500));
 
+        // 兩階段生成邏輯：第一階段搜集完資料後先暫停，讓使用者確認
+        if (step === 1 && startStep === 1) {
+          addLog(`[System] ⏸ 第一階段基礎研究已生成完畢！請檢閱內容，確認無誤後再次點擊「一鍵全自動模式」以接續產生後續步驟。`, 'info');
+          setIsGenerating(false);
+          return;
+        }
+
       } catch (error) {
         addLog(`[Error] Step ${step} 生成失敗: ${error.message}，中止全自動流程。`, 'error');
         setIsGenerating(false);
