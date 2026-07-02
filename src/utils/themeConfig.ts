@@ -1,7 +1,7 @@
 export const AUDIENCE_THEMES = {
   heritage: {
     id: 'heritage',
-    title: '民俗信仰・文化傳承 heritage',
+    title: '民俗信仰・文化傳承',
     subtitle: 'Cinematic Pink 賽博霓虹粉',
     desc: '冷冽科技感、高對比度的深邃紫與霓虹粉。專為科技產品、未來趨勢與歷史解密設計。',
     gradient: 'from-purple-500 via-pink-500 to-rose-500',
@@ -19,7 +19,7 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-purple-900/40 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.25)]',
     pipelineCurrentIcon: 'bg-purple-500 text-white animate-pulse',
     tagBg: 'bg-purple-500/10 border-purple-500/20 text-purple-300',
-    themeLogMessage: '[Theme] 已切換至「科技文化・未來探索 (Cinematic Pink)」模式。優化低光源剪輯視覺，啟動 RGB 電競靈感調幅機制 🟢'
+    themeLogMessage: '[Theme] 已切換至「民俗信仰・文化傳承 (Cinematic Pink)」模式。優化低光源剪輯視覺，啟動 RGB 電競靈感調幅機制 🟢'
   },
   beauty: {
     id: 'beauty',

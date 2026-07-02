@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     const { stepId, context, audienceTheme } = await req.json();
 
-    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'CultureTech');
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const step = WORKFLOW_STEPS.find((s) => s.id === stepId);
     if (!step) {
       return NextResponse.json({ error: "Invalid step ID" }, { status: 400 });

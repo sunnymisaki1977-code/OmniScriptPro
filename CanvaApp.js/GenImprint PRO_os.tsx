@@ -14,7 +14,7 @@ import {
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 科技文化・未來探索
+  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
   'GLAM2026': 'beauty',        // 美妝保養・悅己美學
   'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
   'RUBY2026': 'food',          // 美食料理・風味探索
@@ -153,16 +153,6 @@ export default function App() {
      return '';
    });
    
-   const [audienceTheme, setAudienceTheme] = useState(() => {
-     if (typeof window !== 'undefined') {
-       const saved = localStorage.getItem('os_pro_audienceTheme');
-       if (saved && saved !== 'undefined' && saved !== 'null') {
-           return saved === 'CultureTech' ? 'heritage' : saved;
-       }
-     }
-     return 'heritage';
-   });
-   
    // --- 新增：自訂背景資料狀態 ---
    const [customContext, setCustomContext] = useState(() => {
      if (typeof window !== 'undefined') {
@@ -184,7 +174,12 @@ export default function App() {
      return [1];
    }); 
      const [visualStep, setVisualStep] = useState(6);
-
+  const [audienceTheme, setAudienceTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('os_pro_audienceTheme') || 'heritage';
+    }
+    return 'heritage';
+  });
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
@@ -542,7 +537,7 @@ export default function App() {
     // Stage 1: 專注事實查核 (Step 1)
     // ==========================================
     if (startStep === 1) {
-      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0]?.name}...`);
+      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0].name}...`);
       setActiveStep(1);
       
       try {
@@ -662,7 +657,7 @@ export default function App() {
         if (data.theme) setTheme(data.theme); 
         // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
         if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
-          setAudienceTheme(data.audienceTheme === 'CultureTech' ? 'heritage' : data.audienceTheme);
+          setAudienceTheme(data.audienceTheme);
         }
         setStepContents({
           1: data.stepsData[1] || "",
@@ -1314,13 +1309,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </button>
                           <span className="text-slate-600">•</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
-                            STEP {activeStep} • {STEPS[activeStep-1]?.category}
+                            STEP {activeStep} • {STEPS[activeStep-1].category}
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1]?.name}
+                          {STEPS[activeStep-1].name}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
                       </div>
 
                       <button 
@@ -1919,7 +1914,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
             {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
             <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 text-[9px] text-slate-600 font-mono relative z-10">
-              <span>TECH2026 (民俗信仰)</span>
+              <span>TECH2026 (科技)</span>
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>
