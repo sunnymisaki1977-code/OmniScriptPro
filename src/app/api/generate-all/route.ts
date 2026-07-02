@@ -3,7 +3,7 @@ import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { NextResponse } from "next/server";
 
 // 延長 Vercel 預設截斷時間。若為 Vercel Pro 建議設為 300；Hobby 版請注意上限通常為 10~60 秒
-export const maxDuration = 60; 
+export const maxDuration = 300; 
 
 export async function POST(req: Request) {
   try {

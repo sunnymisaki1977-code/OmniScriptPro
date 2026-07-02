@@ -577,50 +577,48 @@ export default function App() {
     }
 
     // ==========================================
-    // Stage 2: 依序生成其它步驟 (逐個步驟呼叫以避免 504 Timeout 並提供即時進度)
+    // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
     // ==========================================
-    addLog(`[Process] Stage 2：正在啟動步進式生成引擎，準備依序產出 Step ${startStep} ~ 10...`, 'info');
+    addLog(`[Process] Stage 2：正在呼叫批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`);
     
     try {
-      const updatedContents = { ...currentContextContents };
+      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+        },
+        body: JSON.stringify({
+          theme: startTheme,
+          customDocText: currentContextContents[1] || "",
+          startFromStep: startStep,
+          endStep: 10,
+          audienceTheme: audienceTheme,
+          existingData: currentContextContents
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `伺服器回應錯誤: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+      const generatedData = responseData.data;
+
       const newCompleted = [];
-
-      for (let current = startStep; current <= 10; current++) {
-        addLog(`[Process] 正在生成 Step ${current}: ${STEPS[current-1]?.name}...`);
-        setActiveStep(current); // 同步切換畫布視角
-
-        const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-          },
-          body: JSON.stringify({
-            theme: startTheme,
-            customDocText: updatedContents[1] || "",
-            startFromStep: current,
-            endStep: current, // 每次只跑一個步驟
-            audienceTheme: audienceTheme,
-            existingData: updatedContents
-          })
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || `Step ${current} 伺服器回應錯誤: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        const generatedText = responseData.data[current];
-
-        if (generatedText) {
-          updatedContents[current] = generatedText;
-          newCompleted.push(current);
-          setStepContents(prev => ({ ...prev, [current]: generatedText }));
-          setCompletedSteps(prev => [...new Set([...prev, current])]);
-          addLog(`[AI] ✨ Step ${current} 內容生成完畢！`, 'success');
+      const updatedContents = { ...currentContextContents };
+      
+      for (let i = startStep; i <= 10; i++) {
+        if (generatedData[i]) {
+          updatedContents[i] = generatedData[i];
+          newCompleted.push(i);
+          addLog(`[AI] ✨ Step ${i} 內容從批次引擎回傳完畢！`, 'success');
         }
       }
+
+      setStepContents(updatedContents);
+      setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
 
       addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
@@ -1867,7 +1865,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </div>
             ) : (
               <button
-                onClick={() => startNotionExport()}
+                onClick={startNotionExport}
                 disabled={isNotionExporting}
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
               >
