@@ -35,8 +35,7 @@ export async function POST(req: Request) {
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請使用 Google Search 徹底調查主題：「${theme}」。`;
       
-      
-        try {
+      try {
         const searchResponse = await ai.models.generateContent({
           model: "gemini-2.5-pro",
           contents: researchPrompt,
@@ -49,21 +48,30 @@ export async function POST(req: Request) {
       } catch (err) {
         console.warn("事實查核發生錯誤，將使用空字串繼續...", err);
       }
+
+      // 👉 修正：如果只要跑第一步，就直接回傳查核結果，提早結束！
+      if (endStep === 1) {
+        return NextResponse.json({ 
+          data: { "1": verifiedContext }, 
+          modelUsed: "gemini-2.5-pro",
+          contextUsed: verifiedContext 
+        });
+      }
     }
-
-
 
     // ==========================================
     // Stage 2: 模組化批次生成內容
     // ==========================================
- // 1. 篩選出本次請求需要生成的步驟
-
+    // 1. 篩選出本次請求需要生成的步驟
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= startFromStep && step.id <= endStep);
     
     if (targetSteps.length === 0) {
       return NextResponse.json({ error: "無效的步驟範圍" }, { status: 400 });
     }
+
+    // 👉 修正：必須先定義 keysRequired，否則下面 masterPrompt 會報錯！
+    const keysRequired = targetSteps.map(step => `"${step.id}"`);
 
     // 建立大師級「自我參考」與「史料」上下文
     const stepContext = {
@@ -101,11 +109,20 @@ export async function POST(req: Request) {
 
     console.log(`[Stage 2] 開始生成步驟 ${startFromStep} 到 ${endStep}...`);
 
+    // 👉 優化：將 Type Schema 加回來，確保輸出格式絕對穩定
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: targetSteps.reduce((acc, step) => {
+        acc[step.id.toString()] = { type: Type.STRING };
+        return acc;
+      }, {} as Record<string, { type: Type.STRING }>),
+      required: targetSteps.map(step => step.id.toString())
+    };
+
     // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
-    // 補齊與 MAX_RETRIES 對應的模型陣列
-   const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
+    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
     let modelUsed = "";
     const MAX_RETRIES = 4;
 
@@ -117,11 +134,11 @@ export async function POST(req: Request) {
           model: modelUsed,
           contents: masterPrompt,
           config: {
-            responseMimeType: "application/json", // 強制 JSON 模式
+            responseMimeType: "application/json", 
+            responseSchema: responseSchema, // 綁定 Schema
             maxOutputTokens: 8192,
           }
         });
-
 
         let cleanText = (response.text || "{}").trim();
         
@@ -145,7 +162,6 @@ export async function POST(req: Request) {
           modelUsed: modelUsed,
           contextUsed: verifiedContext 
         });
-
 
       } catch (err: any) {
         const errorMsg = err.message || "";
