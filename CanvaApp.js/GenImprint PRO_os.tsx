@@ -1431,10 +1431,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <span className="text-[10px] font-mono text-slate-500 ml-2">Markdown Editor</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          {currentContextContents[activeStep] && currentContextContents[activeStep].trim() !== '' && (
+                          {stepContents[activeStep] && stepContents[activeStep].trim() !== '' && (
                             <button
                               onClick={() => {
-                                const text = currentContextContents[activeStep];
+                                const text = stepContents[activeStep];
                                 const blob = new Blob([text], { type: 'text/markdown' });
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
