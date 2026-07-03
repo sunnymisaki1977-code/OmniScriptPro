@@ -1245,12 +1245,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     {/* --- 新增：API Key 輸入區 --- */}
                     {!isCanvasEnv && (
                       <div className="space-y-2 pt-2 border-t border-slate-900/50">
-                        <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
+                          <span className="text-[9px] text-indigo-400 font-medium">✨ 支援多把金鑰輪替 (以逗號分隔)</span>
+                        </div>
                         <div className="relative">
                           <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                           <input 
                             type="password"
-                            placeholder="輸入您的 Gemini API Key (AI 平台生成的金鑰)..."
+                            placeholder="輸入 API Key (可貼上多把金鑰並用半形逗號 , 分隔)..."
                             value={geminiApiKey}
                             onChange={(e) => setGeminiApiKey(e.target.value)}
                             className="w-full bg-[#070b16] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
@@ -2033,7 +2036,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </button>
             </div>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-              您目前處於獨立運行模式，必須輸入 Gemini API Key 才能執行「一鍵全自動模式」。請提供有效的金鑰以繼續操作。
+              您目前處於獨立運行模式，必須輸入 Gemini API Key 才能執行。
+              <br />
+              <span className="text-indigo-400 font-medium mt-1 inline-block">✨ 系統支援防限流機制：您可以一次貼上多把金鑰，並使用半形逗號 <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> 分隔。</span>
             </p>
             
             <div className="space-y-4">
@@ -2041,7 +2046,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="輸入您的 Gemini API Key..."
+                  placeholder="輸入 API Key (例如：AIzaSy..., AIzaSy..., AIzaSy...)"
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
