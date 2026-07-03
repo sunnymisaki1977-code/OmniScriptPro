@@ -1133,7 +1133,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>一鍵全自動模式</span>
+                <span>{completedSteps.length > 1 ? '接續自動生成' : '一鍵全自動模式'}</span>
               </button>
             )}
 
