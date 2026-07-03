@@ -14,7 +14,7 @@ import {
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 科技文化・未來探索
+  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
   'GLAM2026': 'beauty',        // 美妝保養・悅己美學
   'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
   'RUBY2026': 'food',          // 美食料理・風味探索
@@ -2007,13 +2007,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </form>
 
             {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
-            <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 text-[9px] text-slate-600 font-mono relative z-10">
-              <span>TECH2026 (科技)</span>
+            <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
+              <span>TECH2026 (民俗)</span>
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>
-              <span>SKY2026 (教育)</span>
-              <span>MASTER (管理)</span>
+              <span>SKY2026 (寵物)</span>
+              
             </div>
           </div>
         </div>
