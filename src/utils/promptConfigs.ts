@@ -1648,6 +1648,7 @@ ${ctx.step1}
 #${ctx.theme}
 
 以及10個熱門寵物Hashtags。`
+    }
   ],
   historyMeme: [
   {
