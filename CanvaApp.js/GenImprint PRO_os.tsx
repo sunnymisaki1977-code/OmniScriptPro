@@ -600,7 +600,8 @@ export default function App() {
     const progressInterval = setInterval(() => {
       if (msgIndex < progressMessages.length) {
         addLog(progressMessages[msgIndex].msg, 'info');
-        setCompletedSteps(prev => [...new Set([...prev, ...progressMessages[msgIndex].steps])]);
+        const stepsToAdd = progressMessages[msgIndex].steps;
+        setCompletedSteps(prev => [...new Set([...prev, ...stepsToAdd])]);
         msgIndex++;
       }
     }, 7000); // 每 7 秒推播一條狀態並點亮綠燈
