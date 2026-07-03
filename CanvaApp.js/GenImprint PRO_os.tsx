@@ -726,15 +726,21 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
-    const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
-    if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
+    if (!theme.trim()) {
+      alert("請輸入「企劃主題」，以便 AI 引擎能精準理解您的需求與背景資料！");
+      return;
+    }
+    const finalTheme = theme.trim();
     addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
 
   const startManualWorkspace = () => {
-    const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
-    if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
+    if (!theme.trim()) {
+      alert("請輸入「企劃主題」，以便進入手動工作區！");
+      return;
+    }
+    const finalTheme = theme.trim();
     setMode('manual');
     setViewState('workspace');
     addLog(`[System] 進入手動編輯模式。目標企劃：『${finalTheme}』`, 'info');
