@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       if (startFromStep <= 1 && verifiedContext) {
         return NextResponse.json({ 
           data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-pro",
+          modelUsed: "gemini-2.5-flash",
           contextUsed: verifiedContext 
         });
       }
