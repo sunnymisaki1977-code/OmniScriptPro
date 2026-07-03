@@ -151,6 +151,7 @@ export default function App() {
   }, []);
 
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
+
   const [isGenerating, setIsGenerating] = useState(false);
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
@@ -174,19 +175,20 @@ export default function App() {
   const [archiveList, setArchiveList] = useState([]); 
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
   const [selectedArchive, setSelectedArchive] = useState("");
-  // 🔽 新增這個 useEffect，一開網頁就自動去 Vercel 拿 Notion 清單 🔽
-  useEffect(() => {
-    const fetchArchives = async () => {
-      try {
-        const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
-        const data = await response.json();
-        if (data.history) {
-          setArchiveList(data.history);
-        }
-      } catch (err) {
-        console.error("無法載入 Notion 專案清單", err);
+  // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
+  const fetchArchives = async () => {
+    try {
+      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const data = await response.json();
+      if (data.history) {
+        setArchiveList(data.history);
       }
-    };
+    } catch (err) {
+      console.error("無法載入 Notion 專案清單", err);
+    }
+  };
+
+  useEffect(() => {
     fetchArchives();
   }, []);
 
@@ -831,6 +833,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (data.url) {
       setNotionUrl(data.url);
+      fetchArchives(); // 成功後立即刷新歷史清單
       if (passcode.trim().toUpperCase() === 'MASTER') {
         window.open(data.url, '_blank');
       }
