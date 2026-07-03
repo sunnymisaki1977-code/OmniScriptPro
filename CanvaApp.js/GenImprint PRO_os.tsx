@@ -692,6 +692,10 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
+    if (customContext.length > 2000) {
+      alert(`字數總和 (${customContext.length} 字) 超過 2000 字上限，請刪減內容後再執行！`);
+      return;
+    }
     if (!theme.trim() && !customContext.trim()) {
       alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
       return;
@@ -703,6 +707,10 @@ export default function App() {
   };
 
   const startManualWorkspace = () => {
+    if (customContext.length > 2000) {
+      alert(`字數總和 (${customContext.length} 字) 超過 2000 字上限，請刪減內容後再執行！`);
+      return;
+    }
     if (!theme.trim() && !customContext.trim()) {
       alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
       return;
@@ -726,8 +734,16 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target.result;
-      setCustomContext(prev => prev + (prev ? '\n\n' : '') + text);
-      addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
+      setCustomContext(prev => {
+        const newText = prev + (prev ? '\n\n' : '') + text;
+        if (newText.length > 2000) {
+          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 2000 字上限，為避免超載請刪減文字！`, 'error');
+          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 2000 字上限！\\n建議直接擷取精華段落即可。`);
+          return prev; // 放棄匯入，維持原樣
+        }
+        addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
+        return newText;
+      });
     };
     reader.readAsText(file);
     e.target.value = null; // 重置 input 讓同一個檔案可以重複上傳
@@ -1225,12 +1241,18 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
                         </label>
                       </div>
-                      <textarea
-                        placeholder="可直接貼上參考文章、官方新聞稿，或上傳純文字文件檔。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
-                        value={customContext}
-                        onChange={(e) => setCustomContext(e.target.value)}
-                        className="w-full bg-[#070b16] border border-slate-900 rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar"
-                      />
+                      <div className="relative">
+                        <textarea
+                          maxLength={2000}
+                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 2000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
+                          value={customContext}
+                          onChange={(e) => setCustomContext(e.target.value)}
+                          className={`w-full bg-[#070b16] border ${customContext.length >= 2000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
+                        />
+                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 2000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
+                          {customContext.length} / 2000
+                        </div>
+                      </div>
                     </div>
 
                     {/* --- 新增：API Key 輸入區 --- */}
