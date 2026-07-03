@@ -146,31 +146,8 @@ export default function App() {
   // 避免 Hydration Mismatch，等元件掛載後再從 localStorage 讀取狀態
   useEffect(() => {
     setIsMounted(true);
-    const savedViewState = localStorage.getItem('os_pro_viewState');
-    if (savedViewState) setViewState(savedViewState);
-
-    const savedMode = localStorage.getItem('os_pro_mode');
-    if (savedMode) setMode(savedMode);
-
-    const savedActiveStep = localStorage.getItem('os_pro_activeStep');
-    if (savedActiveStep) setActiveStep(parseInt(savedActiveStep, 10));
-
-    const savedTheme = localStorage.getItem('os_pro_theme');
-    if (savedTheme) setTheme(savedTheme);
-
-    const savedCustomContext = localStorage.getItem('os_pro_customContext');
-    if (savedCustomContext) setCustomContext(savedCustomContext);
-
-    const savedCompletedSteps = localStorage.getItem('os_pro_completedSteps');
-    if (savedCompletedSteps) setCompletedSteps(JSON.parse(savedCompletedSteps));
-
     const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
     if (savedAudienceTheme) setAudienceTheme(savedAudienceTheme);
-
-    const savedStepContents = localStorage.getItem('os_pro_stepContents');
-    if (savedStepContents) {
-      setStepContents(JSON.parse(savedStepContents));
-    }
   }, []);
 
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
@@ -189,16 +166,9 @@ export default function App() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('os_pro_theme', theme);
       localStorage.setItem('os_pro_audienceTheme', audienceTheme);
-      localStorage.setItem('os_pro_stepContents', JSON.stringify(stepContents));
-      localStorage.setItem('os_pro_activeStep', activeStep.toString());
-      localStorage.setItem('os_pro_customContext', customContext);
-      localStorage.setItem('os_pro_completedSteps', JSON.stringify(completedSteps));
-      localStorage.setItem('os_pro_viewState', viewState);
-      localStorage.setItem('os_pro_mode', mode);
     }
-  }, [theme, audienceTheme, stepContents, activeStep, customContext, completedSteps, viewState, mode]);
+  }, [audienceTheme]);
 
  // 🔽 新增這三個變數來控制 Notion 下拉選單 🔽
   const [archiveList, setArchiveList] = useState([]); 
@@ -1119,14 +1089,50 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </div>
             )}
 
-            {/* 一鍵全自動模式 Header Button */}
+            {/* 清除企劃按鈕 */}
             <button 
-              onClick={handleStartAuto}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+              onClick={() => {
+                if (window.confirm("確定要清除目前所有企劃資料嗎？這將會重置畫布。")) {
+                  setTheme('');
+                  setCustomContext('');
+                  setStepContents({
+                    1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
+                    4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
+                    7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
+                    10: getInitialStepContent(10, "")
+                  });
+                  setCompletedSteps([1]);
+                  setViewState('hub');
+                }
+              }}
+              className="px-4 py-1.5 rounded-xl bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-bold text-xs flex items-center gap-1.5 transition-all border border-slate-700/50 hover:border-red-500/30"
             >
-              <Zap className="w-3.5 h-3.5" />
-              <span>一鍵全自動模式</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>清除企劃</span>
             </button>
+
+            {/* 一鍵全自動模式 Header Button / 中斷生成 */}
+            {isGenerating ? (
+              <button 
+                onClick={() => {
+                  setIsGenerating(false);
+                  addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                  setViewState('workspace');
+                }}
+                className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>中斷生成</span>
+              </button>
+            ) : (
+              <button 
+                onClick={handleStartAuto}
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>一鍵全自動模式</span>
+              </button>
+            )}
 
             {/* Quota Metric Button */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
