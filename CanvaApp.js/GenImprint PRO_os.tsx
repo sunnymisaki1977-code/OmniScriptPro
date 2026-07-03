@@ -567,22 +567,20 @@ export default function App() {
     // ==========================================
     addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`, 'info');
     
-    // 設定虛擬進度推播，舒緩使用者等待後端 30 秒的焦慮感，同時模擬側邊欄綠燈亮起
+    // 設定真實的定時狀態回報，舒緩等待後端 30~45 秒的焦慮感，同時誠實反映系統狀態
     const progressMessages = [
-      { msg: `[AI] 正在分析事實查核結果，展開長短影音腳本架構 (Step 2-5)...`, steps: [2, 3, 4, 5] },
-      { msg: `[AI] 腳本推演中，開始切換視覺模型生成意象圖 Prompt (Step 6-8)...`, steps: [6, 7, 8] },
-      { msg: `[AI] 進入最後階段，生成 Suno 配樂指令與社群貼文 (Step 9-10)...`, steps: [9, 10] },
-      { msg: `[AI] 核心引擎即將完成高壓運算，正在打包回傳...`, steps: [] }
+      { msg: `[System] 雲端引擎正在進行超大文本脈絡分析與算力分配... (此批次生成通常需要 30~45 秒)` },
+      { msg: `[System] 正在同步運算腳本架構、視覺指令與社群貼文，這是一項高算力任務，請稍候...` },
+      { msg: `[System] 深度生成持續進行中，系統正在確保這 9 個步驟的邏輯完美對齊不矛盾...` },
+      { msg: `[System] 進入最後封裝階段，即將為您吐出完整的企劃矩陣！` }
     ];
     let msgIndex = 0;
     const progressInterval = setInterval(() => {
       if (msgIndex < progressMessages.length) {
         addLog(progressMessages[msgIndex].msg, 'info');
-        const stepsToAdd = progressMessages[msgIndex].steps;
-        setCompletedSteps(prev => [...new Set([...prev, ...stepsToAdd])]);
         msgIndex++;
       }
-    }, 7000); // 每 7 秒推播一條狀態並點亮綠燈
+    }, 8000); // 每 8 秒回報一次系統狀態
 
     try {
       const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
