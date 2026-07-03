@@ -357,7 +357,8 @@ export default function App() {
   };
 
   const generateGroupImage = async (group) => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
@@ -688,7 +689,8 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
@@ -865,7 +867,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
 
   const generateNewImage = async () => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
