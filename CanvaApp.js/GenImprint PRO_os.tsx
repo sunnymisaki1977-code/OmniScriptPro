@@ -125,61 +125,63 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
-  const [viewState, setViewState] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_viewState') || 'hub';
+
+  // ====== 核心狀態管理 (加上 SSR 防護) ======
+  const [isMounted, setIsMounted] = useState(false);
+  const [viewState, setViewState] = useState('hub');
+  const [mode, setMode] = useState('manual');
+  const [activeStep, setActiveStep] = useState(1);
+  const [theme, setTheme] = useState('');
+  const [customContext, setCustomContext] = useState('');
+  const [completedSteps, setCompletedSteps] = useState([1]);
+  const [audienceTheme, setAudienceTheme] = useState('heritage');
+  
+  const [stepContents, setStepContents] = useState(() => ({
+    1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
+    4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
+    7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
+    10: getInitialStepContent(10, "")
+  }));
+
+  // 避免 Hydration Mismatch，等元件掛載後再從 localStorage 讀取狀態
+  useEffect(() => {
+    setIsMounted(true);
+    const savedViewState = localStorage.getItem('os_pro_viewState');
+    if (savedViewState) setViewState(savedViewState);
+
+    const savedMode = localStorage.getItem('os_pro_mode');
+    if (savedMode) setMode(savedMode);
+
+    const savedActiveStep = localStorage.getItem('os_pro_activeStep');
+    if (savedActiveStep) setActiveStep(parseInt(savedActiveStep, 10));
+
+    const savedTheme = localStorage.getItem('os_pro_theme');
+    if (savedTheme) setTheme(savedTheme);
+
+    const savedCustomContext = localStorage.getItem('os_pro_customContext');
+    if (savedCustomContext) setCustomContext(savedCustomContext);
+
+    const savedCompletedSteps = localStorage.getItem('os_pro_completedSteps');
+    if (savedCompletedSteps) setCompletedSteps(JSON.parse(savedCompletedSteps));
+
+    const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
+    if (savedAudienceTheme) setAudienceTheme(savedAudienceTheme);
+
+    const savedStepContents = localStorage.getItem('os_pro_stepContents');
+    if (savedStepContents) {
+      setStepContents(JSON.parse(savedStepContents));
     }
-    return 'hub';
-  }); 
-  const [mode, setMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_mode') || 'manual';
-    }
-    return 'manual';
-  }); 
-  const [activeStep, setActiveStep] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('os_pro_activeStep');
-      if (saved) return parseInt(saved, 10);
-    }
-    return 1;
-  });
+  }, []);
+
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
-   const [theme, setTheme] = useState(() => {
-     if (typeof window !== 'undefined') {
-       return localStorage.getItem('os_pro_theme') || '';
-     }
-     return '';
-   });
-   
-   // --- 新增：自訂背景資料狀態 ---
-   const [customContext, setCustomContext] = useState(() => {
-     if (typeof window !== 'undefined') {
-       return localStorage.getItem('os_pro_customContext') || '';
-     }
-     return '';
-   });
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
    const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-   const [completedSteps, setCompletedSteps] = useState(() => {
-     if (typeof window !== 'undefined') {
-       const saved = localStorage.getItem('os_pro_completedSteps');
-       if (saved) return JSON.parse(saved);
-     }
-     return [1];
-   }); 
-     const [visualStep, setVisualStep] = useState(6);
-  const [audienceTheme, setAudienceTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('os_pro_audienceTheme') || 'heritage';
-    }
-    return 'heritage';
-  });
+  const [visualStep, setVisualStep] = useState(6);
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
@@ -931,6 +933,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       window.removeEventListener('keydown', handleInteraction, { capture: true });
     };
   }, [isAuthenticated, showLoginPrompt]);
+
+  if (!isMounted) {
+    return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
+  }
 
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
