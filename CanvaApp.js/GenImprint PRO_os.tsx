@@ -1923,8 +1923,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             {/* Notion sync execution button */}
             {notionStatus === '✅ 已成功歸檔' ? (
               <div className="space-y-2 w-full">
-                {/* 讓所有人都能點擊開啟自己剛剛匯出的專案 */}
-                {notionUrl && (
+                {/* 讓 MASTER 能點擊開啟專案 */}
+                {(notionUrl && passcode.trim().toUpperCase() === 'MASTER') && (
                   <button
                     onClick={() => window.open(notionUrl, '_blank')}
                     className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
