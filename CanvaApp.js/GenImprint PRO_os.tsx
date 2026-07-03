@@ -1430,8 +1430,31 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
                           <span className="text-[10px] font-mono text-slate-500 ml-2">Markdown Editor</span>
                         </div>
-                        <div className="text-[10px] text-slate-500 font-medium">
-                          Auto-saved locally
+                        <div className="flex items-center gap-3">
+                          {currentContextContents[activeStep] && currentContextContents[activeStep].trim() !== '' && (
+                            <button
+                              onClick={() => {
+                                const text = currentContextContents[activeStep];
+                                const blob = new Blob([text], { type: 'text/markdown' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `${theme || '企劃'}_Step${activeStep}_${STEPS[activeStep-1]?.name.split(' ')[0] || 'Doc'}.md`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                              }}
+                              className="text-[10px] text-indigo-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
+                              title="下載此步驟內容為 Markdown 檔案"
+                            >
+                              <Download className="w-3 h-3" />
+                              下載 .md
+                            </button>
+                          )}
+                          <div className="text-[10px] text-slate-500 font-medium">
+                            Auto-saved locally
+                          </div>
                         </div>
                       </div>
 
