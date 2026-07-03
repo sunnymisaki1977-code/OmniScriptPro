@@ -183,7 +183,7 @@ export async function POST(req: Request) {
           } else {
             console.warn(`[API 警告] 模型 ${modelUsed} 失敗 (${isSyntaxError ? 'JSON 解析失敗' : errorMsg})。準備進行第 ${attempt + 1} 次重試...`);
           }
-          const delay = Math.pow(2, attempt) * 1500; // 3s, 6s, 12s...
+          const delay = Math.pow(2, attempt) * 3000; // 6s, 12s, 24s...
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
