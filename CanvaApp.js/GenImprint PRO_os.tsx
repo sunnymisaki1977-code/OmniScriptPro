@@ -1108,26 +1108,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </div>
             )}
 
-            {/* 清除企劃按鈕 */}
+            {/* 清空企劃按鈕 (從工作區移上來) */}
             <button 
-              onClick={() => {
-                if (window.confirm("確定要清除目前所有企劃資料嗎？這將會重置畫布。")) {
-                  setTheme('');
-                  setCustomContext('');
-                  setStepContents({
-                    1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
-                    4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
-                    7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
-                    10: getInitialStepContent(10, "")
-                  });
-                  setCompletedSteps([1]);
-                  setViewState('hub');
-                }
-              }}
-              className="px-4 py-1.5 rounded-xl bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-bold text-xs flex items-center gap-1.5 transition-all border border-slate-700/50 hover:border-red-500/30"
+              onClick={clearAllData}
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>清除企劃</span>
+              <span>清空企劃</span>
             </button>
 
             {/* 一鍵全自動模式 Header Button / 中斷生成 */}
@@ -1412,13 +1399,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <button 
-                          onClick={clearAllData}
-                          className="flex items-center gap-1.5 px-3 py-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          清空企劃
-                        </button>
                         <button 
                           onClick={triggerSingleStepAi}
                           disabled={isGenerating}
