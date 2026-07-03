@@ -182,7 +182,7 @@ export async function POST(req: Request) {
         const isSyntaxError = err instanceof SyntaxError || err.name === 'SyntaxError';
         const isRateLimit = err.status === 429 || errorMsg.includes("429") || errorMsg.includes("quota");
         const isServerBusy = err.status === 503 || errorMsg.includes("503") || errorMsg.includes("overloaded");
-        const isAuthError = err.status === 403 || err.status === 400 || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API_KEY_INVALID");
+        const isAuthError = err.status === 403 || err.status === 400 || err.status === 401 || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API_KEY_INVALID") || errorMsg.includes("UNAUTHENTICATED");
         
         const shouldRetry = isRateLimit || isServerBusy || isSyntaxError || isAuthError;
 
