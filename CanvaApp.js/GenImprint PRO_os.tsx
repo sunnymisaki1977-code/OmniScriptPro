@@ -715,6 +715,10 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
+    if (!theme.trim() && !customContext.trim()) {
+      alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
+      return;
+    }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
     if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
@@ -722,6 +726,10 @@ export default function App() {
   };
 
   const startManualWorkspace = () => {
+    if (!theme.trim() && !customContext.trim()) {
+      alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
+      return;
+    }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
     if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     setMode('manual');
@@ -1204,20 +1212,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </label>
                       </div>
                       <textarea
-                        placeholder="可直接貼上參考文章、官方新聞稿，或上傳純文字文件檔。點擊下方按鈕可直接匯入至 Step 1 作為基準資料..."
+                        placeholder="可直接貼上參考文章、官方新聞稿，或上傳純文字文件檔。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                         value={customContext}
                         onChange={(e) => setCustomContext(e.target.value)}
                         className="w-full bg-[#070b16] border border-slate-900 rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar"
                       />
-                      <div className="flex justify-end">
-                        <button
-                          onClick={handleImportToStep1}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 text-[10px] font-bold transition-colors border border-indigo-500/20 active:scale-95"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>寫入 Step 1 畫布</span>
-                        </button>
-                      </div>
                     </div>
 
                     {/* --- 新增：API Key 輸入區 --- */}
