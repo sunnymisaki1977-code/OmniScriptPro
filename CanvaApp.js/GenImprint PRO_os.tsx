@@ -186,18 +186,6 @@ export default function App() {
 
   const curTheme = audienceThemes[audienceTheme] || {};
   const STEPS = themeSteps[audienceTheme] || themeSteps.heritage || [];
-  const [stepContents, setStepContents] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('os_pro_stepContents');
-      if (saved) return JSON.parse(saved);
-    }
-    return {
-      1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
-      4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
-      7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
-      10: getInitialStepContent(10, "")
-    };
-  });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
