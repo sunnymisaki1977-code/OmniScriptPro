@@ -1154,21 +1154,21 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {activeTab === 'creation' && (
             viewState === 'hub' ? (
               /* --- STREAMING_CHUNK:Rendering Central Creator Welcome Hub --- */
-              <div className="flex-1 p-8 flex flex-col items-center justify-center overflow-y-auto relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0f1d] to-[#030712]">
+              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0f1d] to-[#030712]">
                 
                 {/* Glowing Background Glows */}
                 <div className={`absolute top-1/4 w-96 h-96 rounded-full bg-gradient-to-br ${curTheme.gradient} opacity-5 blur-[120px] pointer-events-none`} />
 
-                <div className="w-full max-w-2xl bg-[#0f172a]/60 border border-slate-900/80 rounded-3xl p-8 backdrop-blur-xl relative shadow-2xl space-y-8">
+                <div className="w-full max-w-2xl bg-[#0f172a]/60 border border-slate-900/80 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
                   {/* Hub Header */}
-                  <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-black tracking-tight text-white">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
                       今天想創作什麼？
                     </h2>
-                    <p className="text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                    <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
                       輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
                     </p>
                   </div>
