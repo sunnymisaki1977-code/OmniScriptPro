@@ -1922,23 +1922,35 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
             {/* Notion sync execution button */}
             {notionStatus === '✅ 已成功歸檔' ? (
-              <div className="w-full relative">
-                <select
-                  className="w-full py-2.5 pl-8 pr-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 text-xs font-bold appearance-none cursor-pointer outline-none text-center shadow-inner transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                  onChange={handleLoadArchive}
-                  value={selectedArchive}
-                  disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
-                >
-                  <option value="">點擊選擇團隊專案</option>
-                  <option value="open_current">🔗 打開目前專案</option>
-                  {archiveList.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-                <Link className="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="w-4 h-4 text-emerald-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="space-y-2 w-full">
+                {/* 讓所有人都能點擊開啟自己剛剛匯出的專案 */}
+                {notionUrl && (
+                  <button
+                    onClick={() => window.open(notionUrl, '_blank')}
+                    className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
+                  >
+                    <Link className="w-4 h-4" />
+                    <span>前往 Notion 查看此企劃</span>
+                  </button>
+                )}
+                {/* 團隊專案下拉選單 (僅 MASTER 可用) */}
+                <div className="w-full relative mt-2">
+                  <select
+                    className="w-full py-2 pl-8 pr-8 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 text-slate-400 text-xs font-medium appearance-none cursor-pointer outline-none text-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    onChange={handleLoadArchive}
+                    value={selectedArchive}
+                    disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
+                  >
+                    <option value="">團隊專案庫 (僅限 Master)</option>
+                    {archiveList.map((item: any) => (
+                      <option key={item.id} value={item.id}>
+                        {item.title}
+                      </option>
+                    ))}
+                  </select>
+                  <Database className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
             ) : (
               <button
