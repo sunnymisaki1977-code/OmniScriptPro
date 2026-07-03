@@ -714,21 +714,15 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
-    if (!theme.trim()) {
-      alert("請輸入「企劃主題」，以便 AI 引擎能精準理解您的需求與背景資料！");
-      return;
-    }
-    const finalTheme = theme.trim();
+    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
+    if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
 
   const startManualWorkspace = () => {
-    if (!theme.trim()) {
-      alert("請輸入「企劃主題」，以便進入手動工作區！");
-      return;
-    }
-    const finalTheme = theme.trim();
+    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
+    if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     setMode('manual');
     setViewState('workspace');
     addLog(`[System] 進入手動編輯模式。目標企劃：『${finalTheme}』`, 'info');
