@@ -35,25 +35,36 @@ export async function POST(req: Request) {
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請使用 Google Search 徹底調查主題：「${theme}」。`;
       
-      try {
-        const searchResponse = await ai.models.generateContent({
-          model: "gemini-2.5-pro",
-          contents: researchPrompt,
-          config: {
-            tools: [{ googleSearch: {} }] // 開啟搜尋
-          }
-        });
-        verifiedContext = searchResponse.text || "";
-        console.log("[Stage 1] 事實查核完成");
-      } catch (err) {
-        console.warn("事實查核發生錯誤，將使用空字串繼續...", err);
+      let searchSuccess = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const searchResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash", // 改回 flash 避免 pro 額度不足瞬間報錯
+            contents: researchPrompt,
+            config: {
+              tools: [{ googleSearch: {} }] // 開啟搜尋
+            }
+          });
+          verifiedContext = searchResponse.text || "";
+          console.log("[Stage 1] 事實查核完成");
+          searchSuccess = true;
+          break;
+        } catch (err: any) {
+          console.warn(`[Stage 1] 事實查核第 ${attempt} 次發生錯誤: ${err.message}`);
+          if (attempt < 3) await new Promise(res => setTimeout(res, 2000 * attempt));
+        }
+      }
+
+      if (!searchSuccess) {
+        console.warn("事實查核多次失敗，中止生成流程以防遺失資料！");
+        return NextResponse.json({ error: "事實查核階段連線失敗，請確認 API Key 額度後再試。" }, { status: 502 });
       }
 
       // 👉 修正：如果只要跑第一步，就直接回傳查核結果，提早結束！
       if (endStep === 1) {
         return NextResponse.json({ 
           data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-pro",
+          modelUsed: "gemini-2.5-flash",
           contextUsed: verifiedContext 
         });
       }
