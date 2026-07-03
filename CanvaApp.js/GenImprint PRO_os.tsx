@@ -702,7 +702,6 @@ export default function App() {
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
@@ -717,7 +716,6 @@ export default function App() {
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    if (!theme.trim()) setTheme('自訂企劃 (未命名)');
     setMode('manual');
     setViewState('workspace');
     addLog(`[System] 進入手動編輯模式。目標企劃：『${finalTheme}』`, 'info');
