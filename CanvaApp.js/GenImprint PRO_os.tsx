@@ -503,6 +503,7 @@ export default function App() {
     if (customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
+      addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
     }
 
     // 智能接續邏輯：尋找第一個沒有內容的步驟
