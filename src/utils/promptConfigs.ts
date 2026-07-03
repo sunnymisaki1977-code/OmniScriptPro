@@ -30,7 +30,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 接著依照對應模板撰寫。
 第一類：神佛/歷史人物
-請針對主題「${ctx.theme}」進行一份約 1500 字的精確事實報告。
+請針對主題「${ctx.theme}」進行一份精確事實報告。
 請注意，這類名詞常有字面誤導（姓氏不代表特定歷史名人）。
 
 請絕對基於搜尋到的客觀事實撰寫，嚴禁任何 AI 腦補。
@@ -101,13 +101,13 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
 ✔ 現代研究觀點
 
-現在，請以「${ctx.theme}」為主題，開始撰寫這份嚴謹的歷史報告。
+現在，請以「${ctx.theme}」為主題，開始撰寫1500字報告。
 
 第二類：民俗/節氣
   
 你是一位專精於臺灣民俗學、宗教學、人類學與歷史文化研究的學者。
 
-請針對主題「${ctx.theme}」撰寫一份約 1500 字的民俗文化研究報告。
+請針對主題「${ctx.theme}」撰寫一份研究報告。
 
 【最高原則】
 1. 僅依據歷史文獻、民俗研究、文化資產資料與學術共識撰寫。
@@ -251,7 +251,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 不得虛構引用來源。
 
 ----------------------------------
-請以「${ctx.theme}」開始撰寫完整研究報告。`
+請以「${ctx.theme}」開始撰寫1500字完整研究報告。`
   },
 
   {
