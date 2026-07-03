@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { NextResponse } from "next/server";
 
@@ -122,12 +122,11 @@ export async function POST(req: Request) {
     // 定義強型別 JSON 輸出結構 (Structured Outputs)
     // ==========================================
     const responseSchema = {
-      type: "OBJECT",
+      type: Type.OBJECT,
       properties: targetSteps.reduce((acc, step) => {
-        // 動態生成屬性，強制要求模型輸出的值必須是純字串 (STRING)
-        acc[step.id.toString()] = { type: "STRING" };
+        acc[step.id.toString()] = { type: Type.STRING };
         return acc;
-      }, {} as Record<string, { type: "STRING" }>),
+      }, {} as Record<string, { type: any }>),
       required: targetSteps.map(step => step.id.toString())
     };
 

@@ -521,15 +521,20 @@ export default function App() {
     }
     localStorage.setItem('os_pro_lastGeneratedTheme', startTheme);
 
-    // 如果使用者有自訂背景資料且 Step 1 為空，就把它當作 Step 1
-    if (customContext.trim() && (!currentContextContents[1] || currentContextContents[1].trim() === '')) {
+    const isStepEmpty = (stepId: number) => {
+      const content = currentContextContents[stepId];
+      return !content || content.trim() === '' || content === getInitialStepContent(stepId, "");
+    };
+
+    // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
+    if (customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
     }
 
     // 智能接續邏輯：尋找第一個沒有內容的步驟
     for (let i = 1; i <= 10; i++) {
-      if (!currentContextContents[i] || currentContextContents[i].trim() === '') {
+      if (isStepEmpty(i)) {
         startStep = i;
         break;
       }
