@@ -33,49 +33,31 @@ export async function POST(req: Request) {
       console.log("[Stage 1] 開始事實查核...");
       const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
-      const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請調查主題：「${theme}」並提供約 1500 字的事實報告。`;
+      const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請使用 Google Search 徹底調查主題：「${theme}」。`;
       
-      let searchSuccess = false;
-      for (let attempt = 1; attempt <= 3; attempt++) {
+      
         try {
-          const searchResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: researchPrompt,
-            config: {
-              tools: [{ googleSearch: {} }] // 開啟搜尋
-            }
-          });
-          verifiedContext = searchResponse.text || "";
-          console.log("[Stage 1] 事實查核完成");
-          searchSuccess = true;
-          break;
-        } catch (err: any) {
-          console.warn(`[Stage 1] 事實查核第 ${attempt} 次發生錯誤: ${err.message}`);
-          if (attempt < 3) await new Promise(res => setTimeout(res, 2000 * attempt));
-        }
-      }
-      
-      if (!searchSuccess) {
-        console.warn("事實查核多次失敗，將使用空字串繼續...");
-        // 若明確只跑第一步卻全數失敗，直接回傳錯誤，避免前端拿到空資料
-        if (endStep === 1) {
-          return NextResponse.json({ error: "事實查核階段連線失敗，請稍後再試。" }, { status: 502 });
-        }
-      }
-      
-      // 如果只要跑第一步，就直接回傳查核結果
-      if (endStep === 1) {
-        return NextResponse.json({ 
-          data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-flash",
-          contextUsed: verifiedContext 
+        const searchResponse = await ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          contents: researchPrompt,
+          config: {
+            tools: [{ googleSearch: {} }] // 開啟搜尋
+          }
         });
+        verifiedContext = searchResponse.text || "";
+        console.log("[Stage 1] 事實查核完成");
+      } catch (err) {
+        console.warn("事實查核發生錯誤，將使用空字串繼續...", err);
       }
     }
+
+
 
     // ==========================================
     // Stage 2: 模組化批次生成內容
     // ==========================================
+ // 1. 篩選出本次請求需要生成的步驟
+
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= startFromStep && step.id <= endStep);
     
@@ -107,7 +89,8 @@ export async function POST(req: Request) {
     masterPrompt += `
 【絕對要求】：
 1. 你必須直接回傳純 JSON 格式，絕對不要包含 markdown 區塊標記 (如 \`\`\`json)。
-2. 每個 key 的 value 請填入對應步驟生成的完整純文字內容（可用 Markdown 排版，換行請用 "\\n" 跳脫，絕對禁止巢狀物件或陣列）。
+2. 本次只需輸出 ${targetSteps.length} 個 key：${keysRequired.join(", ")}。
+3. 每個 key 的 value 請填入對應步驟生成的完整純文字內容（可用 Markdown 排版，換行請用 "\\n" 跳脫，絕對禁止巢狀物件或陣列）。
 
 以下是本次需執行的步驟指令：\n\n`;
 
@@ -119,45 +102,42 @@ export async function POST(req: Request) {
     console.log(`[Stage 2] 開始生成步驟 ${startFromStep} 到 ${endStep}...`);
 
     // ==========================================
-    // 定義強型別 JSON 輸出結構 (Structured Outputs)
-    // ==========================================
-    const responseSchema = {
-      type: Type.OBJECT,
-      properties: targetSteps.reduce((acc, step) => {
-        acc[step.id.toString()] = { type: Type.STRING };
-        return acc;
-      }, {} as Record<string, { type: any }>),
-      required: targetSteps.map(step => step.id.toString())
-    };
-
-    // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
     // 補齊與 MAX_RETRIES 對應的模型陣列
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash-lite"];
-    const MAX_RETRIES = 4;
+   const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
     let modelUsed = "";
+    const MAX_RETRIES = 4;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      modelUsed = MODELS[attempt - 1];
+      modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
 
       try {
         const response = await ai.models.generateContent({
           model: modelUsed,
           contents: masterPrompt,
           config: {
-            responseMimeType: "application/json", 
-            responseSchema: responseSchema, // 綁定 Schema，確保輸出格式 100% 正確
+            responseMimeType: "application/json", // 強制 JSON 模式
             maxOutputTokens: 8192,
           }
         });
 
+
         let cleanText = (response.text || "{}").trim();
         
-        // 保險起見：去除可能的 markdown 殘留 (雖然綁了 schema，某些邊界情況仍可能帶有標記)
+        // 雙重防禦：去除可能的 markdown 殘留
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
         const parsedData = JSON.parse(cleanText);
+
+        // 確保所有的值都被轉為字串，避免前端 React 渲染 Error
+        for (const key in parsedData) {
+          if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
+            parsedData[key] = JSON.stringify(parsedData[key], null, 2);
+          } else {
+            parsedData[key] = String(parsedData[key]);
+          }
+        }
 
         console.log(`[Stage 2] 成功使用模型 ${modelUsed} 完成生成。`);
         return NextResponse.json({ 
@@ -165,6 +145,7 @@ export async function POST(req: Request) {
           modelUsed: modelUsed,
           contextUsed: verifiedContext 
         });
+
 
       } catch (err: any) {
         const errorMsg = err.message || "";
