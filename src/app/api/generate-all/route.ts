@@ -62,15 +62,24 @@ export async function POST(req: Request) {
     // ==========================================
     // Stage 2: 模組化批次生成內容
     // ==========================================
-    // 1. 篩選出本次請求需要生成的步驟
+   // 👉 修正 1：如果包含 Step 1，我們只要 AI 從 Step 2 開始生成就好，因為 Step 1 已經在上方做完了
+    const generationStartStep = Math.max(2, startFromStep); 
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
-    const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= startFromStep && step.id <= endStep);
+    const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= generationStartStep && step.id <= endStep);
     
+    // 如果過濾後沒有需要生成的步驟 (例如前端只請求 endStep = 1，這在 Stage 1 應該已經 return 了，這裡是雙重保險)
     if (targetSteps.length === 0) {
+      if (startFromStep <= 1 && verifiedContext) {
+        return NextResponse.json({ 
+          data: { "1": verifiedContext }, 
+          modelUsed: "gemini-2.5-pro",
+          contextUsed: verifiedContext 
+        });
+      }
       return NextResponse.json({ error: "無效的步驟範圍" }, { status: 400 });
     }
 
-    // 👉 修正：必須先定義 keysRequired，否則下面 masterPrompt 會報錯！
+    // 必須先定義 keysRequired，確保下面 masterPrompt 不會報錯
     const keysRequired = targetSteps.map(step => `"${step.id}"`);
 
     // 建立大師級「自我參考」與「史料」上下文
@@ -146,9 +155,14 @@ export async function POST(req: Request) {
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
         const parsedData = JSON.parse(cleanText);
+// 👉 修正 2：在確保所有的值都被轉為字串的迴圈之前，把 Step 1 的資料「手動」補進去！
+        if (startFromStep <= 1 && verifiedContext) {
+          parsedData["1"] = verifiedContext;
+        }
+       
 
-        // 確保所有的值都被轉為字串，避免前端 React 渲染 Error
-        for (const key in parsedData) {
+ // 確保所有的值都被轉為字串，避免前端 React 渲染 Error
+       for (const key in parsedData) {
           if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
             parsedData[key] = JSON.stringify(parsedData[key], null, 2);
           } else {
