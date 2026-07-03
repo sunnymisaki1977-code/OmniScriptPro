@@ -5,41 +5,80 @@ import { getWorkflowSteps } from "@/utils/promptConfigs";
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const DATABASE_ID = process.env.NOTION_DATABASE_ID || "";
 
-/**
- * Splits long text into chunks that fit within Notion's 2000 character limit.
- * Tries to split by paragraphs first, then by sentence/chunks.
- */
-function createSafeParagraphBlocks(text: string): any[] {
+function parseMarkdownToNotionBlocks(text: string): any[] {
   const MAX_LENGTH = 2000;
-  // First split by double newlines for natural paragraphs
-  const paragraphs = text.split("\n\n");
   const blocks: any[] = [];
+  const lines = text.split("\n");
+  
+  let currentParagraph: string[] = [];
 
-  for (const p of paragraphs) {
-    if (p.length <= MAX_LENGTH) {
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const pText = currentParagraph.join("\n").trim();
+      if (pText) {
+        let remaining = pText;
+        while (remaining.length > 0) {
+          blocks.push({
+            object: "block",
+            type: "paragraph",
+            paragraph: {
+              rich_text: [{ type: "text", text: { content: remaining.substring(0, MAX_LENGTH) } }],
+            },
+          });
+          remaining = remaining.substring(MAX_LENGTH);
+        }
+      }
+      currentParagraph = [];
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    if (trimmed.startsWith("### ")) {
+      flushParagraph();
       blocks.push({
         object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [{ type: "text", text: { content: p } }],
-        },
+        type: "heading_3",
+        heading_3: { rich_text: [{ type: "text", text: { content: trimmed.substring(4).substring(0, MAX_LENGTH) } }] }
       });
+    } else if (trimmed.startsWith("## ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "heading_2",
+        heading_2: { rich_text: [{ type: "text", text: { content: trimmed.substring(3).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("# ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "heading_1",
+        heading_1: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "bulleted_list_item",
+        bulleted_list_item: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("> ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "quote",
+        quote: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed === "") {
+      flushParagraph();
     } else {
-      // If a single paragraph is too long, chunk it
-      let remaining = p;
-      while (remaining.length > 0) {
-        const chunk = remaining.substring(0, MAX_LENGTH);
-        blocks.push({
-          object: "block",
-          type: "paragraph",
-          paragraph: {
-            rich_text: [{ type: "text", text: { content: chunk } }],
-          },
-        });
-        remaining = remaining.substring(MAX_LENGTH);
-      }
+      currentParagraph.push(line);
     }
   }
+  
+  flushParagraph();
+  
   return blocks;
 }
 
@@ -88,34 +127,9 @@ export async function POST(req: Request) {
         },
       });
 
-      // Add Content based on step type
-      if (step.id <= 5) {
-        // Scripts and SEO as paragraphs
-        const pBlocks = createSafeParagraphBlocks(content);
-        children.push(...pBlocks);
-      } else {
-        // Prompts as Quote blocks (to support auto-wrap and look distinct)
-        const MAX_LENGTH = 2000;
-        const paragraphs = content.split("\n\n");
-        
-        for (const p of paragraphs) {
-          if (p.trim() === "") continue;
-          
-          // Chunk long quotes if necessary
-          let remaining = p;
-          while (remaining.length > 0) {
-            const chunk = remaining.substring(0, MAX_LENGTH);
-            children.push({
-              object: "block",
-              type: "quote",
-              quote: {
-                rich_text: [{ type: "text", text: { content: chunk } }],
-              },
-            });
-            remaining = remaining.substring(MAX_LENGTH);
-          }
-        }
-      }
+      // Parse content into Notion blocks using universal Markdown parser
+      const parsedBlocks = parseMarkdownToNotionBlocks(content);
+      children.push(...parsedBlocks);
     }
 
     // 3. Append blocks to the created page in batches of 100 (Notion limit)
