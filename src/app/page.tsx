@@ -18,7 +18,13 @@ import {
 } from 'lucide-react';
 
 // --- LazyYoutube Component ---
-const LazyYoutube = ({ videoId, title, isShorts = false }) => {
+interface LazyYoutubeProps {
+  videoId: string;
+  title: string;
+  isShorts?: boolean;
+}
+
+const LazyYoutube = ({ videoId, title, isShorts = false }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const aspectClass = isShorts ? 'aspect-[9/16] max-w-[320px] mx-auto' : 'aspect-video w-full';
 
