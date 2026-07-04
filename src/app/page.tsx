@@ -14,7 +14,8 @@ import {
   Play,
   Server,
   RefreshCw,
-  Lock
+  Lock,
+  Share2
 } from 'lucide-react';
 
 // --- LazyYoutube Component ---
