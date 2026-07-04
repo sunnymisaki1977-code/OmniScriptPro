@@ -507,15 +507,15 @@ export default function App() {
     }
 
     // 智能接續邏輯：尋找第一個沒有內容的步驟
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= STEPS.length; i++) {
       if (isStepEmpty(i)) {
         startStep = i;
         break;
       }
     }
 
-    if (startStep > 10) {
-      addLog(`[System] 10 個步驟皆已存在內容，接續完成！`, 'success');
+    if (startStep > STEPS.length) {
+      addLog(`[System] ${STEPS.length} 個步驟皆已存在內容，接續完成！`, 'success');
       setIsGenerating(false);
       return;
     }
@@ -566,13 +566,13 @@ export default function App() {
     // ==========================================
     // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
     // ==========================================
-    addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ 10...`, 'info');
+    addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ ${STEPS.length}...`, 'info');
     
     // 設定真實的定時狀態回報，舒緩等待後端 30~45 秒的焦慮感，同時誠實反映系統狀態
     const progressMessages = [
       { msg: `[System] 雲端引擎正在進行超大文本脈絡分析與算力分配... (此批次生成通常需要 30~45 秒)` },
       { msg: `[System] 正在同步運算腳本架構、視覺指令與社群貼文，這是一項高算力任務，請稍候...` },
-      { msg: `[System] 深度生成持續進行中，系統正在確保這 9 個步驟的邏輯完美對齊不矛盾...` },
+      { msg: `[System] 深度生成持續進行中，系統正在確保這 ${STEPS.length - 1} 個步驟的邏輯完美對齊不矛盾...` },
       { msg: `[System] 進入最後封裝階段，即將為您吐出完整的企劃矩陣！` }
     ];
     let msgIndex = 0;
@@ -594,7 +594,7 @@ export default function App() {
           theme: startTheme,
           customDocText: currentContextContents[1] || "",
           startFromStep: startStep,
-          endStep: 10,
+          endStep: STEPS.length,
           audienceTheme: audienceTheme,
           existingData: currentContextContents
         })
@@ -611,7 +611,7 @@ export default function App() {
       const newCompleted = [];
       const updatedContents = { ...currentContextContents };
       
-      for (let i = startStep; i <= 10; i++) {
+      for (let i = startStep; i <= STEPS.length; i++) {
         if (generatedData[i]) {
           updatedContents[i] = generatedData[i];
           newCompleted.push(i);
@@ -622,7 +622,7 @@ export default function App() {
       setStepContents(updatedContents);
       setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
 
-      addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
+      addLog(`[System] ✨ ${STEPS.length}-Step 全自動企劃產出完畢！您的矩陣內容已備妥。`, 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
       
       // 自動匯出至 Notion
@@ -693,8 +693,8 @@ export default function App() {
       setShowApiKeyModal(true);
       return;
     }
-    if (customContext.length > 2000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 2000 字上限，請刪減內容後再執行！`);
+    if (customContext.length > 5000) {
+      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
@@ -702,13 +702,13 @@ export default function App() {
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
+    addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
 
   const startManualWorkspace = () => {
-    if (customContext.length > 2000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 2000 字上限，請刪減內容後再執行！`);
+    if (customContext.length > 5000) {
+      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
@@ -735,9 +735,9 @@ export default function App() {
       const text = event.target.result;
       setCustomContext(prev => {
         const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 2000) {
-          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 2000 字上限，為避免超載請刪減文字！`, 'error');
-          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 2000 字上限！\\n建議直接擷取精華段落即可。`);
+        if (newText.length > 5000) {
+          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
+          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\\n建議直接擷取精華段落即可。`);
           return prev; // 放棄匯入，維持原樣
         }
         addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
@@ -1230,14 +1230,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
                       <div className="relative">
                         <textarea
-                          maxLength={2000}
-                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 2000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
+                          maxLength={5000}
+                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-[#070b16] border ${customContext.length >= 2000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
+                          className={`w-full bg-[#070b16] border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
                         />
-                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 2000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
-                          {customContext.length} / 2000
+                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
+                          {customContext.length} / 5000
                         </div>
                       </div>
                     </div>
@@ -1331,14 +1331,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 </div>
               </div>
             ) : (
-              /* --- STREAMING_CHUNK:Rendering 10-Step Flow Editor Workspace --- */
+              /* --- STREAMING_CHUNK:Rendering ${STEPS.length}-Step Flow Editor Workspace --- */
               <div className="flex-1 flex overflow-hidden">
                 
                 {/* Steps Navigator Left Column */}
                 <div className="w-64 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar shrink-0">
                   <div className="flex items-center justify-between mb-4 px-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">10-Step Flow</span>
-                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/10 已完成</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
+                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
                   </div>
                   {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
