@@ -20,12 +20,13 @@ import {
 
 // --- LazyYoutube Component ---
 interface LazyYoutubeProps {
-  videoId: string;
+  playlistId: string;
   title: string;
   isShorts?: boolean;
+  colorClass?: string;
 }
 
-const LazyYoutube = ({ videoId, title, isShorts = false }: LazyYoutubeProps) => {
+const LazyYoutube = ({ playlistId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const aspectClass = isShorts ? 'aspect-[9/16] max-w-[320px] mx-auto' : 'aspect-video w-full';
 
@@ -37,21 +38,18 @@ const LazyYoutube = ({ videoId, title, isShorts = false }: LazyYoutubeProps) => 
           className="absolute inset-0 w-full h-full"
           aria-label={`Play video ${title}`}
         >
-          {/* YouTube Thumbnail (Medium Quality to save bandwidth, fallback to standard if available) */}
-          <img 
-            src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-            <Play className="w-8 h-8 text-white ml-1 fill-white" />
+          {/* 美化版 Playlist 縮圖 (因為無法直接透過 playlistId 取得預設縮圖) */}
+          <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${colorClass} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
+          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors flex flex-col items-center justify-center">
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-600 transition-all duration-300 mb-4 border border-white/30">
+              <Play className="w-8 h-8 text-white ml-1 fill-white" />
+            </div>
+            <span className="text-white font-bold text-sm tracking-widest uppercase opacity-80">Click to Play Series</span>
           </div>
         </button>
       ) : (
         <iframe
-          src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`}
+          src={`https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}&autoplay=1&rel=0`}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
@@ -83,7 +81,7 @@ export default function LandingPage() {
       bgClass: "bg-amber-500/10",
       textClass: "text-amber-500",
       features: ["極速 5-Step", "流量收割", "毒雞湯語錄"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實 Shorts ID
+      playlistId: "PLS7BJQ4awAeM",
       isShorts: true
     },
     { 
@@ -94,7 +92,7 @@ export default function LandingPage() {
       bgClass: "bg-purple-500/10",
       textClass: "text-purple-500",
       features: ["完整 10-Step", "深度考究", "賽博龐克視覺"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實影片 ID
+      playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
       isShorts: false
     },
     { 
@@ -105,7 +103,7 @@ export default function LandingPage() {
       bgClass: "bg-sky-500/10",
       textClass: "text-sky-500",
       features: ["完整 10-Step", "知性信任感", "專業感排版"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實影片 ID
+      playlistId: "PLC-IrJAPGBww",
       isShorts: false
     },
     { 
@@ -116,7 +114,7 @@ export default function LandingPage() {
       bgClass: "bg-rose-500/10",
       textClass: "text-rose-500",
       features: ["完整 10-Step", "高質感腳本", "暖光濾鏡"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實影片 ID
+      playlistId: "PLA1T_pcDfevM",
       isShorts: false
     },
     { 
@@ -127,7 +125,7 @@ export default function LandingPage() {
       bgClass: "bg-orange-500/10",
       textClass: "text-orange-500",
       features: ["完整 10-Step", "勾引食慾視覺", "強烈 CTA"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實影片 ID
+      playlistId: "PLF3eQyAQueV4",
       isShorts: false
     },
     { 
@@ -138,7 +136,7 @@ export default function LandingPage() {
       bgClass: "bg-amber-500/10",
       textClass: "text-amber-500",
       features: ["完整 10-Step", "極速執行", "商業轉換"],
-      videoId: "dQw4w9WgXcQ", // TODO: 替換為真實影片 ID
+      playlistId: "PLCaj4rNP2njM",
       isShorts: false
     }
   ];
@@ -306,9 +304,10 @@ export default function LandingPage() {
                     {/* YouTube LazyLoad Container */}
                     <div className="mt-auto">
                       <LazyYoutube 
-                        videoId={audiences[activeTab].videoId} 
+                        playlistId={audiences[activeTab].playlistId} 
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
+                        colorClass={audiences[activeTab].color}
                       />
                     </div>
                   </div>
