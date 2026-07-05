@@ -14,9 +14,8 @@ export async function POST(req: Request) {
     }
 
     const modelsToTry = [
-      "gemini-3.1-flash-image-preview", // 1. 最新主力旗艦 (Nano Banana 2)
-      "gemini-3-pro-image-preview",     // 2. 專業級 (Nano Banana Pro)
-      "gemini-2.5-flash-image"          // 3. 高速低延遲版 (Nano Banana)
+      "imagen-3.0-generate-002",
+      "imagen-3.0-generate-001"
     ];
 
     let lastGoogleError = null;
@@ -24,21 +23,23 @@ export async function POST(req: Request) {
 
     for (const modelName of modelsToTry) {
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict`;
         const body = {
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: `${prompt} Aspect ratio: ${aspectRatio || "16:9"}` }
-              ]
-            }
-          ]
+          instances: [
+            { prompt: prompt }
+          ],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: aspectRatio === "16:9" ? "16:9" : "9:16"
+          }
         };
 
         const response = await fetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "x-goog-api-key": API_KEY 
+          },
           body: JSON.stringify(body),
         });
 
@@ -49,13 +50,10 @@ export async function POST(req: Request) {
 
         const data = await response.json();
         
-        if (data.candidates && data.candidates.length > 0) {
-          const parts = data.candidates[0].content?.parts || [];
-          for (const part of parts) {
-            if (part.inlineData && part.inlineData.data) {
-              base64Image = part.inlineData.data;
-              break;
-            }
+        if (data.predictions && data.predictions.length > 0) {
+          const prediction = data.predictions[0];
+          if (prediction.bytesBase64Encoded) {
+            base64Image = prediction.bytesBase64Encoded;
           }
         }
 
