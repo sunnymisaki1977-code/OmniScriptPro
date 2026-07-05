@@ -463,7 +463,7 @@ export default function LandingPage() {
                 href="/workspace"
                 className="inline-flex min-h-[64px] px-10 py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xl items-center justify-center gap-3 hover:scale-105 transition-transform shadow-2xl shadow-slate-900/20 dark:shadow-white/20"
               >
-                進入 OmniScript PRO 系統
+                啟用 OmniScript PRO 系統
                 <ArrowRight className="w-6 h-6" />
               </Link>
             </div>
