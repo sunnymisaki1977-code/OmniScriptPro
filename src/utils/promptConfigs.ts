@@ -948,7 +948,7 @@ minimalist composition,
 editorial food magazine,
 ultra detailed,大而醒目藝術文字設計
 
-最後加入-- 16:9
+最後加入-- 9:16
 
 
 格式：
