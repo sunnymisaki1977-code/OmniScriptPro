@@ -29,17 +29,23 @@ interface LazyYoutubeProps {
 
 const LazyYoutube = ({ playlistId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const aspectClass = isShorts ? 'aspect-[9/16] max-w-[320px] mx-auto' : 'aspect-video w-full';
+  const aspectClass = isShorts ? 'aspect-[9/16] max-w-[320px] mx-auto rounded-[2.5rem] border-[8px] border-slate-800 dark:border-slate-900' : 'aspect-video w-full rounded-2xl';
 
   return (
-    <div className={`relative w-full rounded-2xl overflow-hidden bg-slate-900 group shadow-2xl ${aspectClass}`}>
+    <div className={`relative w-full overflow-hidden bg-slate-900 group shadow-2xl ${aspectClass}`}>
+      {/* 手機瀏海 (Mockup Notch) */}
+      {isShorts && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 dark:bg-slate-900 rounded-b-2xl z-20 pointer-events-none flex justify-center items-end pb-1">
+          <div className="w-16 h-1 rounded-full bg-black/50 border border-white/5" />
+        </div>
+      )}
       {!isLoaded ? (
         <button 
           onClick={() => setIsLoaded(true)}
           className="absolute inset-0 w-full h-full"
           aria-label={`Play video ${title}`}
         >
-          {/* 美化版 Playlist 縮圖 (因為無法直接透過 playlistId 取得預設縮圖) */}
+          {/* 美化版 Playlist 縮圖 */}
           <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${colorClass} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
           <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors flex flex-col items-center justify-center">
             <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-600 transition-all duration-300 mb-4 border border-white/30">
@@ -249,6 +255,28 @@ export default function LandingPage() {
             </div>
           </section>
 
+          {/* 1.5 魔法翻轉卡片流動區 (Ah-ha Moment Marquee) */}
+          <section className="w-full overflow-hidden py-10 bg-slate-50 dark:bg-[#030712] relative z-20 mb-10">
+            {/* 左右邊緣漸層遮罩 */}
+            <div className="absolute top-0 left-0 w-16 md:w-32 h-full bg-gradient-to-r from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-16 md:w-32 h-full bg-gradient-to-l from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+            
+            <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
+              {[...audiences, ...audiences].map((a, idx) => (
+                <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0">
+                  <FlipCard 
+                    theme={a.title}
+                    frontImage={a.flipData.frontImage}
+                    frontText={a.flipData.frontText}
+                    frontTags={a.flipData.frontTags}
+                    backInput={a.flipData.backInput}
+                    systemTasks={a.flipData.systemTasks}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* 2. 解決方案 (The Why) */}
           <section className="py-24 px-6 max-w-7xl mx-auto">
             <div className="text-center mb-16">
@@ -344,13 +372,6 @@ export default function LandingPage() {
                       </p>
                     </div>
 
-                    {/* 3D FlipCard (Ah-ha Moment) */}
-                    <div className="mb-8 w-full">
-                      <FlipCard 
-                        theme={audiences[activeTab].title}
-                        {...audiences[activeTab].flipData}
-                      />
-                    </div>
 
                     {/* YouTube LazyLoad Container */}
                     <div className="mt-auto">

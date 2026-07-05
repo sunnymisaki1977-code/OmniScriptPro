@@ -67,10 +67,15 @@ const config: Config = {
           '0%, 100%': { transform: 'translateX(0)' },
           '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-5px)' },
           '20%, 40%, 60%, 80%': { transform: 'translateX(5px)' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
         }
       },
       animation: {
         shake: 'shake 0.4s ease-in-out',
+        marquee: 'marquee 40s linear infinite',
       }
     },
   },

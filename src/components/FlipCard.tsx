@@ -47,8 +47,8 @@ export default function FlipCard({
             <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${frontImage} opacity-80`} />
           )}
 
-          {/* 漸層黑色遮罩 (由下往上) */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          {/* 漸層黑色遮罩 (收斂至底部 50%) */}
+          <div className="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black/95 to-transparent pointer-events-none" />
 
           {/* 右上角：Suno 音軌指示器 */}
           <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-2">
@@ -75,9 +75,9 @@ export default function FlipCard({
               {frontTags}
             </p>
             
-            {/* 呼吸燈按鈕提示 */}
+            {/* 呼吸燈按鈕提示 (強化發光與質感) */}
             <div className="flex items-center justify-center">
-              <div className="bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 px-6 py-2.5 rounded-full inline-flex items-center gap-2 transition-colors animate-pulse">
+              <div className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-yellow-400/50 shadow-[0_0_15px_rgba(250,204,21,0.3)] px-6 py-2.5 rounded-full inline-flex items-center gap-2 transition-all animate-pulse">
                 <Sparkles className="w-4 h-4 text-yellow-300" />
                 <span className="text-white font-bold text-sm">揭密背後魔法</span>
               </div>
@@ -88,7 +88,7 @@ export default function FlipCard({
         {/* ==================== 
             卡片背面 (The How) 
             ==================== */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700 rotate-y-180 p-6 sm:p-8 flex flex-col justify-center relative">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-2xl bg-slate-900 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] border border-slate-700 rotate-y-180 p-6 sm:p-8 flex flex-col justify-center relative">
           
           {/* 背景裝飾 */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
