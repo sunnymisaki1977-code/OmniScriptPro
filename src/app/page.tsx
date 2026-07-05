@@ -201,16 +201,23 @@ export default function LandingPage() {
         
         {/* 導覽列 */}
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/70 dark:bg-[#070b16]/70 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2 font-black text-xl tracking-tight">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
+          <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                  OmniScript PRO
+                </span>
               </div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                OmniScript PRO
-              </span>
+              <div className="hidden md:block pt-1">
+                <span className="text-base md:text-[1.1rem] text-slate-700 dark:text-white tracking-widest drop-shadow-md" style={{ fontFamily: "'Noto Serif TC', serif" }}>
+                  讓你的影響力，無所不在。 あなたの影響力を、あらゆる場所へ。
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 shrink-0">
               <button 
                 onClick={toggleTheme}
                 className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
