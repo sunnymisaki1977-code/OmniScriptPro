@@ -19,38 +19,63 @@ export async function POST(req: Request) {
     await notion.pages.create({
       parent: { database_id: FEEDBACK_DB_ID },
       properties: {
-        Message: {
+        // Notion 資料庫預設都會有一個 title 類型的欄位 (通常叫 Name)
+        // 為了避免使用者沒有建立特定欄位而報錯，我們將主要標題放在這裡
+        Name: {
           title: [
             {
               text: {
-                content: message,
+                content: `[${type}] 新回饋 - ${theme || 'Unknown'}`,
               },
             },
           ],
-        },
-        Type: {
-          select: {
-            name: type,
-          },
-        },
-        Theme: {
-          rich_text: [
-            {
-              text: {
-                content: theme || 'Unknown',
-              },
-            },
-          ],
-        },
-        Email: {
-          email: email || null,
-        },
-        Status: {
-          select: {
-            name: 'New',
-          },
         },
       },
+      // 將詳細內容放在頁面內文 (blocks) 中，這樣就不需要依賴特定的資料庫欄位
+      children: [
+        {
+          object: 'block',
+          type: 'heading_2',
+          heading_2: {
+            rich_text: [{ type: 'text', text: { content: '回饋內容' } }],
+          },
+        },
+        {
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [{ type: 'text', text: { content: message } }],
+          },
+        },
+        {
+          object: 'block',
+          type: 'heading_3',
+          heading_3: {
+            rich_text: [{ type: 'text', text: { content: '詳細資訊' } }],
+          },
+        },
+        {
+          object: 'block',
+          type: 'bulleted_list_item',
+          bulleted_list_item: {
+            rich_text: [{ type: 'text', text: { content: `類型 (Type): ${type}` } }],
+          },
+        },
+        {
+          object: 'block',
+          type: 'bulleted_list_item',
+          bulleted_list_item: {
+            rich_text: [{ type: 'text', text: { content: `受眾模組 (Theme): ${theme || 'Unknown'}` } }],
+          },
+        },
+        {
+          object: 'block',
+          type: 'bulleted_list_item',
+          bulleted_list_item: {
+            rich_text: [{ type: 'text', text: { content: `聯絡信箱 (Email): ${email || '未提供'}` } }],
+          },
+        },
+      ],
     });
 
     return NextResponse.json({ success: true });
