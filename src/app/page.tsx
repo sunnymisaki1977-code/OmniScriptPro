@@ -254,30 +254,30 @@ export default function LandingPage() {
             <div className="absolute top-0 right-0 w-16 md:w-48 h-full bg-gradient-to-l from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
 
             {/* Layer 1: Foreground - Hero Text & CTA */}
-            <div className="relative z-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center pointer-events-none mt-10">
-              {/* 加入一個很弱的毛玻璃發光背景，讓文字在卡片滑過時仍然清晰 */}
-              <div className="absolute inset-0 bg-slate-50/60 dark:bg-[#030712]/70 backdrop-blur-[4px] rounded-[100px] blur-[40px] -z-10 transform scale-150" />
+            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-3xl mx-auto h-[320px] sm:h-[400px] flex flex-col items-center justify-center text-center pointer-events-none mt-10">
+              {/* 獨立背板：上下高度等同卡片，左右縮窄，使用毛玻璃與深色底 */}
+              <div className="absolute inset-0 bg-slate-50/80 dark:bg-[#070b16]/85 backdrop-blur-xl rounded-[2.5rem] sm:rounded-[4rem] border border-slate-200/50 dark:border-slate-800/80 shadow-2xl -z-10" />
               
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-lg">
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs md:text-sm font-bold mb-6 sm:mb-8 animate-fade-in-up shadow-lg">
                 <Sparkles className="w-4 h-4" />
                 <span>智能矩陣引擎 v2.0 全面上線</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight animate-fade-in-up delay-100 drop-shadow-2xl text-slate-900 dark:text-white">
-                您的全自動化 <br className="hidden md:block" />
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 sm:mb-6 leading-tight animate-fade-in-up delay-100 drop-shadow-2xl text-slate-900 dark:text-white">
+                您的全自動化 <br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
                   多模態生成引擎
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-700 dark:text-slate-300 max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200 font-medium drop-shadow-lg">
+              <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 max-w-xl mb-6 sm:mb-8 leading-relaxed animate-fade-in-up delay-200 font-medium drop-shadow-lg">
                 打破跨平台內容碎片化的窘境。只需輸入靈感，系統即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300 pointer-events-auto">
                 <Link 
                   href="/workspace"
-                  className="px-8 py-4 min-h-[56px] rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:scale-105 transition-all"
+                  className="px-6 sm:px-8 py-3 sm:py-4 min-h-[48px] sm:min-h-[56px] rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:scale-105 transition-all"
                 >
                   開始自動生成
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
               </div>
             </div>
