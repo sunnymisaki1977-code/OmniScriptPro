@@ -232,7 +232,7 @@ export default function LandingPage() {
           {/* 1. Hero Section (3-Layer Architecture) */}
           <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
             {/* Layer 2: Midground - Infinite Marquee */}
-            <div className="absolute inset-0 w-full flex flex-col justify-center z-10 pointer-events-auto">
+            <div className="absolute inset-0 pt-20 w-full flex flex-col justify-center z-10 pointer-events-auto">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
                   <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-300">
