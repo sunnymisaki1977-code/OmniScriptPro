@@ -232,7 +232,7 @@ export default function LandingPage() {
           {/* 1. Hero Section (3-Layer Architecture) */}
           <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
             {/* Layer 2: Midground - Infinite Marquee */}
-            <div className="absolute inset-0 w-full flex flex-col justify-center z-10 pointer-events-auto mt-20">
+            <div className="absolute inset-0 w-full flex flex-col justify-center z-10 pointer-events-auto">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
                   <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-300">
@@ -254,7 +254,7 @@ export default function LandingPage() {
             <div className="absolute top-0 right-0 w-16 md:w-48 h-full bg-gradient-to-l from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
 
             {/* Layer 1: Foreground - Hero Text & CTA */}
-            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-3xl mx-auto h-[320px] sm:h-[400px] flex flex-col items-center justify-center text-center pointer-events-none mt-10">
+            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-3xl mx-auto h-[320px] sm:h-[400px] flex flex-col items-center justify-center text-center pointer-events-none">
               {/* 獨立背板：上下高度等同卡片，左右縮窄，使用毛玻璃與深色底 */}
               <div className="absolute inset-0 bg-slate-50/80 dark:bg-[#070b16]/85 backdrop-blur-xl rounded-[2.5rem] sm:rounded-[4rem] border border-slate-200/50 dark:border-slate-800/80 shadow-2xl -z-10" />
               
