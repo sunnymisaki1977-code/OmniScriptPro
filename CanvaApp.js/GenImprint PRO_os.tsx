@@ -11,45 +11,45 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
-// --- ?��??�鑰對�?�?(5 ?��??�群 + 1 ?�管?�員) ---
+// --- ?��??�鑰對�?�?(5 ?��??�群 + 1 ?�管?�員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 民�?信仰?��??�傳??
-  'GLAM2026': 'beauty',        // 美�?保�??��?己�?�?
-  'INDIE2026': 'travelpreneur',// ?��??�活?��??�漫??
-  'RUBY2026': 'food',          // 美�??��??�風?�探�?
-  'PET2026': 'pet',            // 寵物?�護?�幸福陪�?
-  'SKY2026': 'pet',            // ?�容?�碼
-  'MASTER': 'heritage'      // 管�???
+  'TECH2026': 'heritage',   // 民�?信仰?��??�傳??
+  'GLAM2026': 'beauty',        // 美�?保�??��?己�?�?
+  'INDIE2026': 'travelpreneur',// ?��??�活?��??�漫??
+  'RUBY2026': 'food',          // 美�??��??�風?�探�?
+  'PET2026': 'pet',            // 寵物?�護?�幸福陪�?
+  'SKY2026': 'pet',            // ?�容?�碼
+  'MASTER': 'heritage'      // 管�???
 };
 
 const IMAGE_ENGINES = [
   {
     id: 'gemini-3.1-flash-lite-image',
     name: 'Nano Banana 2 Lite',
-    desc: '?�是?�度?�快、�??��?低�? Gemini ?��?模�?，�??�速度?��?模而設計�??�用?�速度?��??�是主�??��??�制?��?況。�??��?多個�??�輸?�內容�?多輪???編輯??
+    desc: '?�是?�度?�快、�??��?低�? Gemini ?��?模�?，�??�速度?��?模而設計�??�用?�速度?��??�是主�??��??�制?��?況。�??��?多個�??�輸?�內容�?多輪???編輯??
   },
   {
     id: 'gemini-3.1-flash-image',
     name: 'Nano Banana 2',
-    desc: '?�途�?�???�模?��??�用?��??�工作。可?�顧?�度?��??�進�? 4K ?��??�術、�??�知識�??��??��?字�?譯�??�。�??��??��?張�??��??��?並確保�??�性�?
+    desc: '?�途�?�???�模?��??�用?��??�工作。可?�顧?�度?��??�進�? 4K ?��??�術、�??�知識�??��??��?字�?譯�??�。�??��??��?張�??��??��?並確保�??�性�?
   },
   {
     id: 'gemini-3-pro-image',
     name: 'Nano Banana Pro',
-    desc: '?�?��??��?複�??��?覺�?工�?，�?供�?高�?度�?世�??��??�進�??�地?�、�?確�??��?一?�性�?以�?精確?�創?�控?��?
+    desc: '?�?��??��?複�??��?覺�?工�?，�?供�?高�?度�?世�??��??�進�??�地?�、�?確�??��?一?�性�?以�?精確?�創?�控?��?
   },
   {
     id: 'gemini-2.5-flash-image',
     name: 'Nano Banana',
-    desc: 'Nano Banana 系�??��?驅模?�。�???Nano Banana 2 Lite 一?�是?��??�工?��?但�??�強?�建議客?�改?�這�?模�?，享?�更?�質?��?驗、更快�??��??�度，以?�更低�? API ?�格??
+    desc: 'Nano Banana 系�??��?驅模?�。�???Nano Banana 2 Lite 一?�是?��??�工?��?但�??�強?�建議客?�改?�這�?模�?，享?�更?�質?��?驗、更快�??��??�度，以?�更低�? API ?�格??
   }
 ];
 
 // ============================================================================
-// --- 結�? Vercel ?�輯??Gemini Canva API ?�全?��??�函??---
+// --- 結�? Vercel ?�輯??Gemini Canva API ?�全?��??�函??---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
-    // 步�? 1：�? Vercel 請�??�該步�?專屬??Prompt 字串??
+    // 步�? 1：�? Vercel 請�??�該步�?專屬??Prompt 字串??
     const VERCEL_API_URL = '/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -57,10 +57,10 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
         body: JSON.stringify({ stepId, context, audienceTheme })
     });
     if (!promptResponse.ok) {
-        throw new Error(`Vercel ?�輯引�??�誤: ${promptResponse.status}`);
+        throw new Error(`Vercel ?�輯引�??�誤: ${promptResponse.status}`);
     }
     const { prompt } = await promptResponse.json();
-    // 步�? 2：拿??Prompt 後�??��?端直?��? Gemini Canva 官方 API
+    // 步�? 2：拿??Prompt 後�??��?端直?��? Gemini Canva 官方 API
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
@@ -73,7 +73,7 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
         })
     });
     if (!aiResponse.ok) {
-        throw new Error(`Google API ?�誤: ${aiResponse.status}`);
+        throw new Error(`Google API ?�誤: ${aiResponse.status}`);
     }
     
     const data = await aiResponse.json();
@@ -81,22 +81,22 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
 }
 
 // ============================================================================
-// 2. ?�身??STEPS (已移??Prompt，交??Vercel 後端?��?)
+// 2. ?�身??STEPS (已移??Prompt，交??Vercel 後端?��?)
 // ============================================================================
-// ?��?：MP4 輪播影�?清單 (?�可以在此陣?��??��??�影?�網?�)
+// ?��?：MP4 輪播影�?清單 (?�可以在此陣?��??��??�影?�網?�)
 const LOADING_VIDEOS_LIST = [
   "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4",
-  "https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4" // 請替?��??��?第�??�影?�網?�
+  "https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4" // 請替?��??��?第�??�影?�網?�
 ];
 
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
-  if (!stepId) return "請選?��??�步驟進�?檢�???;
+  if (!stepId) return "請選?��??�步驟進�?檢�???;
   
-  return `?��?待�? Vercel 伺�??�獲?��???..?�\n\n點�??��??�全?��?模�??��??�步?��??��??�」�??�伺?�器?�送�?求。`;
+  return `?��?待�? Vercel 伺�??�獲?��???..?�\n\n點�??��??�全?��?模�??��??�步?��??��??�」�??�伺?�器?�送�?求。`;
 };
 
 // ============================================================================
-// 3. React ?�件主�??��???
+// 3. React ?�件主�??��???
 // ============================================================================
 export default function App() {
   const [audienceThemes, setAudienceThemes] = useState({});
@@ -118,15 +118,15 @@ export default function App() {
       });
   }, []);
 
-  // --- ?�?�管?��??��?�?---
+  // --- ?�?�管?��??��?�?---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // ?��?：控?�是?�顯示�?碼輸?��?
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // ?��?：控?�是?�顯示�?碼輸?��?
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
 
-  // ====== ?��??�?�管??(?��? SSR ?�護) ======
+  // ====== ?��??�?�管??(?��? SSR ?�護) ======
   const [isMounted, setIsMounted] = useState(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
@@ -143,7 +143,7 @@ export default function App() {
     10: getInitialStepContent(10, "")
   }));
 
-  // ?��? Hydration Mismatch，�??�件?��?後�?�?localStorage 讀?��???
+  // ?��? Hydration Mismatch，�??�件?��?後�?�?localStorage 讀?��???
   useEffect(() => {
     setIsMounted(true);
     const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
@@ -154,7 +154,7 @@ export default function App() {
 
   const [isGenerating, setIsGenerating] = useState(false);
    
-   // --- ?��?：獨�?Gemini API Key ?�?��??��??�測 ---
+   // --- ?��?：獨�?Gemini API Key ?�?��??��??�測 ---
    const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -171,11 +171,11 @@ export default function App() {
     }
   }, [audienceTheme]);
 
- // ?�� ?��??��??��??��??�制 Notion 下�??�單 ?��
+ // ?�� ?��??��??��??��??�制 Notion 下�??�單 ?��
   const [archiveList, setArchiveList] = useState([]); 
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
   const [selectedArchive, setSelectedArchive] = useState("");
-  // ?�� ?��??�個函?��???Vercel ??Notion 清單 ?��
+  // ?�� ?��??�個函?��???Vercel ??Notion 清單 ?��
   const fetchArchives = async () => {
     try {
       const response = await fetch('/api/notion/history');
@@ -184,7 +184,7 @@ export default function App() {
         setArchiveList(data.history);
       }
     } catch (err) {
-      console.error("?��?載入 Notion 專�?清單", err);
+      console.error("?��?載入 Notion 專�?清單", err);
     }
   };
 
@@ -193,26 +193,26 @@ export default function App() {
   }, []);
 
   const [logs, setLogs] = useState([
-    { time: "23:22:36", text: "[System] OmniScript Pro OS ?��??��??��?, type: "info" },
-    { time: "23:22:40", text: "[System] 系統就�??�主美學?�置：全?�影?�創作�?(Cinematic Pink)", type: "default" }
+    { time: "23:22:36", text: "[System] OmniScript Pro OS ?��??��??��?, type: "info" },
+    { time: "23:22:40", text: "[System] 系統就�??�主美學?�置：全?�影?�創作�?(Cinematic Pink)", type: "default" }
   ]);
   
   const [aiStatus, setAiStatus] = useState('pro'); 
   const [credits, setCredits] = useState(125);
   const [isNotionExporting, setIsNotionExporting] = useState(false);
-  const [notionStatus, setNotionStatus] = useState('尚未歸�?');
+  const [notionStatus, setNotionStatus] = useState('尚未歸�?');
   const [notionUrl, setNotionUrl] = useState('');
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [musicProgress, setMusicProgress] = useState(35);
   const [musicGenre, setMusicGenre] = useState('Synthwave');
-  const [lyricsText, setLyricsText] = useState('?��??��??��?深�?... �?��?�螢幕�?跳�?，這是一?�人?�戰??..');
+  const [lyricsText, setLyricsText] = useState('?��??��??��?深�?... �?��?�螢幕�?跳�?，這是一?�人?�戰??..');
   const [midjourneyPrompt, setMidjourneyPrompt] = useState('A futuristic 3D render of a content creator workspace in 2026, holographic displays, neon glowing colors --ar 16:9');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const [generatedImages, setGeneratedImages] = useState([
-    { id: 1, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' },
-    { id: 2, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' },
-    { id: 3, url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' }
+    { id: 1, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' },
+    { id: 3, url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第�?組中?�Prompt' }
   ]);
 
   const [groupImages, setGroupImages] = useState({});
@@ -268,7 +268,7 @@ export default function App() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // --- ?��?多樣?�風?��?�?(??AI ?��??�樣) ---
+        // --- ?��?多樣?�風?��?�?(??AI ?��??�樣) ---
         const palettes = [
           { main: 'rgba(255, 251, 240, 1)', mainShadow: 'rgba(20, 10, 0, 0.7)', sub: 'rgba(240, 200, 80, 1)', subShadow: 'rgba(0, 0, 0, 0.58)' },
           { main: 'rgba(255, 223, 130, 1)', mainShadow: 'rgba(0, 0, 0, 0.8)', sub: 'rgba(255, 255, 255, 1)', subShadow: 'rgba(0, 0, 0, 0.7)' },
@@ -278,18 +278,18 @@ export default function App() {
         ];
         const style = palettes[Math.floor(Math.random() * palettes.length)];
         
-        // ?��??��?字優??(?�入 Google Fonts 行書/毛�?/小�?�?宋�? ?��??�樣)
+        // ?��??��?字優??(?�入 Google Fonts 行書/毛�?/小�?�?宋�? ?��??�樣)
         const fontFamilies = [
-          '"Ma Shan Zheng", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 馬�??��?筆楷??
+          '"Ma Shan Zheng", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 馬�??��?筆楷??
           '"Zhi Mang Xing", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 志莽行書
-          '"ZCOOL XiaoWei", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 站酷小�?�?
-          '"Noto Serif TC", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif'  // ?��?宋�?
+          '"ZCOOL XiaoWei", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 站酷小�?�?
+          '"Noto Serif TC", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif'  // ?��?宋�?
         ];
         const randomFontFamily = fontFamilies[Math.floor(Math.random() * fontFamilies.length)];
         const fontStr = (size) => `bold ${size}px ${randomFontFamily}`;
         
         if (visualStep === 7 && mainTitle) {
-          // Step 7 主�??��? (?��?線右??25%)
+          // Step 7 主�??��? (?��?線右??25%)
           const startX = width * 0.75;
           const startY = height * 0.15;
           ctx.font = fontStr(mainFontSize);
@@ -303,13 +303,13 @@ export default function App() {
             currentY += mainFontSize * 1.1;
           }
         } else if (visualStep === 8 && poetry) {
-          // Step 8 詩�??��? (?��?線右??25%，移?��?�?
+          // Step 8 詩�??��? (?��?線右??25%，移?��?�?
           const startX = width * 0.75;
           const startY = height * 0.15;
           ctx.font = fontStr(poetryFontSize);
-          const cleanText = poetry.replace(/[，。�?？�??�\s]/g, "");
+          const cleanText = poetry.replace(/[，。�?？�??�\s]/g, "");
           const lines = [];
-          // 七�??�句: �?7 字�?�?
+          // 七�??�句: �?7 字�?�?
           for (let i = 0; i < cleanText.length; i += 7) {
             lines.push(cleanText.slice(i, i + 7));
           }
@@ -324,10 +324,10 @@ export default function App() {
               ctx.fillText(char, xOffset, currentY);
               currentY += poetryFontSize * 1.1;
             }
-            xOffset -= poetryFontSize * 1.3; // 往左�?�?
+            xOffset -= poetryFontSize * 1.3; // 往左�?�?
           });
         } else {
-          // 一?�橫�?(主�?下移??25%)
+          // 一?�橫�?(主�?下移??25%)
           const mainX = width / 2;
           const mainY = height * 0.25;
           if (mainTitle) {
@@ -368,10 +368,10 @@ export default function App() {
     
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
     const engineName = engineConfig.name;
-    addLog(`[${engineName}] ?��? ${groupId} 繪製?��?...`, 'info');
+    addLog(`[${engineName}] ?��? ${groupId} 繪製?��?...`, 'info');
     
     try {
-      const apiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : ""); // Canvas ?�覽?��??�自?�帶??
+      const apiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : ""); // Canvas ?�覽?��??�自?�帶??
       
       let aspectRatio = "1:1";
       const currentStep = STEPS.find(s => s.id === visualStep);
@@ -398,7 +398,7 @@ export default function App() {
       if (data.predictions && data.predictions[0]) {
         base64 = data.predictions[0].bytesBase64Encoded;
       } else {
-        throw new Error("?�收?��??��???);
+        throw new Error("?�收?��??��???);
       }
       
       if (base64) {
@@ -406,13 +406,13 @@ export default function App() {
         const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
-        addLog(`[${engineName}] ??${groupId} 渲�?完�?！`, 'success');
+        addLog(`[${engineName}] ??${groupId} 渲�?完�?！`, 'success');
         setCredits(prev => Math.max(0, prev - 5));
       }
     } catch (err) {
       const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
       const engineName = engineConfig.name;
-      addLog(`[${engineName}] 繪製失�?: ${err.message}`, 'error');
+      addLog(`[${engineName}] 繪製失�?: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
     }
@@ -420,7 +420,7 @@ export default function App() {
 
   const handleDownloadImage = (url, filename) => {
     if (!url) {
-      addLog(`[System] 尚未?��?影�?，無法�?載`, 'error');
+      addLog(`[System] 尚未?��?影�?，無法�?載`, 'error');
       return;
     }
     const a = document.createElement('a');
@@ -465,7 +465,7 @@ export default function App() {
   };
 
   // ============================================================================
-  // 4. ?�寫?�自?��??��???(??Vercel API)
+  // 4. ?�寫?�自?��??��???(??Vercel API)
   // ============================================================================
   const runAutoGeneration = async (startTheme) => {
       
@@ -476,11 +476,11 @@ export default function App() {
     let currentContextContents = { ...stepContents }; 
     let startStep = 1;
 
-    // --- ?��?：偵測主題�??�並?��??�示清空 ---
+    // --- ?��?：偵測主題�??�並?��??�示清空 ---
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
     const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
     if (startTheme !== savedLastTheme && !isCanvasEmpty) {
-      const wantsNew = window.confirm(`?�輸?��??�新主�?：�?{startTheme}?�\n請�??�否要�?空畫布�??��?企�?，�??��?始建立�?\n(?�選?��?消�?將�?試智?�接續未完�??�步�?`);
+      const wantsNew = window.confirm(`?�輸?��??�新主�?：�?{startTheme}?�\n請�??�否要�?空畫布�??��?企�?，�??��?始建立�?\n(?�選?��?消�?將�?試智?�接續未完�??�步�?`);
       if (wantsNew) {
         currentContextContents = {
           1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
@@ -499,14 +499,14 @@ export default function App() {
       return !content || content.trim() === '' || content === getInitialStepContent(stepId, "");
     };
 
-    // 如�?使用?��??��??�景資�?�?Step 1 ?�空（�??�是?�設佔�??��?）�?就�?它當�?Step 1
+    // 如�?使用?��??��??�景資�?�?Step 1 ?�空（�??�是?�設佔�??��?）�?就�?它當�?Step 1
     if (customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
-      addLog(`[System] ?�測?�您已�?供「自訂�??��??�」�?系統已自?��??��??�為 Step 1 ?��??�獻，為?��?下第一?�段?�查?��??��?`, 'success');
+      addLog(`[System] ?�測?�您已�?供「自訂�??��??�」�?系統已自?��??��??�為 Step 1 ?��??�獻，為?��?下第一?�段?�查?��??��?`, 'success');
     }
 
-    // ?�能?��??�輯：�??�第一?��??�內容�?步�?
+    // ?�能?��??�輯：�??�第一?��??�內容�?步�?
     for (let i = 1; i <= STEPS.length; i++) {
       if (isStepEmpty(i)) {
         startStep = i;
@@ -515,20 +515,20 @@ export default function App() {
     }
 
     if (startStep > STEPS.length) {
-      addLog(`[System] ${STEPS.length} ?�步驟�?已�??�內容�??��?完�?！`, 'success');
+      addLog(`[System] ${STEPS.length} ?�步驟�?已�??�內容�??��?完�?！`, 'success');
       setIsGenerating(false);
       return;
     }
 
     // ==========================================
-    // Stage 1: 專注事實?�核 (Step 1)
+    // Stage 1: 專注事實?�核 (Step 1)
     // ==========================================
     if (startStep === 1) {
-      addLog(`[Process] Stage 1：正?��?注�???Step 1: ${STEPS[0].name}...`);
+      addLog(`[Process] Stage 1：正?��?注�???Step 1: ${STEPS[0].name}...`);
       setActiveStep(1);
       
       try {
-        // ?�用後端 /api/generate-all 來�? Step 1，享?�自?��?試�???503 機制
+        // ?�用後端 /api/generate-all 來�? Step 1，享?�自?��?試�???503 機制
         const response = await fetch('/api/generate-all', {
           method: 'POST',
           headers: { 
@@ -544,7 +544,7 @@ export default function App() {
         });
 
         if (!response.ok) {
-          throw new Error(`伺�??��??�錯�? ${response.status}`);
+          throw new Error(`伺�??��??�錯�? ${response.status}`);
         }
 
         const responseData = await response.json();
@@ -554,26 +554,26 @@ export default function App() {
         setStepContents(prev => ({ ...prev, 1: resultText }));
         setCompletedSteps(prev => [...new Set([...prev, 1])]);
         
-        addLog(`[System] 第�??�段?��??�究已�??��??��?系統?��??��??��? Stage 2 ?�次?��?...`, 'info');
-        startStep = 2; // ?��??��??�入第�??�段
+        addLog(`[System] 第�??�段?��??�究已�??��??��?系統?��??��??��? Stage 2 ?�次?��?...`, 'info');
+        startStep = 2; // ?��??��??�入第�??�段
       } catch (error) {
-        addLog(`[Error] Step 1 ?��?失�?: ${error.message}，中止全?��?流�??�`, 'error');
+        addLog(`[Error] Step 1 ?��?失�?: ${error.message}，中止全?��?流�??�`, 'error');
         setIsGenerating(false);
         return;
       }
     }
 
     // ==========================================
-    // Stage 2: 依�??��??��?步�? (Step 2 ~ 10 一??��跑�?)
+    // Stage 2: 依�??��??��?步�? (Step 2 ~ 10 一??��跑�?)
     // ==========================================
-    addLog(`[Process] Stage 2：正?�呼?�雲端批次�??��?準�?一??��?��? Step ${startStep} ~ ${STEPS.length}...`, 'info');
+    addLog(`[Process] Stage 2：正?�呼?�雲端批次�??��?準�?一??��?��? Step ${startStep} ~ ${STEPS.length}...`, 'info');
     
-    // 設�??�實?��??��??��??��??�緩等�?後端 30~45 秒�??�慮?��??��?誠實?��?系統?�??
+    // 設�??�實?��??��??��??��??�緩等�?後端 30~45 秒�??�慮?��??��?誠實?��?系統?�??
     const progressMessages = [
-      { msg: `[System] ?�端引�?�?��?��?超大?�本?�絡?��??��??��???.. (此批次�??�通常?��?30~45 �?` },
-      { msg: `[System] �?��?�步?��??�本?��??��?覺�?令�?社群貼�?，這是一?��?算�?任�?，�?稍�?..` },
-      { msg: `[System] 深度?��??��??��?中�?系統�?��確�???${STEPS.length - 1} ?�步驟�??�輯完�?對�?不�???..` },
-      { msg: `[System] ?�入?�後�?裝�?段�??��??�您?�出完整?��??�矩???` }
+      { msg: `[System] ?�端引�?�?��?��?超大?�本?�絡?��??��??��???.. (此批次�??�通常?��?30~45 �?` },
+      { msg: `[System] �?��?�步?��??�本?��??��?覺�?令�?社群貼�?，這是一?��?算�?任�?，�?稍�?..` },
+      { msg: `[System] 深度?��??��??��?中�?系統�?��確�???${STEPS.length - 1} ?�步驟�??�輯完�?對�?不�???..` },
+      { msg: `[System] ?�入?�後�?裝�?段�??��??�您?�出完整?��??�矩???` }
     ];
     let msgIndex = 0;
     const progressInterval = setInterval(() => {
@@ -581,7 +581,7 @@ export default function App() {
         addLog(progressMessages[msgIndex].msg, 'info');
         msgIndex++;
       }
-    }, 8000); // �?8 秒�??��?次系統�???
+    }, 8000); // �?8 秒�??��?次系統�???
 
     try {
       const response = await fetch('/api/generate-all', {
@@ -602,7 +602,7 @@ export default function App() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `伺�??��??�錯�? ${response.status}`);
+        throw new Error(errData.error || `伺�??��??�錯�? ${response.status}`);
       }
 
       const responseData = await response.json();
@@ -615,21 +615,21 @@ export default function App() {
         if (generatedData[i]) {
           updatedContents[i] = generatedData[i];
           newCompleted.push(i);
-          addLog(`[AI] ??Step ${i} ?�容從批次�??��??��??��?`, 'success');
+          addLog(`[AI] ??Step ${i} ?�容從批次�??��??��??��?`, 'success');
         }
       }
 
       setStepContents(updatedContents);
       setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
 
-      addLog(`[System] ??${STEPS.length}-Step ?�自?��??�產?��??��??��??�陣?�容已�?妥。`, 'success');
+      addLog(`[System] ??${STEPS.length}-Step ?�自?��??�產?��??��??��??�陣?�容已�?妥。`, 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
       
-      // ?��??�出??Notion
+      // ?��??�出??Notion
       await startNotionExport(updatedContents, startTheme);
 
     } catch (error) {
-      addLog(`[Error] ?�次?��?失�?: ${error.message}，�?確�? API Key 額度?�網路�???�`, 'error');
+      addLog(`[Error] ?�次?��?失�?: ${error.message}，�?確�? API Key 額度?�網路�???�`, 'error');
     } finally {
       clearInterval(progressInterval);
       setIsGenerating(false);
@@ -648,17 +648,17 @@ export default function App() {
 
     setSelectedArchive(pageId);
     setIsLoadingArchive(true);
-    addLog(`[Notion] �?��從雲端�??��?案�???..`, 'info');
+    addLog(`[Notion] �?��從雲端�??��?案�???..`, 'info');
 
     try {
-      // ??Vercel 請�?�?Notion ?�面?�詳細內�?
+      // ??Vercel 請�?�?Notion ?�面?�詳細內�?
       const response = await fetch(`/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
-        // ?��??��?後�?一?��??�容填�?編輯?��?
+        // ?��??��?後�?一?��??�容填�?編輯?��?
         if (data.theme) setTheme(data.theme); 
-        // 確�?不�?�?"undefined" 字串覆�??�使?�者選好�??�眾
+        // 確�?不�?�?"undefined" 字串覆�??�使?�者選好�??�眾
         if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
           setAudienceTheme(data.audienceTheme);
         }
@@ -674,13 +674,13 @@ export default function App() {
           9: data.stepsData[9] || "",
           10: data.stepsData[10] || ""
         });
-        addLog(`[Notion] ??專�?載入?��?！`, 'success');
-        setNotionStatus('??已�??�歸�?);
+        addLog(`[Notion] ??專�?載入?��?！`, 'success');
+        setNotionStatus('??已�??�歸�?);
         setNotionUrl(`https://www.notion.so/${pageId.replace(/-/g, '')}`);
         setViewState('workspace');
       }
     } catch (error) {
-      addLog(`[Error] 載入失�?: ${error.message}`, 'error');
+      addLog(`[Error] 載入失�?: ${error.message}`, 'error');
     } finally {
       setIsLoadingArchive(false);
       setSelectedArchive("");
@@ -694,31 +694,31 @@ export default function App() {
       return;
     }
     if (customContext.length > 5000) {
-      alert(`字數總�? (${customContext.length} �? 超�? 5000 字�??��?請刪減內容�??�執行�?`);
+      alert(`字數總�? (${customContext.length} �? 超�? 5000 字�??��?請刪減內容�??�執行�?`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
-      alert("請輸?�「�??�主題」�??��??�自訂�??��??�」�?系統?�能?�您?��?企�?�?);
+      alert("請輸?�「�??�主題」�??��??�自訂�??��??�」�?系統?�能?�您?��?企�?�?);
       return;
     }
-    const finalTheme = theme.trim() || '?��?企�? (?�命??';
-    addLog(`[System] ?? ?��? ${STEPS.length}-Step ?�端引�?！目標�??��???{finalTheme}?�`, 'info');
+    const finalTheme = theme.trim() || '?��?企�? (?�命??';
+    addLog(`[System] ?? ?��? ${STEPS.length}-Step ?�端引�?！目標�??��???{finalTheme}?�`, 'info');
     runAutoGeneration(finalTheme);
   };
 
   const startManualWorkspace = () => {
     if (customContext.length > 5000) {
-      alert(`字數總�? (${customContext.length} �? 超�? 5000 字�??��?請刪減內容�??�執行�?`);
+      alert(`字數總�? (${customContext.length} �? 超�? 5000 字�??��?請刪減內容�??�執行�?`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
-      alert("請輸?�「�??�主題」�??��??�自訂�??��??�」�?以便?�入?��?工�??��?);
+      alert("請輸?�「�??�主題」�??��??�自訂�??��??�」�?以便?�入?��?工�??��?);
       return;
     }
-    const finalTheme = theme.trim() || '?��?企�? (?�命??';
+    const finalTheme = theme.trim() || '?��?企�? (?�命??';
     setMode('manual');
     setViewState('workspace');
-    addLog(`[System] ?�入?��?編輯模�??�目標�??��???{finalTheme}?�`, 'info');
+    addLog(`[System] ?�入?��?編輯模�??�目標�??��???{finalTheme}?�`, 'info');
   };
 
   const handleEditorChange = (e) => {
@@ -726,7 +726,7 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- ?��?：�??�本?��?件內�?---
+  // --- ?��?：�??�本?��?件內�?---
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -736,31 +736,31 @@ export default function App() {
       setCustomContext(prev => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
-          addLog(`[Error] ?�入失�?：�?�?${file.name} ?�容後�??��? ${newText.length} 字�?超�? 5000 字�??��??�避?��?載�??��??��?！`, 'error');
-          alert(`?�入失�?：�??�總??(${newText.length} �? 超�? 5000 字�??��?\\n建議?�接?��?精華段落?�可?�`);
-          return prev; // ?��??�入，維?��?�?
+          addLog(`[Error] ?�入失�?：�?�?${file.name} ?�容後�??��? ${newText.length} 字�?超�? 5000 字�??��??�避?��?載�??��??��?！`, 'error');
+          alert(`?�入失�?：�??�總??(${newText.length} �? 超�? 5000 字�??��?\\n建議?�接?��?精華段落?�可?�`);
+          return prev; // ?��??�入，維?��?�?
         }
-        addLog(`[System] 已�??��??��?件�?${file.name}`, 'success');
+        addLog(`[System] 已�??��??��?件�?${file.name}`, 'success');
         return newText;
       });
     };
     reader.readAsText(file);
-    e.target.value = null; // ?�置 input 讓�?一?��?案可以�?複�???
+    e.target.value = null; // ?�置 input 讓�?一?��?案可以�?複�???
   };
 
-  // --- ?��?：直?�寫??Step 1 ---
+  // --- ?��?：直?�寫??Step 1 ---
   const handleImportToStep1 = () => {
     if (!customContext.trim()) {
-      addLog('[System] 沒�??�容?�匯?��?請�?貼�??��??��???, 'warning');
+      addLog('[System] 沒�??�容?�匯?��?請�?貼�??��??��???, 'warning');
       return;
     }
     setStepContents(prev => ({ ...prev, 1: customContext }));
-    setCompletedSteps(prev => [...new Set([...prev, 1])]); // 標�? Step 1 ?�已完�?
-    addLog('[System] ?? ?�考�??�已?��??�入 Step 1 ?��?�?, 'success');
+    setCompletedSteps(prev => [...new Set([...prev, 1])]); // 標�? Step 1 ?�已完�?
+    addLog('[System] ?? ?�考�??�已?��??�入 Step 1 ?��?�?, 'success');
   };
 
   const clearAllData = () => {
-    if (window.confirm('確�?要�?空畫布�??�?��??��?企�?資�??��?（此?��??��??��?�?)) {
+    if (window.confirm('確�?要�?空畫布�??�?��??��?企�?資�??��?（此?��??��??��?�?)) {
       setTheme('');
       setCustomContext('');
       setStepContents({
@@ -772,20 +772,20 @@ export default function App() {
       setCompletedSteps([1]);
       setActiveStep(1);
       setViewState('hub');
-      addLog('[System] ??�??��??��??�已?�數清空，隨?�可?��??��?案�?, 'info');
+      addLog('[System] ??�??��??��??�已?�數清空，隨?�可?��??��?案�?, 'info');
     }
   };
 
   // ============================================================================
-  // 5. ?�寫?��??�步?��? (??Vercel API)
+  // 5. ?�寫?��??�步?��? (??Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
-    addLog(`[AI] �?��?�端請�?... ?�新?�寫 Step ${activeStep}`, 'info');
+    addLog(`[AI] �?��?�端請�?... ?�新?�寫 Step ${activeStep}`, 'info');
         setIsGenerating(true);
     
     try {
       const context = {
-        theme: theme || "?�命?��??�主�?,
+        theme: theme || "?�命?��??�主�?,
         step1: stepContents[1] || "",
         step2: stepContents[2] || "",
         step3: stepContents[3] || "",
@@ -798,35 +798,35 @@ export default function App() {
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
       setCredits(prevCredits => Math.max(0, prevCredits - 2));
-      addLog(`[AI] ??Step ${activeStep} ?�容?��?完畢！已?��?渲�??�編輯器?�`, 'success');
+      addLog(`[AI] ??Step ${activeStep} ?�容?��?完畢！已?��?渲�??�編輯器?�`, 'success');
 
     } catch (error) {
-      console.error("?��?失�?:", error);
-      addLog(`[Error] ?��?失�?: ${error.message}`, 'error');
-      alert(`API ?�叫失�?，錯誤�??? ${error.message}`);
+      console.error("?��?失�?:", error);
+      addLog(`[Error] ?��?失�?: ${error.message}`, 'error');
+      alert(`API ?�叫失�?，錯誤�??? ${error.message}`);
     } finally {
       setIsGenerating(false);
     }
   };
 
-// --- ?�出資�???Notion ---
+// --- ?�出資�???Notion ---
 const startNotionExport = async (customContents = null, customTheme = null) => {
   setIsNotionExporting(true);
-  setNotionStatus('�?��?�步??Notion...');
-  addLog(`[System] ?��?封�?企�?資�?，自?��??�匯??..`, 'info');
+  setNotionStatus('�?��?�步??Notion...');
+  addLog(`[System] ?��?封�?企�?資�?，自?��??�匯??..`, 'info');
 
   try {
-    // ?�叫?�們自己�? Vercel 後端 Notion API
+    // ?�叫?�們自己�? Vercel 後端 Notion API
     const VERCEL_NOTION_URL = '/api/notion';
     
-    const targetTheme = customTheme || theme || "?�命?��??�主�?;
+    const targetTheme = customTheme || theme || "?�命?��??�主�?;
     const targetContents = customContents || stepContents;
 
-    // 封�??��??�?��?輸入?��??��??��?符�?後端 /api/notion ?��??�格�?
+    // 封�??��??�?��?輸入?��??��??��?符�?後端 /api/notion ?��??�格�?
     const payload = {
       theme: targetTheme,
       stepsData: targetContents,
-      creatorName: curTheme.title, // ?��??��??��??��??��??��?稱�?例�?：全?�影?�創作者�?
+      creatorName: curTheme.title, // ?��??��??��??��??��??��?稱�?例�?：全?�影?�創作者�?
       audienceTheme: audienceTheme
     };
 
@@ -837,27 +837,27 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     });
 
     if (!response.ok) {
-      throw new Error(`伺�??�錯�? ${response.status}`);
+      throw new Error(`伺�??�錯�? ${response.status}`);
     }
 
     const data = await response.json();
     
-    setNotionStatus('??已�??�歸�?);
-    addLog(`[Notion] ??企�??�出?��?！`, 'success');
+    setNotionStatus('??已�??�歸�?);
+    addLog(`[Notion] ??企�??�出?��?！`, 'success');
     
-    // ?��??��??��?建好??Notion ?�面並儲�?URL
+    // ?��??��??��?建好??Notion ?�面並儲�?URL
     if (data.url) {
       setNotionUrl(data.url);
-      fetchArchives(); // ?��?後�??�刷?�歷?��???
+      fetchArchives(); // ?��?後�??�刷?�歷?��???
       if (passcode.trim().toUpperCase() === 'MASTER') {
         window.open(data.url, '_blank');
       }
     }
     
   } catch (error) {
-    console.error("Notion ?�出失�?:", error);
-    setNotionStatus('??歸�?失�?');
-    addLog(`[Error] ?�出失�?: ${error.message}`, 'error');
+    console.error("Notion ?�出失�?:", error);
+    setNotionStatus('??歸�?失�?');
+    addLog(`[Error] ?�出失�?: ${error.message}`, 'error');
   } finally {
     setIsNotionExporting(false);
   }
@@ -871,12 +871,12 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     }
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
-    addLog(`[Visual Hub] ?��??�次?��?${visualGroups.length} �?Prompt ??Imagen 4.0 API 端�?...`, 'info');
+    addLog(`[Visual Hub] ?��??�次?��?${visualGroups.length} �?Prompt ??Imagen 4.0 API 端�?...`, 'info');
     
     await Promise.all(visualGroups.map(group => generateGroupImage(group)));
     
     setIsGeneratingImage(false);
-    addLog(`[Visual Hub] ?�� ?�??Imagen 4.0 影�??��?完畢！`, 'success');
+    addLog(`[Visual Hub] ?�� ?�??Imagen 4.0 影�??��?完畢！`, 'success');
   };
 
   
@@ -893,26 +893,26 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     if (ACCESS_CODES[code]) {
       setIsAuthenticated(true);
       setShowLoginPrompt(false);
-      setAudienceTheme(ACCESS_CODES[code]); // ?��?密碼?��??��?對�??��??�主�?
+      setAudienceTheme(ACCESS_CODES[code]); // ?��?密碼?��??��?對�??��??�主�?
       setAuthError('');
-      setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] ?��??��??��???${ACCESS_CODES[code]} 工�??�?�`, type: "success" }]);
+      setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] ?��??��??��???${ACCESS_CODES[code]} 工�??�?�`, type: "success" }]);
     } else {
-      setAuthError('?��??��?權碼，�??�新輸入');
+      setAuthError('?��??��?權碼，�??�新輸入');
     }
   };
 
-  // ?��?：全局?�截使用?��?任�??��?（�??�、鍵?��?，在觸發任�? UI ?��??�並顯示密碼�?
+  // ?��?：全局?�截使用?��?任�??��?（�??�、鍵?��?，在觸發任�? UI ?��??�並顯示密碼�?
   useEffect(() => {
     const handleInteraction = (e) => {
       if (!isAuthenticated && !showLoginPrompt) {
         setShowLoginPrompt(true);
-        e.stopPropagation(); // ?�止事件往下傳?�給底層?��???
+        e.stopPropagation(); // ?�止事件往下傳?�給底層?��???
         e.preventDefault();
       }
     };
 
     if (!isAuthenticated && !showLoginPrompt) {
-      // 使用 capture ?�段?�截事件，確保能第�??��??��?使用?��??��?
+      // 使用 capture ?�段?�截事件，確保能第�??��??��?使用?��??��?
       window.addEventListener('click', handleInteraction, { capture: true });
       window.addEventListener('mousedown', handleInteraction, { capture: true });
       window.addEventListener('keydown', handleInteraction, { capture: true });
@@ -926,7 +926,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   }, [isAuthenticated, showLoginPrompt]);
 
   if (!isMounted) {
-    return null; // �?�� Hydration Mismatch，�??�端?��?完�??�繪�?UI
+    return null; // �?�� Hydration Mismatch，�??�端?��?完�??�繪�?UI
   }
 
   return (
@@ -951,10 +951,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {/* Navigation Links (Matching Design exactly) */}
           <nav className="space-y-1.5">
             {[
-              { id: 'creation', icon: FileText, label: '?�容?��?中�?' },
-              { id: 'visual', icon: ImageIcon, label: '視覺?�控中�?' },
-              { id: 'suno', icon: Music, label: 'Suno ?��?中�?' },
-              { id: 'notebook', icon: BookOpen, label: 'NotebookLM 影�?中�?' }
+              { id: 'creation', icon: FileText, label: '?�容?��?中�?' },
+              { id: 'visual', icon: ImageIcon, label: '視覺?�控中�?' },
+              { id: 'suno', icon: Music, label: 'Suno ?��?中�?' },
+              { id: 'notebook', icon: BookOpen, label: 'NotebookLM 影�?中�?' }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -982,40 +982,40 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <span className="font-semibold">{tab.label}</span>
                   </button>
                   
-                  {/* 視覺裂�? (?�左?�選?��?覺發?�中心�?) */}
+                  {/* 視覺裂�? (?�左?�選?��?覺發?�中心�?) */}
                   {isActive && tab.id === 'visual' && (
                     <div className="mx-2 p-4 bg-[#0f172a]/70 border border-slate-800/80 rounded-xl space-y-4 backdrop-blur-md">
                       <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-                        視覺裂�?
+                        視覺裂�?
                       </h4>
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影音縮�?</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影音縮�?</label>
                           <select className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none">
-                            <option>?�影??/option>
-                            <option>?�影??/option>
+                            <option>?�影??/option>
+                            <option>?�影??/option>
                             <option>社群FB/IG</option>
                           </select>
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">輸出比�?</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">輸出比�?</label>
                           <select 
                             value={visualStep}
                             onChange={(e) => setVisualStep(Number(e.target.value))}
                             className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
                           >
-                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫�?縮�? (YouTube / FB)'}</option>
-                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '?��??��?封面 (Shorts / Reels)'}</option>
-                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '?�象??/ 海報'}</option>
-                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '社群?�播 / 視覺素�?'}</option>
+                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫�?縮�? (YouTube / FB)'}</option>
+                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '?��??��?封面 (Shorts / Reels)'}</option>
+                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '?�象??/ 海報'}</option>
+                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '社群?�播 / 視覺素�?'}</option>
                           </select>
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影�??��?引�?</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影�??��?引�?</label>
                           <select 
                             value={imageEngine}
                             onChange={(e) => setImageEngine(e.target.value)}
@@ -1031,9 +1031,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">?�風濾鏡</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">?�風濾鏡</label>
                           <div className="grid grid-cols-2 gap-1.5">
-                            {['?�虹?�競', '寫實極簡', '3D 賽�?', '?�繪?�漫'].map((style, idx) => (
+                            {['?�虹?�競', '寫實極簡', '3D 賽�?', '?�繪?�漫'].map((style, idx) => (
                               <button 
                                 key={style}
                                 className={`px-2 py-1.5 rounded-lg text-[9px] font-bold border text-center ${idx === 0 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300' : 'border-slate-800 text-slate-500'}`}
@@ -1061,7 +1061,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 N
               </div>
               <div className="text-[11px]">
-                <p className="font-semibold text-slate-300">Notion ???�?/p>
+                <p className="font-semibold text-slate-300">Notion ???�?/p>
                 <p className="text-[9px] text-slate-500">v2.4.1 Active</p>
               </div>
             </div>
@@ -1072,7 +1072,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs hover:bg-slate-900/40 transition-all">
             <div className="flex items-center gap-2.5">
               <Sun className="w-4 h-4 text-slate-500" />
-              <span className="font-medium text-slate-400 text-[11px]">淺色模�?</span>
+              <span className="font-medium text-slate-400 text-[11px]">淺色模�?</span>
             </div>
             <div className="w-8 h-4 rounded-full bg-slate-800 flex items-center p-0.5 justify-start">
               <div className="w-3 h-3 rounded-full bg-slate-500" />
@@ -1091,7 +1091,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input 
               type="text" 
-              placeholder="例�?：日?�寺廟抽籤攻??
+              placeholder="例�?：日?�寺廟抽籤攻??
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
               className="w-full bg-[#111827]/60 border border-slate-800/80 rounded-xl py-2 pl-10 pr-4 text-xs font-medium text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all"
@@ -1100,35 +1100,35 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-4">
-            {/* ?��?顯示?��??��??�??*/}
+            {/* ?��?顯示?��??��??�??*/}
             {isCanvasEnv && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Canvas ?��?已�?�?/span>
+                <span>Canvas ?��?已�?�?/span>
               </div>
             )}
 
-            {/* 清空企�??��? (從工作�?移�?�? */}
+            {/* 清空企�??��? (從工作�?移�?�? */}
             <button 
               onClick={clearAllData}
               className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>清空企�?</span>
+              <span>清空企�?</span>
             </button>
 
-            {/* 一?�全?��?模�? Header Button / 中斷?��? */}
+            {/* 一?�全?��?模�? Header Button / 中斷?��? */}
             {isGenerating ? (
               <button 
                 onClick={() => {
                   setIsGenerating(false);
-                  addLog("[System] ?��?作業已由使用?��??�中?��?, "info");
+                  addLog("[System] ?��?作業已由使用?��??�中?��?, "info");
                   setViewState('workspace');
                 }}
                 className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
               >
                 <X className="w-3.5 h-3.5" />
-                <span>中斷?��?</span>
+                <span>中斷?��?</span>
               </button>
             ) : (
               <button 
@@ -1136,14 +1136,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>{completedSteps.length > 0 ? '?��??��??��?' : '一?�全?��?模�?'}</span>
+                <span>{completedSteps.length > 0 ? '?��??��??��?' : '一?�全?��?模�?'}</span>
               </button>
             )}
 
             {/* Quota Metric Button */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
               <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
-              <span>{credits} 點�?�?/span>
+              <span>{credits} 點�?�?/span>
             </div>
 
             {/* User Avatar */}
@@ -1172,10 +1172,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   {/* Hub Header */}
                   <div className="text-center space-y-2">
                     <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
-                      今天?�創作�?麼�?
+                      今天?�創作�?麼�?
                     </h2>
                     <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
-                      輸入你想?��??�主題�?AI 將為你�??��??�究?�長?�影?�腳?�到社群貼�??�全?��??��?
+                      輸入你想?��??�主題�?AI 將為你�??��??�究?�長?�影?�腳?�到社群貼�??�全?��??��?
                     </p>
                   </div>
 
@@ -1211,17 +1211,17 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                       <input 
                         type="text"
-                        placeholder="例�?：日?�京?��?五日?�攻??
+                        placeholder="例�?：日?�京?��?五日?�攻??
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
                         className="w-full relative bg-[#070b16] border border-slate-900 rounded-2xl px-6 py-4 text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/30 transition-all shadow-inner"
                       />
                     </div>
 
-                    {/* --- ?��?：自訂�??��??��? --- */}
+                    {/* --- ?��?：自訂�??��??��? --- */}
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-[10px] text-slate-400 font-bold">?��??�景資�? / ?�考�?�?(?�填)</label>
+                        <label className="text-[10px] text-slate-400 font-bold">?��??�景資�? / ?�考�?�?(?�填)</label>
                         <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800/50 hover:bg-slate-700 text-slate-300 text-[9px] cursor-pointer transition-colors border border-slate-700">
                           <UploadCloud className="w-3 h-3" />
                           <span>上傳 TXT/MD/CSV</span>
@@ -1231,7 +1231,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       <div className="relative">
                         <textarea
                           maxLength={5000}
-                          placeholder="請貼上�??��?章�?官方?��?�?(建議?�制??5000 字以?��??��? AI 超�??�觸?��?流�??�制)?�系統�??��??��??��?將此?�容?�入??Step 1 作為?��?資�?..."
+                          placeholder="請貼上�??��?章�?官方?��?�?(建議?�制??5000 字以?��??��? AI 超�??�觸?��?流�??�制)?�系統�??��??��??��?將此?�容?�入??Step 1 作為?��?資�?..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
                           className={`w-full bg-[#070b16] border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
@@ -1242,18 +1242,18 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
                     </div>
 
-                    {/* --- ?��?：API Key 輸入?� --- */}
+                    {/* --- ?��?：API Key 輸入?� --- */}
                     {!isCanvasEnv && (
                       <div className="space-y-2 pt-2 border-t border-slate-900/50">
                         <div className="flex items-center justify-between">
                           <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
-                          <span className="text-[9px] text-indigo-400 font-medium">???�援多�??�鑰輪替 (以逗�??��?)</span>
+                          <span className="text-[9px] text-indigo-400 font-medium">???�援多�??�鑰輪替 (以逗�??��?)</span>
                         </div>
                         <div className="relative">
                           <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                           <input 
                             type="password"
-                            placeholder="輸入 API Key (?�貼上�??��??�並?��?形逗�? , ?��?)..."
+                            placeholder="輸入 API Key (?�貼上�??��??�並?��?形逗�? , ?��?)..."
                             value={geminiApiKey}
                             onChange={(e) => setGeminiApiKey(e.target.value)}
                             className="w-full bg-[#070b16] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
@@ -1264,28 +1264,28 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     {/* Big Action Buttons */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Left: 一?�全?��?模�? */}
+                      {/* Left: 一?�全?��?模�? */}
                       <button
                         onClick={handleStartAuto}
                         className={`py-4 rounded-2xl ${curTheme.primaryBtn} font-black text-xs flex flex-col items-center justify-center gap-1 transition-all shadow-xl active:scale-98`}
                       >
                         <div className="flex items-center gap-2">
                           <Play className="w-4 h-4 fill-white" />
-                          <span>{completedSteps.length > 0 ? '?��??��??��?' : '一?�全?��?模�?'}</span>
+                          <span>{completedSteps.length > 0 ? '?��??��??��?' : '一?�全?��?模�?'}</span>
                         </div>
-                        <span className="text-[10px] opacity-70 font-normal">?�次?�叫，自?��??��??�?�步驟�?歸�?</span>
+                        <span className="text-[10px] opacity-70 font-normal">?�次?�叫，自?��??��??�?�步驟�?歸�?</span>
                       </button>
 
-                      {/* Right: ?��??�步編輯 */}
+                      {/* Right: ?��??�步編輯 */}
                       <button
                         onClick={startManualWorkspace}
                         className="py-4 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-slate-200 font-black text-xs flex flex-col items-center justify-center gap-1 transition-all active:scale-98"
                       >
                         <div className="flex items-center gap-2 text-slate-200">
                           <Sliders className="w-4 h-4 text-slate-400" />
-                          <span>?�步編輯工�?�?/span>
+                          <span>?�步編輯工�?�?/span>
                         </div>
-                        <span className="text-[10px] text-slate-500 font-normal">?��?調校，逐步建�?客製?�矩??��??/span>
+                        <span className="text-[10px] text-slate-500 font-normal">?��?調校，逐步建�?客製?�矩??��??/span>
                       </button>
                     </div>
                   </div>
@@ -1294,7 +1294,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   <div className="pt-4 border-t border-slate-900/60 flex flex-col items-center gap-3">
                     <div className="flex items-center gap-2 text-indigo-400">
                       <UploadCloud className="w-4.5 h-4.5" />
-                      <span className="text-xs font-bold">�?Notion 載入已歸檔�?�?/span>
+                      <span className="text-xs font-bold">�?Notion 載入已歸檔�?�?/span>
                     </div>
                     
                     {/* Simulated dropdown */}
@@ -1305,9 +1305,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         disabled={passcode.trim().toUpperCase() !== 'MASTER'}
                         className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
                       >
-                        <option value="">-- {archiveList.length === 0 ? '載入清單�?..' : '點�??��??��?專�?'} --</option>
+                        <option value="">-- {archiveList.length === 0 ? '載入清單�?..' : '點�??��??��?專�?'} --</option>
                         
-                        {/* ?�裡?�自?��? Notion 裡面?��?案�?稱�??��??�出來�? */}
+                        {/* ?�裡?�自?��? Notion 裡面?��?案�?稱�??��??�出來�? */}
                         {archiveList.map((item) => (
                           <option key={item.id} value={item.id}>
                             ?? {item.title} ({item.createdTime})
@@ -1318,14 +1318,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     </div>
                   </div>
                   
-                  {/* 清空?��? */}
+                  {/* 清空?��? */}
                   <div className="pt-4 flex justify-center">
                     <button 
                       onClick={clearAllData}
                       className="text-[10px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      清空?��??��?企�?資�?
+                      清空?��??��?企�?資�?
                     </button>
                   </div>
                 </div>
@@ -1338,7 +1338,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 <div className="w-64 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar shrink-0">
                   <div className="flex items-center justify-between mb-4 px-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
-                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已�???/span>
+                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已�???/span>
                   </div>
                   {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
@@ -1388,7 +1388,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             }}
                             className="text-xs text-slate-500 hover:text-indigo-400 flex items-center gap-1 font-bold transition-all"
                           >
-                            ??返�??��?大廳
+                            ??返�??��?大廳
                           </button>
                           <span className="text-slate-600">??/span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
@@ -1396,9 +1396,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1]?.name || '載入�?..'}
+                          {STEPS[activeStep-1]?.name || '載入�?..'}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc || '�?��?�步伺�??�設定�?...'}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc || '�?��?�步伺�??�設定�?...'}</p>
                       </div>
 
                       <div className="flex items-center gap-3">
@@ -1408,16 +1408,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
                         >
                           <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                          {isGenerating ? 'AI ?��??��?�?..' : 'AI ?�新?��??�潤�?}
+                          {isGenerating ? 'AI ?��??��?�?..' : 'AI ?�新?��??�潤�?}
                         </button>
                       </div>
                     </div>
 
                     {/* Notion synced alert banner */}
-                    {notionStatus === '已�?步至 Notion' && (
+                    {notionStatus === '已�?步至 Notion' && (
                       <div className="mb-4 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs flex items-center gap-2">
                         <CheckCircle2 className="w-4.5 h-4.5" />
-                        <span>?��??�步驟內容已??Notion ?�端檔�??��??�步?�份??/span>
+                        <span>?��??�步驟內容已??Notion ?�端檔�??��??�步?�份??/span>
                       </div>
                     )}
 
@@ -1439,17 +1439,17 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
                                 a.href = url;
-                                a.download = `${theme || '企�?'}_Step${activeStep}_${STEPS[activeStep-1]?.name.split(' ')[0] || 'Doc'}.md`;
+                                a.download = `${theme || '企�?'}_Step${activeStep}_${STEPS[activeStep-1]?.name.split(' ')[0] || 'Doc'}.md`;
                                 document.body.appendChild(a);
                                 a.click();
                                 document.body.removeChild(a);
                                 URL.revokeObjectURL(url);
                               }}
                               className="text-[10px] text-indigo-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
-                              title="下�?此步驟內容為 Markdown 檔�?"
+                              title="下�?此步驟內容為 Markdown 檔�?"
                             >
                               <Download className="w-3 h-3" />
-                              下�? .md
+                              下�? .md
                             </button>
                           )}
                           <div className="text-[10px] text-slate-500 font-medium">
@@ -1459,7 +1459,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
 
                       <div className="flex-1 relative min-h-[500px]">
-                        {/* AI ?�寫?��?顯示 MP4 讀?��???*/}
+                        {/* AI ?�寫?��?顯示 MP4 讀?��???*/}
                         {isGenerating ? (
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
                             <video 
@@ -1471,15 +1471,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
                             />
                             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse tracking-wider">
-                              AI ?��?引�?高速�?算中...
+                              AI ?��?引�?高速�?算中...
                             </h3>
                             <p className="text-slate-400 mt-3 text-sm flex items-center gap-2">
                               <RefreshCw className="w-4 h-4 animate-spin" />
-                              �?��?��?資�?，�?稍�?
+                              �?��?��?資�?，�?稍�?
                             </p>
                           </div>
                         ) : (
-                          /* ?��?完畢後�?顯示?�本?��?字編輯器 */
+                          /* ?��?完畢後�?顯示?�本?��?字編輯器 */
                           <div 
                             contentEditable
                             suppressContentEditableWarning
@@ -1508,9 +1508,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   <div>
                     <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
                       <ImageIcon className="w-5 h-5 text-indigo-400" />
-                      視覺調度中�?
+                      視覺調度中�?
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">?�制?��???16:9 YouTube 橫�?縮�???:16 ?��??��?封面?�社群�?覺�??��?/p>
+                    <p className="text-xs text-slate-400 mt-1">?�制?��???16:9 YouTube 橫�?縮�???:16 ?��??��?封面?�社群�?覺�??��?/p>
                   </div>
                 </div>
 
@@ -1520,7 +1520,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
-  {/* AI ?�寫?��?顯示 MP4 讀?��???*/}
+  {/* AI ?�寫?��?顯示 MP4 讀?��???*/}
   {isGenerating ? (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl z-10 backdrop-blur-md">
        
@@ -1533,16 +1533,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
       />
       <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 animate-pulse tracking-wider">
-        AI 引�?高速�?算中...
+        AI 引�?高速�?算中...
       </h3>
       <p className="text-purple-300/60 mt-3 text-sm flex items-center gap-2">
         <RefreshCw className="w-4 h-4 animate-spin" />
-        �?��?��?資�?，�?稍�?
+        �?��?��?資�?，�?稍�?
       </p>
     </div>
   ) : (
     
-    /* ?��?完畢後�?顯示?�本?��?字編輯器 */
+    /* ?��?完畢後�?顯示?�本?��?字編輯器 */
     <textarea
       className="w-full h-full min-h-[500px] p-6 bg-gray-900/50 text-gray-200 border border-gray-700/50 rounded-xl focus:outline-none focus:border-purple-500/50 resize-none leading-relaxed"
       value={stepContents[visualStep]}
@@ -1558,13 +1558,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{isGeneratingImage ? '�?��?�次渲�?�?..' : '??AI ?�次繪製?�部影�?'}</span>
+                      <span>{isGeneratingImage ? '�?��?�次渲�?�?..' : '??AI ?�次繪製?�部影�?'}</span>
                     </button>
                   </div>
 
                   {/* Right Masonry Grid of images */}
                   <div className="col-span-2 space-y-4">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲?��?體�??�庫 ({visualGroups.length})</h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲?��?體�??�庫 ({visualGroups.length})</h4>
                     
                     <div className="grid grid-cols-2 gap-4">
                       {visualGroups.map((group) => (
@@ -1576,11 +1576,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             ) : generatingGroups[group.id] ? (
                                <div className="flex flex-col items-center gap-2">
                                  <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
-                                 <span className="text-[10px] text-purple-400">�?��?��? {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} ?��?...</span>
+                                 <span className="text-[10px] text-purple-400">�?��?��? {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} ?��?...</span>
                                </div>
                             ) : (
                                <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
-                                 <ImageIcon className="w-4 h-4" /> 尚未?��?影�?
+                                 <ImageIcon className="w-4 h-4" /> 尚未?��?影�?
                                </div>
                             )}
                           </div>
@@ -1614,7 +1614,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '�?��渲�?...' : '??AI 繪製影�? (-5 �?'}</span>
+                              <span>{generatingGroups[group.id] ? '�?��渲�?...' : '??AI 繪製影�? (-5 �?'}</span>
                             </button>
                           </div>
                         </div>
@@ -1627,7 +1627,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </div>
           )}
 
-          {/* TAB 3: Suno ?��?中�? */}
+          {/* TAB 3: Suno ?��?中�? */}
           {activeTab === 'suno' && (
             /* --- STREAMING_CHUNK:Rendering Suno AI Audio Center --- */
             <div className="flex-1 p-6 overflow-y-auto bg-[#0a0f1d] custom-scrollbar">
@@ -1637,20 +1637,20 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   <div>
                     <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
                       <Music className="w-5 h-5 text-purple-400" />
-                      Suno ?��?中�?
+                      Suno ?��?中�?
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">?�於影�??�眾調性�??�本節奏�?一?�調??Suno API ?��??��??�創?�無?��??��??��?樂�?/p>
+                    <p className="text-xs text-slate-400 mt-1">?�於影�??�眾調性�??�本節奏�?一?�調??Suno API ?��??��??�創?�無?��??��??��?樂�?/p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
                   {/* Lyrics generation */}
                   <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">?��?歌�??��?</h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">?��?歌�??��?</h4>
                     
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">?��?風格 (Style of Music)</label>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">?��?風格 (Style of Music)</label>
                         <input 
                           type="text" 
                           value={musicGenre} 
@@ -1660,7 +1660,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">歌�??�容 / ?�調?��?</label>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">歌�??�容 / ?�調?��?</label>
                         <textarea
                           value={stepContents[9]} 
                           onChange={(e) => setStepContents(prev => ({ ...prev, 9: e.target.value }))}
@@ -1671,15 +1671,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     <button 
                       onClick={() => {
-                        addLog("[Suno API] �?��調度?��?引�??�寫?��?軌跡...", "info");
+                        addLog("[Suno API] �?��調度?��?引�??�寫?��?軌跡...", "info");
                         setTimeout(() => {
-                          addLog("[Suno API] ???��??��??��?！已?�入下方?��?庫�?, "success");
+                          addLog("[Suno API] ???��??��??��?！已?�入下方?��?庫�?, "success");
                         }, 1500);
                       }}
                       className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-500/10 active:scale-95"
                     >
                       <Sparkles className="w-4 h-4 animate-pulse" />
-                      <span>?�新調製?��?軌跡</span>
+                      <span>?�新調製?��?軌跡</span>
                     </button>
                   </div>
 
@@ -1727,7 +1727,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     </div>
 
                     {/* Suno Audio Archive Library */}
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-2">?��??��?�?/h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-2">?��??��?�?/h4>
                     <div className="space-y-2">
                       {[
                         { title: 'SaaS Dreamscape - Vol.3', style: 'Synthwave', dur: '02:00' },
@@ -1747,7 +1747,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <div className="flex items-center gap-3">
                             <span className="text-xs font-mono text-slate-500">{track.dur}</span>
                             <button className="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 hover:text-white font-bold border border-slate-800">
-                              使用此音�?
+                              使用此音�?
                             </button>
                           </div>
                         </div>
@@ -1770,26 +1770,26 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   <div>
                     <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
                       <BookOpen className="w-5 h-5 text-emerald-400" />
-                      NotebookLM 影�??��?中�?
+                      NotebookLM 影�??��?中�?
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">?�入?�影?�、�??��?檔�??�音檔�??��??��?主�??��??�並轉譯?��?構�?對�??�學習�??��?/p>
+                    <p className="text-xs text-slate-400 mt-1">?�入?�影?�、�??��?檔�??�音檔�??��??��?主�??��??�並轉譯?��?構�?對�??�學習�??��?/p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
                   {/* Left input container */}
                   <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">外部資�?庫匯??/h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">外部資�?庫匯??/h4>
                     
                     <div className="space-y-3">
                       <div className="p-4 border border-dashed border-slate-800 hover:border-emerald-500/40 rounded-xl bg-slate-900/10 text-center cursor-pointer transition-all">
                         <UploadCloud className="w-7 h-7 text-slate-500 mx-auto mb-2" />
-                        <span className="text-xs font-bold text-slate-400 block">?�曳 Markdown/PDF ?�這裡</span>
-                        <span className="text-[10px] text-slate-600 block mt-1">??點�??��?上傳</span>
+                        <span className="text-xs font-bold text-slate-400 block">?�曳 Markdown/PDF ?�這裡</span>
+                        <span className="text-[10px] text-slate-600 block mt-1">??點�??��?上傳</span>
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">YouTube ?�影??URL</label>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">YouTube ?�影??URL</label>
                         <input 
                           type="text" 
                           placeholder="https://www.youtube.com/watch?v=..."
@@ -1800,14 +1800,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     <button 
                       onClick={() => {
-                        addLog("[NotebookLM] �?���??影�?語音，進�?語�??��??��??��???..", "info");
+                        addLog("[NotebookLM] �?���??影�?語音，進�?語�??��??��??��???..", "info");
                         setTimeout(() => {
-                          addLog("[NotebookLM] ???��?�???�影?��??��?資�?已�??��?, "success");
+                          addLog("[NotebookLM] ???��?�???�影?��??��?資�?已�??��?, "success");
                         }, 1200);
                       }}
                       className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
                     >
-                      <span>�??影�?並�??��??�庫</span>
+                      <span>�??影�?並�??��??�庫</span>
                     </button>
                   </div>
 
@@ -1816,27 +1816,27 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <div className="p-5 bg-[#0f172a]/40 border border-slate-900 rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                         <Award className="w-4 h-4" />
-                        <span>AI ?��??�影?�知識卡 (影�??�長 35 mins)</span>
+                        <span>AI ?��??�影?�知識卡 (影�??�長 35 mins)</span>
                       </div>
 
                       <div className="space-y-3 text-xs leading-relaxed text-slate-300">
                         <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-slate-200">?�鍵?��? 01 - 跨平?��?流�?必然趨勢</p>
-                          <p className="text-slate-400 mt-1">2026年單一社群平台流�?�?��緊縮，�?尖創作者�??�建�?YouTube（長?��?�? TikTok（短?��?�? FB/IG（社群宣?��??�自?��?流系統�?/p>
+                          <p className="font-bold text-slate-200">?�鍵?��? 01 - 跨平?��?流�?必然趨勢</p>
+                          <p className="text-slate-400 mt-1">2026年單一社群平台流�?�?��緊縮，�?尖創作者�??�建�?YouTube（長?��?�? TikTok（短?��?�? FB/IG（社群宣?��??�自?��?流系統�?/p>
                         </div>
                         <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-slate-200">?�鍵?��? 02 - 多工 AI ?�勢</p>
-                          <p className="text-slate-400 mt-1">使用?��???Prompt 比�??��??�能?�好?��?上�??��?係。�?次解構全?�步驟能?��??��?�?��?��??�腳?�調?��?一?��??��???/p>
+                          <p className="font-bold text-slate-200">?�鍵?��? 02 - 多工 AI ?�勢</p>
+                          <p className="text-slate-400 mt-1">使用?��???Prompt 比�??��??�能?�好?��?上�??��?係。�?次解構全?�步驟能?��??��?�?��?��??�腳?�調?��?一?��??��???/p>
                         </div>
                       </div>
                     </div>
 
                     {/* Quick interactive Q&As */}
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-1">快速�?讀?��?</h4>
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-1">快速�?讀?��?</h4>
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       {[
-                        { q: '?�段?�容?��??��?點是什麼�?', a: '主�??�於?��??�發?�格式�??�以?�腳?��??�瓶?��? },
-                        { q: '?��?企�??�單純寫?�本差在?��?', a: '?��?企�??��?了�??�、長?��??�、Suno ?��???SEO，�?次�??��??�產?��? }
+                        { q: '?�段?�容?��??��?點是什麼�?', a: '主�??�於?��??�發?�格式�??�以?�腳?��??�瓶?��? },
+                        { q: '?��?企�??�單純寫?�本差在?��?', a: '?��?企�??��?了�??�、長?��??�、Suno ?��???SEO，�?次�??��??�產?��? }
                       ].map((qa, i) => (
                         <div key={i} className="p-4 bg-slate-900/30 border border-slate-900/80 rounded-xl space-y-1.5">
                           <p className="font-bold text-slate-200">??{qa.q}</p>
@@ -1860,13 +1860,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
-          {/* AI ?�?�監??Panel */}
+          {/* AI ?�?�監??Panel */}
           <div className="p-5 border-b border-slate-900/80">
             <div className="flex items-center gap-2 mb-4">
               <span className="w-3.5 h-3.5 rounded bg-slate-900 flex items-center justify-center">
                 <Sliders className="w-2.5 h-2.5 text-slate-500" />
               </span>
-              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI ?�?�監??/h4>
+              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI ?�?�監??/h4>
             </div>
 
             {/* Simulated Active Engine Card */}
@@ -1885,12 +1885,12 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </div>
           </div>
 
-          {/* _> 系統?�日�?(Log Terminal Box) */}
+          {/* _> 系統?�日�?(Log Terminal Box) */}
           <div className="flex-1 p-5 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-slate-400" />
-                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">系統?�日�?/h4>
+                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">系統?�日�?/h4>
               </div>
               
               {/* Simulated MacOS close icons */}
@@ -1922,7 +1922,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
         </div>
 
-        {/* 返�??��?大廳 */}
+        {/* 返�??��?大廳 */}
         <div className="flex justify-center pb-2 pt-2 border-t border-slate-900 bg-slate-950/20">
           <button
             onClick={() => {
@@ -1931,7 +1931,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             }}
             className="py-1.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white border border-slate-800 rounded transition-colors"
           >
-            返�??��?大廳
+            返�??��?大廳
           </button>
         </div>
 
@@ -1939,32 +1939,32 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         <div className="p-5 border-t border-slate-900 bg-slate-950/40">
           <div className="flex items-center gap-2 mb-3.5">
             <HardDrive className="w-4 h-4 text-slate-400" />
-            <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Notion ?�步中�?</h4>
+            <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Notion ?�步中�?</h4>
           </div>
 
           <div className="space-y-4">
             {/* Sync status feedback */}
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500">存�??�步?�??/span>
-              <span className={`font-bold ${notionStatus === '已�?步至 Notion' ? 'text-emerald-400' : 'text-amber-400'}`}>
+              <span className="text-slate-500">存�??�步?�??/span>
+              <span className={`font-bold ${notionStatus === '已�?步至 Notion' ? 'text-emerald-400' : 'text-amber-400'}`}>
                 {notionStatus}
               </span>
             </div>
 
             {/* Notion sync execution button */}
-            {notionStatus === '??已�??�歸�? ? (
+            {notionStatus === '??已�??�歸�? ? (
               <div className="space-y-2 w-full">
-                {/* �?MASTER ?��??��??��?�?*/}
+                {/* �?MASTER ?��??��??��?�?*/}
                 {(notionUrl && passcode.trim().toUpperCase() === 'MASTER') && (
                   <button
                     onClick={() => window.open(notionUrl, '_blank')}
                     className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
                   >
                     <Link className="w-4 h-4" />
-                    <span>?��? Notion ?��?此�???/span>
+                    <span>?��? Notion ?��?此�???/span>
                   </button>
                 )}
-                {/* ?��?專�?下�??�單 (??MASTER ?�用) */}
+                {/* ?��?專�?下�??�單 (??MASTER ?�用) */}
                 <div className="w-full relative mt-2">
                   <select
                     className="w-full py-2 pl-8 pr-8 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 text-slate-400 text-xs font-medium appearance-none cursor-pointer outline-none text-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
@@ -1972,7 +1972,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     value={selectedArchive}
                     disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
                   >
-                    <option value="">?��?專�?�?(?��? Master)</option>
+                    <option value="">?��?專�?�?(?��? Master)</option>
                     {archiveList.map((item: any) => (
                       <option key={item.id} value={item.id}>
                         {item.title}
@@ -1990,7 +1990,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
               >
                 <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
-                <span>{isNotionExporting ? '�?��?�輸?��?�?..' : '?��??�出 Notion'}</span>
+                <span>{isNotionExporting ? '�?��?�輸?��?�?..' : '?��??�出 Notion'}</span>
               </button>
             )}
           </div>
@@ -1998,19 +1998,19 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
       </aside>
 
-      {/* --- Global Auth Overlay (?��??�護罩�?密碼?��?) --- */}
+      {/* --- Global Auth Overlay (?��??�護罩�?密碼?��?) --- */}
       {(!isAuthenticated && showLoginPrompt) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
           <div 
             className="relative z-10 w-full max-w-sm p-8 bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()} // 點�?密碼框內?��??��?�?
+            onClick={(e) => e.stopPropagation()} // 點�?密碼框內?��??��?�?
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
-            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸?�您?��?屬�??��?權碼以解?�系�?/p>
+            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸?�您?��?屬�??��?權碼以解?�系�?/p>
             
             <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
               <div>
@@ -2018,7 +2018,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   type="password"
                   value={passcode}
                   onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                  placeholder="輸入?��?�?
+                  placeholder="輸入?��?�?
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
                   autoFocus
                 />
@@ -2028,16 +2028,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 type="submit"
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg active:scale-95"
               >
-                �??並登?�工作�?
+                �??並登?�工作�?
               </button>
             </form>
 
-            {/* ?�發測試?��???(上�?給客?��??��??��? div ?�除) */}
+            {/* ?�發測試?��???(上�?給客?��??��??��? div ?�除) */}
             <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
-              <span>TECH2026 (民�?)</span>
-              <span>GLAM2026 (美�?)</span>
-              <span>INDIE2026 (?��?)</span>
-              <span>RUBY2026 (美�?)</span>
+              <span>TECH2026 (民�?)</span>
+              <span>GLAM2026 (美�?)</span>
+              <span>INDIE2026 (?��?)</span>
+              <span>RUBY2026 (美�?)</span>
               <span>SKY2026 (寵物)</span>
               
             </div>
@@ -2052,16 +2052,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Key className="w-6 h-6 text-indigo-400" />
-                ?��?Gemini API Key
+                ?��?Gemini API Key
               </h3>
               <button onClick={() => setShowApiKeyModal(false)} className="text-slate-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-              ?�目?��??�獨立�?行模式�?必�?輸入 Gemini API Key ?�能?��???
+              ?�目?��??�獨立�?行模式�?必�?輸入 Gemini API Key ?�能?��???
               <br />
-              <span className="text-indigo-400 font-medium mt-1 inline-block">??系統?�援?��?流�??��??�可以�?次貼上�??��??��?並使?��?形逗�? <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> ?��???/span>
+              <span className="text-indigo-400 font-medium mt-1 inline-block">??系統?�援?��?流�??��??�可以�?次貼上�??��??��?並使?��?形逗�? <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> ?��???/span>
             </p>
             
             <div className="space-y-4">
@@ -2069,7 +2069,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="輸入 API Key (例�?：AIzaSy..., AIzaSy..., AIzaSy...)"
+                  placeholder="輸入 API Key (例�?：AIzaSy..., AIzaSy..., AIzaSy...)"
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
@@ -2087,7 +2087,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  確�?並�?始執�?
+                  確�?並�?始執�?
                 </button>
                 <a
                   href="https://aistudio.google.com/app/apikey"
@@ -2095,7 +2095,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   rel="noopener noreferrer"
                   className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors flex items-center justify-center gap-2"
                 >
-                  ?��??��? Gemini API Key
+                  ?��??��? Gemini API Key
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
