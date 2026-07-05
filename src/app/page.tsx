@@ -276,7 +276,7 @@ export default function LandingPage() {
                   href="/workspace"
                   className="px-6 sm:px-8 py-3 sm:py-4 min-h-[48px] sm:min-h-[56px] rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:scale-105 transition-all"
                 >
-                  開始自動生成
+                  啟用 OmniScript PRO 系統
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
               </div>
