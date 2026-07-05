@@ -358,7 +358,7 @@ export default function App() {
 
   const generateGroupImage = async (group) => {
     const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
