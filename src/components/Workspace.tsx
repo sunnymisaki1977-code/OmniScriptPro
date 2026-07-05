@@ -19,6 +19,8 @@ export const Workspace = () => {
   const { currentStep, setCurrentStep, stepsData, updateStepData, getStepContext, theme } = useWorkflow();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
+  const [currentModel, setCurrentModel] = useState<string>("");
+  const [generationLogs, setGenerationLogs] = useState<string[]>([]);
   const [autoProgress, setAutoProgress] = useState(0);
   const [isArchiving, setIsArchiving] = useState(false);
   
@@ -139,6 +141,8 @@ export const Workspace = () => {
     }, 3500);
     
     try {
+      setGenerationLogs(["開始初始化全自動生成引擎..."]);
+      setCurrentModel("分析中...");
       let currentDocText = stepsData[1] || "";
       let currentData = { ...stepsData };
       let lastSuccessStep = startFromStep - 1;
@@ -153,6 +157,8 @@ export const Workspace = () => {
         // 更新畫面進度
         setAutoProgress(currentStart);
         setCurrentStep(currentStart);
+
+        setGenerationLogs(prev => [...prev, `[步驟 ${currentStart}-${currentEnd}] 請求發送，等待模型回應...`]);
 
         const res = await fetch("/api/generate-all", {
           method: "POST",
@@ -186,6 +192,12 @@ export const Workspace = () => {
         if (json.error && !json.isPartial) throw new Error(json.error);
 
         const newData = json.data;
+        
+        if (json.modelUsed) {
+          setCurrentModel(json.modelUsed);
+          setGenerationLogs(prev => [...prev, `使用模型: ${json.modelUsed}`]);
+        }
+        setGenerationLogs(prev => [...prev, `[步驟 ${currentStart}-${currentEnd}] 生成成功！`]);
         
         // 若後端有查核出新的文獻，更新到前端狀態中
         if (json.contextUsed && !currentDocText) {
@@ -223,8 +235,8 @@ export const Workspace = () => {
       toast.success("全自動生成完成！您可以開始審閱與編輯。");
     } catch (err: any) {
       clearInterval(visualTimer);
-      console.error("Auto generate failed", err);
       toast.error(`全自動生成失敗: ${err.message}`);
+      setGenerationLogs(prev => [...prev, `❌ 發生錯誤: ${err.message}`]);
     } finally {
       clearInterval(visualTimer);
       setIsAutoGenerating(false);
@@ -471,6 +483,27 @@ export const Workspace = () => {
                     style={{ width: `${(autoProgress / 9) * 100}%` }} 
                   />
                 </div>
+              </div>
+              {/* Logs & Model Overlay */}
+              <div className="absolute bottom-8 right-8 w-80 bg-stone-900/80 backdrop-blur-md rounded-2xl border border-white/20 p-4 shadow-2xl flex flex-col gap-3 pointer-events-none">
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] text-white/70 font-mono tracking-widest">SYSTEM_LOGS</span>
+                </div>
+                <div className="flex flex-col gap-1.5 h-32 overflow-y-auto custom-scrollbar font-mono text-[11px] text-white/80">
+                  {generationLogs.map((log, i) => (
+                    <div key={i} className="flex gap-2">
+                      <span className="text-amber-500 shrink-0">{`>`}</span>
+                      <span className="break-all">{log}</span>
+                    </div>
+                  ))}
+                </div>
+                {currentModel && (
+                  <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-white/50">
+                    <span>ACTIVE_MODEL:</span>
+                    <span className="text-emerald-400 font-mono font-bold">{currentModel}</span>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
