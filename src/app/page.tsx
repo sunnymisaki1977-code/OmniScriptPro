@@ -229,51 +229,57 @@ export default function LandingPage() {
         </nav>
 
         <main className="relative z-10">
-          {/* 1. Hero Section */}
-          <section className="pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs md:text-sm font-bold mb-8 animate-fade-in-up">
-              <Sparkles className="w-4 h-4" />
-              <span>智能矩陣引擎 v2.0 全面上線</span>
+          {/* 1. Hero Section (3-Layer Architecture) */}
+          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
+            {/* Layer 2: Midground - Infinite Marquee */}
+            <div className="absolute inset-0 w-full flex flex-col justify-center z-10 pointer-events-auto mt-20">
+              <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
+                {[...audiences, ...audiences].map((a, idx) => (
+                  <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                    <FlipCard 
+                      theme={a.title}
+                      frontImage={a.flipData.frontImage}
+                      frontText={a.flipData.frontText}
+                      frontTags={a.flipData.frontTags}
+                      backInput={a.flipData.backInput}
+                      systemTasks={a.flipData.systemTasks}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight animate-fade-in-up delay-100">
-              您的全自動化 <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                多模態生成引擎
-              </span>
-            </h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200">
-              打破跨平台內容碎片化的窘境。只需輸入靈感，系統即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
-            </p>
-            <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300">
-              <Link 
-                href="/workspace"
-                className="px-8 py-4 min-h-[56px] rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/25 hover:scale-105 transition-all"
-              >
-                開始自動生成
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </section>
 
-          {/* 1.5 魔法翻轉卡片流動區 (Ah-ha Moment Marquee) */}
-          <section className="w-full overflow-hidden py-10 bg-slate-50 dark:bg-[#030712] relative z-20 mb-10">
-            {/* 左右邊緣漸層遮罩 */}
-            <div className="absolute top-0 left-0 w-16 md:w-32 h-full bg-gradient-to-r from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-16 md:w-32 h-full bg-gradient-to-l from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
-            
-            <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
-              {[...audiences, ...audiences].map((a, idx) => (
-                <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0">
-                  <FlipCard 
-                    theme={a.title}
-                    frontImage={a.flipData.frontImage}
-                    frontText={a.flipData.frontText}
-                    frontTags={a.flipData.frontTags}
-                    backInput={a.flipData.backInput}
-                    systemTasks={a.flipData.systemTasks}
-                  />
-                </div>
-              ))}
+            {/* 邊緣漸層遮罩 (覆蓋在 Marquee 上，避免卡片切邊太生硬) */}
+            <div className="absolute top-0 left-0 w-16 md:w-48 h-full bg-gradient-to-r from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-16 md:w-48 h-full bg-gradient-to-l from-slate-50 dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+
+            {/* Layer 1: Foreground - Hero Text & CTA */}
+            <div className="relative z-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center pointer-events-none mt-10">
+              {/* 加入一個很弱的毛玻璃發光背景，讓文字在卡片滑過時仍然清晰 */}
+              <div className="absolute inset-0 bg-slate-50/60 dark:bg-[#030712]/70 backdrop-blur-[4px] rounded-[100px] blur-[40px] -z-10 transform scale-150" />
+              
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-lg">
+                <Sparkles className="w-4 h-4" />
+                <span>智能矩陣引擎 v2.0 全面上線</span>
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight animate-fade-in-up delay-100 drop-shadow-2xl text-slate-900 dark:text-white">
+                您的全自動化 <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                  多模態生成引擎
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-slate-700 dark:text-slate-300 max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200 font-medium drop-shadow-lg">
+                打破跨平台內容碎片化的窘境。只需輸入靈感，系統即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300 pointer-events-auto">
+                <Link 
+                  href="/workspace"
+                  className="px-8 py-4 min-h-[56px] rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:scale-105 transition-all"
+                >
+                  開始自動生成
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
             </div>
           </section>
 
