@@ -17,6 +17,7 @@ import {
   Lock,
   Share2
 } from 'lucide-react';
+import FlipCard from '@/components/FlipCard';
 
 // --- LazyYoutube Component ---
 interface LazyYoutubeProps {
@@ -82,7 +83,14 @@ export default function LandingPage() {
       textClass: "text-amber-500",
       features: ["極速 5-Step", "流量收割", "毒雞湯語錄"],
       playlistId: "PLS7BJQ4awAeM",
-      isShorts: true
+      isShorts: true,
+      flipData: {
+        frontImage: "from-amber-500 to-red-600",
+        frontText: "「孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
+        frontTags: "#歷史迷因 #三國演義 #孔明",
+        backInput: "幫我吐槽孔明草船借箭，用現代投資客的角度來寫。",
+        systemTasks: ["✓ 啟動 5-Step 極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
+      }
     },
     { 
       id: "heritage",
@@ -93,7 +101,14 @@ export default function LandingPage() {
       textClass: "text-purple-500",
       features: ["完整 10-Step", "深度考究", "賽博龐克視覺"],
       playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
-      isShorts: false
+      isShorts: false,
+      flipData: {
+        frontImage: "from-purple-600 to-pink-600",
+        frontText: "本集帶您深入解析五福大帝捨生取義的感人歷史，從瘟神到恩主公的信仰轉變...",
+        frontTags: "#五福大帝 #文化傳承 #民間信仰",
+        backInput: "幫我介紹五福大帝，強調祂們捨生取義、庇佑蒼生的故事。",
+        systemTasks: ["✓ 啟動 10-Step 深度矩陣", "✓ 執行史料交叉比對", "✓ 生成 Imagen 4.0 賽博粉提示詞"]
+      }
     },
     { 
       id: "pet",
@@ -104,7 +119,14 @@ export default function LandingPage() {
       textClass: "text-sky-500",
       features: ["完整 10-Step", "知性信任感", "專業感排版"],
       playlistId: "PLC-IrJAPGBww",
-      isShorts: false
+      isShorts: false,
+      flipData: {
+        frontImage: "from-sky-400 to-indigo-500",
+        frontText: "貓咪亂尿尿不是在報復！獸醫帶你讀懂 3 個關鍵求救訊號，打造零壓力的貓咪友善空間...",
+        frontTags: "#貓咪行為 #寵物照護 #新手貓奴",
+        backInput: "貓咪突然在床上尿尿怎麼辦？想要一篇衛教影片腳本。",
+        systemTasks: ["✓ 啟動 10-Step 信任感矩陣", "✓ 醫學知識結構化", "✓ 生成溫暖治癒系視覺指令"]
+      }
     },
     { 
       id: "beauty",
@@ -115,7 +137,14 @@ export default function LandingPage() {
       textClass: "text-rose-500",
       features: ["完整 10-Step", "高質感腳本", "暖光濾鏡"],
       playlistId: "PLA1T_pcDfevM",
-      isShorts: false
+      isShorts: false,
+      flipData: {
+        frontImage: "from-rose-400 to-amber-400",
+        frontText: "「早C晚A」真的適合你嗎？皮膚科醫師不敢說的保養盲區，3 分鐘帶你找回水煮蛋肌...",
+        frontTags: "#早C晚A #抗老保養 #美妝保養",
+        backInput: "我想拍一支關於早C晚A保養的避坑指南。",
+        systemTasks: ["✓ 啟動 10-Step 質感矩陣", "✓ 情境帶入與痛點放大", "✓ 配置唯美玫瑰金視覺指令"]
+      }
     },
     { 
       id: "food",
@@ -126,7 +155,14 @@ export default function LandingPage() {
       textClass: "text-orange-500",
       features: ["完整 10-Step", "勾引食慾視覺", "強烈 CTA"],
       playlistId: "PLF3eQyAQueV4",
-      isShorts: false
+      isShorts: false,
+      flipData: {
+        frontImage: "from-orange-500 to-yellow-500",
+        frontText: "零失敗神級下酒菜！只要 3 步驟，讓你在家完美複製居酒屋必點的明太子烤山藥...",
+        frontTags: "#明太子烤山藥 #居酒屋料理 #懶人食譜",
+        backInput: "教大家怎麼用氣炸鍋做明太子烤山藥，要看起來很好吃。",
+        systemTasks: ["✓ 啟動 10-Step 食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
+      }
     },
     { 
       id: "travelpreneur",
@@ -137,7 +173,14 @@ export default function LandingPage() {
       textClass: "text-amber-500",
       features: ["完整 10-Step", "極速執行", "商業轉換"],
       playlistId: "PLCaj4rNP2njM",
-      isShorts: false
+      isShorts: false,
+      flipData: {
+        frontImage: "from-amber-600 to-yellow-600",
+        frontText: "辭職去清邁數位遊牧一個月，我花多少錢？大揭密這 4 個你絕對不能錯過的避世咖啡廳...",
+        frontTags: "#清邁旅遊 #數位遊牧 #一人創業",
+        backInput: "我要分享去清邁數位遊牧的花費跟推薦咖啡廳。",
+        systemTasks: ["✓ 啟動 10-Step 商業轉換矩陣", "✓ 價值提煉與痛點解決", "✓ 生成高質感電影級視覺指令"]
+      }
     }
   ];
 
@@ -299,6 +342,14 @@ export default function LandingPage() {
                       <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                         {audiences[activeTab].desc}
                       </p>
+                    </div>
+
+                    {/* 3D FlipCard (Ah-ha Moment) */}
+                    <div className="mb-8 w-full">
+                      <FlipCard 
+                        theme={audiences[activeTab].title}
+                        {...audiences[activeTab].flipData}
+                      />
                     </div>
 
                     {/* YouTube LazyLoad Container */}
