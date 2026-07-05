@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_TC, Ma_Shan_Zheng } from "next/font/google";
 import "./globals.css";
+import FeedbackModal from "@/components/FeedbackModal";
 
 const noto = Noto_Sans_TC({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 const calligraphy = Ma_Shan_Zheng({ subsets: ["latin"], weight: ["400"], variable: "--font-calligraphy" });
@@ -24,6 +25,7 @@ export default function RootLayout({
       </head>
       <body className={noto.className}>
         {children}
+        <FeedbackModal />
       </body>
     </html>
   );
