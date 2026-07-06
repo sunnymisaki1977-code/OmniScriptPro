@@ -101,7 +101,13 @@ export default function LandingPage() {
       previewVideoId: "Anq2dnER4TA",
       isShorts: true,
       flipData: {
-        frontImage: "from-amber-500 to-red-600",
+        frontImage: [
+          "/Kongming_p1.jpg",
+          "/Kongming_p2.jpg",
+          "/Kongming_p3.jpg",
+          "/Kongming_p4.jpg",
+          "/Kongming_p5.jpg"
+        ],
         frontText: "「孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
         frontTags: "#歷史迷因 #三國演義 #孔明",
         backInput: "幫我吐槽孔明草船借箭，用現代投資客的角度來寫。",
@@ -139,7 +145,13 @@ export default function LandingPage() {
       previewVideoId: "5_4nrMvE4tg",
       isShorts: false,
       flipData: {
-        frontImage: "from-sky-400 to-indigo-500",
+        frontImage: [
+          "/Managing_Pet_p1.jpg",
+          "/Managing_Pet_p2.jpg",
+          "/Managing_Pet_p3.jpg",
+          "/Managing_Pet_p4.jpg",
+          "/Managing_Pet_p5.jpg"
+        ],
         frontText: "貓咪亂尿尿不是在報復！獸醫帶你讀懂 3 個關鍵求救訊號，打造零壓力的貓咪友善空間...",
         frontTags: "#貓咪行為 #寵物照護 #新手貓奴",
         backInput: "貓咪突然在床上尿尿怎麼辦？想要一篇衛教影片腳本。",
@@ -158,7 +170,11 @@ export default function LandingPage() {
       previewVideoId: "CQMXYgWGWZo",
       isShorts: false,
       flipData: {
-        frontImage: "from-rose-400 to-amber-400",
+        frontImage: [
+          "/Sensory_Medical_Aesthetics _p1.jpg",
+          "/Sensory_Medical_Aesthetics _p2.jpg",
+          "/Sensory_Medical_Aesthetics _p3.jpg"
+        ],
         frontText: "「早C晚A」真的適合你嗎？皮膚科醫師不敢說的保養盲區，3 分鐘帶你找回水煮蛋肌...",
         frontTags: "#早C晚A #抗老保養 #美妝保養",
         backInput: "我想拍一支關於早C晚A保養的避坑指南。",
@@ -177,7 +193,13 @@ export default function LandingPage() {
       previewVideoId: "E1Oc1Eo_LcE",
       isShorts: false,
       flipData: {
-        frontImage: "from-orange-500 to-yellow-500",
+        frontImage: [
+          "/Golden_Mango_Summer_p1.jpg",
+          "/Golden_Mango_Summer_p2.jpg",
+          "/Golden_Mango_Summer_p3.jpg",
+          "/Golden_Mango_Summer_p4.jpg",
+          "/Golden_Mango_Summer_p5.jpg"
+        ],
         frontText: "零失敗神級下酒菜！只要 3 步驟，讓你在家完美複製居酒屋必點的明太子烤山藥...",
         frontTags: "#明太子烤山藥 #居酒屋料理 #懶人食譜",
         backInput: "教大家怎麼用氣炸鍋做明太子烤山藥，要看起來很好吃。",
@@ -196,7 +218,13 @@ export default function LandingPage() {
       previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
       flipData: {
-        frontImage: "from-amber-600 to-yellow-600",
+        frontImage: [
+          "/2026_大阪旅遊全攻略 P1.jpg",
+          "/2026_大阪旅遊全攻略 P2.jpg",
+          "/2026_大阪旅遊全攻略 P3.jpg",
+          "/2026_大阪旅遊全攻略 P4.jpg",
+          "/2026_大阪旅遊全攻略 P5.jpg"
+        ],
         frontText: "辭職去清邁數位遊牧一個月，我花多少錢？大揭密這 4 個你絕對不能錯過的避世咖啡廳...",
         frontTags: "#清邁旅遊 #數位遊牧 #一人創業",
         backInput: "我要分享去清邁數位遊牧的花費跟推薦咖啡廳。",
