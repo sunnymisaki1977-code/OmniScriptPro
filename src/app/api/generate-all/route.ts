@@ -1,4 +1,15 @@
-const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
+import { GoogleGenAI, Type } from "@google/genai";
+import { getWorkflowSteps } from "@/utils/promptConfigs";
+import { NextResponse } from "next/server";
+
+// 既然改為單步執行，時間設為 60 秒便綽綽有餘
+export const maxDuration = 60; 
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    // 💡 核心改變：每次請求只指定跑「某一個特定步驟 (currentStepId)」
+    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
 
     if (!theme || !currentStepId) {
       return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });
@@ -58,7 +69,7 @@ const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } 
 
     // 執行與重試機制 (模型輪替)
     const MAX_RETRIES = 3;
-    let lastError = null;
+    let lastError: any = null;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
@@ -101,9 +112,12 @@ const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } 
           modelUsed: modelUsed
         });
 
-      } catch (err: any) {
+      } catch (err) {
+        // 💡 修正 1：移除 catch (err: any)，改為純 catch (err)
         lastError = err;
-        console.warn(`[API 警告] 步驟 ${step.id} 使用 ${modelUsed} 失敗。進行重試...`);
+        // 為了相容讀取 message 屬性，我們在內部把它斷言轉換為 any
+        const errorMessage = (err as any).message || err;
+        console.warn(`[API 警告] 步驟 ${step.id} 使用 ${modelUsed} 失敗。進行重試... 錯誤: ${errorMessage}`);
         
         if (apiKeys.length > 1) {
           currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
@@ -115,8 +129,10 @@ const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } 
 
     throw lastError || new Error("未知生成錯誤");
 
-  } catch (error: any) {
-    console.error(`後端步驟生成致命錯誤:`, error);
-    return NextResponse.json({ error: error.message || "單步生成失敗" }, { status: 500 });
+  } catch (error) {
+    // 💡 修正 2：移除 catch (error: any)，改為純 catch (error)
+    const errObj = error as any;
+    console.error(`後端步驟生成致命錯誤:`, errObj);
+    return NextResponse.json({ error: errObj.message || "單步生成失敗" }, { status: 500 });
   }
 }
