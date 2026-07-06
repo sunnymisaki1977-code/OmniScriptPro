@@ -212,6 +212,7 @@ export default function App() {
         const height = img.height;
         canvas.width = width;
         canvas.height = height;
+        if (!ctx) return resolve(base64Image);
         
         ctx.drawImage(img, 0, 0);
         
