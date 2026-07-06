@@ -39,9 +39,8 @@ export async function POST(req: Request) {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const searchResponse = await ai.models.generateContent({
-   model: MODELS[0], // 這裡依你的邏輯選擇模型，例如 MODELS[attempt - 1]
-        const MAX_RETRIES = 4;
-
+   model: MODELS[attempt - 1], // 這裡依你的邏輯選擇模型，例如 MODELS[attempt - 1]
+        
                contents: researchPrompt,
             config: {
               tools: [{ googleSearch: {} }] // 開啟搜尋
