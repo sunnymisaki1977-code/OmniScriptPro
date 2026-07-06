@@ -2,225 +2,132 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { NextResponse } from "next/server";
 
-// 延長 Vercel 預設截斷時間。若為 Vercel Pro 建議設為 300；Hobby 版請注意上限通常為 10~60 秒
-export const maxDuration = 300; 
+// 既然改為單步執行，時間設為 60 秒便綽綽有餘
+export const maxDuration = 60; 
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    // 支援前端指定開始與結束步驟，預設為一次跑完 1~10 步
-    const { theme, customDocText, startFromStep = 1, endStep = 5, existingData = {}, audienceTheme } = body;
+    // 💡 核心改變：每次請求只指定跑「某一個特定步驟 (currentStepId)」
+    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
+
+    if (!theme || !currentStepId) {
+      return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });
+    }
 
     const apiKeyRaw = req.headers.get("x-gemini-api-key") || process.env.GEMINI_API_KEY;
     if (!apiKeyRaw) {
       return NextResponse.json({ error: "未設定 Gemini API 金鑰。" }, { status: 500 });
     }
     
-    // 支援多把金鑰輪替 (以逗號分隔)
+    // 多金鑰輪替邏輯
     const apiKeys = apiKeyRaw.split(",").map(k => k.trim()).filter(k => k.length > 0);
     let currentKeyIndex = Math.floor(Math.random() * apiKeys.length);
     let ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
 
-    if (!theme) {
-      return NextResponse.json({ error: "缺少主題 (theme)" }, { status: 400 });
-    }
-
-    // ==========================================
-    // 提取共用設定與變數至最上方 (修正變數找不到的問題)
-    // ==========================================
     const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
-    let verifiedContext = customDocText || "";
-
-    // ==========================================
-    // Stage 1: 專注事實查核 (只在第一階段執行)
-    // ==========================================
-    if (!verifiedContext && startFromStep <= 1) {
-      console.log("[Stage 1] 開始事實查核...");
-      const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
-      const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請使用 Google Search 徹底調查主題：「${theme}」。`;
-      
-      let searchSuccess = false;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        // 修正：現在可以安全存取全域或上層作用域的 MODELS
-        const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
-        try {
-          const searchResponse = await ai.models.generateContent({
-            model: modelUsed,
-            contents: researchPrompt,
-            config: {
-              tools: [{ googleSearch: {} }] // 開啟搜尋
-            }
-          });
-          verifiedContext = searchResponse.text || "";
-          console.log("[Stage 1] 事實查核完成");
-          searchSuccess = true;
-          break;
-        } catch (err: any) {
-          console.warn(`[Stage 1] 事實查核第 ${attempt} 次發生錯誤: ${err.message}`);
-          if (attempt < 3) await new Promise(res => setTimeout(res, 2000 * attempt));
-        }
-      }
-
-      if (!searchSuccess) {
-        console.warn("事實查核多次失敗，中止生成流程以防遺失資料！");
-        return NextResponse.json({ error: "事實查核階段連線失敗，請確認 API Key 額度後再試。" }, { status: 502 });
-      }
-
-      // 👉 如果只要跑第一步，就直接回傳查核結果，提早結束！
-      if (endStep === 1) {
-        return NextResponse.json({ 
-          data: { "1": verifiedContext }, 
-          modelUsed: MODELS[0],
-          contextUsed: verifiedContext 
-        });
-      }
-    }
-
-    // ==========================================
-    // Stage 2: 模組化批次生成內容
-    // ==========================================
-    // 👉 如果包含 Step 1，我們只要 AI 從 Step 2 開始生成就好，因為 Step 1 已經在上方做完了
-    const generationStartStep = Math.max(2, startFromStep); 
-    const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= generationStartStep && step.id <= endStep);
     
-    // 如果過濾後沒有需要生成的步驟
-    if (targetSteps.length === 0) {
-      if (startFromStep <= 1 && verifiedContext) {
-        return NextResponse.json({ 
-          data: { "1": verifiedContext }, 
-          modelUsed: MODELS[0],
-          contextUsed: verifiedContext 
-        });
-      }
-      return NextResponse.json({ error: "無效的步驟範圍" }, { status: 400 });
+    // 🔍 抓出當前要執行的那一單個步驟
+    const step = WORKFLOW_STEPS.find(s => s.id === Number(currentStepId));
+    if (!step) {
+      return NextResponse.json({ error: `找不到步驟編號 ${currentStepId}` }, { status: 400 });
     }
 
-    // 必須先定義 keysRequired，確保下面 masterPrompt 不會報錯
-    const keysRequired = targetSteps.map(step => `"${step.id}"`);
-
-    // 建立大師級「自我參考」與「史料」上下文
+    // 彙整目前已有的上下文（真實從前端傳過來的上一步成果）
+    const verifiedContext = customDocText || existingData[1] || "";
     const stepContext = {
       theme: theme,
-      step1: verifiedContext ? verifiedContext : "【請基於你在 Step 1 產出的內容】",
-      step2: existingData[2] || "【請基於你在 Step 2 產出的內容】",
-      step3: existingData[3] || "【請基於你在 Step 3 產出的內容】",
-      step4: existingData[4] || "【請基於你在 Step 4 產出的內容】",
-      step5: existingData[5] || "【請基於你在 Step 5 產出的內容】",
+      step1: verifiedContext || "【缺乏 Step 1 背景資料】",
+      step2: existingData[2] || "【缺乏 Step 2 資料】",
+      step3: existingData[3] || "【缺乏 Step 3 資料】",
+      step4: existingData[4] || "【缺乏 Step 4 資料】",
+      step5: existingData[5] || "【缺乏 Step 5 資料】",
     };
 
-    // 組裝 Master Prompt
-    let masterPrompt = `你現在是頂尖的全域企劃 AI 助理。請針對主題「${theme}」產出指定步驟的內容。\n`;
-
-    if (verifiedContext) {
-      masterPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止腦補。\n---\n${verifiedContext}\n---\n`;
+    // 組合當前步驟的專屬 Prompt
+    let finalPrompt = "";
+    if (step.id === 1 && !verifiedContext) {
+      // 如果是第一步且沒有傳歷史文本，則啟動原始事實查核 Prompt
+      finalPrompt = step.prompt({ theme });
+    } else {
+      finalPrompt = `你現在是頂尖的企劃 AI 助理。請針對主題「${theme}」產出【步驟 ${step.id}：${step.title}】的內容。\n`;
+      if (verifiedContext) {
+        finalPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止自創與腦補。\n---\n${verifiedContext}\n---\n`;
+      }
+      finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}`;
     }
 
-    if (startFromStep > 1 && Object.keys(existingData).length > 0) {
-      masterPrompt += `\n【⚠️ 上下文參考】：以下是之前已經產出的內容，請作為後續步驟的連貫依據。\n---\n${JSON.stringify(existingData, null, 2)}\n---\n`;
-    }
-
-    masterPrompt += `
-【絕對要求】：
-1. 你必須直接回傳純 JSON 格式，絕對不要包含 markdown 區塊標記 (如 \`\`\`json)。
-2. 本次只需輸出 ${targetSteps.length} 個 key：${keysRequired.join(", ")}。
-3. 每個 key 的 value 請填入對應步驟生成的完整純文字內容（可用 Markdown 排版，換行請用 "\\n" 跳脫，絕對禁止巢狀物件或陣列）。
-
-以下是本次需執行的步驟指令：\n\n`;
-
-    for (const step of targetSteps) {
-      masterPrompt += `--- [步驟 ${step.id}：${step.title}] ---\n`;
-      masterPrompt += step.prompt(stepContext) + "\n\n";
-    }
-
-    console.log(`[Stage 2] 開始生成步驟 ${startFromStep} 到 ${endStep}...`);
-
-    // 👉 優化：將 Type Schema 加回來，確保輸出格式絕對穩定
+    // 🎯 強制約束輸出的 Schema 格式 (單鍵物件)
     const responseSchema = {
       type: Type.OBJECT,
-      properties: targetSteps.reduce((acc, step) => {
-        acc[step.id.toString()] = { type: Type.STRING };
-        return acc;
-      }, {} as Record<string, { type: Type.STRING }>),
-      required: targetSteps.map(step => step.id.toString())
+      properties: {
+        [step.id.toString()]: { type: Type.STRING }
+      },
+      required: [step.id.toString()]
     };
 
-    // ==========================================
-    // 執行與重試機制 (Exponential Backoff)
-    // ==========================================
-    const MAX_RETRIES = 4;
+    // 執行與重試機制 (模型輪替)
+    const MAX_RETRIES = 3;
+    let lastError = null;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
 
       try {
+        const config: any = {
+          responseMimeType: "application/json", 
+          responseSchema: responseSchema,
+          maxOutputTokens: 8192,
+        };
+
+        // 只有第一步需要開 Google 搜尋
+        if (step.id === 1 && !verifiedContext) {
+          config.tools = [{ googleSearch: {} }];
+        }
+
+        console.log(`[後端日誌] 正在使用 ${modelUsed} 生成步驟 ${step.id}...`);
+        
         const response = await ai.models.generateContent({
           model: modelUsed,
-          contents: masterPrompt,
-          config: {
-            responseMimeType: "application/json", 
-            responseSchema: responseSchema, // 綁定 Schema
-            maxOutputTokens: 8192,
-          }
+          contents: finalPrompt,
+          config: config
         });
 
         let cleanText = (response.text || "{}").trim();
-        
-        // 雙重防禦：去除可能的 markdown 殘留
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
         const parsedData = JSON.parse(cleanText);
+        let outputText = parsedData[step.id.toString()] || cleanText;
 
-        // 👉 在確保所有的值都被轉為字串的迴圈之前，把 Step 1 的資料「手動」補進去！
-        if (startFromStep <= 1 && verifiedContext) {
-          parsedData["1"] = verifiedContext;
+        // 如果輸出了巢狀物件，轉為字串
+        if (typeof outputText === "object" && outputText !== null) {
+          outputText = JSON.stringify(outputText, null, 2);
         }
 
-        for (const key in parsedData) {
-          if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
-            parsedData[key] = JSON.stringify(parsedData[key], null, 2);
-          } else {
-            parsedData[key] = String(parsedData[key]);
-          }
-        }
-
-        console.log(`[Stage 2] 成功使用模型 ${modelUsed} 完成生成。`);
         return NextResponse.json({ 
-          data: parsedData, 
-          modelUsed: modelUsed,
-          contextUsed: verifiedContext 
+          success: true,
+          stepId: step.id,
+          output: String(outputText), 
+          modelUsed: modelUsed
         });
 
       } catch (err: any) {
-        const errorMsg = err.message || "";
-        const isSyntaxError = err instanceof SyntaxError || err.name === 'SyntaxError';
-        const isRateLimit = err.status === 429 || errorMsg.includes("429") || errorMsg.includes("quota");
-        const isServerBusy = err.status === 503 || errorMsg.includes("503") || errorMsg.includes("overloaded");
-        const isAuthError = err.status === 403 || err.status === 400 || err.status === 401 || errorMsg.includes("PERMISSION_DENIED") || errorMsg.includes("API_KEY_INVALID") || errorMsg.includes("UNAUTHENTICATED");
+        lastError = err;
+        console.warn(`[API 警告] 步驟 ${step.id} 使用 ${modelUsed} 失敗。進行重試...`);
         
-        const shouldRetry = isRateLimit || isServerBusy || isSyntaxError || isAuthError;
-
-        if (shouldRetry && attempt < MAX_RETRIES) {
-          if ((isRateLimit || isAuthError) && apiKeys.length > 1) {
-            currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-            ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
-            console.warn(`[API 警告] 遇到 ${isAuthError ? '金鑰無效/403' : '429 限制'}，已自動切換至下一把備用金鑰...`);
-          } else {
-            console.warn(`[API 警告] 模型 ${modelUsed} 失敗 (${isSyntaxError ? 'JSON 解析失敗' : errorMsg})。準備進行第 ${attempt + 1} 次重試...`);
-          }
-          const delay = Math.pow(2, attempt) * 3000; // 6s, 12s, 24s...
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
+        if (apiKeys.length > 1) {
+          currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+          ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
         }
-        throw err;
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
       }
     }
 
+    throw lastError || new Error("未知生成錯誤");
+
   } catch (error: any) {
-    console.error("API 致命錯誤:", error);
-    if (error.message?.includes("429") || error.message?.includes("quota")) {
-      return NextResponse.json({ error: "Google API 額度已達上限，或所有金鑰皆遭限流。請稍後再試！" }, { status: 429 });
-    }
-    return NextResponse.json({ error: error.message || "生成失敗" }, { status: 500 });
+    console.error(`後端步驟生成致命錯誤:`, error);
+    return NextResponse.json({ error: error.message || "單步生成失敗" }, { status: 500 });
   }
 }
