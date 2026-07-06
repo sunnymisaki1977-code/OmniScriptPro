@@ -2050,14 +2050,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 <button
                   onClick={() => {
                     setShowApiKeyModal(false);
-                    if (geminiApiKey.trim()) {
+                    if (geminiApiKey.trim() && activeTab === 'creation') {
                       handleStartAuto();
                     }
                   }}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  確認並開始執行
+                  {activeTab === 'creation' ? '確認並開始執行' : '確認並儲存金鑰'}
                 </button>
                 <a
                   href="https://aistudio.google.com/app/apikey"
