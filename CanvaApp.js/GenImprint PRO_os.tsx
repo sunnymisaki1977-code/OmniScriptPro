@@ -1527,7 +1527,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{isGeneratingImage ? '正在批次渲染中...' : '✨ AI 批次繪製全部影像'}</span>
+                      <span>{isGeneratingImage ? '正在批次渲染中...' : (!geminiApiKey.trim() ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
                     </button>
                   </div>
 
@@ -1583,7 +1583,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '正在渲染...' : '✨ AI 繪製影像 (-5 點)'}</span>
+                              <span>{generatingGroups[group.id] ? '正在渲染...' : (!geminiApiKey.trim() ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
                             </button>
                           </div>
                         </div>
