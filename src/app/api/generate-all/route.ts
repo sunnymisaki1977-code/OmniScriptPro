@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const searchResponse = await ai.models.generateContent({
-   MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
+   model: MODELS[0], // 這裡依你的邏輯選擇模型，例如 MODELS[attempt - 1]
     let modelUsed = "";
     const MAX_RETRIES = 4;
 
