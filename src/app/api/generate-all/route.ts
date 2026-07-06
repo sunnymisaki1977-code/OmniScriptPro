@@ -37,9 +37,11 @@ export async function POST(req: Request) {
       
       let searchSuccess = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
+modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
         try {
           const searchResponse = await ai.models.generateContent({
-   model: MODELS[attempt - 1], // 這裡依你的邏輯選擇模型，例如 MODELS[attempt - 1]
+             model: modelUsed,
+
         
                contents: researchPrompt,
             config: {
