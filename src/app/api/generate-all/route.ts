@@ -1,15 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { getWorkflowSteps } from "@/utils/promptConfigs";
-import { NextResponse } from "next/server";
-
-// 既然改為單步執行，時間設為 60 秒便綽綽有餘
-export const maxDuration = 60; 
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    // 💡 核心改變：每次請求只指定跑「某一個特定步驟 (currentStepId)」
-    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
+const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
 
     if (!theme || !currentStepId) {
       return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });

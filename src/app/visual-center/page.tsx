@@ -38,7 +38,9 @@ export default function VisualCenterApp() {
     { time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: "[System] 視覺發控中心已啟動", type: "info" }
   ]);
 
- 
+  // ==========================================
+  // 2. 初始化與 API 拉取
+  // ==========================================
   
   // 自動載入 Notion 存檔清單
   useEffect(() => {

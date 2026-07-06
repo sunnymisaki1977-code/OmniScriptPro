@@ -545,14 +545,15 @@ export default function App() {
     }
 
     // ==========================================
-    // Stage 1: 專注事實查核 (Step 1)
+    // 循序執行所有尚未完成的步驟 (Frontend Commander)
     // ==========================================
-    if (startStep === 1) {
-      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0].name}...`);
-      setActiveStep(1);
-      
-      try {
-        // 改用後端 /api/generate-all 來跑 Step 1，享有自動重試與防 503 機制
+    addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
+
+    try {
+      for (let i = startStep; i <= STEPS.length; i++) {
+        addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
+        setActiveStep(i);
+
         const response = await fetch('/api/generate-all', {
           method: 'POST',
           headers: { 
@@ -561,101 +562,45 @@ export default function App() {
           },
           body: JSON.stringify({
             theme: startTheme,
-            startFromStep: 1,
-            endStep: 1,
-            audienceTheme: audienceTheme
+            customDocText: currentContextContents[1] || "",
+            startFromStep: i,
+            endStep: i,
+            audienceTheme: audienceTheme,
+            existingData: currentContextContents // 💡 把前面幾步累積的成果，當作上下文傳給後端
           })
         });
 
         if (!response.ok) {
-          throw new Error(`伺服器回應錯誤: ${response.status}`);
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `狀態碼: ${response.status}`);
         }
 
         const responseData = await response.json();
-        const resultText = responseData.data[1] || "";
-        
-        currentContextContents[1] = resultText;
-        setStepContents(prev => ({ ...prev, 1: resultText }));
-        setCompletedSteps(prev => [...new Set([...prev, 1])]);
-        
-        addLog(`[System] 第一階段基礎研究已生成完畢！系統自動接續進行 Stage 2 批次生成...`, 'info');
-        startStep = 2; // 自動接續進入第二階段
-      } catch (error) {
-        addLog(`[Error] Step 1 生成失敗: ${error.message}，中止全自動流程。`, 'error');
-        setIsGenerating(false);
-        return;
-      }
-    }
+        const generatedData = responseData.data;
 
-    // ==========================================
-    // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
-    // ==========================================
-    addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ ${STEPS.length}...`, 'info');
-    
-    // 設定真實的定時狀態回報，舒緩等待後端 30~45 秒的焦慮感，同時誠實反映系統狀態
-    const progressMessages = [
-      { msg: `[System] 雲端引擎正在進行超大文本脈絡分析與算力分配... (此批次生成通常需要 30~45 秒)` },
-      { msg: `[System] 正在同步運算腳本架構、視覺指令與社群貼文，這是一項高算力任務，請稍候...` },
-      { msg: `[System] 深度生成持續進行中，系統正在確保這 ${STEPS.length - 1} 個步驟的邏輯完美對齊不矛盾...` },
-      { msg: `[System] 進入最後封裝階段，即將為您吐出完整的企劃矩陣！` }
-    ];
-    let msgIndex = 0;
-    const progressInterval = setInterval(() => {
-      if (msgIndex < progressMessages.length) {
-        addLog(progressMessages[msgIndex].msg, 'info');
-        msgIndex++;
-      }
-    }, 8000); // 每 8 秒回報一次系統狀態
-
-    try {
-      const response = await fetch('/api/generate-all', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-        },
-        body: JSON.stringify({
-          theme: startTheme,
-          customDocText: currentContextContents[1] || "",
-          startFromStep: startStep,
-          endStep: STEPS.length,
-          audienceTheme: audienceTheme,
-          existingData: currentContextContents
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `伺服器回應錯誤: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      const generatedData = responseData.data;
-
-      const newCompleted = [];
-      const updatedContents = { ...currentContextContents };
-      
-      for (let i = startStep; i <= STEPS.length; i++) {
         if (generatedData[i]) {
-          updatedContents[i] = generatedData[i];
-          newCompleted.push(i);
-          addLog(`[AI] ✨ Step ${i} 內容從批次引擎回傳完畢！`, 'success');
+          // 💾 成功拿到單步結果，塞入前端暫存器
+          currentContextContents[i] = generatedData[i];
+          
+          // 🔄 即時更新前端 UI 狀態，使用者能看到文字一格一格長出來
+          setStepContents({ ...currentContextContents });
+          setCompletedSteps(prev => [...new Set([...prev, i])]);
+          addLog(`✅ [AI] Step ${i} 執行成功！`, 'success');
+        } else {
+           throw new Error("後端未回傳預期內容");
         }
       }
 
-      setStepContents(updatedContents);
-      setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
-
-      addLog(`[System] ✨ ${STEPS.length}-Step 全自動企劃產出完畢！您的矩陣內容已備妥。`, 'success');
+      addLog(`🎉 [System] ✨ ${STEPS.length}-Step 所有企劃步驟全自動流水線執行完畢！`, 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
       
       // 自動匯出至 Notion
-      await startNotionExport(updatedContents, startTheme);
+      addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
+      await startNotionExport(currentContextContents, startTheme);
 
-    } catch (error) {
-      addLog(`[Error] 批次生成失敗: ${error.message}，請確認 API Key 額度或網路連線。`, 'error');
+    } catch (error: any) {
+      addLog(`🛑 [Error] 流水線在 Step ${activeStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
     } finally {
-      clearInterval(progressInterval);
       setIsGenerating(false);
     }
   };
