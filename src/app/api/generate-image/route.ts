@@ -9,7 +9,7 @@ const IMAGE_MODELS = [
   "gemini-3.1-flash-image",      // 1. 首選：最泛用，支援多圖參考
   "gemini-3.1-flash-lite-image", // 2. 備用：速度最快
   "gemini-3-pro-image",          // 3. 備用：複雜提示詞首選
-  "gemini-2.5-flash-image"       // 4. 最後防線：前代穩定版
+  
 ];
 
 export async function POST(req: Request) {
@@ -32,20 +32,18 @@ export async function POST(req: Request) {
       try {
         console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
 
-        // 使用官方 SDK 呼叫，免去處理複雜的 fetch 與 timeout 判定
-        const response = await ai.models.generateImages({
+        // 使用官方 SDK 最新支援的 interactions 呼叫
+        const interaction = await ai.interactions.create({
           model: currentModel,
-          prompt: prompt,
+          input: prompt,
           config: {
-            numberOfImages: 1,
-            aspectRatio: aspectRatio, // 支援 '16:9', '9:16', '1:1' 等
-            outputMimeType: "image/jpeg",
-          },
+            aspectRatio: aspectRatio, // 若 interactions 不支援此參數會被自動忽略，但建議保留以防萬一
+          }
         });
 
         // 🚀 成功拿到圖片資料 (Base64)
-        // 💡 修正處：加上 `?.` 避免 generatedImages 為 undefined 時引發錯誤
-        const base64Image = response.generatedImages?.[0]?.image?.imageBytes;
+        // 依據新版說明，圖片會放在 output_image.data
+        const base64Image = interaction.output_image?.data;
         
         if (base64Image) {
           console.log(`✅ 成功使用 ${currentModel} 生成圖片！`);
