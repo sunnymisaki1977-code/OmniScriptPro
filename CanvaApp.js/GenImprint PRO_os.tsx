@@ -25,22 +25,22 @@ const ACCESS_CODES: Record<string, string> = {
 
 const IMAGE_ENGINES = [
   {
-    id: 'gemini-3.1-flash-lite-image',
+    id: 'imagen-3.0-generate-002',
     name: 'Nano Banana 2 Lite',
     desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
   },
   {
-    id: 'gemini-3.1-flash-image',
+    id: 'imagen-3.0-generate-002',
     name: 'Nano Banana 2',
     desc: '用途最廣泛的模型，適用於所有工作。可兼顧速度與最先進的 4K 生成技術、世界知識和可靠的文字轉譯功能。擅長處理多張參考圖像，並確保一致性。'
   },
   {
-    id: 'gemini-3-pro-image',
+    id: 'imagen-3.0-generate-002',
     name: 'Nano Banana Pro',
     desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
   },
   {
-    id: 'gemini-2.5-flash-image',
+    id: 'imagen-3.0-generate-001',
     name: 'Nano Banana',
     desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   }
@@ -217,7 +217,7 @@ export default function App() {
 
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
+  const [imageEngine, setImageEngine] = useState('imagen-3.0-generate-002');
 
   useEffect(() => {
     const content = stepContents[visualStep];
