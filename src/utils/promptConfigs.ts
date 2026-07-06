@@ -1562,24 +1562,33 @@ high detail,大而醒目藝術文字設計
 
     {
       id: 8,
-      title: "用品推薦與品牌合作",
-      description: "推薦相關用品、品牌合作與導購文案。",
-      type: "text",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => `根據：
+      title: "寵物品牌海報",
+      description: "生成高質感寵物宣傳海報。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme"],
+      prompt: (ctx) => `請設計三組寵物品牌海報。
 
-${ctx.step1}
+格式：
 
-請推薦：
+### 第一組
+主文案：
+副文案：
+中文Prompt：
 
-1. 五種適合商品
-2. 推薦理由
-3. 適合族群
-4. 商品比較
-5. 品牌合作建議
-6. 聯盟行銷CTA
+Prompt需包含：
 
-內容需保持客觀，不得誇大產品效果。`
+cute puppy,
+cute kitten,
+close-up,
+soft lighting,
+adorable,
+high detail,大而醒目藝術文字設計
+
+最後加入：
+
+--ar 9:16`
+
     },
 
     {
