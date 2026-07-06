@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useWorkflow } from "@/context/WorkflowContext";
 import { WORKFLOW_STEPS } from "@/utils/promptConfigs";
-import { CheckCircle2, Circle, ChevronRight, Youtube, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight, Youtube, ChevronDown, ChevronUp, Sparkles, Image as ImageLucide } from "lucide-react";
 import { cn } from "./ui";
 import { AlmanacCard } from "./AlmanacCard";
 
@@ -143,7 +143,16 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-stone-100 px-1 pb-2">
+      <div className="mt-4 pt-4 border-t border-stone-100 px-1 pb-2 space-y-2">
+        <a 
+          href="/visual-center" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full text-left flex items-center justify-between text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors"
+        >
+          <span>視覺發控中心</span>
+          <ImageLucide size={14} className="text-indigo-500" />
+        </a>
         <button 
           onClick={() => window.dispatchEvent(new Event("open-changelog"))}
           className="w-full text-left flex items-center justify-between text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors"

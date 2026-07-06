@@ -7,50 +7,26 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock
 } from 'lucide-react';
 
 // ============================================================================
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
-const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
-  'GLAM2026': 'beauty',        // 美妝保養・悅己美學
-  'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
-  'RUBY2026': 'food',          // 美食料理・風味探索
-  'PET2026': 'pet',            // 寵物照護・幸福陪伴
-  'SKY2026': 'pet',            // 相容舊碼
-  'MASTER': 'heritage'      // 管理員
+const ACCESS_CODES = {
+  'TECH2026': 'CultureTech',   // 科技文化創作者
+  'GLAM2026': 'beauty',        // 「美妝保養悅己美學」
+  'INDIE2026': 'travelpreneur',// 旅遊先行者
+  'RUBY2026': 'food',          // 美食生活創作者
+  'SKY2026': 'education',      // 親子教育工作者
+  'MASTER': 'CultureTech'      // 管理員 (可進入後再自由切換)
 };
-
-const IMAGE_ENGINES = [
-  {
-    id: 'gemini-3.1-flash-lite-image',
-    name: 'Nano Banana 2 Lite',
-    desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
-  },
-  {
-    id: 'gemini-3.1-flash-image',
-    name: 'Nano Banana 2',
-    desc: '用途最廣泛的模型，適用於所有工作。可兼顧速度與最先進的 4K 生成技術、世界知識和可靠的文字轉譯功能。擅長處理多張參考圖像，並確保一致性。'
-  },
-  {
-    id: 'gemini-3-pro-image',
-    name: 'Nano Banana Pro',
-    desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
-  },
-  {
-    id: 'gemini-2.5-flash-image',
-    name: 'Nano Banana',
-    desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
-  }
-];
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
+async function callVercelApi(stepId: any, context: any, audienceTheme: string) {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = '/api/gemini';
+    const VERCEL_API_URL = 'https://gen-imprint.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,8 +37,8 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
     }
     const { prompt } = await promptResponse.json();
     // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
-    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const apiKey = typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
@@ -106,7 +82,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch('/api/config')
+    fetch('https://gen-imprint.vercel.app/api/config')
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -120,80 +96,58 @@ export default function App() {
 
   // --- 狀態管理保持不變 ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // 新增：控制是否為管理員
   const [showLoginPrompt, setShowLoginPrompt] = useState(false); // 新增：控制是否顯示密碼輸入框
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
-
-  // ====== 核心狀態管理 (加上 SSR 防護) ======
-  const [isMounted, setIsMounted] = useState(false);
-  const [viewState, setViewState] = useState('hub');
-  const [mode, setMode] = useState('manual');
+  const [viewState, setViewState] = useState('hub'); 
+  const [mode, setMode] = useState('manual'); 
   const [activeStep, setActiveStep] = useState(1);
-  const [theme, setTheme] = useState('');
-  const [customContext, setCustomContext] = useState('');
-  const [completedSteps, setCompletedSteps] = useState([1]);
-  const [audienceTheme, setAudienceTheme] = useState('heritage');
-  
-  const [stepContents, setStepContents] = useState(() => ({
+  const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+   const [theme, setTheme] = useState('');
+   
+   // --- 新增：自訂背景資料狀態 ---
+   const [customContext, setCustomContext] = useState('');
+
+   const [completedSteps, setCompletedSteps] = useState([1]); 
+     const [visualStep, setVisualStep] = useState(6);
+  const [audienceTheme, setAudienceTheme] = useState('CultureTech');
+  const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
+
+  const curTheme = audienceThemes[audienceTheme] || {};
+  const STEPS = themeSteps[audienceTheme] || themeSteps.CultureTech || [];
+  const [stepContents, setStepContents] = useState({
     1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
     4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
     7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
     10: getInitialStepContent(10, "")
-  }));
-
-  // 避免 Hydration Mismatch，等元件掛載後再從 localStorage 讀取狀態
-  useEffect(() => {
-    setIsMounted(true);
-    const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
-    if (savedAudienceTheme) setAudienceTheme(savedAudienceTheme);
-  }, []);
-
-  const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
-
-  const [isGenerating, setIsGenerating] = useState(false);
-   
-   // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
-   const [geminiApiKey, setGeminiApiKey] = useState('');
-   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-
-  const [visualStep, setVisualStep] = useState(6);
-  const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
-
-  const curTheme = audienceThemes[audienceTheme] || {};
-  const STEPS = themeSteps[audienceTheme] || themeSteps.heritage || [];
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('os_pro_audienceTheme', audienceTheme);
-    }
-  }, [audienceTheme]);
+  });
 
  // 🔽 新增這三個變數來控制 Notion 下拉選單 🔽
   const [archiveList, setArchiveList] = useState([]); 
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
   const [selectedArchive, setSelectedArchive] = useState("");
-  // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
-  const fetchArchives = async () => {
-    try {
-      const response = await fetch('/api/notion/history');
-      const data = await response.json();
-      if (data.history) {
-        setArchiveList(data.history);
-      }
-    } catch (err) {
-      console.error("無法載入 Notion 專案清單", err);
-    }
-  };
-
+  // 🔽 新增這個 useEffect，一開網頁就自動去 Vercel 拿 Notion 清單 🔽
   useEffect(() => {
+    const fetchArchives = async () => {
+      try {
+        const response = await fetch('https://gen-imprint.vercel.app/api/notion/history');
+        const data = await response.json();
+        if (data.history) {
+          setArchiveList(data.history);
+        }
+      } catch (err) {
+        console.error("無法載入 Notion 專案清單", err);
+      }
+    };
     fetchArchives();
   }, []);
 
   const [logs, setLogs] = useState([
-    { time: "23:22:36", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
+    { time: "23:22:36", text: "[System] GenImprint Pro OS 初始化完畢。", type: "info" },
     { time: "23:22:40", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
   ]);
   
@@ -217,14 +171,14 @@ export default function App() {
 
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
+  const [imageEngine, setImageEngine] = useState('imagen4'); // 'imagen4' | 'flash'
 
   useEffect(() => {
     const content = stepContents[visualStep];
     if (!content || !isConfigLoaded) return;
     
     setIsParsingVisuals(true);
-    fetch('/api/parse-visuals', {
+    fetch('https://gen-imprint.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -357,21 +311,15 @@ export default function App() {
   };
 
   const generateGroupImage = async (group) => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setShowApiKeyModal(true);
-      return;
-    }
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
-    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
-    const engineName = engineConfig.name;
+    const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
-      const apiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : ""); // Canvas 預覽環境會自動帶入
+      const apiKey = ""; // Canvas 預覽環境會自動帶入
       
       let aspectRatio = "1:1";
       const currentStep = STEPS.find(s => s.id === visualStep);
@@ -383,59 +331,81 @@ export default function App() {
       
       let base64 = "";
 
-      let apiUrl = '';
-      let bodyStr = '';
-      if (imageEngine.includes('gemini')) {
-        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${apiKey}`;
-        bodyStr = JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: { aspectRatio: aspectRatio }
-          }
-        });
-      } else {
-        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
-        bodyStr = JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
-        });
-      }
+      if (imageEngine === 'flash') {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+        
+        let flashPrompt = prompt;
+        if (mainTitle || subTitle || poetry) {
+          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
+          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
+          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
+          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
+        }
+        
+        // Flash Image 尚未直接支援 aspectRatio 參數，因此附加在 Prompt 結尾引導模型
+        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyStr
-      });
-      
-      const data = await response.json();
-      if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-      
-      if (imageEngine.includes('gemini')) {
-        if (data.candidates && data.candidates[0] && data.candidates[0].content?.parts?.[0]?.inlineData?.data) {
-          base64 = data.candidates[0].content.parts[0].inlineData.data;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: finalPrompt }]
+              }
+            ],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE']
+            }
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+        
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const imagePart = parts.find(p => p.inlineData);
+        if (imagePart) {
+          base64 = imagePart.inlineData.data;
         } else {
-          throw new Error("未收到圖片資料 (generateContent 回傳格式錯誤)");
+          throw new Error("模型未回傳圖像資料");
         }
       } else {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instances: [{ prompt: prompt }],
+            parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+          })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
         if (data.predictions && data.predictions[0]) {
           base64 = data.predictions[0].bytesBase64Encoded;
         } else {
-          throw new Error("未收到圖片資料 (predict 回傳格式錯誤)");
+          throw new Error("未收到圖片資料");
         }
       }
       
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
-        const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+        
+        let finalImage = originalImage;
+        if (imageEngine !== 'flash') {
+          // 只有 Imagen 4 需要本地端字型疊加，Gemini 2.5 Flash 直接由模型產出內建字體
+          finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+        }
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
         addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
         setCredits(prev => Math.max(0, prev - 5));
       }
     } catch (err) {
-      const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
-      const engineName = engineConfig.name;
+      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
@@ -497,167 +467,60 @@ export default function App() {
         setMode('auto');
     setViewState('workspace');
     
-    let currentContextContents = { ...stepContents }; 
+    let currentContextContents = {}; 
     let startStep = 1;
 
-    // --- 新增：偵測主題變更並自動提示清空 ---
-    const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
-    const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
-    if (startTheme !== savedLastTheme && !isCanvasEmpty) {
-      const wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
-      if (wantsNew) {
-        currentContextContents = {
-          1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
-          4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
-          7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
-          10: getInitialStepContent(10, "")
-        };
-        setCompletedSteps([1]);
-        setCustomContext('');
-      }
-    }
-    localStorage.setItem('os_pro_lastGeneratedTheme', startTheme);
-
-    const isStepEmpty = (stepId: number) => {
-      const content = currentContextContents[stepId];
-      return !content || content.trim() === '' || content === getInitialStepContent(stepId, "");
-    };
-
-    // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
-    if (customContext.trim() && isStepEmpty(1)) {
+    // 如果使用者有自訂背景資料，就把它當作 Step 1，然後從 Step 2 開始跑
+    if (customContext.trim()) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
-      addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
+      setCompletedSteps([1]);
+      startStep = 2;
+    } else {
+      setCompletedSteps([]);
     }
 
-    // 智能接續邏輯：尋找第一個沒有內容的步驟
-    for (let i = 1; i <= STEPS.length; i++) {
-      if (isStepEmpty(i)) {
-        startStep = i;
-        break;
-      }
-    }
+    for (let step = startStep; step <= 10; step++) {
+      setActiveStep(step);
+      addLog(`[Process] 正在向 Vercel 請求真實生成 Step ${step}: ${STEPS[step - 1].name}...`);
 
-    if (startStep > STEPS.length) {
-      addLog(`[System] ${STEPS.length} 個步驟皆已存在內容，接續完成！`, 'success');
-      setIsGenerating(false);
-      return;
-    }
-
-    // ==========================================
-    // Stage 1: 專注事實查核 (Step 1)
-    // ==========================================
-    if (startStep === 1) {
-      addLog(`[Process] Stage 1：正在專注生成 Step 1: ${STEPS[0].name}...`);
-      setActiveStep(1);
-      
       try {
-        // 改用後端 /api/generate-all 來跑 Step 1，享有自動重試與防 503 機制
-        const response = await fetch('/api/generate-all', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-          },
-          body: JSON.stringify({
-            theme: startTheme,
-            startFromStep: 1,
-            endStep: 1,
-            audienceTheme: audienceTheme
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`伺服器回應錯誤: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        const resultText = responseData.data[1] || "";
-        
-        currentContextContents[1] = resultText;
-        setStepContents(prev => ({ ...prev, 1: resultText }));
-        setCompletedSteps(prev => [...new Set([...prev, 1])]);
-        
-        addLog(`[System] 第一階段基礎研究已生成完畢！系統自動接續進行 Stage 2 批次生成...`, 'info');
-        startStep = 2; // 自動接續進入第二階段
-      } catch (error) {
-        addLog(`[Error] Step 1 生成失敗: ${error.message}，中止全自動流程。`, 'error');
-        setIsGenerating(false);
-        return;
-      }
-    }
-
-    // ==========================================
-    // Stage 2: 依序生成其它步驟 (Step 2 ~ 10 一口氣跑完)
-    // ==========================================
-    addLog(`[Process] Stage 2：正在呼叫雲端批次引擎，準備一口氣生成 Step ${startStep} ~ ${STEPS.length}...`, 'info');
-    
-    // 設定真實的定時狀態回報，舒緩等待後端 30~45 秒的焦慮感，同時誠實反映系統狀態
-    const progressMessages = [
-      { msg: `[System] 雲端引擎正在進行超大文本脈絡分析與算力分配... (此批次生成通常需要 30~45 秒)` },
-      { msg: `[System] 正在同步運算腳本架構、視覺指令與社群貼文，這是一項高算力任務，請稍候...` },
-      { msg: `[System] 深度生成持續進行中，系統正在確保這 ${STEPS.length - 1} 個步驟的邏輯完美對齊不矛盾...` },
-      { msg: `[System] 進入最後封裝階段，即將為您吐出完整的企劃矩陣！` }
-    ];
-    let msgIndex = 0;
-    const progressInterval = setInterval(() => {
-      if (msgIndex < progressMessages.length) {
-        addLog(progressMessages[msgIndex].msg, 'info');
-        msgIndex++;
-      }
-    }, 8000); // 每 8 秒回報一次系統狀態
-
-    try {
-      const response = await fetch('/api/generate-all', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-        },
-        body: JSON.stringify({
+        const context = {
           theme: startTheme,
-          customDocText: currentContextContents[1] || "",
-          startFromStep: startStep,
-          endStep: STEPS.length,
-          audienceTheme: audienceTheme,
-          existingData: currentContextContents
-        })
-      });
+          step1: currentContextContents[1] || "",
+          step2: currentContextContents[2] || "",
+          step3: currentContextContents[3] || "",
+          step4: currentContextContents[4] || "",
+          step5: currentContextContents[5] || "",
+        };
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `伺服器回應錯誤: ${response.status}`);
+        // 直接向 Vercel 要資料
+        const resultText = await callVercelApi(step, context, audienceTheme);
+
+        currentContextContents[step] = resultText;
+        setStepContents(prev => ({
+          ...prev,
+          [step]: resultText
+        }));
+        
+        setCompletedSteps(prev => [...new Set([...prev, step])]);
+        addLog(`[AI] ✨ Step ${step} 內容從伺服器回傳完畢！`, 'success');
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+      } catch (error) {
+        addLog(`[Error] Step ${step} 生成失敗: ${error.message}，中止全自動流程。`, 'error');
+        setIsGenerating(false);
+        return; 
       }
-
-      const responseData = await response.json();
-      const generatedData = responseData.data;
-
-      const newCompleted = [];
-      const updatedContents = { ...currentContextContents };
-      
-      for (let i = startStep; i <= STEPS.length; i++) {
-        if (generatedData[i]) {
-          updatedContents[i] = generatedData[i];
-          newCompleted.push(i);
-          addLog(`[AI] ✨ Step ${i} 內容從批次引擎回傳完畢！`, 'success');
-        }
-      }
-
-      setStepContents(updatedContents);
-      setCompletedSteps(prev => [...new Set([...prev, ...newCompleted])]);
-
-      addLog(`[System] ✨ ${STEPS.length}-Step 全自動企劃產出完畢！您的矩陣內容已備妥。`, 'success');
-      setCredits(prevCredits => Math.max(0, prevCredits - 15));
-      
-      // 自動匯出至 Notion
-      await startNotionExport(updatedContents, startTheme);
-
-    } catch (error) {
-      addLog(`[Error] 批次生成失敗: ${error.message}，請確認 API Key 額度或網路連線。`, 'error');
-    } finally {
-      clearInterval(progressInterval);
-      setIsGenerating(false);
     }
+
+    setIsGenerating(false);
+    addLog("[System] ✨ 10-Step 全自動企劃產出完畢！您的矩陣內容已備妥。", 'success');
+    setCredits(prevCredits => Math.max(0, prevCredits - 15));
+    
+    // 自動匯出至 Notion
+    await startNotionExport(currentContextContents, startTheme);
   };
 
     const handleLoadArchive = async (e) => {
@@ -676,16 +539,13 @@ export default function App() {
 
     try {
       // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(`/api/notion/history?id=${pageId}`);
+      const response = await fetch(`https://gen-imprint.vercel.app/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
         // 成功抓取後，一鍵把內容填回編輯器！
+        // 如果原本存檔有 theme 屬性就更新，沒有的話使用預設
         if (data.theme) setTheme(data.theme); 
-        // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
-        if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
-          setAudienceTheme(data.audienceTheme);
-        }
         setStepContents({
           1: data.stepsData[1] || "",
           2: data.stepsData[2] || "",
@@ -712,34 +572,15 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
-      setShowApiKeyModal(true);
-      return;
-    }
-    if (customContext.length > 5000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
-      return;
-    }
-    if (!theme.trim() && !customContext.trim()) {
-      alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
-      return;
-    }
-    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
+    const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
+    if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
+    addLog(`[System] 🚀 啟動 10-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
     runAutoGeneration(finalTheme);
   };
 
   const startManualWorkspace = () => {
-    if (customContext.length > 5000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
-      return;
-    }
-    if (!theme.trim() && !customContext.trim()) {
-      alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
-      return;
-    }
-    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
+    const finalTheme = theme.trim() || '日本京阪神五日遊攻略';
+    if (!theme.trim()) setTheme('日本京阪神五日遊攻略');
     setMode('manual');
     setViewState('workspace');
     addLog(`[System] 進入手動編輯模式。目標企劃：『${finalTheme}』`, 'info');
@@ -757,16 +598,8 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target.result;
-      setCustomContext(prev => {
-        const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 5000) {
-          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\\n建議直接擷取精華段落即可。`);
-          return prev; // 放棄匯入，維持原樣
-        }
-        addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
-        return newText;
-      });
+      setCustomContext(prev => prev + (prev ? '\n\n' : '') + text);
+      addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
     };
     reader.readAsText(file);
     e.target.value = null; // 重置 input 讓同一個檔案可以重複上傳
@@ -783,28 +616,11 @@ export default function App() {
     addLog('[System] 📝 參考資料已成功匯入 Step 1 畫布！', 'success');
   };
 
-  const clearAllData = () => {
-    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
-      setTheme('');
-      setCustomContext('');
-      setStepContents({
-        1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
-        4: getInitialStepContent(4, ""), 5: getInitialStepContent(5, ""), 6: getInitialStepContent(6, ""),
-        7: getInitialStepContent(7, ""), 8: getInitialStepContent(8, ""), 9: getInitialStepContent(9, ""),
-        10: getInitialStepContent(10, "")
-      });
-      setCompletedSteps([1]);
-      setActiveStep(1);
-      setViewState('hub');
-      addLog('[System] 🗑️ 舊企劃資料已全數清空，隨時可開始新專案。', 'info');
-    }
-  };
-
   // ============================================================================
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
-    addLog(`[AI] 正在雲端請求... 重新撰寫 Step ${activeStep}`, 'info');
+    addLog(`[AI] 正在向 Vercel 雲端請求... 重新生成 Step ${activeStep}`, 'info');
         setIsGenerating(true);
     
     try {
@@ -817,7 +633,7 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey);
+      const content = await callVercelApi(activeStep, context, audienceTheme);
 
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
@@ -841,7 +657,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = '/api/notion';
+    const VERCEL_NOTION_URL = 'https://gen-imprint.vercel.app/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -850,8 +666,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     const payload = {
       theme: targetTheme,
       stepsData: targetContents,
-      creatorName: curTheme.title, // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
-      audienceTheme: audienceTheme
+      creatorName: curTheme.title // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
     };
 
     const response = await fetch(VERCEL_NOTION_URL, {
@@ -872,10 +687,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (data.url) {
       setNotionUrl(data.url);
-      fetchArchives(); // 成功後立即刷新歷史清單
-      if (passcode.trim().toUpperCase() === 'MASTER') {
-        window.open(data.url, '_blank');
-      }
+      window.open(data.url, '_blank');
     }
     
   } catch (error) {
@@ -888,11 +700,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
 
   const generateNewImage = async () => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
-      setShowApiKeyModal(true);
-      return;
-    }
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
     addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt 至 Imagen 4.0 API 端點...`, 'info');
@@ -919,7 +726,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       setShowLoginPrompt(false);
       setAudienceTheme(ACCESS_CODES[code]); // 根據密碼自動切換對應的受眾主題
       setAuthError('');
-      setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 授權成功。載入 ${ACCESS_CODES[code]} 工作區。`, type: "success" }]);
+      
+      if (code === 'MASTER') {
+        setIsAdmin(true);
+        setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 👑 管理員授權成功。已解鎖全域身分切換權限。`, type: "success" }]);
+      } else {
+        setIsAdmin(false);
+        setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 授權成功。載入 ${ACCESS_CODES[code]} 工作區。`, type: "success" }]);
+      }
     } else {
       setAuthError('無效的授權碼，請重新輸入');
     }
@@ -949,10 +763,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     };
   }, [isAuthenticated, showLoginPrompt]);
 
-  if (!isMounted) {
-    return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
-  }
-
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
       
@@ -967,7 +777,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </div>
             <div>
               <h1 className="text-md font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-                OmniScript Pro
+                GenImprint Pro
               </h1>
             </div>
           </div>
@@ -1031,10 +841,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             onChange={(e) => setVisualStep(Number(e.target.value))}
                             className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
                           >
-                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫幅縮圖 (YouTube / FB)'}</option>
-                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '短片直式封面 (Shorts / Reels)'}</option>
-                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '意象圖 / 海報'}</option>
-                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '社群推播 / 視覺素材'}</option>
+                            <option value={6}>16:9 - 橫幅縮圖 (YouTube / FB)</option>
+                            <option value={7}>9:16 - 短片直式封面 (Shorts / Reels)</option>
+                            <option value={8}>16:9 - 彩墨風格意象圖</option>
+                            <option value={10}>1:1 / 4:3 - 社群視覺素材 (IG Post)</option>
                           </select>
                         </div>
 
@@ -1045,13 +855,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             onChange={(e) => setImageEngine(e.target.value)}
                             className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none"
                           >
-                            {IMAGE_ENGINES.map(engine => (
-                              <option key={engine.id} value={engine.id}>{engine.name}</option>
-                            ))}
+                            <option value="imagen4">Imagen 4.0 (高畫質)</option>
+                            <option value="flash">Gemini 2.5 Flash (極速/雙向編輯)</option>
                           </select>
-                          <p className="text-[9px] text-slate-500/80 mt-1.5 leading-relaxed">
-                            {IMAGE_ENGINES.find(e => e.id === imageEngine)?.desc}
-                          </p>
                         </div>
 
                         <div>
@@ -1124,45 +930,39 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-4">
-            {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Canvas 環境已授權</span>
+            {/* 新增：管理員專屬身分切換選單 */}
+            {isAdmin && isConfigLoaded && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-xs transition-all hover:bg-indigo-500/20">
+                <Users className="w-3.5 h-3.5" />
+                <select 
+                  value={audienceTheme}
+                  onChange={(e) => handleThemeChange(e.target.value)}
+                  className="bg-transparent text-indigo-300 font-bold focus:outline-none cursor-pointer outline-none appearance-none"
+                >
+                  {Object.values(audienceThemes).map(themeObj => (
+                    <option key={themeObj.id} value={themeObj.id} className="bg-slate-900 text-slate-200">
+                      切換身分：{themeObj.title}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3 h-3 pointer-events-none" />
               </div>
             )}
 
-            {/* 清空企劃按鈕 (從工作區移上來) */}
-            <button 
-              onClick={clearAllData}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>清空企劃</span>
-            </button>
+            {/* 移除手動輸入金鑰框，改為顯示已連接狀態 */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Canvas 環境已授權</span>
+            </div>
 
-            {/* 一鍵全自動模式 Header Button / 中斷生成 */}
-            {isGenerating ? (
-              <button 
-                onClick={() => {
-                  setIsGenerating(false);
-                  addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                  setViewState('workspace');
-                }}
-                className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>中斷生成</span>
-              </button>
-            ) : (
-              <button 
-                onClick={handleStartAuto}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>{completedSteps.length > 0 ? '接續自動生成' : '一鍵全自動模式'}</span>
-              </button>
-            )}
+            {/* 一鍵全自動模式 Header Button */}
+            <button 
+              onClick={handleStartAuto}
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>一鍵全自動模式</span>
+            </button>
 
             {/* Quota Metric Button */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
@@ -1184,21 +984,21 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {activeTab === 'creation' && (
             viewState === 'hub' ? (
               /* --- STREAMING_CHUNK:Rendering Central Creator Welcome Hub --- */
-              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0f1d] to-[#030712]">
+              <div className="flex-1 p-8 flex flex-col items-center justify-center overflow-y-auto relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0f1d] to-[#030712]">
                 
                 {/* Glowing Background Glows */}
                 <div className={`absolute top-1/4 w-96 h-96 rounded-full bg-gradient-to-br ${curTheme.gradient} opacity-5 blur-[120px] pointer-events-none`} />
 
-                <div className="w-full max-w-2xl bg-[#0f172a]/60 border border-slate-900/80 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
+                <div className="w-full max-w-2xl bg-[#0f172a]/60 border border-slate-900/80 rounded-3xl p-8 backdrop-blur-xl relative shadow-2xl space-y-8">
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
                   {/* Hub Header */}
-                  <div className="text-center space-y-2">
-                    <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                  <div className="text-center space-y-3">
+                    <h2 className="text-3xl font-black tracking-tight text-white">
                       今天想創作什麼？
                     </h2>
-                    <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                    <p className="text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
                       輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
                     </p>
                   </div>
@@ -1208,17 +1008,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <div className="flex justify-center gap-1.5 flex-wrap">
                       {Object.values(audienceThemes).map((themeObj) => {
                         const isSel = audienceTheme === themeObj.id;
-                        const isMaster = passcode.trim().toUpperCase() === 'MASTER';
                         return (
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel && !isMaster}
+                            disabled={!isAdmin && !isSel}
                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : isMaster 
-                                  ? 'border-slate-800 text-slate-400 hover:text-white hover:border-slate-500 cursor-pointer'
+                                : isAdmin
+                                  ? 'border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300 hover:bg-indigo-500/10 cursor-pointer'
                                   : 'border-slate-900/50 text-slate-500 opacity-50 cursor-not-allowed'
                             }`}
                           >
@@ -1252,39 +1051,22 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
                         </label>
                       </div>
-                      <div className="relative">
-                        <textarea
-                          maxLength={5000}
-                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
-                          value={customContext}
-                          onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-[#070b16] border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
-                        />
-                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
-                          {customContext.length} / 5000
-                        </div>
+                      <textarea
+                        placeholder="可直接貼上參考文章、官方新聞稿，或上傳純文字文件檔。點擊下方按鈕可直接匯入至 Step 1 作為基準資料..."
+                        value={customContext}
+                        onChange={(e) => setCustomContext(e.target.value)}
+                        className="w-full bg-[#070b16] border border-slate-900 rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          onClick={handleImportToStep1}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 text-[10px] font-bold transition-colors border border-indigo-500/20 active:scale-95"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>寫入 Step 1 畫布</span>
+                        </button>
                       </div>
                     </div>
-
-                    {/* --- 新增：API Key 輸入區 --- */}
-                    {!isCanvasEnv && (
-                      <div className="space-y-2 pt-2 border-t border-slate-900/50">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
-                          <span className="text-[9px] text-indigo-400 font-medium">✨ 支援多把金鑰輪替 (以逗號分隔)</span>
-                        </div>
-                        <div className="relative">
-                          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                          <input 
-                            type="password"
-                            placeholder="輸入 API Key (可貼上多把金鑰並用半形逗號 , 分隔)..."
-                            value={geminiApiKey}
-                            onChange={(e) => setGeminiApiKey(e.target.value)}
-                            className="w-full bg-[#070b16] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
-                          />
-                        </div>
-                      </div>
-                    )}
 
                     {/* Big Action Buttons */}
                     <div className="grid grid-cols-2 gap-4">
@@ -1295,7 +1077,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       >
                         <div className="flex items-center gap-2">
                           <Play className="w-4 h-4 fill-white" />
-                          <span>{completedSteps.length > 0 ? '接續自動生成' : '一鍵全自動模式'}</span>
+                          <span>一鍵全自動模式</span>
                         </div>
                         <span className="text-[10px] opacity-70 font-normal">單次呼叫，自動化處理所有步驟與歸檔</span>
                       </button>
@@ -1323,46 +1105,34 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     
                     {/* Simulated dropdown */}
                     <div className="w-full relative">
-                      <select 
-                        value={selectedArchive}
-                        onChange={handleLoadArchive}
-                        disabled={passcode.trim().toUpperCase() !== 'MASTER'}
-                        className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
-                        
-                        {/* 這裡會自動把 Notion 裡面的專案名稱跟日期列出來！ */}
-                        {archiveList.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            📄 {item.title} ({item.createdTime})
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                    </div>
-                  </div>
-                  
-                  {/* 清空按鈕 */}
-                  <div className="pt-4 flex justify-center">
-                    <button 
-                      onClick={clearAllData}
-                      className="text-[10px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      清空畫布與舊企劃資料
-                    </button>
+  <select 
+    value={selectedArchive}
+    onChange={handleLoadArchive}
+    className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center"
+  >
+    <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
+    
+    {/* 這裡會自動把 Notion 裡面的專案名稱跟日期列出來！ */}
+    {archiveList.map((item) => (
+      <option key={item.id} value={item.id}>
+        📄 {item.title} ({item.createdTime})
+      </option>
+    ))}
+  </select>
+  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+</div>
                   </div>
                 </div>
               </div>
             ) : (
-              /* --- STREAMING_CHUNK:Rendering ${STEPS.length}-Step Flow Editor Workspace --- */
+              /* --- STREAMING_CHUNK:Rendering 10-Step Flow Editor Workspace --- */
               <div className="flex-1 flex overflow-hidden">
                 
                 {/* Steps Navigator Left Column */}
                 <div className="w-64 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar shrink-0">
                   <div className="flex items-center justify-between mb-4 px-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
-                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">10-Step Flow</span>
+                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/10 已完成</span>
                   </div>
                   {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
@@ -1416,25 +1186,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </button>
                           <span className="text-slate-600">•</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
-                            STEP {activeStep} • {STEPS[activeStep-1]?.category || 'Loading'}
+                            STEP {activeStep} • {STEPS[activeStep-1].category}
                           </span>
                         </div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          {STEPS[activeStep-1]?.name || '載入中...'}
+                          {STEPS[activeStep-1].name}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc || '正在同步伺服器設定檔...'}</p>
+                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1].desc}</p>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={triggerSingleStepAi}
-                          disabled={isGenerating}
-                          className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
-                        >
-                          <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                          {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
-                        </button>
-                      </div>
+                      <button 
+                        onClick={triggerSingleStepAi}
+                        disabled={isGenerating}
+                        className={`flex items-center gap-2 px-4 py-2.5 ${curTheme.primaryBtn} disabled:opacity-50 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95`}
+                      >
+                        <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                        {isGenerating ? 'AI 優化生成中...' : 'AI 重新生成與潤飾'}
+                      </button>
                     </div>
 
                     {/* Notion synced alert banner */}
@@ -1454,36 +1222,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
                           <span className="text-[10px] font-mono text-slate-500 ml-2">Markdown Editor</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          {stepContents[activeStep] && stepContents[activeStep].trim() !== '' && (
-                            <button
-                              onClick={() => {
-                                const text = stepContents[activeStep];
-                                const blob = new Blob([text], { type: 'text/markdown' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `${theme || '企劃'}_Step${activeStep}_${STEPS[activeStep-1]?.name.split(' ')[0] || 'Doc'}.md`;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
-                              }}
-                              className="text-[10px] text-indigo-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
-                              title="下載此步驟內容為 Markdown 檔案"
-                            >
-                              <Download className="w-3 h-3" />
-                              下載 .md
-                            </button>
-                          )}
-                          <div className="text-[10px] text-slate-500 font-medium">
-                            Auto-saved locally
-                          </div>
+                        <div className="text-[10px] text-slate-500 font-medium">
+                          Auto-saved locally
                         </div>
                       </div>
 
                       <div className="flex-1 relative min-h-[500px]">
-                        {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
+                        {/* AI 正在生成時，顯示 MP4 讀取動畫 */}
                         {isGenerating ? (
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
                             <video 
@@ -1499,7 +1244,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             </h3>
                             <p className="text-slate-400 mt-3 text-sm flex items-center gap-2">
                               <RefreshCw className="w-4 h-4 animate-spin" />
-                              正在抓取資料，請稍候
+                              正在從伺服器抓取資料，請稍候
                             </p>
                           </div>
                         ) : (
@@ -1544,7 +1289,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
-  {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
+  {/* AI 正在生成時，顯示 MP4 讀取動畫 */}
   {isGenerating ? (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 rounded-xl z-10 backdrop-blur-md">
        
@@ -1561,7 +1306,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       </h3>
       <p className="text-purple-300/60 mt-3 text-sm flex items-center gap-2">
         <RefreshCw className="w-4 h-4 animate-spin" />
-        正在抓取資料，請稍候
+        正在從 Vercel 節點抓取資料，請稍候
       </p>
     </div>
   ) : (
@@ -1600,7 +1345,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             ) : generatingGroups[group.id] ? (
                                <div className="flex flex-col items-center gap-2">
                                  <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
-                                 <span className="text-[10px] text-purple-400">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
+                                 <span className="text-[10px] text-purple-400">正在透過 {imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0'} 生成...</span>
                                </div>
                             ) : (
                                <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
@@ -1614,7 +1359,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
                                 <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
-                                  {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
+                                  {imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0'}
                                 </span>
                                 <div className="flex gap-1.5">
                                   <button 
@@ -1977,35 +1722,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
             {/* Notion sync execution button */}
             {notionStatus === '✅ 已成功歸檔' ? (
-              <div className="space-y-2 w-full">
-                {/* 讓 MASTER 能點擊開啟專案 */}
-                {(notionUrl && passcode.trim().toUpperCase() === 'MASTER') && (
-                  <button
-                    onClick={() => window.open(notionUrl, '_blank')}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
-                  >
-                    <Link className="w-4 h-4" />
-                    <span>前往 Notion 查看此企劃</span>
-                  </button>
-                )}
-                {/* 團隊專案下拉選單 (僅 MASTER 可用) */}
-                <div className="w-full relative mt-2">
-                  <select
-                    className="w-full py-2 pl-8 pr-8 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 text-slate-400 text-xs font-medium appearance-none cursor-pointer outline-none text-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                    onChange={handleLoadArchive}
-                    value={selectedArchive}
-                    disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
-                  >
-                    <option value="">團隊專案庫 (僅限 Master)</option>
-                    {archiveList.map((item: any) => (
-                      <option key={item.id} value={item.id}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                  <Database className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+              <div className="w-full relative">
+                <select
+                  className="w-full py-2.5 pl-8 pr-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 text-xs font-bold appearance-none cursor-pointer outline-none text-center shadow-inner transition-all disabled:opacity-50"
+                  onChange={handleLoadArchive}
+                  value={selectedArchive}
+                  disabled={isLoadingArchive}
+                >
+                  <option value="">點擊選擇團隊專案</option>
+                  <option value="open_current">🔗 打開目前專案</option>
+                  {archiveList.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+                <Link className="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-4 h-4 text-emerald-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             ) : (
               <button
@@ -2033,7 +1766,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
+            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">GenImprint Pro</h2>
             <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
             
             <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
@@ -2057,76 +1790,18 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </form>
 
             {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
-            <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
-              <span>TECH2026 (民俗)</span>
+            <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-2 text-[9px] text-slate-600 font-mono relative z-10">
+              <span>TECH2026 (科技)</span>
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
               <span>RUBY2026 (美食)</span>
-              <span>SKY2026 (寵物)</span>
-              
+              <span>SKY2026 (教育)</span>
+              <span>MASTER (管理)</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* API Key Modal */}
-      {showApiKeyModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Key className="w-6 h-6 text-indigo-400" />
-                需要 Gemini API Key
-              </h3>
-              <button onClick={() => setShowApiKeyModal(false)} className="text-slate-400 hover:text-white transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-              您目前處於獨立運行模式，必須輸入 Gemini API Key 才能執行。
-              <br />
-              <span className="text-indigo-400 font-medium mt-1 inline-block">✨ 系統支援防限流機制：您可以一次貼上多把金鑰，並使用半形逗號 <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> 分隔。</span>
-            </p>
-            
-            <div className="space-y-4">
-              <div className="relative">
-                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <input
-                  type="password"
-                  placeholder="輸入 API Key (例如：AIzaSy..., AIzaSy..., AIzaSy...)"
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
-                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-                />
-              </div>
-
-              <div className="flex flex-col gap-3 pt-4">
-                <button
-                  onClick={() => {
-                    setShowApiKeyModal(false);
-                    if (geminiApiKey.trim()) {
-                      handleStartAuto();
-                    }
-                  }}
-                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  確認並開始執行
-                </button>
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                  前往申請 Gemini API Key
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

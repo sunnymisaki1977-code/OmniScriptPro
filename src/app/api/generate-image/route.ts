@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { prompt, aspectRatio } = await req.json();
+    const { prompt, aspectRatio, model } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
     }
 
-    const modelsToTry = [
+    const modelsToTry = model ? [model] : [
       "imagen-3.0-generate-002",
       "imagen-3.0-generate-001"
     ];
@@ -23,16 +23,28 @@ export async function POST(req: Request) {
 
     for (const modelName of modelsToTry) {
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict`;
-        const body = {
-          instances: [
-            { prompt: prompt }
-          ],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: aspectRatio === "16:9" ? "16:9" : "9:16"
-          }
-        };
+        let endpoint = "";
+        let body = {};
+
+        if (modelName.includes("gemini")) {
+          endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+          body = {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              responseModalities: ["IMAGE"],
+              imageConfig: { aspectRatio: aspectRatio === "16:9" ? "16:9" : "9:16" }
+            }
+          };
+        } else {
+          endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict`;
+          body = {
+            instances: [{ prompt: prompt }],
+            parameters: {
+              sampleCount: 1,
+              aspectRatio: aspectRatio === "16:9" ? "16:9" : "9:16"
+            }
+          };
+        }
 
         const response = await fetch(endpoint, {
           method: "POST",
@@ -50,10 +62,16 @@ export async function POST(req: Request) {
 
         const data = await response.json();
         
-        if (data.predictions && data.predictions.length > 0) {
-          const prediction = data.predictions[0];
-          if (prediction.bytesBase64Encoded) {
-            base64Image = prediction.bytesBase64Encoded;
+        if (modelName.includes("gemini")) {
+          if (data.candidates && data.candidates[0] && data.candidates[0].content?.parts?.[0]?.inlineData?.data) {
+            base64Image = data.candidates[0].content.parts[0].inlineData.data;
+          }
+        } else {
+          if (data.predictions && data.predictions.length > 0) {
+            const prediction = data.predictions[0];
+            if (prediction.bytesBase64Encoded) {
+              base64Image = prediction.bytesBase64Encoded;
+            }
           }
         }
 
