@@ -44,7 +44,8 @@ export async function POST(req: Request) {
         });
 
         // 🚀 成功拿到圖片資料 (Base64)
-        const base64Image = response.generatedImages[0]?.image?.imageBytes;
+        // 💡 修正處：加上 `?.` 避免 generatedImages 為 undefined 時引發錯誤
+        const base64Image = response.generatedImages?.[0]?.image?.imageBytes;
         
         if (base64Image) {
           console.log(`✅ 成功使用 ${currentModel} 生成圖片！`);
@@ -56,8 +57,10 @@ export async function POST(req: Request) {
           });
         }
 
-      } catch (err: any) {
-        console.warn(`⚠️ 模型 [${currentModel}] 呼叫失敗，原因: ${err.message || err}`);
+      } catch (err) {
+        // 💡 修正處：移除 err: any，在內部作轉型
+        const errorMessage = (err as any).message || String(err);
+        console.warn(`⚠️ 模型 [${currentModel}] 呼叫失敗，原因: ${errorMessage}`);
         lastGoogleError = err;
         // 如果不是最後一個模型，等待 1 秒後輪替下一個
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -67,7 +70,7 @@ export async function POST(req: Request) {
     // ==========================================
     // 備援機制：當 Google 模型全滅，啟動 Pollinations 墊底
     // ==========================================
-    console.warn("🚨 所有 Google Gemini 圖像模型皆失敗。啟動 Pollinations 備援機制...", lastGoogleError?.message);
+    console.warn("🚨 所有 Google Gemini 圖像模型皆失敗。啟動 Pollinations 備援機制...", (lastGoogleError as any)?.message);
     
     // 依長寬比設定解析度
     const width = aspectRatio === "16:9" ? 1024 : 576;
@@ -106,17 +109,19 @@ export async function POST(req: Request) {
           isFallback: true
         });
       }
-    } catch (err: any) {
-      console.error("❌ 備援生圖引擎也失敗:", err.message || err);
+    } catch (err) {
+      const errorMessage = (err as any).message || String(err);
+      console.error("❌ 備援生圖引擎也失敗:", errorMessage);
     }
 
     // 如果連備援都掛了，拋出最終錯誤
     throw new Error(
-      lastGoogleError?.message || "無法透過 Google 模型或備援引擎生成圖像。"
+      (lastGoogleError as any)?.message || "無法透過 Google 模型或備援引擎生成圖像。"
     );
 
-  } catch (error: any) {
-    console.error("💥 圖像生成終端致命錯誤:", error);
-    return NextResponse.json({ error: error.message || "生圖失敗" }, { status: 500 });
+  } catch (error) {
+    const errObj = error as any;
+    console.error("💥 圖像生成終端致命錯誤:", errObj);
+    return NextResponse.json({ error: errObj.message || "生圖失敗" }, { status: 500 });
   }
 }
