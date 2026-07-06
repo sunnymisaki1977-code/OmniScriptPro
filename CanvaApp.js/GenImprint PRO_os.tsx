@@ -356,6 +356,20 @@ export default function App() {
     });
   };
 
+  const openGeminiCanvas = (group) => {
+    if (geminiApiKey.trim()) {
+      localStorage.setItem('gemini_api_key', geminiApiKey);
+    }
+    localStorage.setItem('canvas_prompt_data', JSON.stringify({
+      prompt: group.prompt,
+      title: group.title,
+      imageEngine,
+      aspectRatio,
+      theme
+    }));
+    window.open('/canvas', 'Gemini Canvas', 'width=1400,height=900');
+  };
+
   const generateGroupImage = async (group) => {
     const isMaster = passcode.trim().toUpperCase() === 'MASTER';
     if (!isCanvasEnv && !geminiApiKey.trim()) {
@@ -1633,12 +1647,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             </div>
                             
                             <button
-                              onClick={() => generateGroupImage(group)}
-                              disabled={generatingGroups[group.id]}
-                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                              onClick={() => openGeminiCanvas(group)}
+                              className="w-full mt-3 py-2 rounded-xl bg-[#5d5feF] hover:bg-[#4d4fdF] text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-[0_0_15px_rgba(93,95,239,0.4)]"
                             >
-                              <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '正在渲染...' : '✨ AI 繪製影像 (-5 點)'}</span>
+                              <span>Gemini Canvas 繪製</span>
                             </button>
                           </div>
                         </div>
