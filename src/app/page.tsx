@@ -22,12 +22,13 @@ import FlipCard from '@/components/FlipCard';
 // --- LazyYoutube Component ---
 interface LazyYoutubeProps {
   playlistId: string;
+  previewVideoId?: string;
   title: string;
   isShorts?: boolean;
   colorClass?: string;
 }
 
-const LazyYoutube = ({ playlistId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900" }: LazyYoutubeProps) => {
+const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const aspectClass = isShorts ? 'aspect-[9/16] max-w-[320px] mx-auto rounded-[2.5rem] border-[8px] border-slate-800 dark:border-slate-900' : 'aspect-video w-full rounded-2xl';
 
@@ -46,8 +47,16 @@ const LazyYoutube = ({ playlistId, title, isShorts = false, colorClass = "from-s
           aria-label={`Play video ${title}`}
         >
           {/* 美化版 Playlist 縮圖 */}
-          <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${colorClass} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors flex flex-col items-center justify-center">
+          {previewVideoId ? (
+            <img 
+              src={`https://i.ytimg.com/vi/${previewVideoId}/maxresdefault.jpg`} 
+              alt={title}
+              className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+            />
+          ) : (
+            <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${colorClass} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
+          )}
+          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors flex flex-col items-center justify-center">
             <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-600 transition-all duration-300 mb-4 border border-white/30">
               <Play className="w-8 h-8 text-white ml-1 fill-white" />
             </div>
@@ -89,6 +98,7 @@ export default function LandingPage() {
       textClass: "text-amber-500",
       features: ["極速 5-Step", "流量收割", "毒雞湯語錄"],
       playlistId: "PLS7BJQ4awAeM",
+      previewVideoId: "Anq2dnER4TA",
       isShorts: true,
       flipData: {
         frontImage: "from-amber-500 to-red-600",
@@ -107,6 +117,7 @@ export default function LandingPage() {
       textClass: "text-purple-500",
       features: ["完整 10-Step", "深度考究", "賽博龐克視覺"],
       playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
+      previewVideoId: "ofIAOaVW_hU",
       isShorts: false,
       flipData: {
         frontImage: "from-purple-600 to-pink-600",
@@ -125,6 +136,7 @@ export default function LandingPage() {
       textClass: "text-sky-500",
       features: ["完整 10-Step", "知性信任感", "專業感排版"],
       playlistId: "PLC-IrJAPGBww",
+      previewVideoId: "5_4nrMvE4tg",
       isShorts: false,
       flipData: {
         frontImage: "from-sky-400 to-indigo-500",
@@ -143,6 +155,7 @@ export default function LandingPage() {
       textClass: "text-rose-500",
       features: ["完整 10-Step", "高質感腳本", "暖光濾鏡"],
       playlistId: "PLA1T_pcDfevM",
+      previewVideoId: "CQMXYgWGWZo",
       isShorts: false,
       flipData: {
         frontImage: "from-rose-400 to-amber-400",
@@ -161,6 +174,7 @@ export default function LandingPage() {
       textClass: "text-orange-500",
       features: ["完整 10-Step", "勾引食慾視覺", "強烈 CTA"],
       playlistId: "PLF3eQyAQueV4",
+      previewVideoId: "E1Oc1Eo_LcE",
       isShorts: false,
       flipData: {
         frontImage: "from-orange-500 to-yellow-500",
@@ -179,6 +193,7 @@ export default function LandingPage() {
       textClass: "text-amber-500",
       features: ["完整 10-Step", "極速執行", "商業轉換"],
       playlistId: "PLCaj4rNP2njM",
+      previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
       flipData: {
         frontImage: "from-amber-600 to-yellow-600",
@@ -214,7 +229,7 @@ export default function LandingPage() {
             {/* 品牌精神 Slogan (絕對置中) */}
             <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
               <span className="text-[30px] text-slate-700 dark:text-white tracking-widest drop-shadow-md" style={{ fontFamily: "'Noto Serif TC', serif" }}>
-                讓你的影響力，無所不在 あなたの影響力を、あらゆる場所へ
+                讓你的影響力，無所不在｜あなたの影響力を、あらゆる場所へ
               </span>
             </div>
 
@@ -386,6 +401,7 @@ export default function LandingPage() {
                     <div className="mt-auto">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
+                        previewVideoId={audiences[activeTab].previewVideoId}
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
                         colorClass={audiences[activeTab].color}
