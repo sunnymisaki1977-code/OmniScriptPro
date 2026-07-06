@@ -35,10 +35,7 @@ export async function POST(req: Request) {
         // 使用官方 SDK 最新支援的 interactions 呼叫
         const interaction = await ai.interactions.create({
           model: currentModel,
-          input: prompt,
-          config: {
-            aspectRatio: aspectRatio, // 若 interactions 不支援此參數會被自動忽略，但建議保留以防萬一
-          }
+          input: prompt
         });
 
         // 🚀 成功拿到圖片資料 (Base64)
