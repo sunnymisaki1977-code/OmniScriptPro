@@ -1,55 +1,73 @@
+import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-export const maxDuration = 60;
+
+// 初始化官方客戶端
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+// 🎯 依據你的設定，排定官方圖像模型的優先順序
+const IMAGE_MODELS = [
+  "gemini-3.1-flash-image",      // 1. 首選：最泛用，支援多圖參考
+  "gemini-3.1-flash-lite-image", // 2. 備用：速度最快
+  "gemini-3-pro-image",          // 3. 備用：複雜提示詞首選
+  "gemini-2.5-flash-image"       // 4. 最後防線：前代穩定版
+];
 
 export async function POST(req: Request) {
   try {
-    const { prompt, aspectRatio } = await req.json();
+    const { promptText, aspectRatio = "16:9" } = await req.json();
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
+    if (!promptText) {
+      return NextResponse.json({ error: "缺少提示詞 promptText" }, { status: 400 });
     }
 
-    const API_KEY = process.env.GEMINI_API_KEY;
-    if (!API_KEY) {
-      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
-    }
+    let lastError = null;
 
-    const modelsToTry = [
-  "gemini-3.1-flash-image",       // 1. 首選：Nano Banana 2 (最泛用，支援多圖參考與 4K)
-  "gemini-3.1-flash-lite-image",  // 2. 備用：Nano Banana 2 Lite (如果上一個塞車，用這個最快頂上)
-  "gemini-3-pro-image",           // 3. 備用：Nano Banana Pro (如果遇到複雜提示詞，交給它)
-  "gemini-2.5-flash-image"        // 4. 最後防線：Nano Banana (前代穩定版)
-];
-
-    let lastGoogleError = null;
-    let base64Image = null;
-
-    for (const modelName of modelsToTry) {
+    // 🔄 自動輪替重試機制
+    for (let i = 0; i < IMAGE_MODELS.length; i++) {
+      const currentModel = IMAGE_MODELS[i];
+      
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict`;
-        const body = {
-          instances: [
-            { prompt: prompt }
-          ],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: aspectRatio === "16:9" ? "16:9" : "9:16"
-          }
-        };
+        console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
 
-// 建立一個幫 fetch 加上 Timeout 的小工具
-const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs = 15000) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
+        // 💡 呼叫官方最新生圖方法
+        const response = await ai.models.generateImages({
+          model: currentModel,
+          prompt: promptText,
+          config: {
+            numberOfImages: 1,
+            aspectRatio: aspectRatio, // 支援 '16:9', '9:16', '1:1' 等
+            outputMimeType: "image/jpeg",
+          },
+        });
+
+        // 🚀 成功拿到圖片資料 (Base64)
+        const base64Image = response.generatedImages[0].image.imageBytes;
+        
+        return NextResponse.json({
+          success: true,
+          modelUsed: currentModel,
+          // 直接包裝成前端 <img> 標籤可以直接讀取的 Base64 格式
+          imageUrl: `data:image/jpeg;base64,${base64Image}`
+        });
+
+      } catch (err: any) {
+        console.warn(`⚠️ 模型 [${currentModel}] 呼叫失敗，原因: ${err.message || err}`);
+        lastError = err;
+        // 如果不是最後一個模型，就等待 1.5 秒後繼續嘗試下一個備用模型
+        if (i < IMAGE_MODELS.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+      }
+    }
+
+    // 如果所有模型都失敗了，吐出最後的錯誤
+    throw lastError || new Error("所有圖像模型皆無法生成");
+
+  } catch (error: any) {
+    console.error("❌ 官方 Gemini 圖像生成致命錯誤:", error);
+    return NextResponse.json({ error: error.message || "生圖失敗" }, { status: 500 });
   }
-};        
+}
 
 
 // 設定等待 Google API 最多 15 秒
