@@ -24,6 +24,12 @@ export async function POST(req: Request) {
     if (!theme) {
       return NextResponse.json({ error: "缺少主題 (theme)" }, { status: 400 });
     }
+
+    // ==========================================
+    // 提取共用設定與變數至最上方 (修正變數找不到的問題)
+    // ==========================================
+    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     let verifiedContext = customDocText || "";
 
     // ==========================================
@@ -31,19 +37,17 @@ export async function POST(req: Request) {
     // ==========================================
     if (!verifiedContext && startFromStep <= 1) {
       console.log("[Stage 1] 開始事實查核...");
-      const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
       const step1Config = WORKFLOW_STEPS.find(s => s.id === 1);
       const researchPrompt = step1Config ? step1Config.prompt({ theme }) : `請使用 Google Search 徹底調查主題：「${theme}」。`;
       
       let searchSuccess = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
-modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
+        // 修正：現在可以安全存取全域或上層作用域的 MODELS
+        const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
         try {
           const searchResponse = await ai.models.generateContent({
-             model: modelUsed,
-
-        
-               contents: researchPrompt,
+            model: modelUsed,
+            contents: researchPrompt,
             config: {
               tools: [{ googleSearch: {} }] // 開啟搜尋
             }
@@ -63,33 +67,29 @@ modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
         return NextResponse.json({ error: "事實查核階段連線失敗，請確認 API Key 額度後再試。" }, { status: 502 });
       }
 
-      // 👉 修正：如果只要跑第一步，就直接回傳查核結果，提早結束！
+      // 👉 如果只要跑第一步，就直接回傳查核結果，提早結束！
       if (endStep === 1) {
         return NextResponse.json({ 
           data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-flash",
+          modelUsed: MODELS[0],
           contextUsed: verifiedContext 
         });
       }
     }
 
-
-
-
     // ==========================================
     // Stage 2: 模組化批次生成內容
     // ==========================================
-    // 👉 修正 1：如果包含 Step 1，我們只要 AI 從 Step 2 開始生成就好，因為 Step 1 已經在上方做完了
+    // 👉 如果包含 Step 1，我們只要 AI 從 Step 2 開始生成就好，因為 Step 1 已經在上方做完了
     const generationStartStep = Math.max(2, startFromStep); 
-    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     const targetSteps = WORKFLOW_STEPS.filter(step => step.id >= generationStartStep && step.id <= endStep);
     
-    // 如果過濾後沒有需要生成的步驟 (例如前端只請求 endStep = 1，這在 Stage 1 應該已經 return 了，這裡是雙重保險)
+    // 如果過濾後沒有需要生成的步驟
     if (targetSteps.length === 0) {
       if (startFromStep <= 1 && verifiedContext) {
         return NextResponse.json({ 
           data: { "1": verifiedContext }, 
-          modelUsed: "gemini-2.5-flash",
+          modelUsed: MODELS[0],
           contextUsed: verifiedContext 
         });
       }
@@ -148,27 +148,10 @@ modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
     // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
-    
-// 建立一個幫 fetch 加上 Timeout 的小工具
-const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs = 15000) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { ...options, signal: controller.signal });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
-  }
-};
-
-const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
-    let modelUsed = "";
     const MAX_RETRIES = 4;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
+      const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
 
       try {
         const response = await ai.models.generateContent({
@@ -188,11 +171,12 @@ const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
 
         const parsedData = JSON.parse(cleanText);
 
-        // 👉 修正 2：在確保所有的值都被轉為字串的迴圈之前，把 Step 1 的資料「手動」補進去！
+        // 👉 在確保所有的值都被轉為字串的迴圈之前，把 Step 1 的資料「手動」補進去！
         if (startFromStep <= 1 && verifiedContext) {
           parsedData["1"] = verifiedContext;
         }
-       for (const key in parsedData) {
+
+        for (const key in parsedData) {
           if (typeof parsedData[key] === "object" && parsedData[key] !== null) {
             parsedData[key] = JSON.stringify(parsedData[key], null, 2);
           } else {
