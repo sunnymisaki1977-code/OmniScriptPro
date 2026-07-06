@@ -328,7 +328,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step5"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
 參考背景：${ctx.step5}
 
 【格式絕對鎖定指令】：
@@ -587,7 +587,7 @@ ${ctx.step4}
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step3"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 。
 參考背景：${ctx.step3}
 
 【格式絕對鎖定指令】：
@@ -608,7 +608,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step5"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
 參考背景：${ctx.step5}
 
 【格式絕對鎖定指令】：
@@ -855,7 +855,7 @@ ${ctx.step4}
     type:"code",
     language:"markdown",
     dependsOn:["theme","step3"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 。
 參考背景：${ctx.step3}
 
 【格式絕對鎖定指令】：
@@ -892,7 +892,7 @@ ultra detailed,
     type:"code",
     language:"markdown",
     dependsOn:["theme","step5"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
 參考背景：${ctx.step5}
 
 【格式絕對鎖定指令】：
@@ -926,7 +926,7 @@ ultra detailed,
     type:"code",
     language:"markdown",
     dependsOn:["theme"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」設計三組9:16品牌級美食海報。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」設計三組品牌級美食海報。
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
@@ -1213,7 +1213,7 @@ ultra detailed,,大而醒目藝術文字設計
       type: "code",
       language: "markdown",
       dependsOn: ["theme", "step5"],
-      prompt: (ctx) => `請生成三組9:16 Shorts封面。
+      prompt: (ctx) => `請生成三組 Shorts封面。
 
 格式：
 
@@ -1713,7 +1713,7 @@ ${ctx.step2}
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step3"],
-    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+    prompt: (ctx) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
 參考背景：${ctx.step5}
 
 【格式絕對鎖定指令】：
