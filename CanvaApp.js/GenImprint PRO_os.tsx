@@ -25,22 +25,22 @@ const ACCESS_CODES: Record<string, string> = {
 
 const IMAGE_ENGINES = [
   {
-    id: 'imagen-3.0-generate-002',
+    id: 'gemini-3.1-flash-lite-image',
     name: 'Nano Banana 2 Lite',
     desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
   },
   {
-    id: 'imagen-3.0-generate-002',
+    id: 'gemini-3.1-flash-image',
     name: 'Nano Banana 2',
     desc: '用途最廣泛的模型，適用於所有工作。可兼顧速度與最先進的 4K 生成技術、世界知識和可靠的文字轉譯功能。擅長處理多張參考圖像，並確保一致性。'
   },
   {
-    id: 'imagen-3.0-generate-002',
+    id: 'gemini-3-pro-image',
     name: 'Nano Banana Pro',
     desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
   },
   {
-    id: 'imagen-3.0-generate-001',
+    id: 'gemini-2.5-flash-image',
     name: 'Nano Banana',
     desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   }
@@ -217,7 +217,7 @@ export default function App() {
 
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('imagen-3.0-generate-002');
+  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
 
   useEffect(() => {
     const content = stepContents[visualStep];
@@ -383,22 +383,46 @@ export default function App() {
       
       let base64 = "";
 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
+      let apiUrl = '';
+      let bodyStr = '';
+      if (imageEngine.includes('gemini')) {
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${apiKey}`;
+        bodyStr = JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseModalities: ["IMAGE"],
+            imageConfig: { aspectRatio: aspectRatio }
+          }
+        });
+      } else {
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
+        bodyStr = JSON.stringify({
+          instances: [{ prompt: prompt }],
+          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+        });
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
-        })
+        body: bodyStr
       });
       
       const data = await response.json();
       if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-      if (data.predictions && data.predictions[0]) {
-        base64 = data.predictions[0].bytesBase64Encoded;
+      
+      if (imageEngine.includes('gemini')) {
+        if (data.candidates && data.candidates[0] && data.candidates[0].content?.parts?.[0]?.inlineData?.data) {
+          base64 = data.candidates[0].content.parts[0].inlineData.data;
+        } else {
+          throw new Error("未收到圖片資料 (generateContent 回傳格式錯誤)");
+        }
       } else {
-        throw new Error("未收到圖片資料");
+        if (data.predictions && data.predictions[0]) {
+          base64 = data.predictions[0].bytesBase64Encoded;
+        } else {
+          throw new Error("未收到圖片資料 (predict 回傳格式錯誤)");
+        }
       }
       
       if (base64) {
