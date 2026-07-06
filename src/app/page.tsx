@@ -108,9 +108,9 @@ export default function LandingPage() {
           "/Kongming_p4.jpg",
           "/Kongming_p5.jpg"
         ],
-        frontText: "「孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
-        frontTags: "#歷史迷因 #三國演義 #孔明",
-        backInput: "幫我吐槽孔明草船借箭，用現代投資客的角度來寫。",
+        frontText: "「諸葛孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
+        frontTags: "#歷史迷因 #三國演義 #諸葛孔明",
+        backInput: "幫我寫一篇關於「諸葛孔明」的歷史迷因腳本，用現代投資客的角度來寫。",
         systemTasks: ["✓ 啟動 5-Step 極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
       }
     },
@@ -152,9 +152,9 @@ export default function LandingPage() {
           "/Managing_Pet_p4.jpg",
           "/Managing_Pet_p5.jpg"
         ],
-        frontText: "貓咪亂尿尿不是在報復！獸醫帶你讀懂 3 個關鍵求救訊號，打造零壓力的貓咪友善空間...",
-        frontTags: "#貓咪行為 #寵物照護 #新手貓奴",
-        backInput: "貓咪突然在床上尿尿怎麼辦？想要一篇衛教影片腳本。",
+        frontText: "寵物行為不是在報復！專業獸醫帶你讀懂 3 個關鍵求救訊號，為毛孩打造零壓力的寵物照護空間...",
+        frontTags: "#寵物行為 #寵物照護 #新手毛爸媽",
+        backInput: "想要一篇關於「寵物照護」的衛教影片腳本。",
         systemTasks: ["✓ 啟動 10-Step 信任感矩陣", "✓ 醫學知識結構化", "✓ 生成溫暖治癒系視覺指令"]
       }
     },
@@ -175,9 +175,9 @@ export default function LandingPage() {
           "/Sensory_Medical_Aesthetics _p2.jpg",
           "/Sensory_Medical_Aesthetics _p3.jpg"
         ],
-        frontText: "「早C晚A」真的適合你嗎？皮膚科醫師不敢說的保養盲區，3 分鐘帶你找回水煮蛋肌...",
-        frontTags: "#早C晚A #抗老保養 #美妝保養",
-        backInput: "我想拍一支關於早C晚A保養的避坑指南。",
+        frontText: "「Parfums De Bastide 與 嘉丹妮爾」深度解析兩大品牌的魅力所在，3 分鐘帶你找到命定保養...",
+        frontTags: "#ParfumsDeBastide #嘉丹妮爾 #美妝保養",
+        backInput: "我想拍一支關於「Parfums De Bastide 與 嘉丹妮爾」的保養開箱與評測指南。",
         systemTasks: ["✓ 啟動 10-Step 質感矩陣", "✓ 情境帶入與痛點放大", "✓ 配置唯美玫瑰金視覺指令"]
       }
     },
@@ -200,9 +200,9 @@ export default function LandingPage() {
           "/Golden_Mango_Summer_p4.jpg",
           "/Golden_Mango_Summer_p5.jpg"
         ],
-        frontText: "零失敗神級下酒菜！只要 3 步驟，讓你在家完美複製居酒屋必點的明太子烤山藥...",
-        frontTags: "#明太子烤山藥 #居酒屋料理 #懶人食譜",
-        backInput: "教大家怎麼用氣炸鍋做明太子烤山藥，要看起來很好吃。",
+        frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
+        frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
+        backInput: "幫我寫一篇關於「台灣夏日創意芒果季：熱帶果實的飲食文化詩篇」的美食介紹腳本。",
         systemTasks: ["✓ 啟動 10-Step 食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
       }
     },
@@ -225,9 +225,9 @@ export default function LandingPage() {
           "/2026_大阪旅遊全攻略 P4.jpg",
           "/2026_大阪旅遊全攻略 P5.jpg"
         ],
-        frontText: "辭職去清邁數位遊牧一個月，我花多少錢？大揭密這 4 個你絕對不能錯過的避世咖啡廳...",
-        frontTags: "#清邁旅遊 #數位遊牧 #一人創業",
-        backInput: "我要分享去清邁數位遊牧的花費跟推薦咖啡廳。",
+        frontText: "2026日本大阪旅遊新趨勢！大揭密這幾個你絕對不能錯過的避世咖啡廳與私房秘境景點...",
+        frontTags: "#大阪旅遊 #2026新趨勢 #一人旅行",
+        backInput: "幫我整理一份「2026日本大阪旅遊新趨勢」的旅遊Vlog腳本。",
         systemTasks: ["✓ 啟動 10-Step 商業轉換矩陣", "✓ 價值提煉與痛點解決", "✓ 生成高質感電影級視覺指令"]
       }
     }
