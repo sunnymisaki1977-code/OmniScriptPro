@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Music, CheckCircle2, Sparkles } from 'lucide-react';
 
 interface FlipCardProps {
   theme: string;
-  frontImage: string;
+  frontImage: string | string[];
   frontText: string;
   frontTags: string;
   backInput: string;
@@ -21,6 +21,18 @@ export default function FlipCard({
   systemTasks
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = Array.isArray(frontImage) ? frontImage : [frontImage];
+
+  useEffect(() => {
+    if (images.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 3500); // 3.5秒切換一次
+      return () => clearInterval(interval);
+    }
+  }, [images.length]);
 
   return (
     <div 
@@ -36,16 +48,25 @@ export default function FlipCard({
             卡片正面 (The Wow) 
             ==================== */}
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700">
-          {/* 背景圖片 (或漸層佔位) */}
-          {frontImage.startsWith('/') || frontImage.startsWith('http') ? (
-            <img 
-              src={frontImage} 
-              alt={theme} 
-              className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
-            />
-          ) : (
-            <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${frontImage} opacity-80`} />
-          )}
+          {/* 背景圖片 (支援單張、漸層或自動輪播) */}
+          {images.map((imgSrc, idx) => (
+            <div 
+              key={`${imgSrc}-${idx}`}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                idx === currentImageIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              {imgSrc.startsWith('/') || imgSrc.startsWith('http') ? (
+                <img 
+                  src={imgSrc} 
+                  alt={`${theme} preview ${idx + 1}`} 
+                  className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
+                />
+              ) : (
+                <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${imgSrc} opacity-80`} />
+              )}
+            </div>
+          ))}
 
           {/* 漸層黑色遮罩 (收斂至底部 50%) */}
           <div className="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-black/95 to-transparent pointer-events-none" />
