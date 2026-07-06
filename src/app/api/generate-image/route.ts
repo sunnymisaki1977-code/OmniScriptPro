@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
@@ -14,9 +15,11 @@ export async function POST(req: Request) {
     }
 
     const modelsToTry = [
-      "imagen-3.0-generate-002",
-      "imagen-3.0-generate-001"
-    ];
+  "gemini-3.1-flash-image",       // 1. 首選：Nano Banana 2 (最泛用，支援多圖參考與 4K)
+  "gemini-3.1-flash-lite-image",  // 2. 備用：Nano Banana 2 Lite (如果上一個塞車，用這個最快頂上)
+  "gemini-3-pro-image",           // 3. 備用：Nano Banana Pro (如果遇到複雜提示詞，交給它)
+  "gemini-2.5-flash-image"        // 4. 最後防線：Nano Banana (前代穩定版)
+];
 
     let lastGoogleError = null;
     let base64Image = null;
@@ -34,15 +37,30 @@ export async function POST(req: Request) {
           }
         };
 
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "x-goog-api-key": API_KEY 
-          },
-          body: JSON.stringify(body),
-        });
+// 建立一個幫 fetch 加上 Timeout 的小工具
+const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs = 15000) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+};        
 
+
+// 設定等待 Google API 最多 15 秒
+const response = await fetchWithTimeout(endpoint, {
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json",
+    "x-goog-api-key": API_KEY 
+  },
+  body: JSON.stringify(body),
+}, 15000);
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(`Google API error (${modelName}): ${response.status} - ${errorData?.error?.message || response.statusText}`);
