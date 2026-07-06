@@ -17,7 +17,8 @@ export default function VisualCenterApp() {
   // 生圖相關狀態
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-image');
+  const [imageEngine, setImageEngine] = useState('imagen4'); // 'imagen4' | 'flash'
+  const [isGeneratingBatch, setIsGeneratingBatch] = useState(false);
 
   // Notion 相關狀態
   const [currentProjectTitle, setCurrentProjectTitle] = useState('尚未載入專案');
@@ -232,57 +233,76 @@ export default function VisualCenterApp() {
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
-    const engineName = imageEngine.includes('gemini') ? 'Gemini 3.1' : 'Imagen 3';
+    const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
+      const apiKey = ""; // API Key provided by execution environment
+      
       let aspectRatio = "1:1";
       if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
       if (visualStep === 7) aspectRatio = "9:16";
       if (visualStep === 10) aspectRatio = "4:3";
       
-      let flashPrompt = prompt;
-      if (imageEngine.includes('gemini') && (mainTitle || subTitle || poetry)) {
-        flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
-        if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
-        if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
-        if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\\s+/g, ' ')}`;
-      }
-      
-      const finalPrompt = imageEngine.includes('gemini') 
-        ? `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`
-        : flashPrompt;
-
-      const baseUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-        ? 'http://localhost:3000' 
-        : 'https://gen-imprint.vercel.app';
-      const apiUrl = `${baseUrl}/api/generate-image`;
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: finalPrompt,
-          aspectRatio: aspectRatio,
-          model: imageEngine
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(`API Error: ${data.error || response.statusText}`);
-      
       let base64 = "";
-      if (data.image) {
-        base64 = data.image.split(',')[1];
+
+      if (imageEngine === 'flash') {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+        
+        let flashPrompt = prompt;
+        if (mainTitle || subTitle || poetry) {
+          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
+          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
+          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
+          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
+        }
+        
+        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+        
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const imagePart = parts.find(p => p.inlineData);
+        if (imagePart) {
+          base64 = imagePart.inlineData.data;
+        } else {
+          throw new Error("模型未回傳圖像資料");
+        }
       } else {
-        throw new Error("模型未回傳圖像資料");
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instances: [{ prompt: prompt }],
+            parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+          })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+        if (data.predictions && data.predictions[0]) {
+          base64 = data.predictions[0].bytesBase64Encoded;
+        } else {
+          throw new Error("未收到圖片資料");
+        }
       }
       
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
         
         let finalImage = originalImage;
-        if (!imageEngine.includes('gemini')) {
+        if (imageEngine !== 'flash') {
           finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
         }
         
@@ -290,7 +310,7 @@ export default function VisualCenterApp() {
         addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
       }
     } catch (err) {
-      const engineName = imageEngine.includes('gemini') ? 'Gemini 3.1' : 'Imagen 3';
+      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
@@ -385,10 +405,8 @@ export default function VisualCenterApp() {
                 onChange={(e) => setImageEngine(e.target.value)}
                 className="w-full bg-[#0a0f1d] border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none"
               >
-                <option value="gemini-3.1-flash-lite-image">Nano Banana 2 Lite (極速/成本低)</option>
-                <option value="gemini-3.1-flash-image">Nano Banana 2 (萬用/高品質)</option>
-                <option value="gemini-3-pro-image">Nano Banana Pro (複雜視覺/精確控制)</option>
-                <option value="imagen-3.0-generate-002">Imagen 3.0 (原廠基礎款)</option>
+                <option value="imagen4">Imagen 4.0 (高畫質・支援本地字體渲染)</option>
+                <option value="flash">Gemini 2.5 Flash (極速・AI融合字體)</option>
               </select>
             </div>
 
