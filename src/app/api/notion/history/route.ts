@@ -18,14 +18,25 @@ export async function GET(req: Request) {
 
     // 若有傳入 ID，代表要讀取該筆頁面的詳細內容 (還原 stepsData)
     if (pageId) {
-      const blocksResponse = await notion.blocks.children.list({ block_id: pageId });
+      let allBlocks: any[] = [];
+      let cursor: string | undefined = undefined;
+      
+      do {
+        const blocksResponse = await notion.blocks.children.list({ 
+          block_id: pageId,
+          start_cursor: cursor,
+          page_size: 100
+        });
+        allBlocks.push(...blocksResponse.results);
+        cursor = blocksResponse.next_cursor || undefined;
+      } while (cursor);
       
       const stepsData: Record<number, string> = {};
       let currentStepId = 0;
       let firstStepTitle = "";
       let audienceThemeFromNotion = null;
 
-      for (const block of blocksResponse.results as any[]) {
+      for (const block of allBlocks) {
         if (block.type === "paragraph") {
            const text = block.paragraph.rich_text.map((rt: any) => rt.plain_text).join("");
            const themeMatch = text.match(/\[AudienceTheme:\s*([a-zA-Z0-9_]+)\]/);
