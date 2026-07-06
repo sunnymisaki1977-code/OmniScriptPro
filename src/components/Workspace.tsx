@@ -147,7 +147,7 @@ export const Workspace = () => {
       let currentData = { ...stepsData };
       let lastSuccessStep = startFromStep - 1;
       
-      const CHUNK_SIZE = 3;
+      const CHUNK_SIZE = 10;
       let currentStart = startFromStep;
 
       // 迴圈分段請求，每次處理 CHUNK_SIZE 個步驟
