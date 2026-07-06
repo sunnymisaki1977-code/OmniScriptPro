@@ -834,7 +834,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   const generateNewImage = async () => {
     const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
