@@ -197,7 +197,7 @@ export const THEME_STEPS = {
     { id: 5, name: 'Shorts SEO', icon: 'Search', category: 'Optimization', desc: '生成Shorts SEO。', type: "text", dependsOn: ["theme", "step4"] },
     { id: 6, name: 'YouTube縮圖', icon: 'ImageIcon', category: 'Visuals', desc: '生成三組高CTR縮圖。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: 'Shorts封面', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
-    { id: 8, name: '用品推薦與品牌合作', icon: 'FileText', category: 'Content', desc: '推薦相關用品、品牌合作與導購文案。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 8, name: '寵物品牌海報', icon: 'FileText', category: 'Content', desc: '生成高質感寵物宣傳海報、請設計三組寵物品牌海報。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 9, name: 'Suno AI配樂', icon: 'Music', category: 'Audio', desc: '生成三組寵物影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme"] },
     { id: 10, name: '社群內容中心', icon: 'Facebook', category: 'Distribution', desc: '生成IG、FB、Threads、小紅書完整貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
