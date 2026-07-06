@@ -311,7 +311,8 @@ ${ctx.step4}
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計。結尾必須包含：--16:9
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計。
+
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -333,7 +334,8 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計結尾必須包含：--9:16
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計
+
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -354,7 +356,8 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。 結尾必須包含：-- 16:9
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。 
+
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -423,7 +426,7 @@ ${ctx.step1}
 
 ### 🎨 視覺 Prompt
   16:9 動態分割構圖提示詞：  
-以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】--16:9。
+以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
   主標題：  [請填入主標題]
 1.   畫格 1：   [蒙太奇資訊名稱 1]
    視覺描述：  [請填入視覺描述]
@@ -442,7 +445,7 @@ AI Prompt (中文):[開始撰寫16:9 動態分割構圖提示詞]
 
 
   9:16 動態分割構圖提示詞：  
-以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】--9:16。
+以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
 
   主標題：  [請填入主標題]
 1.   畫格 1：   [蒙太奇資訊名稱 1]
@@ -590,8 +593,7 @@ ${ctx.step4}
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
-AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計結尾必須包含：--ar 16:9
-
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入縮圖名稱]
@@ -612,8 +614,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
-AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。結尾必須包含：--ar 9:16
-
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入短影音縮圖名稱]
@@ -633,8 +634,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
 【格式絕對鎖定指令】：
 你現在是美妝保養行銷專家，
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
-AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。 結尾必須包含：--ar 9:16
-
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入高奢行銷海報名稱]
@@ -876,9 +876,6 @@ premium plating,
 ultra detailed,
 大而醒目藝術文字設計
 
-最後加入：
-
---ar 16:9
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -914,9 +911,6 @@ premium plating,
 ultra detailed,
 大而醒目藝術文字設計
 
-最後加入
-
---ar 9:16
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -947,9 +941,6 @@ macro texture,
 minimalist composition,
 editorial food magazine,
 ultra detailed,大而醒目藝術文字設計
-
-最後加入-- 9:16
-
 
 格式：
 
@@ -1019,7 +1010,6 @@ ${ctx.step1}
 
 📣 CTA
 
-最後加入：
 
 #${ctx.theme}
 
@@ -1212,9 +1202,8 @@ editorial travel magazine,
 ultra detailed,,大而醒目藝術文字設計
 8k
 
-最後加入：
 
---ar 16:9`
+`
     },
 
     {
@@ -1241,9 +1230,8 @@ drone shot,
 cinematic,
 ultra detailed,大而醒目藝術文字設計
 
-最後加入：
 
---ar 9:16`
+`
     },
 
     {
@@ -1273,9 +1261,8 @@ vibrant colors,
 premium tourism,
 ultra detailed,大而醒目藝術文字設計
 
-最後加入：
 
---ar 9:16`
+`
     },
 
     {
@@ -1343,7 +1330,6 @@ ${ctx.step1}
 
 📌 收藏CTA
 
-最後加入：
 
 #${ctx.theme}
 
@@ -1524,9 +1510,8 @@ high detail,
 editorial style,大而醒目藝術文字設計
 8k
 
-最後加入：
 
---ar 16:9`
+`
     },
 
     {
@@ -1555,9 +1540,8 @@ soft lighting,
 adorable,
 high detail,大而醒目藝術文字設計
 
-最後加入：
 
---ar 9:16`
+`
     },
 
     {
@@ -1585,9 +1569,8 @@ soft lighting,
 adorable,
 high detail,大而醒目藝術文字設計
 
-最後加入：
 
---ar 9:16`
+`
 
     },
 
@@ -1654,7 +1637,6 @@ ${ctx.step1}
 
 📣 CTA
 
-最後加入：
 
 #${ctx.theme}
 
@@ -1737,7 +1719,8 @@ ${ctx.step2}
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計,結尾必須包含：--9:16
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計,
+
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
