@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     console.error("❌ 官方 Gemini 圖像生成致命錯誤:", error);
     return NextResponse.json({ error: error.message || "生圖失敗" }, { status: 500 });
   }
-}
+
 
 
 // 設定等待 Google API 最多 15 秒
