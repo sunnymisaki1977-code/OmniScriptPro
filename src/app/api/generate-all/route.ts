@@ -39,8 +39,11 @@ export async function POST(req: Request) {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const searchResponse = await ai.models.generateContent({
-            model: "gemini-2.5-flash", // 改回 flash 避免 pro 額度不足瞬間報錯
-            contents: researchPrompt,
+   MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
+    let modelUsed = "";
+    const MAX_RETRIES = 4;
+
+               contents: researchPrompt,
             config: {
               tools: [{ googleSearch: {} }] // 開啟搜尋
             }
@@ -69,6 +72,9 @@ export async function POST(req: Request) {
         });
       }
     }
+
+
+
 
     // ==========================================
     // Stage 2: 模組化批次生成內容
@@ -142,7 +148,22 @@ export async function POST(req: Request) {
     // ==========================================
     // 執行與重試機制 (Exponential Backoff)
     // ==========================================
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
+    
+// 建立一個幫 fetch 加上 Timeout 的小工具
+const fetchWithTimeout = async (url: string, options: RequestInit, timeoutMs = 15000) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+};
+
+const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro",  "gemini-2.5-flash-lite"];
     let modelUsed = "";
     const MAX_RETRIES = 4;
 
