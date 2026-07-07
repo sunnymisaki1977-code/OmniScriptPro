@@ -6,7 +6,7 @@ import {
   Terminal, ServerCrash, Share2, UploadCloud, ChevronRight,
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
-  Eye, Check, ListTodo, Send, Volume2, Download, Zap, X,
+  Eye, Check, ListTodo, Send, Volume2, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2
 } from 'lucide-react';
 
@@ -355,6 +355,34 @@ export default function App() {
       };
       img.onerror = () => resolve(base64Image);
       img.src = base64Image;
+    });
+  };
+
+  const handleCopyAndGo = (group: any, target: 'gemini' | 'chatgpt') => {
+    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
+    const engineName = engineConfig.name;
+    const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
+    
+    let aspectRatio = "16:9";
+    const currentStep = STEPS.find((s: any) => s.id === visualStep);
+    if (currentStep && currentStep.aspectRatio) {
+      aspectRatio = currentStep.aspectRatio;
+    } else if (visualStep === 10) {
+      aspectRatio = "4:3";
+    }
+    
+    const fullPrompt = `[${engineName}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${prompt} --ar ${aspectRatio}`;
+    
+    navigator.clipboard.writeText(fullPrompt).then(() => {
+      addLog(`[Copy & Go] 已複製完整提示詞並前往 ${target === 'gemini' ? 'Gemini' : 'ChatGPT'}！`, 'success');
+      if (target === 'gemini') {
+        window.open('https://gemini.google.com/app', '_blank');
+      } else {
+        window.open('https://chatgpt.com/', '_blank');
+      }
+    }).catch(err => {
+      console.error('Copy failed:', err);
+      addLog(`[Copy & Go] 複製失敗，請檢查瀏覽器剪貼簿權限。`, 'error');
     });
   };
 
@@ -1589,6 +1617,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               <Sparkles className="w-3.5 h-3.5" />
                               <span>{generatingGroups[group.id] ? '正在渲染...' : (!geminiApiKey.trim() ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
                             </button>
+                            
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={() => handleCopyAndGo(group, 'gemini')}
+                                className="flex-1 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800 text-indigo-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-indigo-700/50"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                複製開啟 Gemini
+                              </button>
+                              <button
+                                onClick={() => handleCopyAndGo(group, 'chatgpt')}
+                                className="flex-1 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-emerald-700/50"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                ChatGPT
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
