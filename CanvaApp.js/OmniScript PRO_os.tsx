@@ -1389,8 +1389,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     );
                   })}
                 </div>
+              </div>
 
-                {/* Markdown editor screen */}
+              {/* Markdown editor screen */}
                 <div className="flex-1 bg-[#090d19]/40 p-6 overflow-y-auto relative flex flex-col custom-scrollbar pb-24">
                   <div className="max-w-3xl w-full mx-auto flex-1 flex flex-col">
                     
@@ -1518,6 +1519,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             )
           )}
