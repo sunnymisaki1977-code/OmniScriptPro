@@ -582,7 +582,9 @@ export default function App() {
     addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
 
     try {
+      let currentRunningStep = startStep;
       for (let i = startStep; i <= STEPS.length; i++) {
+        currentRunningStep = i;
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
@@ -594,7 +596,7 @@ export default function App() {
           },
           body: JSON.stringify({
             theme: startTheme,
-            customDocText: currentContextContents[1] || "",
+            customDocText: isStepEmpty(1) ? "" : currentContextContents[1],
             currentStepId: i,
             startFromStep: i,
             endStep: i,
@@ -611,6 +613,11 @@ export default function App() {
         const responseData = await response.json();
 
         if (responseData.output) {
+          // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
+          if (responseData.output.includes('我需要一份經過專家查核') || responseData.output.includes('無法繼續執行')) {
+             throw new Error(`AI 拒絕生成內容或要求補充資料`);
+          }
+          
           // 💾 成功拿到單步結果，塞入前端暫存器
           currentContextContents[i] = responseData.output;
           
@@ -631,7 +638,7 @@ export default function App() {
       await startNotionExport(currentContextContents, startTheme);
 
     } catch (error: any) {
-      addLog(`🛑 [Error] 流水線在 Step ${activeStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
+      addLog(`🛑 [Error] 流水線在 Step ${currentRunningStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
     } finally {
       setIsGenerating(false);
     }
