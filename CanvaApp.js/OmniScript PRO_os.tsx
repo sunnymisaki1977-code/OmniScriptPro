@@ -595,6 +595,7 @@ export default function App() {
           body: JSON.stringify({
             theme: startTheme,
             customDocText: currentContextContents[1] || "",
+            currentStepId: i,
             startFromStep: i,
             endStep: i,
             audienceTheme: audienceTheme,
