@@ -5,12 +5,13 @@ import { NextResponse } from "next/server";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // 🎯 排定官方圖像模型的優先順序
-const IMAGE_MODELS = [
-  "gemini-3.1-flash-image",      // 1. 首選：最泛用，支援多圖參考
+const interaction = await ai.interactions.create({
+    model:  "gemini-3.1-flash-image",      // 1. 首選：最泛用，支援多圖參考
   "gemini-3.1-flash-lite-image", // 2. 備用：速度最快
   "gemini-3-pro-image",          // 3. 備用：複雜提示詞首選
-  
-];
+    input: prompt
+        }); 
+
 
 export async function POST(req: Request) {
   try {
@@ -32,23 +33,19 @@ export async function POST(req: Request) {
       try {
         console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
 
-        // 使用官方 SDK 最新支援的 interactions 呼叫
-        const interaction = await ai.interactions.create({
-          model: currentModel,
-          input: prompt
-        });
+ 
 
         // 🚀 成功拿到圖片資料 (Base64)
         // 依據新版說明，圖片會放在 output_image.data
-        const base64Image = interaction.output_image?.data;
-        
-        if (base64Image) {
+       const generatedImage = interaction.output_image;
+  if (generatedImage) {
           console.log(`✅ 成功使用 ${currentModel} 生成圖片！`);
           return NextResponse.json({
             success: true,
-            modelUsed: currentModel,
-            image: `data:image/jpeg;base64,${base64Image}`,
-            isFallback: false
+             model: currentModel,
+            const buffer = Buffer.from(generatedImage.data, "base64");
+    fs.writeFileSync("gemini-native-image.png", buffer);
+    console.log("Image saved as gemini-native-image.png");
           });
         }
 
