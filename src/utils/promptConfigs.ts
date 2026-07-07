@@ -614,7 +614,8 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
-AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計
+。
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入短影音縮圖名稱]
@@ -634,7 +635,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
 【格式絕對鎖定指令】：
 你現在是美妝保養行銷專家，
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
-AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed。 
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計。 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
 ### 第一組：[請填入高奢行銷海報名稱]

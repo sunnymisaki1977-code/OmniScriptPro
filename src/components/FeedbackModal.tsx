@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquarePlus, X, Send, Loader2, CheckCircle2 } from 'lucide-react';
+import { PenLine, X, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 
 interface FeedbackModalProps {
@@ -58,7 +58,7 @@ export default function FeedbackModal({ currentTheme = 'General' }: FeedbackModa
         }}
         className="fixed bottom-6 right-6 z-50 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg hover:shadow-indigo-500/50 transition-all group"
       >
-        <MessageSquarePlus className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        <PenLine className="w-6 h-6 group-hover:scale-110 transition-transform" />
       </button>
 
       {isOpen && (
@@ -72,7 +72,7 @@ export default function FeedbackModal({ currentTheme = 'General' }: FeedbackModa
             </button>
 
             <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <MessageSquarePlus className="w-5 h-5 text-indigo-400" />
+              <PenLine className="w-5 h-5 text-indigo-400" />
               提供回饋
             </h3>
             <p className="text-sm text-slate-400 mb-6">
