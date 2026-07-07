@@ -9,6 +9,7 @@ import {
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2
 } from 'lucide-react';
+import Hotspot from '../src/components/ui/Hotspot';
 
 // ============================================================================
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
@@ -1230,6 +1231,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </label>
                       </div>
                       <div className="relative">
+                        <Hotspot 
+                          id="tour_input"
+                          title="從這裡開始"
+                          content="輸入您的靈感或貼上文獻，系統將以此為基準真相進行自動擴寫。"
+                          position="bottom"
+                          className="absolute -top-2 -right-2"
+                        />
                         <textarea
                           maxLength={5000}
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
@@ -1336,7 +1344,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               <div className="flex-1 flex overflow-hidden">
                 
                 {/* Steps Navigator Left Column */}
-                <div className="w-64 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar shrink-0">
+                <div className="relative shrink-0 h-full flex flex-col">
+                  <Hotspot 
+                    id="tour_steps"
+                    title="全自動化矩陣"
+                    content="引擎將自動依序執行背景查核、腳本到視覺配樂，您可以在此監控進度。"
+                    position="right"
+                    className="absolute top-4 -right-4"
+                  />
+                  <div className="w-64 flex-1 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar">
                   <div className="flex items-center justify-between mb-4 px-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
                     <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
@@ -1423,8 +1439,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     )}
 
                     {/* Markdown text editor card */}
-                    <div className="flex-1 bg-[#0f172a]/50 border border-slate-900 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-                      <div className="px-4 py-2.5 bg-[#0a0f1d] border-b border-slate-900 flex items-center justify-between">
+                    <div className="relative flex-1 flex flex-col">
+                      <Hotspot 
+                        id="tour_preview"
+                        title="多模態生產線"
+                        content="生成的社群文案與繪圖提示詞會在此完美排版，支援即時編修。"
+                        position="left"
+                        className="absolute top-2 -left-3"
+                      />
+                      <div className="flex-1 bg-[#0f172a]/50 border border-slate-900 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+                        <div className="px-4 py-2.5 bg-[#0a0f1d] border-b border-slate-900 flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
                           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
@@ -2002,14 +2026,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 </div>
               </div>
             ) : (
-              <button
-                onClick={startNotionExport}
-                disabled={isNotionExporting}
-                className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
-              >
-                <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
-                <span>{isNotionExporting ? '正在傳輸數據庫...' : '自動匯出 Notion'}</span>
-              </button>
+              <div className="relative w-full">
+                <Hotspot 
+                  id="tour_export"
+                  title="一鍵歸檔"
+                  content="確認內容無誤後，一鍵將 10-Step 完整成果與資料同步至您的 Notion。"
+                  position="bottom"
+                  className="absolute -bottom-2 -left-2"
+                />
+                <button
+                  onClick={startNotionExport}
+                  disabled={isNotionExporting}
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
+                >
+                  <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
+                  <span>{isNotionExporting ? '正在傳輸數據庫...' : '自動匯出 Notion'}</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
