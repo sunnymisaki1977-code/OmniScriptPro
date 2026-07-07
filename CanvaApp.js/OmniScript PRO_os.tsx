@@ -609,11 +609,10 @@ export default function App() {
         }
 
         const responseData = await response.json();
-        const generatedData = responseData.data;
 
-        if (generatedData[i]) {
+        if (responseData.output) {
           // 💾 成功拿到單步結果，塞入前端暫存器
-          currentContextContents[i] = generatedData[i];
+          currentContextContents[i] = responseData.output;
           
           // 🔄 即時更新前端 UI 狀態，使用者能看到文字一格一格長出來
           setStepContents({ ...currentContextContents });
