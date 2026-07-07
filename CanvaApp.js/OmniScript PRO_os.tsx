@@ -158,6 +158,7 @@ export default function App() {
    const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+   const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
 
   const [visualStep, setVisualStep] = useState(6);
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
@@ -360,6 +361,7 @@ export default function App() {
   const generateGroupImage = async (group) => {
     const isMaster = passcode.trim().toUpperCase() === 'MASTER';
     if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setPendingImageTask(() => () => generateGroupImage(group));
       setShowApiKeyModal(true);
       return;
     }
@@ -836,6 +838,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   const generateNewImage = async () => {
     const isMaster = passcode.trim().toUpperCase() === 'MASTER';
     if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setPendingImageTask(() => generateNewImage);
       setShowApiKeyModal(true);
       return;
     }
@@ -2050,14 +2053,19 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 <button
                   onClick={() => {
                     setShowApiKeyModal(false);
-                    if (geminiApiKey.trim() && activeTab === 'creation') {
-                      handleStartAuto();
+                    if (geminiApiKey.trim()) {
+                      if (activeTab === 'creation') {
+                        handleStartAuto();
+                      } else if (activeTab === 'visual' && pendingImageTask) {
+                        pendingImageTask();
+                        setPendingImageTask(null);
+                      }
                     }
                   }}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  {activeTab === 'creation' ? '確認並開始執行' : '確認並儲存金鑰'}
+                  {activeTab === 'creation' ? '確認並開始執行' : (pendingImageTask ? '確認並開始生成' : '確認並儲存金鑰')}
                 </button>
                 <a
                   href="https://aistudio.google.com/app/apikey"
