@@ -16,8 +16,8 @@ import {
   RefreshCw,
   Lock,
   Share2
-} from 'lucide-react';
-import FlipCard from '@/components/FlipCard';
+} from 'lucide-react';import FlipCard from '@/components/FlipCard';
+import { ChannelStats } from '@/components/ui/ChannelStats';
 
 // --- LazyYoutube Component ---
 interface LazyYoutubeProps {
@@ -484,6 +484,9 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* YouTube 頻道數據動態快取模組 */}
+                  <ChannelStats />
                 </div>
 
                 {/* 右側：展品 Mockup (5欄) */}
