@@ -495,8 +495,8 @@ export default function LandingPage() {
                     <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
                     <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
                       <LazyYoutube 
-                        playlistId="PLS7BJQ4awAeM" 
-                        previewVideoId="Anq2dnER4TA" 
+                        playlistId="PLOna4AWCnbzw" 
+                        previewVideoId="_C1uJ_ZMvj0" 
                         title="世代銘印 - 歷史紀錄片" 
                         isShorts={false} 
                       />
