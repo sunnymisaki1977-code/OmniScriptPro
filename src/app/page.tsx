@@ -447,6 +447,63 @@ export default function LandingPage() {
             </div>
           </section>
 
+          {/* 3.5 實戰背書 (Social Proof) */}
+          <section className="py-24 px-6 bg-slate-900 dark:bg-[#030712] border-y border-slate-800">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                {/* 左側：數據與引言 (7欄) */}
+                <div className="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-1">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold w-fit">
+                    <span>🏆 Featured Case Study / 官方實戰案例</span>
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                    「將百萬字古籍田調，<br className="hidden md:block"/>濃縮於彈指之間。」
+                  </h2>
+                  
+                  <blockquote className="text-lg md:text-xl text-slate-300 italic border-l-4 border-indigo-500 pl-6 py-2 my-4 bg-slate-800/30 rounded-r-xl">
+                    「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
+                    <footer className="text-slate-400 text-sm mt-4 font-semibold not-italic">
+                      — @genimprint 世代銘印
+                    </footer>
+                  </blockquote>
+
+                  <div className="flex flex-col sm:flex-row gap-6 mt-4">
+                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
+                      <div className="text-slate-400 text-sm font-medium mb-2">腳本產出</div>
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-xl text-slate-500 line-through">3 Weeks</span>
+                        <span className="text-3xl font-black text-emerald-400">2 Hours</span>
+                      </div>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
+                      <div className="text-slate-400 text-sm font-medium mb-2">內容深度</div>
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-3xl font-black text-indigo-400">5,000+</span>
+                        <span className="text-lg text-slate-300">字基準真相查核</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 右側：展品 Mockup (5欄) */}
+                <div className="lg:col-span-5 w-full order-2 lg:order-2">
+                  <div className="relative group" style={{ perspective: '1000px' }}>
+                    <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
+                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
+                      <LazyYoutube 
+                        playlistId="PLS7BJQ4awAeM" 
+                        previewVideoId="Anq2dnER4TA" 
+                        title="世代銘印 - 歷史紀錄片" 
+                        isShorts={false} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* 4. 系統穩定度模組 (Technical Trust) */}
           <section className="py-24 px-6 max-w-7xl mx-auto">
             <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
