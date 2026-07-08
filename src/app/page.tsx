@@ -26,14 +26,16 @@ interface LazyYoutubeProps {
   title: string;
   isShorts?: boolean;
   colorClass?: string;
+  className?: string;
 }
 
-const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900" }: LazyYoutubeProps) => {
+const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900", className = "" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const aspectClass = isShorts ? 'aspect-[9/16] h-full max-h-[100%] w-auto mx-auto rounded-[2.5rem] border-[8px] border-slate-800 dark:border-slate-900' : 'aspect-video w-full rounded-2xl';
+  const baseAspect = isShorts ? 'aspect-[9/16] rounded-[2.5rem] border-[8px] border-slate-800 dark:border-slate-900' : 'aspect-video rounded-2xl';
+  const widthClass = className ? '' : (isShorts ? 'max-w-[320px] w-full mx-auto' : 'w-full');
 
   return (
-    <div className={`relative overflow-hidden bg-slate-900 group shadow-2xl shrink-0 ${aspectClass}`}>
+    <div className={`relative overflow-hidden bg-slate-900 group shadow-2xl ${baseAspect} ${widthClass} ${className}`}>
       {/* 手機瀏海 (Mockup Notch) */}
       {isShorts && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 dark:bg-slate-900 rounded-b-2xl z-20 pointer-events-none flex justify-center items-end pb-1">
@@ -382,14 +384,14 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 lg:h-[620px]">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
                 {/* 左側 Tabs */}
-                <div className="flex-1 flex flex-col gap-3 h-full">
+                <div className="flex-1 flex flex-col gap-3">
                   {audiences.map((aud, idx) => (
                     <button
                       key={aud.id}
                       onClick={() => setActiveTab(idx)}
-                      className={`flex-1 min-h-[64px] text-left px-6 py-4 rounded-2xl border transition-all ${
+                      className={`min-h-[64px] text-left px-6 py-4 rounded-2xl border transition-all ${
                         activeTab === idx 
                           ? `bg-white dark:bg-slate-900 border-transparent shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden` 
                           : `bg-transparent border-slate-200 dark:border-slate-800 hover:bg-slate-200/50 dark:hover:bg-slate-800/50`
@@ -416,10 +418,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* 右側展示區 */}
-                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col min-h-0">
                   <div className={`absolute inset-0 bg-gradient-to-br ${audiences[activeTab].color} opacity-5`} />
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="mb-8">
+                  <div className="relative z-10 flex flex-col h-full min-h-0">
+                    <div className="mb-6 shrink-0">
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${audiences[activeTab].bgClass} ${audiences[activeTab].textClass} text-xs font-bold mb-4`}>
                         <Sparkles className="w-4 h-4" />
                         <span>主題展示</span>
@@ -432,13 +434,14 @@ export default function LandingPage() {
 
 
                     {/* YouTube LazyLoad Container */}
-                    <div className="mt-auto flex-1 min-h-0 flex items-center justify-center py-2">
+                    <div className="mt-auto flex-1 min-h-0 flex items-end justify-center w-full">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
                         previewVideoId={audiences[activeTab].previewVideoId}
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
                         colorClass={audiences[activeTab].color}
+                        className={audiences[activeTab].isShorts ? "h-full max-h-full w-auto mx-auto object-contain" : "w-full mx-auto"}
                       />
                     </div>
                   </div>
@@ -452,35 +455,37 @@ export default function LandingPage() {
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-8 items-stretch">
                 {/* 左側：數據與引言 (7欄) */}
-                <div className="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-1">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold w-fit">
-                    <span>🏆 Featured Case Study / 官方實戰案例</span>
-                  </div>
-                  
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
-                    「將百萬字古籍田調，<br className="hidden md:block"/>濃縮於彈指之間。」
-                  </h2>
-                  
-                  <blockquote className="text-lg md:text-xl text-slate-300 italic border-l-4 border-indigo-500 pl-6 py-2 my-4 bg-slate-800/30 rounded-r-xl">
-                    「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
-                    <footer className="text-slate-400 text-sm mt-4 font-semibold not-italic">
-                      — @genimprint 世代銘印
-                    </footer>
-                  </blockquote>
-
-                  <div className="flex flex-col sm:flex-row gap-6 mt-4">
-                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
-                      <div className="text-slate-400 text-sm font-medium mb-2">腳本產出</div>
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-xl text-slate-500 line-through">3 Weeks</span>
-                        <span className="text-3xl font-black text-emerald-400">2 Hours</span>
-                      </div>
+                <div className="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-1 justify-between">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold w-fit mb-6">
+                      <span>🏆 Featured Case Study / 官方實戰案例</span>
                     </div>
-                    <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
-                      <div className="text-slate-400 text-sm font-medium mb-2">內容深度</div>
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-3xl font-black text-indigo-400">5,000+</span>
-                        <span className="text-lg text-slate-300">字基準真相查核</span>
+                    
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                      「將百萬字古籍田調，<br className="hidden md:block"/>濃縮於彈指之間。」
+                    </h2>
+                    
+                    <blockquote className="text-lg md:text-xl text-slate-300 italic border-l-4 border-indigo-500 pl-6 py-2 my-4 bg-slate-800/30 rounded-r-xl">
+                      「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
+                      <footer className="text-slate-400 text-sm mt-4 font-semibold not-italic">
+                        — @genimprint 世代銘印
+                      </footer>
+                    </blockquote>
+
+                    <div className="flex flex-col sm:flex-row gap-6 mt-4">
+                      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
+                        <div className="text-slate-400 text-sm font-medium mb-2">腳本產出</div>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-xl text-slate-500 line-through">3 Weeks</span>
+                          <span className="text-3xl font-black text-emerald-400">2 Hours</span>
+                        </div>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
+                        <div className="text-slate-400 text-sm font-medium mb-2">內容深度</div>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-3xl font-black text-indigo-400">5,000+</span>
+                          <span className="text-lg text-slate-300">字基準真相查核</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -490,18 +495,17 @@ export default function LandingPage() {
                 </div>
 
                 {/* 右側：展品 Mockup (5欄) */}
-                <div className="lg:col-span-5 w-full h-full order-2 lg:order-2">
-                  <div className="relative group h-full" style={{ perspective: '1000px' }}>
+                <div className="lg:col-span-5 w-full order-2 lg:order-2 h-full flex flex-col">
+                  <div className="relative group flex-1 min-h-0 flex flex-col" style={{ perspective: '1000px' }}>
                     <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
-                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1 h-full flex flex-col items-center justify-center">
-                      <div className="w-full">
-                        <LazyYoutube 
-                          playlistId="PLOna4AWCnbzw" 
-                          previewVideoId="_C1uJ_ZMvj0" 
-                          title="世代銘印 - 歷史紀錄片" 
-                          isShorts={false} 
-                        />
-                      </div>
+                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1 flex-1 min-h-0 flex items-center justify-center">
+                      <LazyYoutube 
+                        playlistId="PLOna4AWCnbzw" 
+                        previewVideoId="_C1uJ_ZMvj0" 
+                        title="世代銘印 - 歷史紀錄片" 
+                        isShorts={true} 
+                        className="h-full w-auto max-h-full mx-auto"
+                      />
                     </div>
                   </div>
                 </div>
