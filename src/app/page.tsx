@@ -287,7 +287,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 pt-20 w-full flex flex-col justify-center z-10 pointer-events-auto">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
-                  <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                  <div key={`marquee-${a.id}-${idx}`} className="w-[300px] sm:w-[360px] shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-300">
                     <FlipCard 
                       theme={a.title}
                       frontImage={a.flipData.frontImage}
