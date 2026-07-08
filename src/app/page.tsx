@@ -389,7 +389,7 @@ export default function LandingPage() {
                     <button
                       key={aud.id}
                       onClick={() => setActiveTab(idx)}
-                      className={`min-h-[64px] text-left px-6 py-4 rounded-2xl border transition-all ${
+                      className={`flex-1 flex flex-col justify-center min-h-[64px] text-left px-6 py-4 rounded-2xl border transition-all ${
                         activeTab === idx 
                           ? `bg-white dark:bg-slate-900 border-transparent shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden` 
                           : `bg-transparent border-slate-200 dark:border-slate-800 hover:bg-slate-200/50 dark:hover:bg-slate-800/50`
@@ -400,7 +400,7 @@ export default function LandingPage() {
                         <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${aud.color}`} />
                       )}
                       
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center w-full">
                         <div>
                           <h3 className={`text-xl font-bold mb-1 ${activeTab === idx ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>
                             {aud.title}
