@@ -451,8 +451,8 @@ export default function LandingPage() {
           <section className="py-24 px-6 bg-slate-900 dark:bg-[#030712] border-y border-slate-800">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                {/* 左側：數據與引言 (7欄) */}
-                <div className="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-1">
+                {/* 左側：數據與引言 (6欄) */}
+                <div className="lg:col-span-6 flex flex-col gap-6 order-1 lg:order-1">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold w-fit">
                     <span>🏆 Featured Case Study / 官方實戰案例</span>
                   </div>
@@ -489,8 +489,8 @@ export default function LandingPage() {
                   <ChannelStats />
                 </div>
 
-                {/* 右側：展品 Mockup (5欄) */}
-                <div className="lg:col-span-5 w-full order-2 lg:order-2">
+                {/* 右側：展品 Mockup (6欄) */}
+                <div className="lg:col-span-6 w-full order-2 lg:order-2">
                   <div className="relative group" style={{ perspective: '1000px' }}>
                     <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
                     <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
