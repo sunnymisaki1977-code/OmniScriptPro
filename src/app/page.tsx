@@ -15,8 +15,12 @@ import {
   Server,
   RefreshCw,
   Lock,
-  Share2
-} from 'lucide-react';import FlipCard from '@/components/FlipCard';
+  Share2,
+  BookOpen,
+  Wand2,
+  UserCheck
+} from 'lucide-react';
+import FlipCard from '@/components/FlipCard';
 import { ChannelStats } from '@/components/ui/ChannelStats';
 
 // --- LazyYoutube Component ---
@@ -524,13 +528,13 @@ export default function LandingPage() {
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Technical Trust</span>
+                    <span>Solo Survival Architecture</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    企業級的容錯穩定度 <br />不再擔心 API 中斷
+                    為了不被限流逼瘋，<br />我為自己寫了一套底層防禦網。
                   </h2>
                   <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    面對 Google 嚴格的流量限制與 2026 金鑰大遷徙，我們的系統在後端築起了最強壯的防禦網，確保您的靈感產出永不停擺。
+                    一個人搞定百萬字古籍田調與多模態影音已經夠累了，我絕不允許大腦心流因為 Google 的 2026 金鑰大遷徙或流量限制而中斷。這是我為自己打造、現在與你共享的「永不停擺」備援機制。
                   </p>
                 </div>
                 
@@ -540,8 +544,8 @@ export default function LandingPage() {
                       <Share2 className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">負載均衡 (隨機起手式)</h4>
-                      <p className="text-slate-400 leading-relaxed">支援輸入多把金鑰 (以逗號分隔)。系統啟動時會隨機選用陣列中的金鑰，均攤每一把的流量消耗，降低被鎖定的風險。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">多金鑰負載均衡 (陣列分流)</h4>
+                      <p className="text-slate-400 leading-relaxed">單兵作戰，資源必須極大化。你可以一次輸入多把金鑰。系統會像你的數位分身一樣，自動隨機抽取來分攤動輒數千字的古籍運算，徹底降低被鎖定的風險。</p>
                     </div>
                   </div>
 
@@ -550,8 +554,8 @@ export default function LandingPage() {
                       <Lock className="w-5 h-5 text-red-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰自動切換</h4>
-                      <p className="text-slate-400 leading-relaxed">混用新舊金鑰毫無顧忌。當遭遇舊金鑰淘汰或授權失效，後端會自動捕捉 401 錯誤，在一秒內背景拋棄它並切換至下一把備用金鑰，無縫接軌。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰無縫切換</h4>
+                      <p className="text-slate-400 leading-relaxed">過去半夜生成腳本遇到金鑰失效只能進度歸零。現在，後端只要偵測到授權錯誤，會在一秒內自動拋棄無效金鑰並換上備用彈匣，讓創作過程無縫接軌。</p>
                     </div>
                   </div>
 
@@ -560,10 +564,60 @@ export default function LandingPage() {
                       <RefreshCw className="w-5 h-5 text-amber-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">突破 429 流量限流機制</h4>
-                      <p className="text-slate-400 leading-relaxed">連續生成導致單一金鑰過熱？系統會如同換彈匣般，瞬間切換金鑰並重發請求，輔以指數退避 (Exponential Backoff) 重試策略，確保每一次生成都能成功抵達。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">突破 429 限流 (指數退避策略)</h4>
+                      <p className="text-slate-400 leading-relaxed">高頻率生成導致金鑰過熱？系統會啟動指數退避 (Exponential Backoff) 策略，並瞬間切換可用金鑰重發請求。這是我為確保每篇深度考據完美落地，寫下的最後一道保險。</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4.5 願景與使命 (Vision & Mission) */}
+          <section className="py-24 px-6 bg-white dark:bg-[#070b16]">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center max-w-3xl mx-auto mb-20">
+                <div className="inline-block px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold mb-6">
+                  關於 OmniScript PRO
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black mb-10 text-slate-900 dark:text-white leading-tight">
+                  為什麼我們要打造這套引擎？
+                </h2>
+                <blockquote className="text-xl md:text-2xl text-slate-700 dark:text-slate-300 font-medium leading-relaxed italic relative before:content-['“'] before:absolute before:-left-8 before:-top-6 before:text-6xl before:text-slate-200 dark:before:text-slate-800">
+                  「讓每一位創作者的靈感，都能以最極致的效率與深度被世界看見。」
+                </blockquote>
+                <p className="mt-10 text-lg text-slate-600 dark:text-slate-400 leading-relaxed text-left md:text-center">
+                  我們深知獨自撐起龐大內容矩陣的無力感。OmniScript PRO 的使命，就是將高門檻的知識考據與影音產製，轉化為彈指之間的工作流。釋放你的大腦算力，把寶貴的時間留給『說好故事』。
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">深度優先 <span className="text-slate-400 text-sm font-normal ml-1">(Depth over Surface)</span></h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    拒絕空泛的內容農場。堅守基準真相查核，守護文化傳承與專業知識的嚴謹度。
+                  </p>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                    <Wand2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">極簡輸入 <span className="text-slate-400 text-sm font-normal ml-1">(Minimal Effort)</span></h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    將複雜的多模態 Prompt 邏輯隱藏於無形。以最日常的短句，驅動震撼的豐富輸出。
+                  </p>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <UserCheck className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">一人成軍 <span className="text-slate-400 text-sm font-normal ml-1">(Solo Empowerment)</span></h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    賦能獨立創作者。一套系統完美替代企劃、文案與美術，讓個體戶擁有媲美專業團隊的強大火力。
+                  </p>
                 </div>
               </div>
             </div>
