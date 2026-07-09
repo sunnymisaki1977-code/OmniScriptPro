@@ -418,9 +418,9 @@ export default function LandingPage() {
                 </div>
 
                 {/* 右側展示區 */}
-                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col min-h-0">
+                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col ">
                   <div className={`absolute inset-0 bg-gradient-to-br ${audiences[activeTab].color} opacity-5`} />
-                  <div className="relative z-10 flex flex-col h-full min-h-0">
+                  <div className="relative z-10 flex flex-col h-full ">
                     <div className="mb-6 shrink-0">
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${audiences[activeTab].bgClass} ${audiences[activeTab].textClass} text-xs font-bold mb-4`}>
                         <Sparkles className="w-4 h-4" />
@@ -434,7 +434,7 @@ export default function LandingPage() {
 
 
                     {/* YouTube LazyLoad Container */}
-                    <div className="mt-auto flex-1 min-h-0 flex items-end justify-center w-full">
+                    <div className="mt-auto flex-1  flex items-end justify-center w-full">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
                         previewVideoId={audiences[activeTab].previewVideoId}
@@ -496,9 +496,9 @@ export default function LandingPage() {
 
                 {/* 右側：展品 Mockup (5欄) */}
                 <div className="lg:col-span-5 w-full order-2 lg:order-2 h-full flex flex-col">
-                  <div className="relative group flex-1 min-h-0 flex flex-col" style={{ perspective: '1000px' }}>
+                  <div className="relative group flex-1  flex flex-col" style={{ perspective: '1000px' }}>
                     <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
-                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1 flex-1 min-h-0 flex items-center justify-center">
+                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1 flex-1  flex items-center justify-center">
                       <LazyYoutube 
                         playlistId="PLOna4AWCnbzw" 
                         previewVideoId="_C1uJ_ZMvj0" 
