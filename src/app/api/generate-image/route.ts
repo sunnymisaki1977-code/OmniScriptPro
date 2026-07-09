@@ -1,4 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 // 🎯 排定官方圖像模型的優先順序
@@ -29,8 +28,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "伺服器未設定 Gemini API 金鑰" }, { status: 500 });
     }
 
-    const ai = new GoogleGenAI({ apiKey: apiKeyToUse });
-
     let lastGoogleError: any = null;
 
     // ==========================================
@@ -40,34 +37,71 @@ export async function POST(req: Request) {
       [requestedEngine, ...IMAGE_MODELS.filter(m => m !== requestedEngine)] : 
       IMAGE_MODELS;
 
+    const isOAuth = apiKeyToUse.startsWith("ya29.");
+    const keyQuery = isOAuth ? "" : `?key=${apiKeyToUse}`;
+    
+    const headers: any = { 'Content-Type': 'application/json' };
+    if (isOAuth) {
+        headers['Authorization'] = `Bearer ${apiKeyToUse}`;
+    }
+
     for (const currentModel of modelsToTry) {
       try {
         console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
-
+        
         const fullPrompt = `[${currentModel}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${rawPrompt} --ar ${aspectRatio}`;
 
-        // 🚀 使用最新版的 Interactions API
-        const interaction = await ai.interactions.create({
-          model: currentModel,
-          input: fullPrompt,
+        // 🚀 使用 REST API 呼叫 Imagen / Gemini Image 模型
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:predict${keyQuery}`;
+        
+        // 為了相容 Google 圖像模型的標準 payload
+        const requestBody = {
+            instances: [
+                { prompt: fullPrompt }
+            ],
+            parameters: {
+                sampleCount: 1,
+                aspectRatio: aspectRatio
+            }
+        };
+
+        const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(requestBody)
         });
 
-        // 成功拿到圖片資料 (Base64)
-        const generatedImage = interaction.output_image;
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(JSON.stringify(errData.error || errData));
+        }
+
+        const data = await res.json();
+        
+        // 成功拿到圖片資料 (Base64) - 解析 predict API 的回傳
+        let generatedImageBase64 = null;
+        if (data.predictions && data.predictions.length > 0) {
+            // Vertex / Imagen 標準格式
+            generatedImageBase64 = data.predictions[0].bytesBase64Encoded;
+        } else if (data.candidates && data.candidates[0] && data.candidates[0].content?.parts?.[0]?.inlineData?.data) {
+            // Gemini 標準格式
+            generatedImageBase64 = data.candidates[0].content.parts[0].inlineData.data;
+        }
   
-        if (generatedImage && generatedImage.data) {
+        if (generatedImageBase64) {
           console.log(`✅ 成功使用 ${currentModel} 生成圖片！`);
           
           return NextResponse.json({
             success: true,
             modelUsed: currentModel,
-            image: `data:image/jpeg;base64,${generatedImage.data}`,
+            image: `data:image/jpeg;base64,${generatedImageBase64}`,
             isFallback: false
           });
         }
+        
+        throw new Error("API 未回傳有效的圖片格式");
 
       } catch (err) {
-        // 💡 在內部作轉型，避免 catch 報錯
         const errorMessage = (err as any).message || String(err);
         console.warn(`⚠️ 模型 [${currentModel}] 呼叫失敗，原因: ${errorMessage}`);
         lastGoogleError = err;
@@ -94,43 +128,19 @@ export async function POST(req: Request) {
     }
     
     const seed = Math.floor(Math.random() * 1000000);
-    const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(simplePrompt)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
+    const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(simplePrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
     
-    try {
-      const imgRes = await fetch(fallbackUrl, {
-        method: "GET",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "image/jpeg,image/png,*/*"
-        }
-      });
+    console.log("備援圖片網址:", fallbackUrl);
 
-      if (imgRes.ok) {
-        const arrayBuffer = await imgRes.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const base64Fallback = buffer.toString('base64');
-        
-        console.log(`🎉 成功透過 Pollinations.ai 備援生成圖片！`);
-        return NextResponse.json({ 
-          success: true, 
-          image: `data:image/jpeg;base64,${base64Fallback}`,
-          modelUsed: "Pollinations.ai (Flux/SDXL)",
-          isFallback: true
-        });
-      }
-    } catch (err) {
-      const errorMessage = (err as any).message || String(err);
-      console.error("❌ 備援生圖引擎也失敗:", errorMessage);
-    }
-
-    // 如果連備援都掛了，拋出最終錯誤
-    throw new Error(
-      (lastGoogleError as any)?.message || "無法透過 Google 模型或備援引擎生成圖像。"
-    );
+    return NextResponse.json({
+      success: true,
+      modelUsed: "pollinations-ai-fallback",
+      image: fallbackUrl,
+      isFallback: true
+    });
 
   } catch (error) {
-    const errObj = error as any;
-    console.error("💥 圖像生成終端致命錯誤:", errObj);
-    return NextResponse.json({ error: errObj.message || "生圖失敗" }, { status: 500 });
+    console.error("生成圖片發生錯誤:", error);
+    return NextResponse.json({ error: "生成圖片失敗，且備援機制亦無法啟動" }, { status: 500 });
   }
 }

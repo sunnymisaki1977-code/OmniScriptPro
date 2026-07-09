@@ -1,4 +1,3 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { NextResponse } from "next/server";
 
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
     // 多金鑰輪替邏輯
     const apiKeys = apiKeyRaw.split(",").map(k => k.trim()).filter(k => k.length > 0);
     let currentKeyIndex = Math.floor(Math.random() * apiKeys.length);
-    let ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
 
     const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
@@ -39,8 +37,8 @@ export async function POST(req: Request) {
 
     // 👇 攔截邏輯：排除前端載入中的佔位文字
     const invalidPlaceholders = ["等待從 Vercel 伺服器獲取資料", "Loading", "載入中"];
-    if (invalidPlaceholders.some(text => verifiedContext.includes(text))) {
-      verifiedContext = ""; // 清空佔位文字，視為無前置資料
+    if (invalidPlaceholders.some(p => verifiedContext.includes(p))) {
+       verifiedContext = ""; 
     }
 
     // 若非第一步，卻缺乏 Step 1 的基礎資料，則阻擋執行
@@ -50,33 +48,40 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    // 將歷史資料 (1~i-1) 組裝，給 AI 參考，避免 AI 斷層
     const stepContext = {
-      theme: theme,
-      step1: verifiedContext || "【缺乏 Step 1 背景資料】",
-      step2: existingData[2] || "【缺乏 Step 2 資料】",
-      step3: existingData[3] || "【缺乏 Step 3 資料】",
-      step4: existingData[4] || "【缺乏 Step 4 資料】",
-      step5: existingData[5] || "【缺乏 Step 5 資料】",
+      theme,
+      verifiedContext,
+      visualAssets: {}, // (這版先不傳，如需要可從 existingData 撈)
+      existingData,     // 把全部 context 塞進去讓 promptConfigs 自行取用
+      audienceTheme
     };
 
-    // 組合當前步驟的專屬 Prompt
     let finalPrompt = "";
-    if (step.id === 1 && !verifiedContext) {
-      // 如果是第一步且沒有傳歷史文本，則啟動原始事實查核 Prompt
-      finalPrompt = step.prompt({ theme });
+    if (step.id === 1) {
+      finalPrompt = step.prompt(stepContext);
     } else {
-      finalPrompt = `你現在是頂尖的企劃 AI 助理。請針對主題「${theme}」產出【步驟 ${step.id}：${step.title}】的內容。\n`;
-      if (verifiedContext) {
-        finalPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止自創與腦補。\n---\n${verifiedContext}\n---\n`;
+      finalPrompt = `你是這套 10-Step 內容生產線的專業引擎。\n`;
+      finalPrompt += `目前專案主題：【${theme}】\n\n`;
+      // 把之前步驟累積下來的產出，通通先餵給它
+      if (Object.keys(existingData).length > 0) {
+        finalPrompt += `==== 以下是先前的累積產出 (Context) ====\n`;
+        for (const k in existingData) {
+          if (Number(k) < step.id) {
+            finalPrompt += `[Step ${k}]:\n${existingData[k]}\n\n`;
+          }
+        }
+        finalPrompt += `==========================================\n\n`;
       }
       finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}`;
     }
 
     // 🎯 強制約束輸出的 Schema 格式 (單鍵物件)
     const responseSchema = {
-      type: Type.OBJECT,
+      type: "OBJECT",
       properties: {
-        [step.id.toString()]: { type: Type.STRING }
+        [step.id.toString()]: { type: "STRING" }
       },
       required: [step.id.toString()]
     };
@@ -87,30 +92,56 @@ export async function POST(req: Request) {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
-
+      const currentKey = apiKeys[currentKeyIndex];
+      const isOAuth = currentKey.startsWith("ya29.");
+      
       try {
-        const config: any = {
+        const generationConfig: any = {
           maxOutputTokens: 8192,
         };
 
+        const tools: any[] = [];
         // 只有第一步且沒有歷史背景時，開啟 Google 搜尋 (Gemini 不允許同時使用 tools 與 responseSchema)
         // 💡 降級保護：若遇到 503 等連線異常，在最後一次重試 (attempt 3) 時自動拔除 Google Search 工具以求穩定產出
         if (step.id === 1 && !verifiedContext && attempt < 3) {
-          config.tools = [{ googleSearch: {} }];
+          tools.push({ googleSearch: {} });
         } else {
-          config.responseMimeType = "application/json";
-          config.responseSchema = responseSchema;
+          generationConfig.responseMimeType = "application/json";
+          generationConfig.responseSchema = responseSchema;
         }
 
         console.log(`[後端日誌] 正在使用 ${modelUsed} 生成步驟 ${step.id}...`);
         
-        const response = await ai.models.generateContent({
-          model: modelUsed,
-          contents: finalPrompt,
-          config: config
+        const keyQuery = isOAuth ? "" : `?key=${currentKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelUsed}:generateContent${keyQuery}`;
+        
+        const headers: any = { 'Content-Type': 'application/json' };
+        if (isOAuth) {
+            headers['Authorization'] = `Bearer ${currentKey}`;
+        }
+        
+        const requestBody: any = {
+            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+            generationConfig
+        };
+        
+        if (tools.length > 0) {
+            requestBody.tools = tools;
+        }
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(requestBody)
         });
-
-        let cleanText = (response.text || "{}").trim();
+        
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(JSON.stringify(errData.error || errData));
+        }
+        
+        const data = await response.json();
+        let cleanText = (data.candidates?.[0]?.content?.parts?.[0]?.text || "{}").trim();
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
         let outputText = cleanText;
@@ -129,9 +160,9 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ 
-          success: true,
-          stepId: step.id,
-          output: String(outputText), 
+          success: true, 
+          stepId: step.id.toString(), 
+          data: outputText,
           modelUsed: modelUsed
         });
 
@@ -144,7 +175,6 @@ export async function POST(req: Request) {
         
         if (apiKeys.length > 1) {
           currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-          ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
         }
         await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
       }
