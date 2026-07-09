@@ -130,7 +130,7 @@ export default function App() {
   // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
