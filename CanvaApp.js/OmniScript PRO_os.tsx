@@ -47,7 +47,13 @@ async function callVercelApi(stepId: any, context: any, audienceTheme: string, u
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stepId, context, audienceTheme })
+        body: JSON.stringify({ 
+            currentStepId: stepId, 
+            theme: context.theme, 
+            existingData: context,
+            audienceTheme,
+            apiKey: userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "")
+        })
     });
     if (!promptResponse.ok) {
         throw new Error(`Vercel 邏輯引擎錯誤: ${promptResponse.status}`);
@@ -563,11 +569,13 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
+        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+
         const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+            ...(activeApiKey ? { 'x-gemini-api-key': activeApiKey } : {})
           },
           body: JSON.stringify({
             theme: startTheme,
@@ -576,7 +584,8 @@ export default function App() {
             startFromStep: i,
             endStep: i,
             audienceTheme: audienceTheme,
-            existingData: currentContextContents // 💡 把前面幾步累積的成果，當作上下文傳給後端
+            existingData: currentContextContents, // 💡 把前面幾步累積的成果，當作上下文傳給後端
+            apiKey: activeApiKey
           })
         });
 

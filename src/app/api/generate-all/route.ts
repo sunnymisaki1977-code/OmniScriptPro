@@ -9,13 +9,13 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     // 💡 核心改變：每次請求只指定跑「某一個特定步驟 (currentStepId)」
-    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme } = body;
+    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme, apiKey } = body;
 
     if (!theme || !currentStepId) {
       return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });
     }
 
-    const apiKeyRaw = req.headers.get("x-gemini-api-key") || process.env.GEMINI_API_KEY;
+    const apiKeyRaw = req.headers.get("x-gemini-api-key") || apiKey || process.env.GEMINI_API_KEY;
     if (!apiKeyRaw) {
       return NextResponse.json({ error: "未設定 Gemini API 金鑰。" }, { status: 500 });
     }
