@@ -102,7 +102,7 @@ export default function LandingPage() {
       color: "from-amber-400 to-red-500",
       bgClass: "bg-amber-500/10",
       textClass: "text-amber-500",
-      features: ["極速 5-Step", "流量收割", "毒雞湯語錄"],
+      features: ["流量收割", "毒雞湯語錄"],
       playlistId: "PLS7BJQ4awAeM",
       previewVideoId: "Anq2dnER4TA",
       isShorts: true,
@@ -117,7 +117,7 @@ export default function LandingPage() {
         frontText: "「諸葛孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
         frontTags: "#歷史迷因 #三國演義 #諸葛孔明",
         backInput: "幫我寫一篇關於「諸葛孔明」的歷史迷因腳本，用現代投資客的角度來寫。",
-        systemTasks: ["✓ 啟動 5-Step 極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
+        systemTasks: ["✓ 啟動極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
       }
     },
     { 
@@ -127,7 +127,7 @@ export default function LandingPage() {
       color: "from-purple-500 to-pink-500",
       bgClass: "bg-purple-500/10",
       textClass: "text-purple-500",
-      features: ["完整 10-Step", "深度考究", "賽博龐克視覺"],
+      features: ["深度考究", "賽博龐克視覺"],
       playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
       previewVideoId: "ofIAOaVW_hU",
       isShorts: false,
@@ -142,7 +142,7 @@ export default function LandingPage() {
         frontText: "本集帶您深入解析歷史謎因，揭開諸葛孔明背後的真實故事與傳奇事蹟...",
         frontTags: "#歷史謎因 #諸葛孔明 #三國歷史",
         backInput: "諸葛孔明",
-        systemTasks: ["✓ 啟動 10-Step 深度矩陣", "✓ 執行史料交叉比對", "✓ 生成 Imagen 4.0 賽博粉提示詞"]
+        systemTasks: ["✓ 啟動深度矩陣", "✓ 執行史料交叉比對", "✓ 生成 Imagen 4.0 賽博粉提示詞"]
       }
     },
     { 
@@ -152,7 +152,7 @@ export default function LandingPage() {
       color: "from-sky-500 to-indigo-500",
       bgClass: "bg-sky-500/10",
       textClass: "text-sky-500",
-      features: ["完整 10-Step", "知性信任感", "專業感排版"],
+      features: ["知性信任感", "專業感排版"],
       playlistId: "PLC-IrJAPGBww",
       previewVideoId: "5_4nrMvE4tg",
       isShorts: false,
@@ -167,7 +167,7 @@ export default function LandingPage() {
         frontText: "寵物行為不是在報復！專業獸醫帶你讀懂 3 個關鍵求救訊號，為毛孩打造零壓力的寵物照護空間...",
         frontTags: "#寵物行為 #寵物照護 #新手毛爸媽",
         backInput: "寵物照護",
-        systemTasks: ["✓ 啟動 10-Step 信任感矩陣", "✓ 醫學知識結構化", "✓ 生成溫暖治癒系視覺指令"]
+        systemTasks: ["✓ 啟動信任感矩陣", "✓ 醫學知識結構化", "✓ 生成溫暖治癒系視覺指令"]
       }
     },
     { 
@@ -177,7 +177,7 @@ export default function LandingPage() {
       color: "from-rose-400 to-amber-500",
       bgClass: "bg-rose-500/10",
       textClass: "text-rose-500",
-      features: ["完整 10-Step", "高質感腳本", "暖光濾鏡"],
+      features: ["高質感腳本", "暖光濾鏡"],
       playlistId: "PLA1T_pcDfevM",
       previewVideoId: "CQMXYgWGWZo",
       isShorts: false,
@@ -190,7 +190,7 @@ export default function LandingPage() {
         frontText: "「Parfums De Bastide 與 嘉丹妮爾」深度解析兩大品牌的魅力所在，3 分鐘帶你找到命定保養...",
         frontTags: "#ParfumsDeBastide #嘉丹妮爾 #美妝保養",
         backInput: "Parfums De Bastide 與 嘉丹妮爾",
-        systemTasks: ["✓ 啟動 10-Step 質感矩陣", "✓ 情境帶入與痛點放大", "✓ 配置唯美玫瑰金視覺指令"]
+        systemTasks: ["✓ 啟動質感矩陣", "✓ 情境帶入與痛點放大", "✓ 配置唯美玫瑰金視覺指令"]
       }
     },
     { 
@@ -200,7 +200,7 @@ export default function LandingPage() {
       color: "from-orange-400 to-yellow-500",
       bgClass: "bg-orange-500/10",
       textClass: "text-orange-500",
-      features: ["完整 10-Step", "勾引食慾視覺", "強烈 CTA"],
+      features: ["勾引食慾視覺", "強烈 CTA"],
       playlistId: "PLF3eQyAQueV4",
       previewVideoId: "E1Oc1Eo_LcE",
       isShorts: false,
@@ -215,7 +215,7 @@ export default function LandingPage() {
         frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
         frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
         backInput: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇",
-        systemTasks: ["✓ 啟動 10-Step 食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
+        systemTasks: ["✓ 啟動食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
       }
     },
     { 
@@ -225,7 +225,7 @@ export default function LandingPage() {
       color: "from-amber-500 to-yellow-500",
       bgClass: "bg-amber-500/10",
       textClass: "text-amber-500",
-      features: ["完整 10-Step", "極速執行", "商業轉換"],
+      features: [ "極速執行", "商業轉換"],
       playlistId: "PLCaj4rNP2njM",
       previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
@@ -240,7 +240,7 @@ export default function LandingPage() {
         frontText: "2026日本大阪旅遊新趨勢！大揭密這幾個你絕對不能錯過的避世咖啡廳與私房秘境景點...",
         frontTags: "#大阪旅遊 #2026新趨勢 #一人旅行",
         backInput: "2026日本大阪旅遊新趨勢",
-        systemTasks: ["✓ 啟動 10-Step 商業轉換矩陣", "✓ 價值提煉與痛點解決", "✓ 生成高質感電影級視覺指令"]
+        systemTasks: ["✓ 啟動商業轉換矩陣", "✓ 價值提煉與痛點解決", "✓ 生成高質感電影級視覺指令"]
       }
     }
   ];
@@ -354,7 +354,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">動態工作流引擎</h3>
                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  5-Step 短平快矩陣，或是 10-Step 深度展演。自動根據受眾目標切割執行步驟，確保邏輯世界觀 100% 連貫。
+                  短平快矩陣，或是深度展演。自動根據受眾目標切割執行步驟，確保邏輯世界觀 100% 連貫。
                 </p>
               </div>
               <div className="p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none">
@@ -363,7 +363,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">5,000 字自訂基準真相</h3>
                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  不再瞎子摸象。直接貼上官方新聞稿、長篇逐字稿作為 Step 1，AI 會強制鎖定這些事實展開所有的企劃分支。
+                  不再瞎子摸象。直接貼上官方新聞稿、長篇逐字稿，AI 會強制鎖定這些事實展開所有的企劃分支。
                 </p>
               </div>
               <div className="p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none">
@@ -417,34 +417,35 @@ export default function LandingPage() {
                         </div>
                         {activeTab === idx && <ArrowRight className={`w-5 h-5 ${aud.textClass}`} />}
                       </div>
+
+                      {/* 展開後的描述區塊 (從右側移過來) */}
+                      {activeTab === idx && (
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${aud.bgClass} ${aud.textClass} text-xs font-bold mb-3`}>
+                            <Sparkles className="w-4 h-4" />
+                            <span>主題展示</span>
+                          </div>
+                          <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                            {aud.desc}
+                          </p>
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
 
-                {/* 右側展示區 */}
-                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${audiences[activeTab].color} opacity-5`} />
-                  <div className="relative z-10 flex flex-col justify-between">
-                    <div className="mb-6 shrink-0">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${audiences[activeTab].bgClass} ${audiences[activeTab].textClass} text-xs font-bold mb-4`}>
-                        <Sparkles className="w-4 h-4" />
-                        <span>主題展示</span>
-                      </div>
-                      <h3 className="text-3xl font-black mb-4">{audiences[activeTab].title}</h3>
-                      <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {audiences[activeTab].desc}
-                      </p>
-                    </div>
-
-                    {/* YouTube LazyLoad Container */}
-                    <div className="mt-6 flex items-center justify-center w-full transition-all duration-500">
+                {/* 右側展示區 (Mockup 樣式) */}
+                <div className="flex-[1.5] flex items-center justify-center">
+                  <div className={`relative group w-full ${audiences[activeTab].isShorts ? 'max-w-[300px] sm:max-w-[320px]' : 'max-w-2xl'} mx-auto transition-all duration-500`} style={{ perspective: '1000px' }}>
+                    <div className={`absolute -inset-1 bg-gradient-to-tr ${audiences[activeTab].color} rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500`} />
+                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-3 md:p-4 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
                         previewVideoId={audiences[activeTab].previewVideoId}
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
                         colorClass={audiences[activeTab].color}
-                        className={audiences[activeTab].isShorts ? "w-full max-w-[280px] sm:max-w-[320px] mx-auto" : "w-full"}
+                        className="w-full"
                       />
                     </div>
                   </div>
