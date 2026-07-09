@@ -35,15 +35,21 @@ export async function POST(req: Request) {
     }
 
     // 彙整目前已有的上下文（真實從前端傳過來的上一步成果）
-    const verifiedContext = customDocText || existingData[1] || "";
+    let verifiedContext = customDocText || existingData[1] || "";
+
     // 👇 攔截邏輯：排除前端載入中的佔位文字
-const invalidPlaceholders = ["等待從 Vercel 伺服器獲取資料", "Loading", "載入中"];
-if (invalidPlaceholders.some(text => verifiedContext.includes(text))) {
-  return NextResponse.json(
-    { error: "Step 1 基礎資料尚未載入完成，請等待資料獲取後再執行此步驟。" }, 
-    { status: 400 }
-  );
-}
+    const invalidPlaceholders = ["等待從 Vercel 伺服器獲取資料", "Loading", "載入中"];
+    if (invalidPlaceholders.some(text => verifiedContext.includes(text))) {
+      verifiedContext = ""; // 清空佔位文字，視為無前置資料
+    }
+
+    // 若非第一步，卻缺乏 Step 1 的基礎資料，則阻擋執行
+    if (Number(currentStepId) !== 1 && !verifiedContext) {
+      return NextResponse.json(
+        { error: "Step 1 基礎資料尚未載入完成，請先生成 Step 1 或提供自訂背景資料。" }, 
+        { status: 400 }
+      );
+    }
     const stepContext = {
       theme: theme,
       step1: verifiedContext || "【缺乏 Step 1 背景資料】",
