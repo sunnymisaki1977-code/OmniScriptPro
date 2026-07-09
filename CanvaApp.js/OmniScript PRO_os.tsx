@@ -7,7 +7,7 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X, Copy,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu
 } from 'lucide-react';
 import Hotspot from '../src/components/ui/Hotspot';
 
@@ -129,6 +129,7 @@ export default function App() {
 
   // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
@@ -941,8 +942,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
       
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
       {/* --- STREAMING_CHUNK:Left Navigation Bar --- */}
-      <aside className="w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-20 shrink-0">
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
@@ -1041,7 +1050,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                         <div>
                           <label className="text-[10px] text-slate-500 font-bold block mb-1">畫風濾鏡</label>
-                          <div className="grid grid-cols-2 gap-1.5">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
                             {['霓虹電競', '寫實極簡', '3D 賽博', '手繪動漫'].map((style, idx) => (
                               <button 
                                 key={style}
@@ -1094,9 +1103,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       <div className="flex-1 flex flex-col min-w-0 bg-[#0a0f1d] relative">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-slate-900 bg-[#0a0f1d]/80 backdrop-blur-md flex items-center justify-between px-6 z-10 shrink-0">
-          {/* Top Search Input Box */}
-          <div className="w-96 relative">
+        <header className="h-16 border-b border-slate-900 bg-[#0a0f1d]/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
+          <div className="flex items-center gap-3 flex-1 lg:flex-none lg:w-96">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            {/* Top Search Input Box */}
+            <div className="flex-1 relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input 
               type="text" 
@@ -1105,10 +1121,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               onChange={(e) => setTheme(e.target.value)}
               className="w-full bg-[#111827]/60 border border-slate-800/80 rounded-xl py-2 pl-10 pr-4 text-xs font-medium text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all"
             />
+            </div>
           </div>
 
           {/* Top Action Buttons & Metrics */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 lg:gap-4 shrink-0">
             {/* 動態顯示環境授權狀態 */}
             {isCanvasEnv && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
@@ -1279,7 +1296,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     )}
 
                     {/* Big Action Buttons */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Left: 一鍵全自動模式 */}
                       <button
                         onClick={handleStartAuto}
@@ -1548,7 +1565,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left Controls column */}
                   <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md flex flex-col">
 
@@ -1600,7 +1617,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   <div className="col-span-2 space-y-4">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {visualGroups.map((group) => (
                         <div key={group.id} className="group bg-[#0f172a]/40 border border-slate-900 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
                           {/* Image Area */}
@@ -1694,7 +1711,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Lyrics generation */}
                   <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">配樂歌詞生成</h4>
@@ -1827,7 +1844,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left input container */}
                   <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">外部資料庫匯入</h4>
@@ -1884,7 +1901,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     {/* Quick interactive Q&As */}
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-1">快速導讀問答</h4>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       {[
                         { q: '這段內容的受眾痛點是什麼？', a: '主要在於重複的發文格式排版以及腳本靈感瓶頸。' },
                         { q: '全域企劃與單純寫腳本差在哪？', a: '全域企劃整合了背景、長短分鏡、Suno 配樂與 SEO，一次完成多重產出。' }
@@ -2093,7 +2110,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             </form>
 
             {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
-            <div className="mt-12 grid grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
               <span>TECH2026 (民俗)</span>
               <span>GLAM2026 (美妝)</span>
               <span>INDIE2026 (旅遊)</span>
