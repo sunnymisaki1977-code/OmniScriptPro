@@ -43,7 +43,7 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = '/api/generate-all';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -415,7 +415,7 @@ export default function App() {
         aspectRatio = "4:3";
       }
       
-      const response = await fetch('/api/generate-image', {
+      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -563,7 +563,7 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
-        const response = await fetch('/api/generate-all', {
+        const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
