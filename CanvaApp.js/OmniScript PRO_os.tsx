@@ -7,7 +7,7 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
 } from 'lucide-react';
 
 
@@ -151,7 +151,14 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
+   const [isCanvasEnv, setIsCanvasEnv] = useState(false);
+   
+   useEffect(() => {
+     if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
+       setIsCanvasEnv(true);
+     }
+   }, []);
+
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -1062,10 +1069,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-3 lg:gap-4 shrink-0">
             {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv && (
+            {isCanvasEnv ? (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Canvas 環境已授權</span>
+                <span>Gemini Canvas (環境內注 API 無需自行輸入)</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-[10px]">
+                <Globe className="w-3.5 h-3.5" />
+                <span>Vercel (輸入 API 才能運行)</span>
               </div>
             )}
 
