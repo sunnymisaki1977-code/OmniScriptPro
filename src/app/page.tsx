@@ -465,7 +465,7 @@ export default function LandingPage() {
                     </h2>
                     
                     <blockquote className="text-lg md:text-xl text-slate-300 italic border-l-4 border-indigo-500 pl-6 py-2 my-4 bg-slate-800/30 rounded-r-xl">
-                      「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
+                      「製作這樣一支影片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
                       <footer className="text-slate-400 text-sm mt-4 font-semibold not-italic">
                         — @genimprint 世代銘印
                       </footer>
@@ -473,10 +473,10 @@ export default function LandingPage() {
 
                     <div className="flex flex-col sm:flex-row gap-6 mt-4">
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
-                        <div className="text-slate-400 text-sm font-medium mb-2">腳本產出</div>
+                        <div className="text-slate-400 text-sm font-medium mb-2">完成作品</div>
                         <div className="flex items-baseline gap-3">
-                          <span className="text-xl text-slate-500 line-through">3 Weeks</span>
-                          <span className="text-3xl font-black text-emerald-400">2 Hours</span>
+                          <span className="text-xl text-slate-500 line-through">1 Weeks</span>
+                          <span className="text-3xl font-black text-emerald-400">1 Hours</span>
                         </div>
                       </div>
                       <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex-1">
