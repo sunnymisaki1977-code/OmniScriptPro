@@ -640,6 +640,9 @@ export default function App() {
       // 自動匯出至 Notion
       addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
       await startNotionExport(currentContextContents, startTheme);
+      
+      // 生成成功後，讓畫面回到第一步
+      setActiveStep(1);
 
     } catch (error: any) {
       addLog(`🛑 [Error] 流水線在 Step ${currentRunningStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
@@ -1551,15 +1554,24 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
                         {isGenerating ? (
                           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
-                            <video 
-                              src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
-                              autoPlay 
-                              controls
-                              muted={false}
-                              playsInline
-                              onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
-                              className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
-                            />
+                            <div className="relative group w-[600px] h-[340px] mb-6">
+                              <video 
+                                src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
+                                autoPlay 
+                                defaultMuted={true}
+                                muted={isVideoMuted}
+                                playsInline
+                                webkit-playsinline="true"
+                                onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
+                                className="w-full h-full object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] pointer-events-none"
+                              />
+                              <button
+                                onClick={() => setIsVideoMuted(!isVideoMuted)}
+                                className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-white/20 shadow-lg pointer-events-auto"
+                              >
+                                {isVideoMuted ? <VolumeX className="w-5 h-5 text-slate-300" /> : <Volume2 className="w-5 h-5 text-indigo-400" />}
+                              </button>
+                            </div>
                             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse tracking-wider">
                               AI 核心引擎高速運算中...
                             </h3>
@@ -1616,14 +1628,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         <video 
           src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
           autoPlay 
+          defaultMuted={true}
           muted={isVideoMuted}
           playsInline
+          webkit-playsinline="true"
           onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
-          className="w-full h-full object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)]"
+          className="w-full h-full object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] pointer-events-none"
         />
         <button
           onClick={() => setIsVideoMuted(!isVideoMuted)}
-          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-white/20 shadow-lg"
+          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-white/20 shadow-lg pointer-events-auto"
         >
           {isVideoMuted ? <VolumeX className="w-5 h-5 text-slate-300" /> : <Volume2 className="w-5 h-5 text-indigo-400" />}
         </button>
