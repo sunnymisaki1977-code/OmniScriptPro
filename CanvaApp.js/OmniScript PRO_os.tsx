@@ -54,7 +54,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/src/utils/promptConfigs.ts';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
