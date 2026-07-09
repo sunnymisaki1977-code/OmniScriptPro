@@ -95,31 +95,7 @@ export default function LandingPage() {
 
   // 定義六大受眾模組資料 (Audience Hub)
   const audiences = [
-    { 
-      id: "historyMeme",
-      title: "歷史迷因", 
-      desc: "用現代迷因與幽默視角，吐槽歷史人物的極限操作。專為 TikTok / Shorts 流量收割設計。", 
-      color: "from-amber-400 to-red-500",
-      bgClass: "bg-amber-500/10",
-      textClass: "text-amber-500",
-      features: ["流量收割", "毒雞湯語錄"],
-      playlistId: "PLS7BJQ4awAeM",
-      previewVideoId: "Anq2dnER4TA",
-      isShorts: true,
-      flipData: {
-        frontImage: [
-          "/Kongming_p1.jpg",
-          "/Kongming_p2.jpg",
-          "/Kongming_p3.jpg",
-          "/Kongming_p4.jpg",
-          "/Kongming_p5.jpg"
-        ],
-        frontText: "「諸葛孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
-        frontTags: "#歷史迷因 #三國演義 #諸葛孔明",
-        backInput: "幫我寫一篇關於「諸葛孔明」的歷史迷因腳本，用現代投資客的角度來寫。",
-        systemTasks: ["✓ 啟動極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
-      }
-    },
+    
     { 
       id: "heritage",
       title: "民俗信仰", 
@@ -241,6 +217,31 @@ export default function LandingPage() {
         frontTags: "#大阪旅遊 #2026新趨勢 #一人旅行",
         backInput: "2026日本大阪旅遊新趨勢",
         systemTasks: ["✓ 啟動商業轉換矩陣", "✓ 價值提煉與痛點解決", "✓ 生成高質感電影級視覺指令"]
+      }
+    },
+    { 
+      id: "historyMeme",
+      title: "歷史迷因", 
+      desc: "用現代迷因與幽默視角，吐槽歷史人物的極限操作。專為 TikTok / Shorts 流量收割設計。", 
+      color: "from-amber-400 to-red-500",
+      bgClass: "bg-amber-500/10",
+      textClass: "text-amber-500",
+      features: ["流量收割", "毒雞湯語錄"],
+      playlistId: "PLS7BJQ4awAeM",
+      previewVideoId: "Anq2dnER4TA",
+      isShorts: true,
+      flipData: {
+        frontImage: [
+          "/Kongming_p1.jpg",
+          "/Kongming_p2.jpg",
+          "/Kongming_p3.jpg",
+          "/Kongming_p4.jpg",
+          "/Kongming_p5.jpg"
+        ],
+        frontText: "「諸葛孔明草船借箭？根本是古代版無本當沖！」用 10 秒迷因梗圖搭配洗腦 BGM，瞬間引爆演算法推播...",
+        frontTags: "#歷史迷因 #三國演義 #諸葛孔明",
+        backInput: "幫我寫一篇關於「諸葛孔明」的歷史迷因腳本，用現代投資客的角度來寫。",
+        systemTasks: ["✓ 啟動極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
       }
     }
   ];
