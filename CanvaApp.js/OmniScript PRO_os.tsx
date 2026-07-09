@@ -43,7 +43,7 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = '/api/gemini';
+    const VERCEL_API_URL = '/api/generate-all';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
