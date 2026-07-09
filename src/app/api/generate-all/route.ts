@@ -90,14 +90,15 @@ export async function POST(req: Request) {
 
       try {
         const config: any = {
-          responseMimeType: "application/json", 
-          responseSchema: responseSchema,
           maxOutputTokens: 8192,
         };
 
-        // 只有第一步需要開 Google 搜尋
+        // 只有第一步且沒有歷史背景時，開啟 Google 搜尋 (Gemini 不允許同時使用 tools 與 responseSchema)
         if (step.id === 1 && !verifiedContext) {
           config.tools = [{ googleSearch: {} }];
+        } else {
+          config.responseMimeType = "application/json";
+          config.responseSchema = responseSchema;
         }
 
         console.log(`[後端日誌] 正在使用 ${modelUsed} 生成步驟 ${step.id}...`);
