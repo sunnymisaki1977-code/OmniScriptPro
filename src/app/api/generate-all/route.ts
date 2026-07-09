@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
     
     // 多金鑰輪替邏輯
-    const apiKeys = apiKeyRaw.split(",").map(k => k.trim()).filter(k => k.length > 0);
+    const apiKeys = apiKeyRaw.split(",").map((k: string) => k.trim()).filter((k: string) => k.length > 0);
     let currentKeyIndex = Math.floor(Math.random() * apiKeys.length);
     let ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
 
