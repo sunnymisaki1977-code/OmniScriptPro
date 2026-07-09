@@ -1,0 +1,42 @@
+import { NextResponse } from "next/server";
+
+// ============================================================================
+// --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
+// ============================================================================
+const ACCESS_CODES: Record<string, string> = {
+  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
+  'GLAM2026': 'beauty',     // 美妝保養・悅己美學
+  'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
+  'RUBY2026': 'food',       // 美食料理・風味探索
+  'PET2026': 'pet',         // 寵物照護・幸福陪伴
+  'SKY2026': 'pet',         // 相容舊碼
+  'MASTER': 'heritage'      // 管理員
+};
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const passcode = body.passcode;
+
+    if (!passcode) {
+      return NextResponse.json({ error: "請輸入通行碼" }, { status: 400 });
+    }
+
+    const code = passcode.trim().toUpperCase();
+    
+    if (ACCESS_CODES[code]) {
+      const isMaster = code === 'MASTER';
+      const theme = ACCESS_CODES[code];
+      
+      return NextResponse.json({
+        success: true,
+        theme: theme,
+        isMaster: isMaster
+      });
+    } else {
+      return NextResponse.json({ error: "通行碼無效或已過期" }, { status: 401 });
+    }
+  } catch (error) {
+    return NextResponse.json({ error: "伺服器錯誤" }, { status: 500 });
+  }
+}

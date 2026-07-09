@@ -1,9 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
-// 初始化官方 Gemini 客戶端
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 // 🎯 排定官方圖像模型的優先順序
 const IMAGE_MODELS = [
   "gemini-3.1-flash-image",      // 1. 首選：最泛用，支援多圖參考
@@ -15,12 +12,23 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     // 💡 相容兩種前端傳參欄位名稱
-    const prompt = body.promptText || body.prompt;
+    const rawPrompt = body.promptText || body.prompt;
     const aspectRatio = body.aspectRatio || "16:9";
+    const mainTitle = body.mainTitle || "";
+    const subTitle = body.subTitle || "";
+    const poetry = body.poetry || "";
+    const customApiKey = body.apiKey || "";
 
-    if (!prompt) {
+    if (!rawPrompt) {
       return NextResponse.json({ error: "缺少提示詞 prompt" }, { status: 400 });
     }
+
+    const apiKeyToUse = customApiKey || process.env.GEMINI_API_KEY;
+    if (!apiKeyToUse) {
+      return NextResponse.json({ error: "伺服器未設定 Gemini API 金鑰" }, { status: 500 });
+    }
+
+    const ai = new GoogleGenAI({ apiKey: apiKeyToUse });
 
     let lastGoogleError: any = null;
 
@@ -31,10 +39,12 @@ export async function POST(req: Request) {
       try {
         console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
 
+        const fullPrompt = `[${currentModel}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${rawPrompt} --ar ${aspectRatio}`;
+
         // 🚀 使用最新版的 Interactions API
         const interaction = await ai.interactions.create({
           model: currentModel,
-          input: prompt,
+          input: fullPrompt,
         });
 
         // 成功拿到圖片資料 (Base64)
@@ -71,7 +81,7 @@ export async function POST(req: Request) {
     const height = aspectRatio === "16:9" ? 576 : 1024;
 
     // 清理並過濾提示詞，避免特殊符號導致 URL 帶入錯誤
-    let simplePrompt = prompt.replace(/[^a-zA-Z0-9\s,.-]/g, ' ').replace(/\s+/g, ' ').trim();
+    let simplePrompt = rawPrompt.replace(/[^a-zA-Z0-9\s,.-]/g, ' ').replace(/\s+/g, ' ').trim();
     if (!simplePrompt || simplePrompt.length < 5) {
       simplePrompt = "Eastern fantasy ink wash painting, cinematic lighting, masterpiece";
     } else {

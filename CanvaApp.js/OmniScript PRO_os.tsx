@@ -14,15 +14,7 @@ import Hotspot from '@/components/ui/Hotspot';
 // ============================================================================
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
-const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
-  'GLAM2026': 'beauty',        // 美妝保養・悅己美學
-  'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
-  'RUBY2026': 'food',          // 美食料理・風味探索
-  'PET2026': 'pet',            // 寵物照護・幸福陪伴
-  'SKY2026': 'pet',            // 相容舊碼
-  'MASTER': 'heritage'      // 管理員
-};
+
 
 const IMAGE_ENGINES = [
   {
@@ -123,7 +115,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false); // 新增：控制是否顯示密碼輸入框
   const [passcode, setPasscode] = useState('');
-  const isGlobalMaster = passcode.trim().toUpperCase() === 'MASTER';
+  const [isGlobalMaster, setIsGlobalMaster] = useState(false);
   const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
@@ -395,7 +387,7 @@ export default function App() {
   };
 
   const generateGroupImage = async (group) => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+    
     if (!isCanvasEnv && !geminiApiKey.trim()) {
       setPendingImageTask(() => () => generateGroupImage(group));
       setShowApiKeyModal(true);
@@ -420,57 +412,31 @@ export default function App() {
         aspectRatio = "4:3";
       }
       
-      let base64 = "";
-
-      let apiUrl = '';
-      let bodyStr = '';
-      if (imageEngine.includes('gemini')) {
-        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${apiKey}`;
-        bodyStr = JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-            imageConfig: { aspectRatio: aspectRatio }
-          }
-        });
-      } else {
-        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${apiKey}`;
-        bodyStr = JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: { sampleCount: 1, aspectRatio: aspectRatio }
-        });
-      }
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: bodyStr
+        body: JSON.stringify({
+          prompt,
+          mainTitle,
+          subTitle,
+          poetry,
+          aspectRatio,
+          apiKey
+        })
       });
       
       const data = await response.json();
-      if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+      if (!response.ok) throw new Error(`API Error: ${data.error || response.statusText}`);
       
-      if (imageEngine.includes('gemini')) {
-        if (data.candidates && data.candidates[0] && data.candidates[0].content?.parts?.[0]?.inlineData?.data) {
-          base64 = data.candidates[0].content.parts[0].inlineData.data;
-        } else {
-          throw new Error("未收到圖片資料 (generateContent 回傳格式錯誤)");
-        }
-      } else {
-        if (data.predictions && data.predictions[0]) {
-          base64 = data.predictions[0].bytesBase64Encoded;
-        } else {
-          throw new Error("未收到圖片資料 (predict 回傳格式錯誤)");
-        }
-      }
-      
-      if (base64) {
-        const originalImage = `data:image/png;base64,${base64}`;
+      if (data.success && data.image) {
+        const originalImage = data.image;
         const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
-        addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
+        addLog(`[${engineName}] ✨ ${groupId} 渲染完成！(使用模型: ${data.modelUsed})`, 'success');
         setCredits(prev => Math.max(0, prev - 5));
+      } else {
+        throw new Error(data.error || "未收到圖片資料");
       }
     } catch (err) {
       const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
@@ -704,8 +670,8 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
-    if (!isCanvasEnv && !isMaster && !geminiApiKey.trim()) {
+    
+    if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
@@ -866,7 +832,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     if (data.url) {
       setNotionUrl(data.url);
       fetchArchives(); // 成功後立即刷新歷史清單
-      if (passcode.trim().toUpperCase() === 'MASTER') {
+      if (isGlobalMaster) {
         window.open(data.url, '_blank');
       }
     }
@@ -881,7 +847,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
 
   const generateNewImage = async () => {
-    const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+    
     if (!isCanvasEnv && !geminiApiKey.trim()) {
       setPendingImageTask(() => generateNewImage);
       setShowApiKeyModal(true);
@@ -905,17 +871,31 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     return 'text-red-400 bg-red-400/10 border-red-400/20';
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const code = passcode.trim().toUpperCase();
-    if (ACCESS_CODES[code]) {
-      setIsAuthenticated(true);
-      setShowLoginPrompt(false);
-      setAudienceTheme(ACCESS_CODES[code]); // 根據密碼自動切換對應的受眾主題
-      setAuthError('');
-      setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 授權成功。載入 ${ACCESS_CODES[code]} 工作區。`, type: "success" }]);
-    } else {
-      setAuthError('無效的授權碼，請重新輸入');
+    const code = passcode.trim();
+    if (!code) return;
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(data.theme);
+        setIsGlobalMaster(data.isMaster);
+        setLogs(prev => [{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 授權成功。載入 ${data.theme} 工作區。`, type: "success" }, ...prev]);
+      } else {
+        setAuthError(data.error || '無效的授權碼，請重新輸入');
+      }
+    } catch (error) {
+      setAuthError('伺服器錯誤，請稍後再試');
     }
   };
 
@@ -1216,16 +1196,16 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <div className="flex justify-center gap-1.5 flex-wrap">
                       {Object.values(audienceThemes).map((themeObj) => {
                         const isSel = audienceTheme === themeObj.id;
-                        const isMaster = passcode.trim().toUpperCase() === 'MASTER';
+                        
                         return (
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel && !isMaster}
+                            disabled={!isSel && !isGlobalMaster}
                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : isMaster 
+                                : isGlobalMaster 
                                   ? 'border-slate-800 text-slate-400 hover:text-white hover:border-slate-500 cursor-pointer'
                                   : 'border-slate-900/50 text-slate-500 opacity-50 cursor-not-allowed'
                             }`}
@@ -1366,7 +1346,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       <select 
                         value={selectedArchive}
                         onChange={handleLoadArchive}
-                        disabled={passcode.trim().toUpperCase() !== 'MASTER'}
+                        disabled={!isGlobalMaster}
                         className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
@@ -2096,7 +2076,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             {notionStatus === '✅ 已成功歸檔' ? (
               <div className="space-y-2 w-full">
                 {/* 讓 MASTER 能點擊開啟專案 */}
-                {(notionUrl && passcode.trim().toUpperCase() === 'MASTER') && (
+                {(notionUrl && isGlobalMaster) && (
                   <button
                     onClick={() => window.open(notionUrl, '_blank')}
                     className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
@@ -2111,7 +2091,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     className="w-full py-2 pl-8 pr-8 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 text-slate-400 text-xs font-medium appearance-none cursor-pointer outline-none text-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     onChange={handleLoadArchive}
                     value={selectedArchive}
-                    disabled={isLoadingArchive || passcode.trim().toUpperCase() !== 'MASTER'}
+                    disabled={isLoadingArchive || !isGlobalMaster}
                   >
                     <option value="">團隊專案庫 (僅限 Master)</option>
                     {archiveList.map((item: any) => (
