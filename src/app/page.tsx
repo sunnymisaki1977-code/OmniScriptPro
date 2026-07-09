@@ -95,6 +95,31 @@ export default function LandingPage() {
 
   // 定義六大受眾模組資料 (Audience Hub)
   const audiences = [
+{ 
+      id: "food",
+      title: "美食料理", 
+      desc: "溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌行銷、食譜教學與美食探店視覺設計。", 
+      color: "from-orange-400 to-yellow-500",
+      bgClass: "bg-orange-500/10",
+      textClass: "text-orange-500",
+      features: ["勾引食慾視覺", "強烈 CTA"],
+      playlistId: "PLF3eQyAQueV4",
+      previewVideoId: "E1Oc1Eo_LcE",
+      isShorts: false,
+      flipData: {
+        frontImage: [
+          "/Golden_Mango_Summer_p1.jpg",
+          "/Golden_Mango_Summer_p2.jpg",
+          "/Golden_Mango_Summer_p3.jpg",
+          "/Golden_Mango_Summer_p4.jpg",
+          "/Golden_Mango_Summer_p5.jpg"
+        ],
+        frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
+        frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
+        backInput: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇",
+        systemTasks: ["✓ 啟動食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
+      }
+    },
     
     { 
       id: "heritage",
@@ -169,31 +194,7 @@ export default function LandingPage() {
         systemTasks: ["✓ 啟動質感矩陣", "✓ 情境帶入與痛點放大", "✓ 配置唯美玫瑰金視覺指令"]
       }
     },
-    { 
-      id: "food",
-      title: "美食料理", 
-      desc: "溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌行銷、食譜教學與美食探店視覺設計。", 
-      color: "from-orange-400 to-yellow-500",
-      bgClass: "bg-orange-500/10",
-      textClass: "text-orange-500",
-      features: ["勾引食慾視覺", "強烈 CTA"],
-      playlistId: "PLF3eQyAQueV4",
-      previewVideoId: "E1Oc1Eo_LcE",
-      isShorts: false,
-      flipData: {
-        frontImage: [
-          "/Golden_Mango_Summer_p1.jpg",
-          "/Golden_Mango_Summer_p2.jpg",
-          "/Golden_Mango_Summer_p3.jpg",
-          "/Golden_Mango_Summer_p4.jpg",
-          "/Golden_Mango_Summer_p5.jpg"
-        ],
-        frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
-        frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
-        backInput: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇",
-        systemTasks: ["✓ 啟動食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
-      }
-    },
+    
     { 
       id: "travelpreneur",
       title: "旅遊生活", 
