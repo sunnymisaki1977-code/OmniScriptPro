@@ -548,8 +548,8 @@ export default function App() {
     // ==========================================
     addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
 
+    let currentRunningStep = startStep;
     try {
-      let currentRunningStep = startStep;
       for (let i = startStep; i <= STEPS.length; i++) {
         if (!selectedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
@@ -1482,7 +1482,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               <video 
                                 src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
                                 autoPlay 
-                                defaultMuted={true}
                                 muted={isVideoMuted}
                                 playsInline
                                 webkit-playsinline="true"
@@ -1565,7 +1564,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         <video 
           src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
           autoPlay 
-          defaultMuted={true}
           muted={isVideoMuted}
           playsInline
           webkit-playsinline="true"
