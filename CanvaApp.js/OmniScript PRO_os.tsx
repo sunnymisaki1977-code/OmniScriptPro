@@ -131,6 +131,7 @@ export default function App() {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
+  const isResumeIntentRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
@@ -525,7 +526,7 @@ export default function App() {
   // ============================================================================
   // 4. 改寫全自動生成引擎 (打 Vercel API)
   // ============================================================================
-  const runAutoGeneration = async (startTheme) => {
+  const runAutoGeneration = async (startTheme: string, isResume = false) => {
       
     setIsGenerating(true);
         setMode('auto');
@@ -578,6 +579,10 @@ export default function App() {
       for (let i = startStep; i <= STEPS.length; i++) {
         if (!selectedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
+          continue;
+        }
+        if (isResume && completedSteps.includes(i)) {
+          addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (接續生成：已完成)...`, 'success');
           continue;
         }
         currentRunningStep = i;
@@ -707,7 +712,8 @@ export default function App() {
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
     addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
-    runAutoGeneration(finalTheme);
+    runAutoGeneration(finalTheme, isResumeIntentRef.current);
+    isResumeIntentRef.current = false;
   };
 
   const startManualWorkspace = () => {
@@ -1153,11 +1159,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </button>
             ) : (
               <button 
-                onClick={handleStartAuto}
+                onClick={() => {
+                  isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
+                  handleStartAuto();
+                }}
                 className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>一鍵全自動模式</span>
+                <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '自動接續生成' : '一鍵全自動模式'}</span>
               </button>
             )}
 
@@ -1316,7 +1325,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Left: 一鍵全自動模式 */}
                       <button
-                        onClick={handleStartAuto}
+                        onClick={() => {
+                          isResumeIntentRef.current = false;
+                          handleStartAuto();
+                        }}
                         className={`py-4 rounded-2xl ${curTheme.primaryBtn} font-black text-xs flex flex-col items-center justify-center gap-1 transition-all shadow-xl active:scale-98`}
                       >
                         <div className="flex items-center gap-2">
