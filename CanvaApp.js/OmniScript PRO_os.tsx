@@ -600,6 +600,31 @@ export default function App() {
     // ==========================================
     addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
 
+    let localPromptFunctions: any = null;
+    if (isCanvasEnv) {
+        addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
+        try {
+            const configRes = await fetch('/api/config/prompts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audienceTheme })
+            });
+            if (!configRes.ok) throw new Error("獲取 Config 失敗");
+            const { configs } = await configRes.json();
+            
+            // 轉換回前端 Function
+            localPromptFunctions = {};
+            configs.forEach((c: any) => {
+                localPromptFunctions[c.id] = new Function('return (' + c.promptStr + ')')();
+            });
+            addLog(`[Canvas] 成功載入 Prompt Configs！準備啟動本地端生成流水線...`, 'success');
+        } catch (error: any) {
+            addLog(`[Error] 抓取 Prompt Configs 發生錯誤：${error.message}`, 'error');
+            setIsGenerating(false);
+            return;
+        }
+    }
+
     let currentRunningStep = startStep;
     try {
       for (let i = startStep; i <= STEPS.length; i++) {
@@ -631,9 +656,41 @@ export default function App() {
             step10: currentContextContents[10] || "",
         };
 
-        // 💡 使用 callVercelApi：Vercel 只負責組裝 Prompt，前端 Canvas 負責打 Gemini 生成
-        const outputText = await callVercelApi(i, context, audienceTheme, activeApiKey);
+        // 💡 依據環境決定生成方式
+        let outputText = "";
 
+        if (isCanvasEnv && localPromptFunctions) {
+            // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
+            const promptFunc = localPromptFunctions[i];
+            const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
+            const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
+                                ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
+            
+            let masterPrompt = `【最高系統防禦指令】：\n你是頂尖的全域企劃 AI 助理。你的「唯一職責」是依據下方資料產出指定任務的內容。\n請針對主題「${safeTheme}」產出指定步驟的內容。\n`;
+            if (safeStep1) {
+                masterPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止腦補。\n<USER_DATA>\n${safeStep1}\n</USER_DATA>\n`;
+            }
+            masterPrompt += `\n【絕對要求】：\n1. 你必須直接回傳最終的內容，絕對不要使用 JSON 格式。\n2. 請根據該步驟的需求，直接輸出對應的 Markdown 排版內容即可。\n\n====================\n任務 ID: "${i}"\n要求說明：\n`;
+            masterPrompt += promptFunc(context);
+            masterPrompt += `\n====================`;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+            const aiResponse = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: masterPrompt }] }],
+                    tools: (i === 1 && !safeStep1) ? [{ googleSearch: {} }] : []
+                })
+            });
+            if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+            const data = await aiResponse.json();
+            outputText = data.candidates[0].content.parts[0].text;
+            
+        } else {
+            // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
+            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, isCanvasEnv);
+        }
         if (outputText) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
           if (outputText.includes('我需要一份經過專家查核') || outputText.includes('無法繼續執行') || outputText.includes('很抱歉')) {
