@@ -9,7 +9,7 @@ import {
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu
 } from 'lucide-react';
-import Hotspot from '../src/components/ui/Hotspot';
+import Hotspot from '@/components/ui/Hotspot';
 
 // ============================================================================
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
