@@ -42,20 +42,11 @@ const IMAGE_ENGINES = [
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
-    // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    if (!apiKey) throw new Error("請先提供 Gemini API Key");
 
-    
-    if (!apiKey) {
-        throw new Error("請先提供 Gemini API Key");
-    }
-
-    // ==========================================
-    // 階段 1：向 Vercel 請求「組裝好的 Prompt」
-    // ==========================================
     const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
-    const promptResponse = await fetch(VERCEL_API_URL, {
+    const response = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -63,40 +54,20 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             theme: context.theme, 
             existingData: context,
             audienceTheme,
-            apiKey: apiKey // 雖然 Vercel 沒有要生成，但如果您後端有驗證邏輯，還是可以傳
+            apiKey
         })
     });
 
-    if (!promptResponse.ok) {
-        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
+    if (!response.ok) {
+        throw new Error(`Vercel API 請求失敗：${response.status}`);
     }
-// 解析 Vercel 回傳的資料
-    const vercelData = await promptResponse.json();
-    
-    // ⚠️ 注意：這裡需要根據您 Vercel 後端實際回傳的 JSON 結構來取值
-    // 假設您的後端回傳格式是 { prompt: "這是組裝好的終極指令..." }
-    const finalPrompt = vercelData.prompt; 
 
-    if (!finalPrompt) {
-        throw new Error("Vercel API 沒有回傳有效的 Prompt");
-    }
-    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
-    
-    
-    const aiResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ googleSearch: {} }]
-        })
-    });
-    if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+    const vercelData = await response.json();
+    if (!vercelData.output) {
+        throw new Error(vercelData.error || "Vercel API 沒有回傳有效的內容");
     }
     
-    const data = await aiResponse.json();
-    return data.candidates[0].content.parts[0].text;
+    return vercelData.output;
 }
 
 // ============================================================================
