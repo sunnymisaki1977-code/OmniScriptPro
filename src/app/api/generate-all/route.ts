@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     // 若非第一步，卻缺乏 Step 1 的基礎資料，則阻擋執行
     if (Number(currentStepId) !== 1 && !verifiedContext) {
       return NextResponse.json(
-        { error: "Step 1 基礎資料尚未載入完成，請先生成 Step 1 或提供自訂背景資料。" }, 
+        { error: "Step 1 基礎資料尚未載入完成，請等待資料獲取後再執行此步驟。" }, 
         { status: 400 }
       );
     }
