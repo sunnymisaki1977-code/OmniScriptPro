@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
   Play, Pause, FastForward, Sparkles, CheckCircle2, Circle, 
-  Terminal, ServerCrash, Share2, UploadCloud, ChevronRight,
+  Terminal, ServerCrash, Share2, UploadCloud, ChevronRight, ChevronLeft,
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, Download, Zap, X, Copy,
@@ -131,6 +131,7 @@ export default function App() {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
+  const [isStepFlowHidden, setIsStepFlowHidden] = useState(false);
   const isResumeIntentRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
@@ -1405,11 +1406,20 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     position="right"
                     className="absolute top-4 -right-4"
                   />
-                  <div className="w-64 flex-1 border-r border-slate-900/60 overflow-y-auto bg-[#070b16]/30 p-4 space-y-1.5 custom-scrollbar">
-                  <div className="flex items-center justify-between mb-4 px-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
-                    <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
-                  </div>
+                  <div className="relative flex flex-col border-r border-slate-900/60 bg-[#070b16]/30 transition-all duration-300">
+                    <button
+                      onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
+                      className="absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                      title={isStepFlowHidden ? "展開 Step Flow" : "隱藏 Step Flow"}
+                    >
+                      {isStepFlowHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
+                    </button>
+
+                    <div className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar transition-all duration-300 ${isStepFlowHidden ? 'w-0 p-0 overflow-hidden opacity-0' : 'w-64 p-4 opacity-100'}`}>
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
+                        <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
+                      </div>
                   {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
                     const isDone = completedSteps.includes(step.id);
@@ -1441,7 +1451,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </button>
                     );
                   })}
-                </div>
+                    </div>
+                  </div>
               </div>
 
               {/* Markdown editor screen */}
@@ -1544,7 +1555,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                             <video 
                               src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
                               autoPlay 
-                              
+                              controls
+                              muted={false}
                               playsInline
                               onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
                               className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
@@ -1559,14 +1571,11 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                           </div>
                         ) : (
                           /* 生成完畢後，顯示原本的文字編輯器 */
-                          <div 
-                            contentEditable
-                            suppressContentEditableWarning
-                            onBlur={handleEditorChange}
-                            className="absolute inset-0 p-6 font-mono text-sm text-slate-300 focus:outline-none overflow-y-auto whitespace-pre-wrap leading-relaxed select-text cursor-text"
-                          >
-                            {stepContents[activeStep]}
-                          </div>
+                          <textarea 
+                            value={stepContents[activeStep]}
+                            onChange={(e) => setStepContents(prev => ({ ...prev, [activeStep]: e.target.value }))}
+                            className="absolute inset-0 p-6 font-mono text-sm text-slate-300 focus:outline-none overflow-y-auto whitespace-pre-wrap leading-relaxed select-text cursor-text bg-transparent resize-none border-none w-full h-full custom-scrollbar"
+                          />
                         )}
                       </div>
                     </div>
@@ -1607,7 +1616,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       <video 
         src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
         autoPlay 
-        
+        controls
+        muted={false}
         playsInline
         onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
         className="w-[600px] h-[340px] object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] mb-6"
