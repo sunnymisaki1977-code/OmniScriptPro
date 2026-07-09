@@ -9,6 +9,11 @@ import {
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu
 } from 'lucide-react';
+import Hotspot from '@/components/ui/Hotspot';
+
+// ============================================================================
+// --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
+// ============================================================================
 
 
 const IMAGE_ENGINES = [
@@ -43,7 +48,7 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    const VERCEL_API_URL = '/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +117,11 @@ export default function App() {
   }, []);
 
   // --- 狀態管理保持不變 ---
-  const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // 新增：控制是否顯示密碼輸入框
+  const [passcode, setPasscode] = useState('');
+  const [isGlobalMaster, setIsGlobalMaster] = useState(false);
+  const [authError, setAuthError] = useState('');
   
   const [activeTab, setActiveTab] = useState('creation'); 
 
@@ -487,7 +496,7 @@ export default function App() {
   const handleThemeChange = (newThemeId) => {
     setAudienceTheme(newThemeId);
     const selectedTheme = audienceThemes[newThemeId];
-    addLog(selectedTheme?.themeLogMessage || `[Theme] 已切換至 ${newThemeId}`, 'info');  
+    addLog(selectedTheme.themeLogMessage, 'info');  
   };
 
   // ============================================================================
@@ -556,12 +565,11 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
-        const actualApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
         const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            ...(actualApiKey ? { 'x-gemini-api-key': actualApiKey } : {})
+            ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
           },
           body: JSON.stringify({
             theme: startTheme,
@@ -723,7 +731,7 @@ export default function App() {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
           addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
+          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\\n建議直接擷取精華段落即可。`);
           return prev; // 放棄匯入，維持原樣
         }
         addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
@@ -803,7 +811,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
+    const VERCEL_NOTION_URL = '/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -875,6 +883,58 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     if (aiStatus === 'flash') return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
     return 'text-red-400 bg-red-400/10 border-red-400/20';
   };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = passcode.trim();
+    if (!code) return;
+
+    try {
+      const res = await fetch('https://omni-script-pro.vercel.app/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(data.theme);
+        setIsGlobalMaster(data.isMaster);
+        setLogs(prev => [{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: `[System] 授權成功。載入 ${data.theme} 工作區。`, type: "success" }, ...prev]);
+      } else {
+        setAuthError(data.error || '無效的授權碼，請重新輸入');
+      }
+    } catch (error) {
+      setAuthError('伺服器錯誤，請稍後再試');
+    }
+  };
+
+  // 新增：全局攔截使用者的任何操作（點擊、鍵盤），在觸發任何 UI 前攔截並顯示密碼框
+  useEffect(() => {
+    const handleInteraction = (e) => {
+      if (!isAuthenticated && !showLoginPrompt) {
+        setShowLoginPrompt(true);
+        e.stopPropagation(); // 阻止事件往下傳遞給底層的按鈕
+        e.preventDefault();
+      }
+    };
+
+    if (!isAuthenticated && !showLoginPrompt) {
+      // 使用 capture 階段攔截事件，確保能第一時間抓住使用者的操作
+      window.addEventListener('click', handleInteraction, { capture: true });
+      window.addEventListener('mousedown', handleInteraction, { capture: true });
+      window.addEventListener('keydown', handleInteraction, { capture: true });
+    }
+
+    return () => {
+      window.removeEventListener('click', handleInteraction, { capture: true });
+      window.removeEventListener('mousedown', handleInteraction, { capture: true });
+      window.removeEventListener('keydown', handleInteraction, { capture: true });
+    };
+  }, [isAuthenticated, showLoginPrompt]);
 
   if (!isMounted) {
     return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
@@ -1147,7 +1207,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   {/* Dynamic Theme Select Buttons (Horizontal Row as requested) */}
                   <div className="space-y-3">
                     <div className="flex justify-center gap-1.5 flex-wrap">
-                      {Object.values(audienceThemes).map((themeObj: any) => {
+                      {Object.values(audienceThemes).map((themeObj) => {
                         const isSel = audienceTheme === themeObj.id;
                         
                         return (
@@ -1194,6 +1254,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </label>
                       </div>
                       <div className="relative">
+                        <Hotspot 
+                          id="tour_input"
+                          title="從這裡開始"
+                          content="輸入您的靈感或貼上文獻，系統將以此為基準真相進行自動擴寫。"
+                          position="bottom"
+                          className="absolute -top-2 -right-2"
+                        />
                         <textarea
                           maxLength={5000}
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
@@ -1298,7 +1365,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
                         
                         {/* 這裡會自動把 Notion 裡面的專案名稱跟日期列出來！ */}
-                        {archiveList.map((item: any) => (
+                        {archiveList.map((item) => (
                           <option key={item.id} value={item.id}>
                             📄 {item.title} ({item.createdTime})
                           </option>
@@ -1326,7 +1393,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 
                 {/* Steps Navigator Left Column */}
                 <div className="relative shrink-0 h-full flex flex-col">
-                  <div className="relative flex flex-col border-r border-slate-900/60 bg-[#070b16]/30 transition-all duration-300 h-full">
+                  <Hotspot 
+                    id="tour_steps"
+                    title="全自動化矩陣"
+                    content="引擎將自動依序執行背景查核、腳本到視覺配樂，您可以在此監控進度。"
+                    position="right"
+                    className="absolute top-4 -right-4"
+                  />
+                  <div className="relative flex flex-col border-r border-slate-900/60 bg-[#070b16]/30 transition-all duration-300">
                     {isGlobalMaster && (
                       <button
                         onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
@@ -1342,10 +1416,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
                         <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
                       </div>
-                  {STEPS.map((step: any) => {
+                  {STEPS.map((step) => {
                     const isActive = activeStep === step.id;
                     const isDone = completedSteps.includes(step.id);
-                    const Icon = iconMap[step.icon] || FileText; // 確保有圖示，退防 fallback
+                    const Icon = step.icon;
                     return (
                       <button
                         key={step.id}
@@ -1427,6 +1501,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
                     {/* Markdown text editor card */}
                     <div className="relative flex-1 flex flex-col">
+                      <Hotspot 
+                        id="tour_preview"
+                        title="多模態生產線"
+                        content="生成的社群文案與繪圖提示詞會在此完美排版，支援即時編修。"
+                        position="left"
+                        className="absolute top-2 -left-3"
+                      />
                       <div className="flex-1 bg-[#0f172a]/50 border border-slate-900 rounded-2xl shadow-xl flex flex-col overflow-hidden">
                         <div className="px-4 py-2.5 bg-[#0a0f1d] border-b border-slate-900 flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
@@ -1603,7 +1684,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {visualGroups.map((group: any) => (
+                      {visualGroups.map((group) => (
                         <div key={group.id} className="group bg-[#0f172a]/40 border border-slate-900 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
                           {/* Image Area */}
                           <div className="w-full h-40 bg-[#070b16] relative flex items-center justify-center overflow-hidden">
@@ -2038,6 +2119,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               </div>
             ) : (
               <div className="relative w-full">
+                <Hotspot 
+                  id="tour_export"
+                  title="一鍵歸檔"
+                  content="確認內容無誤後，一鍵將 10-Step 完整成果與資料同步至您的 Notion。"
+                  position="bottom"
+                  className="absolute -bottom-2 -left-2"
+                />
                 <button
                   onClick={startNotionExport}
                   disabled={isNotionExporting}
@@ -2052,6 +2140,53 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         </div>
 
       </aside>
+
+      {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+      {(!isAuthenticated && showLoginPrompt) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+          <div 
+            className="relative z-10 w-full max-w-sm p-8 bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()} // 點擊密碼框內部不會冒泡
+          >
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
+            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
+            
+            <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
+              <div>
+                <input 
+                  type="password"
+                  value={passcode}
+                  onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
+                  placeholder="輸入授權碼"
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                  autoFocus
+                />
+              </div>
+              {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
+              <button 
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg active:scale-95"
+              >
+                解鎖並登入工作區
+              </button>
+            </form>
+
+            {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
+              <span>TECH2026 (民俗)</span>
+              <span>GLAM2026 (美妝)</span>
+              <span>INDIE2026 (旅遊)</span>
+              <span>RUBY2026 (美食)</span>
+              <span>SKY2026 (寵物)</span>
+              
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* API Key Modal */}
       {showApiKeyModal && (
