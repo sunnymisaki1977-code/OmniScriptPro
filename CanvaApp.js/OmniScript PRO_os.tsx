@@ -130,6 +130,7 @@ export default function App() {
   // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
@@ -585,6 +586,10 @@ export default function App() {
     try {
       let currentRunningStep = startStep;
       for (let i = startStep; i <= STEPS.length; i++) {
+        if (!selectedSteps.includes(i)) {
+          addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
+          continue;
+        }
         currentRunningStep = i;
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
@@ -1294,6 +1299,43 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                         </div>
                       </div>
                     )}
+
+                    {/* --- 新增：模組化勾選清單 (Checkbox List) --- */}
+                    <div className="space-y-2 pt-2 border-t border-slate-900/50">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-slate-400 font-bold">📦 選擇要生成的素材矩陣 (可自由勾選)</label>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pb-2">
+                        {STEPS.map((step, idx) => {
+                          const stepNum = idx + 1;
+                          const isRequired = stepNum === 1 || stepNum === 2;
+                          const isSelected = selectedSteps.includes(stepNum);
+                          return (
+                            <button
+                              key={stepNum}
+                              type="button"
+                              disabled={isRequired}
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedSteps(prev => prev.filter(s => s !== stepNum));
+                                } else {
+                                  setSelectedSteps(prev => [...prev, stepNum].sort((a, b) => a - b));
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+                                isRequired
+                                  ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-500/30 cursor-not-allowed opacity-80'
+                                  : isSelected
+                                  ? 'bg-indigo-500 text-white shadow-md hover:bg-indigo-600'
+                                  : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                              }`}
+                            >
+                              Step {stepNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
                     {/* Big Action Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
