@@ -133,6 +133,7 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
   const [isStepFlowHidden, setIsStepFlowHidden] = useState(true);
+  const [isVisualSidebarHidden, setIsVisualSidebarHidden] = useState(true);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const isResumeIntentRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
@@ -1614,9 +1615,22 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col lg:flex-row gap-6 items-start relative">
+                  
+                  {isGlobalMaster && (
+                    <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isVisualSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
+                      <button
+                        onClick={() => setIsVisualSidebarHidden(!isVisualSidebarHidden)}
+                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        title={isVisualSidebarHidden ? "展開 Prompt 控制台" : "隱藏 Prompt 控制台"}
+                      >
+                        {isVisualSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
+                      </button>
+                    </div>
+                  )}
+
                   {/* Left Controls column */}
-                  <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md flex flex-col">
+                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl backdrop-blur-md flex flex-col relative ${isVisualSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-5 space-y-4 opacity-100'}`}>
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
@@ -1673,7 +1687,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                   </div>
 
                   {/* Right Masonry Grid of images */}
-                  <div className="col-span-2 space-y-4">
+                  <div className="flex-1 w-full space-y-4 min-w-0">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
