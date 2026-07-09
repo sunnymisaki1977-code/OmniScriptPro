@@ -585,8 +585,13 @@ export default function App() {
 
         if (responseData.output) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
-          if (responseData.output.includes('我需要一份經過專家查核') || responseData.output.includes('無法繼續執行')) {
+          if (responseData.output.includes('我需要一份經過專家查核') || responseData.output.includes('無法繼續執行') || responseData.output.includes('很抱歉')) {
              throw new Error(`AI 拒絕生成內容或要求補充資料`);
+          }
+
+          // 防呆機制：若 Step 1 生成內容字數過少，代表 AI 無法找到足夠事實資料，必須中斷以防後續爛掉
+          if (i === 1 && responseData.output.length < 200) {
+             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${responseData.output.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上維基百科或相關文獻後，再點擊接續生成！`);
           }
           
           // 💾 成功拿到單步結果，塞入前端暫存器
