@@ -94,7 +94,8 @@ export async function POST(req: Request) {
         };
 
         // 只有第一步且沒有歷史背景時，開啟 Google 搜尋 (Gemini 不允許同時使用 tools 與 responseSchema)
-        if (step.id === 1 && !verifiedContext) {
+        // 💡 降級保護：若遇到 503 等連線異常，在最後一次重試 (attempt 3) 時自動拔除 Google Search 工具以求穩定產出
+        if (step.id === 1 && !verifiedContext && attempt < 3) {
           config.tools = [{ googleSearch: {} }];
         } else {
           config.responseMimeType = "application/json";
