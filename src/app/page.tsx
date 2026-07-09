@@ -32,7 +32,7 @@ interface LazyYoutubeProps {
 const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900", className = "" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const baseAspect = isShorts ? 'aspect-[9/16] rounded-[2.5rem] border-[8px] border-slate-800 dark:border-slate-900' : 'aspect-video rounded-2xl';
-  const widthClass = className ? '' : (isShorts ? 'max-w-[320px] w-full mx-auto' : 'w-full');
+  const widthClass = className.includes('w-') ? '' : (isShorts ? 'max-w-[320px] w-full mx-auto' : 'w-full');
 
   return (
     <div className={`relative overflow-hidden bg-slate-900 group shadow-2xl ${baseAspect} ${widthClass} ${className}`}>
@@ -418,9 +418,9 @@ export default function LandingPage() {
                 </div>
 
                 {/* 右側展示區 */}
-                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col ">
+                <div className="flex-[1.5] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 md:p-10 shadow-2xl relative overflow-hidden flex flex-col justify-between">
                   <div className={`absolute inset-0 bg-gradient-to-br ${audiences[activeTab].color} opacity-5`} />
-                  <div className="relative z-10 flex flex-col h-full ">
+                  <div className="relative z-10 flex flex-col justify-between">
                     <div className="mb-6 shrink-0">
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${audiences[activeTab].bgClass} ${audiences[activeTab].textClass} text-xs font-bold mb-4`}>
                         <Sparkles className="w-4 h-4" />
@@ -432,16 +432,15 @@ export default function LandingPage() {
                       </p>
                     </div>
 
-
                     {/* YouTube LazyLoad Container */}
-                    <div className="mt-auto flex-1  flex items-end justify-center w-full">
+                    <div className="mt-6 flex items-center justify-center w-full transition-all duration-500">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
                         previewVideoId={audiences[activeTab].previewVideoId}
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
                         colorClass={audiences[activeTab].color}
-                        className={audiences[activeTab].isShorts ? "h-full max-h-full w-auto mx-auto object-contain" : "w-full mx-auto"}
+                        className={audiences[activeTab].isShorts ? "w-full max-w-[280px] sm:max-w-[320px] mx-auto" : "w-full"}
                       />
                     </div>
                   </div>
@@ -495,16 +494,16 @@ export default function LandingPage() {
                 </div>
 
                 {/* 右側：展品 Mockup (5欄) */}
-                <div className="lg:col-span-5 w-full order-2 lg:order-2 h-full flex flex-col">
-                  <div className="relative group flex-1  flex flex-col" style={{ perspective: '1000px' }}>
+                <div className="lg:col-span-5 w-full order-2 lg:order-2 flex flex-col justify-center items-center">
+                  <div className="relative group w-full max-w-[300px] sm:max-w-[320px]" style={{ perspective: '1000px' }}>
                     <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition duration-500" />
-                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-4 md:p-6 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1 flex-1  flex items-center justify-center">
+                    <div className="relative bg-slate-800 border-2 border-slate-700 rounded-[2.5rem] p-3 md:p-4 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
                       <LazyYoutube 
                         playlistId="PLOna4AWCnbzw" 
                         previewVideoId="_C1uJ_ZMvj0" 
                         title="世代銘印 - 歷史紀錄片" 
                         isShorts={true} 
-                        className="h-full w-auto max-h-full mx-auto"
+                        className="w-full"
                       />
                     </div>
                   </div>
