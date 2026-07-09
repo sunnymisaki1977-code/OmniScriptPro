@@ -1270,25 +1270,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       </div>
                     </div>
 
-                    {/* --- 新增：API Key 輸入區 --- */}
-                    {!isCanvasEnv && (
-                      <div className="space-y-2 pt-2 border-t border-slate-900/50">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] text-slate-400 font-bold">Gemini API Key</label>
-                          <span className="text-[9px] text-indigo-400 font-medium">✨ 支援多把金鑰輪替 (以逗號分隔)</span>
-                        </div>
-                        <div className="relative">
-                          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                          <input 
-                            type="password"
-                            placeholder="輸入 API Key (可貼上多把金鑰並用半形逗號 , 分隔)..."
-                            value={geminiApiKey}
-                            onChange={(e) => setGeminiApiKey(e.target.value)}
-                            className="w-full bg-[#070b16] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
-                          />
-                        </div>
-                      </div>
-                    )}
+
 
                     {/* --- 新增：模組化勾選清單 (Checkbox List) --- */}
                     <div className="space-y-2 pt-2 border-t border-slate-900/50">
@@ -1320,7 +1302,10 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                                   : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
                               }`}
                             >
-                              {step.name}
+                              <div className="flex items-center gap-1.5">
+                                {(isSelected || isRequired) && <Check className="w-3 h-3" />}
+                                <span>{step.name}</span>
+                              </div>
                             </button>
                           );
                         })}
@@ -2172,6 +2157,22 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
               <br />
               <span className="text-indigo-400 font-medium mt-1 inline-block">✨ 系統支援防限流機制：您可以一次貼上多把金鑰，並使用半形逗號 <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> 分隔。</span>
             </p>
+
+            <div className="mb-6 bg-slate-900/50 rounded-2xl p-4 border border-slate-700">
+              <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
+                <ListTodo className="w-4 h-4 text-indigo-400" />
+                本次將生成的素材矩陣：
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {STEPS.filter(s => selectedSteps.includes(s.id) || s.id === 1 || s.id === 2).map(step => (
+                  <span key={step.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] border ${step.id === 1 || step.id === 2 ? 'bg-indigo-900/50 text-indigo-300 border-indigo-500/30' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'}`}>
+                    <Check className="w-3 h-3" />
+                    {step.name}
+                    {(step.id === 1 || step.id === 2) && <span className="opacity-60">(必需)</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
             
             <div className="space-y-4">
               <div className="relative">
