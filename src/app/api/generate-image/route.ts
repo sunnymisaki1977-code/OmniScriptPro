@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     const subTitle = body.subTitle || "";
     const poetry = body.poetry || "";
     const customApiKey = body.apiKey || "";
+    const requestedEngine = body.imageEngine;
 
     if (!rawPrompt) {
       return NextResponse.json({ error: "缺少提示詞 prompt" }, { status: 400 });
@@ -35,7 +36,11 @@ export async function POST(req: Request) {
     // ==========================================
     // 🔄 階段一：嘗試呼叫 Google Gemini 圖像模型
     // ==========================================
-    for (const currentModel of IMAGE_MODELS) {
+    const modelsToTry = requestedEngine ? 
+      [requestedEngine, ...IMAGE_MODELS.filter(m => m !== requestedEngine)] : 
+      IMAGE_MODELS;
+
+    for (const currentModel of modelsToTry) {
       try {
         console.log(`🎨 正在嘗試使用官方模型 [${currentModel}] 生成圖片...`);
 

@@ -18,6 +18,11 @@ import Hotspot from '@/components/ui/Hotspot';
 
 const IMAGE_ENGINES = [
   {
+    id: 'gemini-2.5-flash',
+    name: 'Imagen 4.0',
+    desc: '專案內已有規劃之次世代影像生成引擎，提供極致細節與最高畫質。'
+  },
+  {
     id: 'gemini-3.1-flash-lite-image',
     name: 'Nano Banana 2 Lite',
     desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
@@ -421,7 +426,8 @@ export default function App() {
           subTitle,
           poetry,
           aspectRatio,
-          apiKey
+          apiKey,
+          imageEngine
         })
       });
       
@@ -860,12 +866,14 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     }
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
-    addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt 至 Imagen 4.0 API 端點...`, 'info');
+    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
+    const engineName = engineConfig.name;
+    addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt 至 ${engineName} API 端點...`, 'info');
     
     await Promise.all(visualGroups.map(group => generateGroupImage(group)));
     
     setIsGeneratingImage(false);
-    addLog(`[Visual Hub] 🎨 所有 Imagen 4.0 影像生成完畢！`, 'success');
+    addLog(`[Visual Hub] 🎨 所有 ${engineName} 影像生成完畢！`, 'success');
   };
 
   
