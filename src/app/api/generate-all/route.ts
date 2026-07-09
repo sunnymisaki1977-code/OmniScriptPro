@@ -113,8 +113,15 @@ export async function POST(req: Request) {
         let cleanText = (response.text || "{}").trim();
         cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
 
-        const parsedData = JSON.parse(cleanText);
-        let outputText = parsedData[step.id.toString()] || cleanText;
+        let outputText = cleanText;
+        try {
+          const parsedData = JSON.parse(cleanText);
+          if (parsedData && parsedData[step.id.toString()]) {
+            outputText = parsedData[step.id.toString()];
+          }
+        } catch (e) {
+          // 若無法解析為 JSON（例如 Step 1 使用 Google Search 回傳純文本），則直接使用原始文本
+        }
 
         // 如果輸出了巢狀物件，轉為字串
         if (typeof outputText === "object" && outputText !== null) {
