@@ -564,19 +564,9 @@ export default function App() {
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
     }
 
-    // 智能接續邏輯：尋找第一個沒有內容的步驟
-    for (let i = 1; i <= STEPS.length; i++) {
-      if (isStepEmpty(i)) {
-        startStep = i;
-        break;
-      }
-    }
-
-    if (startStep > STEPS.length) {
-      addLog(`[System] ${STEPS.length} 個步驟皆已存在內容，接續完成！`, 'success');
-      setIsGenerating(false);
-      return;
-    }
+    // 不再使用強制跳過的智能接續邏輯，改由 selectedSteps 全權決定要執行的步驟
+    // 這樣使用者若刻意勾選已完成的步驟，也能夠強制重新生成。
+    startStep = 1;
 
     // ==========================================
     // 循序執行所有尚未完成的步驟 (Frontend Commander)
@@ -1167,7 +1157,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                 className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>{completedSteps.length > 0 ? '接續自動生成' : '一鍵全自動模式'}</span>
+                <span>一鍵全自動模式</span>
               </button>
             )}
 
@@ -1330,7 +1320,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                                   : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
                               }`}
                             >
-                              Step {stepNum}
+                              {step.name}
                             </button>
                           );
                         })}
@@ -1346,7 +1336,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                       >
                         <div className="flex items-center gap-2">
                           <Play className="w-4 h-4 fill-white" />
-                          <span>{completedSteps.length > 0 ? '接續自動生成' : '一鍵全自動模式'}</span>
+                          <span>一鍵全自動模式</span>
                         </div>
                         <span className="text-[10px] opacity-70 font-normal">單次呼叫，自動化處理所有步驟與歸檔</span>
                       </button>
