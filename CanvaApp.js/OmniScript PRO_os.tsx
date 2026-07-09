@@ -42,11 +42,20 @@ const IMAGE_ENGINES = [
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+    // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    if (!apiKey) throw new Error("請先提供 Gemini API Key");
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
+    
+    if (!apiKey) {
+        throw new Error("請先提供 Gemini API Key");
+    }
+
+    // ==========================================
+    // 階段 1：向 Vercel 請求「組裝好的 Prompt」
+    // ==========================================
     const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
-    const response = await fetch(VERCEL_API_URL, {
+    const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -54,20 +63,66 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             theme: context.theme, 
             existingData: context,
             audienceTheme,
-            apiKey
+            apiKey: apiKey,
+            returnPromptOnly: true
         })
     });
 
-    if (!response.ok) {
-        throw new Error(`Vercel API 請求失敗：${response.status}`);
+    if (!promptResponse.ok) {
+        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
 
-    const vercelData = await response.json();
-    if (!vercelData.output) {
-        throw new Error(vercelData.error || "Vercel API 沒有回傳有效的內容");
+    const vercelData = await promptResponse.json();
+    const finalPrompt = vercelData.prompt; 
+    const responseSchema = vercelData.schema;
+    const isSearchEnabled = vercelData.isSearchEnabled;
+
+    if (!finalPrompt) {
+        throw new Error("Vercel API 沒有回傳有效的 Prompt");
+    }
+
+    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
+    const geminiPayload: any = {
+        contents: [{ parts: [{ text: finalPrompt }] }],
+        generationConfig: {
+            maxOutputTokens: 8192
+        }
+    };
+
+    if (isSearchEnabled) {
+        geminiPayload.tools = [{ googleSearch: {} }];
+    } else if (responseSchema) {
+        geminiPayload.generationConfig.responseMimeType = "application/json";
+        geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    return vercelData.output;
+    const aiResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiPayload)
+    });
+
+    if (!aiResponse.ok) {
+        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+    }
+    
+    const data = await aiResponse.json();
+    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    
+    // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
+    if (!isSearchEnabled) {
+        try {
+            // 清理可能包含的 markdown json block
+            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
+            const parsedData = JSON.parse(cleanText);
+            if (parsedData && parsedData[stepId.toString()]) {
+                return parsedData[stepId.toString()];
+            }
+        } catch(e) {
+            console.error("JSON 解析失敗", e);
+        }
+    }
+    return cleanText;
 }
 
 // ============================================================================
@@ -562,44 +617,36 @@ export default function App() {
 
         const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
 
-        const response = await fetch('https://omni-script-pro.vercel.app/api/generate-all', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...(activeApiKey ? { 'x-gemini-api-key': activeApiKey } : {})
-          },
-          body: JSON.stringify({
+        const context = {
             theme: startTheme,
-            customDocText: isStepEmpty(1) ? "" : currentContextContents[1],
-            currentStepId: i,
-            startFromStep: i,
-            endStep: i,
-            audienceTheme: audienceTheme,
-            existingData: currentContextContents, // 💡 把前面幾步累積的成果，當作上下文傳給後端
-            apiKey: activeApiKey
-          })
-        });
+            step1: currentContextContents[1] || "",
+            step2: currentContextContents[2] || "",
+            step3: currentContextContents[3] || "",
+            step4: currentContextContents[4] || "",
+            step5: currentContextContents[5] || "",
+            step6: currentContextContents[6] || "",
+            step7: currentContextContents[7] || "",
+            step8: currentContextContents[8] || "",
+            step9: currentContextContents[9] || "",
+            step10: currentContextContents[10] || "",
+        };
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || `狀態碼: ${response.status}`);
-        }
+        // 💡 使用 callVercelApi：Vercel 只負責組裝 Prompt，前端 Canvas 負責打 Gemini 生成
+        const outputText = await callVercelApi(i, context, audienceTheme, activeApiKey);
 
-        const responseData = await response.json();
-
-        if (responseData.output) {
+        if (outputText) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
-          if (responseData.output.includes('我需要一份經過專家查核') || responseData.output.includes('無法繼續執行') || responseData.output.includes('很抱歉')) {
+          if (outputText.includes('我需要一份經過專家查核') || outputText.includes('無法繼續執行') || outputText.includes('很抱歉')) {
              throw new Error(`AI 拒絕生成內容或要求補充資料`);
           }
 
           // 防呆機制：若 Step 1 生成內容字數過少，代表 AI 無法找到足夠事實資料，必須中斷以防後續爛掉
-          if (i === 1 && responseData.output.length < 200) {
-             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${responseData.output.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上維基百科或相關文獻後，再點擊接續生成！`);
+          if (i === 1 && outputText.length < 200) {
+             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${outputText.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上維基百科或相關文獻後，再點擊接續生成！`);
           }
           
           // 💾 成功拿到單步結果，塞入前端暫存器
-          currentContextContents[i] = responseData.output;
+          currentContextContents[i] = outputText;
           
           // 🔄 即時更新前端 UI 狀態，使用者能看到文字一格一格長出來
           setStepContents({ ...currentContextContents });

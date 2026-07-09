@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     // 💡 核心改變：每次請求只指定跑「某一個特定步驟 (currentStepId)」
-    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme, apiKey } = body;
+    const { theme, customDocText, currentStepId, existingData = {}, audienceTheme, apiKey, returnPromptOnly } = body;
 
     if (!theme || !currentStepId) {
       return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });
@@ -80,6 +80,16 @@ export async function POST(req: Request) {
       },
       required: [step.id.toString()]
     };
+
+    if (returnPromptOnly) {
+      return NextResponse.json({
+        success: true,
+        stepId: step.id,
+        prompt: finalPrompt,
+        schema: responseSchema,
+        isSearchEnabled: step.id === 1 && !verifiedContext
+      });
+    }
 
     // 執行與重試機制 (模型輪替)
     const MAX_RETRIES = 3;
