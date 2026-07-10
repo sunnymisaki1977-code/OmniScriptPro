@@ -48,7 +48,6 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     
     
-
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
@@ -598,11 +597,8 @@ export default function App() {
     // ==========================================
     addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
 
-    // 💡 動態偵測環境，避免 closure 舊值問題
-    const currentIsCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
-
     let localPromptFunctions: any = null;
-    if (currentIsCanvasEnv) {
+    if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
             const configRes = await fetch('https://omni-script-pro.vercel.app/src/api/config/prompts', {
@@ -660,7 +656,7 @@ export default function App() {
         // 💡 依據環境決定生成方式
         let outputText = "";
 
-        if (currentIsCanvasEnv && localPromptFunctions) {
+        if (isCanvasEnv && localPromptFunctions) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
             const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
@@ -690,7 +686,7 @@ export default function App() {
             
         } else {
             // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
-            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, currentIsCanvasEnv);
+            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, isCanvasEnv);
         }
         if (outputText) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
