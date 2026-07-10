@@ -54,7 +54,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
  const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://omni-script-pro.vercel.app' 
   : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/config/prompts';
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -151,7 +151,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch(`https://omni-script-pro.vercel.app/api/config`)
+    fetch(`https://omni-script-pro.vercel.app/api/gemini`)
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -604,7 +604,7 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
+            const configRes = await fetch(`${API_BASE_URL}/api/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
