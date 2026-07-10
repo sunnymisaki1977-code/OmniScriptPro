@@ -3,13 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { audienceTheme, theme } = await req.json();
-   const WORKFLOW_STEPS = getWorkflowSteps({ 
-  audienceTheme: audienceTheme || 'heritage', 
-  theme 
-});
-    // 將每個 step 的 function 轉換為字串傳給前端
-   export function getWorkflowSteps({ audienceTheme, theme }: { audienceTheme: string; theme: string }) {
+   const { audienceTheme, theme } = await req.json();
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage', theme);
+        // 將每個 step 的 function 轉換為字串傳給前端
+    const promptConfigs = WORKFLOW_STEPS.map(step => ({
       id: step.id,
       title: step.title,
       description: step.description,
