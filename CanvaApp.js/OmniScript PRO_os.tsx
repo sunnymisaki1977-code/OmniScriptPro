@@ -47,9 +47,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     
-    if (!apiKey) {
-        throw new Error("請先提供 Gemini API Key");
-    }
+    
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
