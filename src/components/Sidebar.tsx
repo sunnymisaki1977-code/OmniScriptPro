@@ -75,7 +75,7 @@ export const Sidebar = () => {
         {/* Steps 1-9 */}
         {isWorkflowExpanded && (
           <div className="space-y-1.5 mt-2 flex-1 overflow-y-auto custom-scrollbar pr-1">
-            {WorkflowStep.map((step) => {
+            {WORKFLOWS.map((step) => {
               const isCompleted = isStepComplete(step.id);
               const isActive = currentStep === step.id;
 
