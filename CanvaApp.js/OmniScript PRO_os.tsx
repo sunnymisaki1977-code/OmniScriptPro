@@ -81,7 +81,7 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
 
-    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
+    // 步驟 2：I
     const geminiPayload: any = {
         contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
@@ -1176,18 +1176,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-3 lg:gap-4 shrink-0">
-            {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv ? (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Gemini Canvas (環境內注 API 無需自行輸入)</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-[10px]">
-                <Globe className="w-3.5 h-3.5" />
-                <span>Vercel (輸入 API 才能運行)</span>
-              </div>
-            )}
+           
 
             {/* 清空企劃按鈕 (從工作區移上來) */}
             <button 
