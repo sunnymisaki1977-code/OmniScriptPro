@@ -1079,8 +1079,8 @@ const handleLogin = async (e: React.FormEvent) => {
         />
       )}
       
-      {/* --- STREAMING_CHUNK:Left Navigation Bar --- */}
-       className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
+      {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
+       <className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
@@ -1232,6 +1232,7 @@ const handleLogin = async (e: React.FormEvent) => {
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
               className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+           
             >
               <Menu className="w-5 h-5" />
             </button>
