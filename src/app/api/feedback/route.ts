@@ -25,7 +25,7 @@ try {
     console.error("[Vercel 後端錯誤]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}; 
+}. 
 
 
 try {
