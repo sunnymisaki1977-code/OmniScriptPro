@@ -1764,8 +1764,12 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 };
 
 export const getWorkflowSteps = (themeId: string, theme?: string): WorkflowStep[] => {
+<<<<<<< HEAD
   return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage']|| [];
 };
+=======
+  return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage']|| [];};
+
 
 export const WORKFLOW_STEPS: WorkflowStep[] = WORKFLOWS_REGISTRY['heritage'];
 
