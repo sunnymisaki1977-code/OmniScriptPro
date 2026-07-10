@@ -796,12 +796,20 @@ export default function App() {
       alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
       return;
     }
-    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
-    runAutoGeneration(finalTheme, isResumeIntentRef.current);
-    isResumeIntentRef.current = false;
-  };
+    const isResume = isResumeIntentRef.current;
+  const finalTheme = theme.trim() || '自訂企劃 (未命名)';
+    
+  if (!isResume) {
+    addLog(`[System] 清空上一次的企劃快取，準備全新生成...`, 'info');
+    setStepContents({
+      1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: ""
+    });  
+addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
 
+runAutoGeneration(finalTheme, isResume);
+let currentContextContents = isResume ? { ...stepContents } : { 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: "" };
+  isResumeIntentRef.current = false;
+};
   const startManualWorkspace = () => {
     if (customContext.length > 5000) {
       alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
