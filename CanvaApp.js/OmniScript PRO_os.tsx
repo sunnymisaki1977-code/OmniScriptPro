@@ -1069,8 +1069,7 @@ const handleLogin = async (e: React.FormEvent) => {
     return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
   }
 
-  return (
-    <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
+
       
       {/* Mobile Drawer Overlay */}
       {isMobileMenuOpen && (
