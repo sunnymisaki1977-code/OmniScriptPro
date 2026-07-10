@@ -168,7 +168,16 @@ export default function App() {
   
   const [activeTab, setActiveTab] = useState('creation'); 
 
-  // ====== 核心狀態管理 (加上 SSR 防護) ======
+ const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [passcode, setPasscode] = useState('');
+  const [authError, setAuthError] = useState('');
+  
+  const [isGlobalMaster, setIsGlobalMaster] = useState(false); // 預設透過密碼驗證解鎖
+  
+  const [activeTab, setActiveTab] = useState('creation'); 
+
+ // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
@@ -197,6 +206,38 @@ export default function App() {
     const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
     if (savedAudienceTheme) setAudienceTheme(savedAudienceTheme);
   }, []);
+
+  
+    // Auth Session
+    const isAuth = sessionStorage.getItem('os_pro_auth') === 'true';
+    setIsAuthenticated(isAuth);
+    if (!isAuth) {
+      setShowLoginPrompt(true);
+    } else {
+      setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
+      setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
+    }
+  }, []);
+
+  // 全局攔截：確保任何點擊都會觸發驗證
+  useEffect(() => {
+    const handleInteraction = (e: Event) => {
+      if (!isAuthenticated && !showLoginPrompt) {
+        setShowLoginPrompt(true);
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('click', handleInteraction, true);
+      window.addEventListener('keydown', handleInteraction, true);
+      return () => {
+        window.removeEventListener('click', handleInteraction, true);
+        window.removeEventListener('keydown', handleInteraction, true);
+      };
+    }
+  }, [isAuthenticated, showLoginPrompt]);
+
 
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
 
@@ -950,7 +991,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
       setNotionUrl(data.url);
       fetchArchives(); // 成功後立即刷新歷史清單
       if (isGlobalMaster) {
-        window.open(data.url, '_blank');
+        window.open(data.url, '_blank')
+;
       }
     }
     
@@ -990,6 +1032,39 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     return 'text-red-400 bg-red-400/10 border-red-400/20';
   };
 
+const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = passcode.trim();
+    if (!code) return;
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(data.theme);
+        setIsGlobalMaster(data.isMaster);
+        sessionStorage.setItem('os_pro_auth', 'true');
+        sessionStorage.setItem('os_pro_theme', data.theme);
+        if (data.isMaster) {
+          sessionStorage.setItem('os_pro_master', 'true');
+        }
+        
+        addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
+      } else {
+        setAuthError(data.error || '授權碼無效或已過期');
+      }
+    } catch (error) {
+      setAuthError('伺服器連線失敗，請稍後再試');
+    }
+  };
   if (!isMounted) {
     return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
   }
@@ -2158,7 +2233,38 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         </div>
 
       </aside>
-
+     {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+      {(!isAuthenticated && showLoginPrompt) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+          <div 
+            className="relative z-10 w-full max-w-sm p-8 bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()} // 點擊密碼框內部不會冒泡
+          >
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
+            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
+            
+            <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
+              <div>
+                <input 
+                  type="password"
+                  value={passcode}
+                  onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
+                  placeholder="輸入授權碼"
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                  autoFocus
+                />
+              </div>
+              {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
+              <button 
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg active:scale-95"
+              >
+                解鎖並登入工作區
+              </button>
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
