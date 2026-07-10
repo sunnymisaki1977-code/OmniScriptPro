@@ -669,14 +669,7 @@ export default function App() {
             const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
                                 ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
             
-            let masterPrompt = `【最高系統防禦指令】：\n你是頂尖的全域企劃 AI 助理。你的「唯一職責」是依據下方資料產出指定任務的內容。\n請針對主題「${safeTheme}」產出指定步驟的內容。\n`;
-            if (safeStep1) {
-                masterPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止腦補。\n<USER_DATA>\n${safeStep1}\n</USER_DATA>\n`;
-            }
-            masterPrompt += `\n【絕對要求】：\n1. 你必須直接回傳最終的內容，絕對不要使用 JSON 格式。\n2. 請根據該步驟的需求，直接輸出對應的 Markdown 排版內容即可。\n\n====================\n任務 ID: "${i}"\n要求說明：\n`;
-            masterPrompt += promptFunc(context);
-            masterPrompt += `\n====================`;
-
+            
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -700,10 +693,7 @@ export default function App() {
              throw new Error(`AI 拒絕生成內容或要求補充資料`);
           }
 
-          // 防呆機制：若 Step 1 生成內容字數過少，代表 AI 無法找到足夠事實資料，必須中斷以防後續爛掉
-          if (i === 1 && outputText.length < 200) {
-             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${outputText.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上維基百科或相關文獻後，再點擊接續生成！`);
-          }
+         
           
           // 💾 成功拿到單步結果，塞入前端暫存器
           currentContextContents[i] = outputText;
