@@ -2232,7 +2232,8 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
       </aside>
-     {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+        </div>
+  {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
       {(!isAuthenticated && showLoginPrompt) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
           <div 
