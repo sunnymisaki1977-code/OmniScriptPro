@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       promptStr: step.prompt.toString() // 關鍵：將 JS function 序列化
     }));
 
-    return NextResponse.json({ configs: promptConfigs });
+    return NextResponse.json({ prompt: promptConfigs });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
