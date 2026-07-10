@@ -151,7 +151,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch(`https://omni-script-pro.vercel.app/api/config`)
+    fetch(`https://omni-script-pro.vercel.app/api/config/prompts`)
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -604,11 +604,13 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
+            const configRes = await fetch(`${API_BASE_URL}/api/config/prompts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
             });
+// 🛑 請在這裡加入 console.log 印出完整資料：
+console.log("Vercel API 回傳的原始資料:", data);
             if (!configRes.ok) throw new Error("獲取 Config 失敗");
             const { configs } = await configRes.json();
             
