@@ -217,7 +217,7 @@ export default function App() {
       setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
       setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
     }
-  }, []);
+  } []);
 
   // 全局攔截：確保任何點擊都會觸發驗證
   useEffect(() => {
