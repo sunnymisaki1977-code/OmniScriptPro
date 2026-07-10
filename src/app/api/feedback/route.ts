@@ -25,10 +25,10 @@ try {
     console.error("[Vercel 後端錯誤]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
 
 
-try {
+
+
     if (!FEEDBACK_DB_ID) {
       return NextResponse.json({ error: "Missing NOTION_FEEDBACK_DB_ID" }, { status: 500 });
     }
