@@ -1763,8 +1763,13 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
   ]
 };
 
-export const getWorkflowSteps = (themeId: string): WorkflowStep[] => {
-  return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage'];
+// ✅ 解決 Type error: Expected 1 arguments, but got 2.
+export function getWorkflowSteps(audienceTheme: string, theme?: string): WorkflowStep[] {
+  // 根據前端傳進來的類型（如 'heritage'）取得對應的步驟陣列，若找不到則以 'heritage' 為預設值
+  return WORKFLOWS_REGISTRY[audienceTheme] || WORKFLOWS_REGISTRY['heritage'] || [];};
+
+export const WORKFLOW_STEPS: WorkflowStep[] = WORKFLOWS_REGISTRY['heritage'];
+
 };
 
 export const WORKFLOW_STEPS: WorkflowStep[] = WORKFLOWS_REGISTRY['heritage'];
