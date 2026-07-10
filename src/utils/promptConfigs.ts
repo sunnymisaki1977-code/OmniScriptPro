@@ -1767,7 +1767,7 @@ export const getWorkflowSteps = (themeId: string, theme?: string): WorkflowStep[
 <<<<<<< HEAD
   return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage']|| [];
 };
-=======
+
   return WORKFLOWS_REGISTRY[themeId] || WORKFLOWS_REGISTRY['heritage']|| [];};
 
 
