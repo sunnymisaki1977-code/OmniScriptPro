@@ -5,7 +5,30 @@ const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const FEEDBACK_DB_ID = process.env.NOTION_FEEDBACK_DB_ID;
 
 export async function POST(req: Request) {
-  try {
+try {
+    // 1. 解析前端傳來的資料
+    const body = await request.json();
+    
+    // 🔍 【安插點 1】這行 log 會印在 Vercel 後台
+    // 檢查前端是不是真的把「關聖帝君」傳過來了
+    console.log("[Vercel 後端偵錯] 收到前端傳來的變數:", body); 
+
+    // ... 這裡通常是您呼叫 AI 或是處理邏輯的地方 ...
+    // const promptConfigs = await generateSomething(body.startTheme);
+
+    // 🔍 【安插點 2】在回傳給前端之前，把要回傳的東西印出來
+    // 檢查 AI 吐出來的結果裡面，是不是變成別人了
+    console.log("[Vercel 後端偵錯] 準備回傳給前端的資料:", promptConfigs);
+
+    return NextResponse.json({ configs: promptConfigs });
+  } catch (error) {
+    console.error("[Vercel 後端錯誤]:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}; 
+
+
+try {
     if (!FEEDBACK_DB_ID) {
       return NextResponse.json({ error: "Missing NOTION_FEEDBACK_DB_ID" }, { status: 500 });
     }
