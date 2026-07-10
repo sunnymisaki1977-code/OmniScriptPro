@@ -151,7 +151,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch(`https://omni-script-pro.vercel.app/api/gemini`)
+    fetch(`https://omni-script-pro.vercel.app/api/config`)
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
