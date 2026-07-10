@@ -553,12 +553,15 @@ export default function App() {
   // 4. 改寫全自動生成引擎 (打 Vercel API)
   // ============================================================================
   const runAutoGeneration = async (startTheme: string, isResume = false) => {
-      
+   
+   let currentContextContents = isResume 
+    ? { ...stepContents } 
+    : { 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: "" };
     setIsGenerating(true);
         setMode('auto');
     setViewState('workspace');
     
-    let currentContextContents = { ...stepContents }; 
+     
     let startStep = 1;
 
     // --- 新增：偵測主題變更並自動提示清空 ---
@@ -576,7 +579,7 @@ export default function App() {
         setCompletedSteps([1]);
         setCustomContext('');
       }
-    }
+    };
     localStorage.setItem('os_pro_lastGeneratedTheme', startTheme);
 
     const isStepEmpty = (stepId: number) => {
@@ -783,31 +786,34 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-    
-    if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
-      setShowApiKeyModal(true);
-      return;
-    }
-    if (customContext.length > 5000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
-      return;
-    }
-    if (!theme.trim() && !customContext.trim()) {
-      alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
-      return;
-    }
-    const isResume = isResumeIntentRef.current;
+  if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
+    setShowApiKeyModal(true);
+    return;
+  }
+  if (customContext.length > 5000) {
+    alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+    return;
+  }
+  if (!theme.trim() && !customContext.trim()) {
+    alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
+    return;
+  }
+
+  const isResume = isResumeIntentRef.current;
   const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    
+
+  // 如果是一次全新生成，清空 UI 的步驟內容
   if (!isResume) {
     addLog(`[System] 清空上一次的企劃快取，準備全新生成...`, 'info');
     setStepContents({
       1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: ""
-    });  
-addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
+    });
+  }
 
-runAutoGeneration(finalTheme, isResume);
-let currentContextContents = isResume ? { ...stepContents } : { 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: "" };
+  addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
+  
+  // 啟動流水線
+  runAutoGeneration(finalTheme, isResume);
   isResumeIntentRef.current = false;
 };
   const startManualWorkspace = () => {
