@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-<<<<<<< HEAD
+
    const { audienceTheme, theme } = await req.json();
-=======
+
     const { audienceTheme, theme } = await req.json();
 
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage', theme);
