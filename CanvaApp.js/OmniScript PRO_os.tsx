@@ -776,7 +776,6 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-<<<<<<< ours
   if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
     setShowApiKeyModal(true);
     return;
@@ -789,29 +788,6 @@ export default function App() {
     alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
     return;
   }
-=======
-    
-    const isCanvasNow = checkCanvasEnv() || isCanvasEnv;
-    if (!isCanvasNow && !isGlobalMaster && !geminiApiKey.trim()) {
-      setShowApiKeyModal(true);
-      return;
-    }
-    if (customContext.length > 5000) {
-      if (isCanvasNow) addLog(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`, 'error');
-      else alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
-      return;
-    }
-    if (!theme.trim() && !customContext.trim()) {
-      if (isCanvasNow) addLog("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！", 'error');
-      else alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
-      return;
-    }
-    const finalTheme = theme.trim() || '自訂企劃 (未命名)';
-    addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
-    runAutoGeneration(finalTheme, isResumeIntentRef.current);
-    isResumeIntentRef.current = false;
-  };
->>>>>>> theirs
 
   const isResume = isResumeIntentRef.current;
   const finalTheme = theme.trim() || '自訂企劃 (未命名)';
@@ -884,9 +860,7 @@ export default function App() {
   };
 
   const clearAllData = () => {
-    const isCanvasNow = checkCanvasEnv() || isCanvasEnv;
-    const proceed = isCanvasNow || window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）');
-    if (proceed) {
+    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
       setTheme('');
       setCustomContext('');
       setStepContents({
@@ -1202,17 +1176,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-3 lg:gap-4 shrink-0">
-<<<<<<< ours
            
-=======
-            {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Gemini Canvas (環境內注 API 無需自行輸入)</span>
-              </div>
-            )}
->>>>>>> theirs
 
             {/* 清空企劃按鈕 (從工作區移上來) */}
             <button 
