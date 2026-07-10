@@ -54,7 +54,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
  const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://omni-script-pro.vercel.app' 
   : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,7 +164,12 @@ export default function App() {
   }, []);
 
   // --- 狀態管理保持不變 ---
-  const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [passcode, setPasscode] = useState('');
+  const [authError, setAuthError] = useState('');
+  
+  const [isGlobalMaster, setIsGlobalMaster] = useState(false); // 預設透過密碼驗證解鎖
   
   const [activeTab, setActiveTab] = useState('creation'); 
 
@@ -196,18 +201,57 @@ export default function App() {
     setIsMounted(true);
     const savedAudienceTheme = localStorage.getItem('os_pro_audienceTheme');
     if (savedAudienceTheme) setAudienceTheme(savedAudienceTheme);
+    
+    // Auth Session
+    const isAuth = sessionStorage.getItem('os_pro_auth') === 'true';
+    setIsAuthenticated(isAuth);
+    if (!isAuth) {
+      setShowLoginPrompt(true);
+    } else {
+      setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
+      setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
+    }
   }, []);
+
+  // 全局攔截：確保任何點擊都會觸發驗證
+  useEffect(() => {
+    const handleInteraction = (e: Event) => {
+      if (!isAuthenticated && !showLoginPrompt) {
+        setShowLoginPrompt(true);
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('click', handleInteraction, true);
+      window.addEventListener('keydown', handleInteraction, true);
+      return () => {
+        window.removeEventListener('click', handleInteraction, true);
+        window.removeEventListener('keydown', handleInteraction, true);
+      };
+    }
+  }, [isAuthenticated, showLoginPrompt]);
 
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
 
   const [isGenerating, setIsGenerating] = useState(false);
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
+   const checkCanvasEnv = () => typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [isCanvasEnv, setIsCanvasEnv] = useState(false);
    
    useEffect(() => {
-     if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
+     if (checkCanvasEnv()) {
        setIsCanvasEnv(true);
+     } else {
+       // Canvas 可能稍晚才注入變數，給它一點時間輪詢
+       const timer = setInterval(() => {
+         if (checkCanvasEnv()) {
+           setIsCanvasEnv(true);
+           clearInterval(timer);
+         }
+       }, 500);
+       return () => clearInterval(timer);
      }
    }, []);
 
@@ -443,7 +487,8 @@ export default function App() {
 
   const generateGroupImage = async (group) => {
     
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    const isCanvasNow = checkCanvasEnv() || isCanvasEnv;
+    if (!isCanvasNow && !geminiApiKey.trim()) {
       setPendingImageTask(() => () => generateGroupImage(group));
       setShowApiKeyModal(true);
       return;
@@ -604,13 +649,13 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`${API_BASE_URL}/api/gemini`, {
+            const configRes = await fetch(`${API_BASE_URL}/api/config/prompts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
             });
             if (!configRes.ok) throw new Error("獲取 Config 失敗");
-            const { configs } = await configRes.json();
+            const { prompt: configs } = await configRes.json();
             
             // 轉換回前端 Function
             localPromptFunctions = {};
@@ -662,9 +707,15 @@ export default function App() {
         if (isCanvasEnv && localPromptFunctions) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
-            const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
-            const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
+            // 當前步驟如果是第一步，不要把舊的第一步結果當成 background context，除非那是 customContext 來的
+            let safeStep1 = "";
+            if (i === 1) {
+                // 如果是第一步，只信任 customContext，不信任自動殘留的舊資料
+                safeStep1 = customContext ? customContext.replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
+            } else {
+                safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
                                 ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
+            }
             
             let masterPrompt = `【最高系統防禦指令】：\n你是頂尖的全域企劃 AI 助理。你的「唯一職責」是依據下方資料產出指定任務的內容。\n請針對主題「${safeTheme}」產出指定步驟的內容。\n`;
             if (safeStep1) {
@@ -784,7 +835,8 @@ export default function App() {
 
   const handleStartAuto = () => {
     
-    if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
+    const isCanvasNow = checkCanvasEnv() || isCanvasEnv;
+    if (!isCanvasNow && !isGlobalMaster && !geminiApiKey.trim()) {
       setShowApiKeyModal(true);
       return;
     }
@@ -961,7 +1013,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   const generateNewImage = async () => {
     
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    const isCanvasNow = checkCanvasEnv() || isCanvasEnv;
+    if (!isCanvasNow && !geminiApiKey.trim()) {
       setPendingImageTask(() => generateNewImage);
       setShowApiKeyModal(true);
       return;
@@ -984,6 +1037,40 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     if (aiStatus === 'pro') return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
     if (aiStatus === 'flash') return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
     return 'text-red-400 bg-red-400/10 border-red-400/20';
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = passcode.trim();
+    if (!code) return;
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(data.theme);
+        setIsGlobalMaster(data.isMaster);
+        sessionStorage.setItem('os_pro_auth', 'true');
+        sessionStorage.setItem('os_pro_theme', data.theme);
+        if (data.isMaster) {
+          sessionStorage.setItem('os_pro_master', 'true');
+        }
+        
+        addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
+      } else {
+        setAuthError(data.error || '授權碼無效或已過期');
+      }
+    } catch (error) {
+      setAuthError('伺服器連線失敗，請稍後再試');
+    }
   };
 
   if (!isMounted) {
@@ -2165,6 +2252,52 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         </div>
 
       </aside>
+
+      {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+      {(!isAuthenticated && showLoginPrompt) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+          <div 
+            className="relative z-10 w-full max-w-sm p-8 bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()} // 點擊密碼框內部不會冒泡
+          >
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
+            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
+            
+            <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
+              <div>
+                <input 
+                  type="password"
+                  value={passcode}
+                  onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
+                  placeholder="輸入授權碼"
+                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
+                  autoFocus
+                />
+              </div>
+              {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
+              <button 
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg active:scale-95"
+              >
+                解鎖並登入工作區
+              </button>
+            </form>
+
+            {/* 開發測試用小抄 (上線給客戶時可將這塊 div 刪除) */}
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2 text-[12px] text-slate-600 font-mono relative z-10">
+              <span>TECH2026 (民俗)</span>
+              <span>GLAM2026 (美妝)</span>
+              <span>INDIE2026 (旅遊)</span>
+              <span>RUBY2026 (美食)</span>
+              <span>SKY2026 (寵物)</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* API Key Modal */}
       {showApiKeyModal && (
