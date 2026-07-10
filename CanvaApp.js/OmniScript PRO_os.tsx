@@ -54,7 +54,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
  const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://omni-script-pro.vercel.app' 
   : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -293,8 +293,8 @@ export default function App() {
   }, []);
 
   const [logs, setLogs] = useState([
-    { time: "23:22:36", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
-    { time: "23:22:40", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
+    { time: "[System]", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
+    { time: "[System]", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
   ]);
   
   const [aiStatus, setAiStatus] = useState('pro'); 
@@ -649,7 +649,7 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`${API_BASE_URL}/api/config/prompts`, {
+            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
