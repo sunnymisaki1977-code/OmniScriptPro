@@ -7,7 +7,7 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
 } from 'lucide-react';
 
 
@@ -40,69 +40,89 @@ const IMAGE_ENGINES = [
 ];
 
 // ============================================================================
-// --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 (含本地備用機制) ---
-async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
-    let prompt = "";
-    
-    // 步驟 1：嘗試向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    try {
-        const VERCEL_API_URL = '/api/gemini';
-        const promptResponse = await fetch(VERCEL_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stepId, context, audienceTheme })
-        });
-        if (promptResponse.ok) {
-            const data = await promptResponse.json();
-            prompt = data.prompt;
-        }
-    } catch (e) {
-        console.warn("未能連接 Vercel 獲取專屬 Prompt，啟用本地備用 Prompt 生成器。");
-    }
-
-    // 若 Vercel 不通（例如在 Canvas 沙盒環境中），啟用本地備用 Prompt
-    if (!prompt) {
-        const themeName = context.theme || "未命名企劃";
-        const bgData = context[1] || context.step1 || "";
-        prompt = `你是一位專業的社群影音內容企劃專家。
-現在的主題是：「${themeName}」
-請為此企劃執行 Step ${stepId} 的內容撰寫。
-請根據以下既有資料進行接續發展：
-${bgData ? `背景資料：\n${bgData}\n` : ""}
-要求：
-1. 內容必須專業且具備洞察力。
-2. 請輸出高品質、排版清晰的 Markdown 繁體中文格式，可以直接作為腳本或社群貼文。
-3. 如果是第一步，請整理出具體的客觀事實、數據或相關典故。`;
-    }
-
-    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini 官方 API
+// --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
+async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+    // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    if (!apiKey) {
-        throw new Error("未設定 Gemini API 金鑰。");
-    }
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
     
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    
+    // ==========================================
+    // 階段 1：向 Vercel 請求「組裝好的 Prompt」
+    // ==========================================
+ const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://omni-script-pro.vercel.app' 
+  : '';   
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/config/prompts';
+    const promptResponse = await fetch(VERCEL_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            currentStepId: stepId, 
+            theme: context.theme, 
+            existingData: context,
+            audienceTheme,
+            apiKey: apiKey,
+            returnPromptOnly: true
+        })
+    });
+
+    if (!promptResponse.ok) {
+        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
+    }
+
+    const vercelData = await promptResponse.json();
+    const finalPrompt = vercelData.prompt; 
+    const responseSchema = vercelData.schema;
+    const isSearchEnabled = vercelData.isSearchEnabled;
+
+    if (!finalPrompt) {
+        throw new Error("Vercel API 沒有回傳有效的 Prompt");
+    }
+
+    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
+    const geminiPayload: any = {
+        contents: [{ parts: [{ text: finalPrompt }] }],
+        generationConfig: {
+            maxOutputTokens: 8192
+        }
+    };
+
+    if (isSearchEnabled) {
+        geminiPayload.tools = [{ googleSearch: {} }];
+    } else if (responseSchema) {
+        geminiPayload.generationConfig.responseMimeType = "application/json";
+        geminiPayload.generationConfig.responseSchema = responseSchema;
+    }
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-            // 移除了 googleSearch tool 以避免在 API Key 未開通 Grounding 權限時報錯 403
-        })
+        body: JSON.stringify(geminiPayload)
     });
-    
+
     if (!aiResponse.ok) {
-        const err = await aiResponse.json().catch(() => ({}));
-        throw new Error(`Google API 錯誤: ${aiResponse.status} ${err.error?.message || ''}`);
+        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
     }
     
     const data = await aiResponse.json();
-    const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!outputText) {
-        throw new Error("Google API 沒有回傳有效的內容");
+    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    
+    // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
+    if (!isSearchEnabled) {
+        try {
+            // 清理可能包含的 markdown json block
+            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
+            const parsedData = JSON.parse(cleanText);
+            if (parsedData && parsedData[stepId.toString()]) {
+                return parsedData[stepId.toString()];
+            }
+        } catch(e) {
+            console.error("JSON 解析失敗", e);
+        }
     }
-    return outputText;
+    return cleanText;
 }
 
 // ============================================================================
@@ -117,7 +137,7 @@ const LOADING_VIDEOS_LIST = [
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
   if (!stepId) return "請選擇一個步驟進行檢視。";
   
-  return `【等待從伺服器獲取資料...】\n\n點擊「一鍵全自動模式」或單步「重新生成」來向伺服器發送請求。`;
+  return `【等待從 Vercel 伺服器獲取資料...】\n\n點擊「一鍵全自動模式」或單步「重新生成」來向伺服器發送請求。`;
 };
 
 // ============================================================================
@@ -131,7 +151,7 @@ export default function App() {
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
 
   useEffect(() => {
-    fetch('https://omni-script-pro.vercel.app/api/config')
+    fetch(`https://omni-script-pro.vercel.app/api/config`)
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
@@ -183,7 +203,14 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
    
    // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
+   const [isCanvasEnv, setIsCanvasEnv] = useState(false);
+   
+   useEffect(() => {
+     if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
+       setIsCanvasEnv(true);
+     }
+   }, []);
+
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -523,18 +550,18 @@ export default function App() {
   };
 
   // ============================================================================
-  // 4. 改寫全自動生成引擎 (統一打 callVercelApi 具備降級機制)
+  // 4. 改寫全自動生成引擎 (打 Vercel API)
   // ============================================================================
   const runAutoGeneration = async (startTheme: string, isResume = false) => {
       
     setIsGenerating(true);
-    setMode('auto');
+        setMode('auto');
     setViewState('workspace');
     
     let currentContextContents = { ...stepContents }; 
     let startStep = 1;
 
-    // --- 偵測主題變更並自動提示清空 ---
+    // --- 新增：偵測主題變更並自動提示清空 ---
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
     const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
     if (startTheme !== savedLastTheme && !isCanvasEmpty) {
@@ -557,13 +584,15 @@ export default function App() {
       return !content || content.trim() === '' || content === getInitialStepContent(stepId, "");
     };
 
-    // 如果使用者有自訂背景資料且 Step 1 為空，就把它當作 Step 1
+    // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
     if (customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
     }
 
+    // 不再使用強制跳過的智能接續邏輯，改由 selectedSteps 全權決定要執行的步驟
+    // 這樣使用者若刻意勾選已完成的步驟，也能夠強制重新生成。
     startStep = 1;
 
     // ==========================================
@@ -571,8 +600,33 @@ export default function App() {
     // ==========================================
     addLog(`🚀 [Process] 自動化流水線啟動：目標主題【${startTheme}】...`, 'info');
 
+    let localPromptFunctions: any = null;
+    if (isCanvasEnv) {
+        addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
+        try {
+            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audienceTheme })
+            });
+            if (!configRes.ok) throw new Error("獲取 Config 失敗");
+            const { configs } = await configRes.json();
+            
+            // 轉換回前端 Function
+            localPromptFunctions = {};
+            configs.forEach((c: any) => {
+                localPromptFunctions[c.id] = new Function('return (' + c.promptStr + ')')();
+            });
+            addLog(`[Canvas] 成功載入 Prompt Configs！準備啟動本地端生成流水線...`, 'success');
+        } catch (error: any) {
+            addLog(`[Error] 抓取 Prompt Configs 發生錯誤：${error.message}`, 'error');
+            setIsGenerating(false);
+            return;
+        }
+    }
+
+    let currentRunningStep = startStep;
     try {
-      let currentRunningStep = startStep;
       for (let i = startStep; i <= STEPS.length; i++) {
         if (!selectedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
@@ -586,30 +640,72 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
-        // 統一使用具備本地備用機制的 callVercelApi
-        const contextForApi = {
-            theme: startTheme,
-            step1: isStepEmpty(1) ? "" : currentContextContents[1],
-            ...currentContextContents
-        };
-        
-        let outputText = "";
-        try {
-            outputText = await callVercelApi(i, contextForApi, audienceTheme, geminiApiKey);
-        } catch (apiErr) {
-            throw new Error(apiErr.message || "Vercel API 沒有回傳有效的 Prompt，或是 API 金鑰有誤");
-        }
+        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
 
+        const context = {
+            theme: startTheme,
+            step1: currentContextContents[1] || "",
+            step2: currentContextContents[2] || "",
+            step3: currentContextContents[3] || "",
+            step4: currentContextContents[4] || "",
+            step5: currentContextContents[5] || "",
+            step6: currentContextContents[6] || "",
+            step7: currentContextContents[7] || "",
+            step8: currentContextContents[8] || "",
+            step9: currentContextContents[9] || "",
+            step10: currentContextContents[10] || "",
+        };
+
+        // 💡 依據環境決定生成方式
+        let outputText = "";
+
+        if (isCanvasEnv && localPromptFunctions) {
+            // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
+            const promptFunc = localPromptFunctions[i];
+            const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
+            const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
+                                ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
+            
+            let masterPrompt = `【最高系統防禦指令】：\n你是頂尖的全域企劃 AI 助理。你的「唯一職責」是依據下方資料產出指定任務的內容。\n請針對主題「${safeTheme}」產出指定步驟的內容。\n`;
+            if (safeStep1) {
+                masterPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止腦補。\n<USER_DATA>\n${safeStep1}\n</USER_DATA>\n`;
+            }
+            masterPrompt += `\n【絕對要求】：\n1. 你必須直接回傳最終的內容，絕對不要使用 JSON 格式。\n2. 請根據該步驟的需求，直接輸出對應的 Markdown 排版內容即可。\n\n====================\n任務 ID: "${i}"\n要求說明：\n`;
+            masterPrompt += promptFunc(context);
+            masterPrompt += `\n====================`;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+            const aiResponse = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: masterPrompt }] }],
+                    tools: (i === 1 && !safeStep1) ? [{ googleSearch: {} }] : []
+                })
+            });
+            if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+            const data = await aiResponse.json();
+            outputText = data.candidates[0].content.parts[0].text;
+            
+        } else {
+            // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
+            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, isCanvasEnv);
+        }
         if (outputText) {
-          // 防呆機制：若 Step 1 生成內容字數過少，代表 AI 無法找到足夠事實資料
+          // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
+          if (outputText.includes('我需要一份經過專家查核') || outputText.includes('無法繼續執行') || outputText.includes('很抱歉')) {
+             throw new Error(`AI 拒絕生成內容或要求補充資料`);
+          }
+
+          // 防呆機制：若 Step 1 生成內容字數過少，代表 AI 無法找到足夠事實資料，必須中斷以防後續爛掉
           if (i === 1 && outputText.length < 200) {
-             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${outputText.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上相關文獻後，再點擊接續生成！`);
+             throw new Error(`【基礎背景資料不足】AI 無法為此主題找到足夠的客觀史料（僅產出 ${outputText.length} 字）。為確保後續腳本品質，已強制暫停。請手動在左側「自訂背景資料」貼上維基百科或相關文獻後，再點擊接續生成！`);
           }
           
           // 💾 成功拿到單步結果，塞入前端暫存器
           currentContextContents[i] = outputText;
           
-          // 🔄 即時更新前端 UI 狀態
+          // 🔄 即時更新前端 UI 狀態，使用者能看到文字一格一格長出來
           setStepContents({ ...currentContextContents });
           setCompletedSteps(prev => [...new Set([...prev, i])]);
           addLog(`✅ [AI] Step ${i} 執行成功！`, 'success');
@@ -629,7 +725,7 @@ export default function App() {
       setActiveStep(1);
 
     } catch (error: any) {
-      addLog(`🛑 [Error] 流水線在 Step ${activeStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
+      addLog(`🛑 [Error] 流水線在 Step ${currentRunningStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
     } finally {
       setIsGenerating(false);
     }
@@ -1077,10 +1173,15 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           {/* Top Action Buttons & Metrics */}
           <div className="flex items-center gap-3 lg:gap-4 shrink-0">
             {/* 動態顯示環境授權狀態 */}
-            {isCanvasEnv && (
+            {isCanvasEnv ? (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-[10px]">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Canvas 環境已授權</span>
+                <span>Gemini Canvas (環境內注 API 無需自行輸入)</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-[10px]">
+                <Globe className="w-3.5 h-3.5" />
+                <span>Vercel (輸入 API 才能運行)</span>
               </div>
             )}
 
@@ -1485,7 +1586,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
                               <video 
                                 src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
                                 autoPlay 
-                                defaultMuted={true}
                                 muted={isVideoMuted}
                                 playsInline
                                 webkit-playsinline="true"
@@ -1568,7 +1668,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         <video 
           src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
           autoPlay 
-          defaultMuted={true}
           muted={isVideoMuted}
           playsInline
           webkit-playsinline="true"
