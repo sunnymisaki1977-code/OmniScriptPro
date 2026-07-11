@@ -216,8 +216,13 @@ export default function App() {
     } else {
       setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
       setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
+<<<<<<< HEAD
     
   } 
+=======
+    }
+  }, []);
+
 
   // 全局攔截：確保任何點擊都會觸發驗證
   useEffect(() => {
@@ -1108,12 +1113,15 @@ const handleLogin = async (e: React.FormEvent) => {
                 <div key={tab.id} className="space-y-1.5">
                   <button 
                     onClick={() => {
-                      setActiveTab(tab.id);
+                      if (tab.id === 'creation') {
+                        setActiveTab(tab.id);
+                      }
                     }}
+                    disabled={tab.id !== 'creation'}
                     className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-xs transition-all text-left border relative ${
                       isActive 
                         ? `${curTheme.bgActive} ${curTheme.textActive} ${curTheme.borderActive}` 
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 border-transparent'
+                        : 'text-slate-500 border-transparent disabled:cursor-not-allowed'
                     }`}
                   >
                     {/* Left indicator active line */}
@@ -1197,7 +1205,7 @@ const handleLogin = async (e: React.FormEvent) => {
         {/* Bottom Sidebar Controls */}
         <div className="p-4 border-t border-slate-900 space-y-3">
           {/* Notion Connected Indicator */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/30 border border-slate-900">
+          <div className="hidden items-center justify-between p-3 rounded-xl bg-slate-900/30 border border-slate-900">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center font-black text-xs text-white border border-slate-800">
                 N
@@ -1464,7 +1472,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
 
                   {/* Notion Load Project Component */}
-                  <div className="pt-4 border-t border-slate-900/60 flex flex-col items-center gap-3">
+                  <div className="hidden pt-4 border-t border-slate-900/60 flex-col items-center gap-3">
                     <div className="flex items-center gap-2 text-indigo-400">
                       <UploadCloud className="w-4.5 h-4.5" />
                       <span className="text-xs font-bold">從 Notion 載入已歸檔專案</span>
@@ -2169,7 +2177,7 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
         {/* Bottom Part: Notion Synchronization Center */}
-        <div className="p-5 border-t border-slate-900 bg-slate-950/40">
+        <div className="hidden p-5 border-t border-slate-900 bg-slate-950/40">
           <div className="flex items-center gap-2 mb-3.5">
             <HardDrive className="w-4 h-4 text-slate-400" />
             <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Notion 同步中心</h4>
@@ -2232,8 +2240,12 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
       </aside>
+<<<<<<< HEAD
         </div>
   {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+=======
+     {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
+
       {(!isAuthenticated && showLoginPrompt) && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
           <div 
