@@ -209,15 +209,16 @@ export default function App() {
 
   
     // Auth Session
-    const isAuth = sessionStorage.getItem('os_pro_auth') === 'true';
-    setIsAuthenticated(isAuth);
-    if (!isAuth) {
-      setShowLoginPrompt(true);
-    } else {
-      setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
-      setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
-    }
-  }, []);
+    useEffect(() => {
+      const isAuth = sessionStorage.getItem('os_pro_auth') === 'true';
+      setIsAuthenticated(isAuth);
+      if (!isAuth) {
+        setShowLoginPrompt(true);
+      } else {
+        setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
+        setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
+      }
+    }, []);
 
 
   // 全局攔截：確保任何點擊都會觸發驗證
@@ -1071,7 +1072,8 @@ const handleLogin = async (e: React.FormEvent) => {
     return null; // 解決 Hydration Mismatch，等前端掛載完成再繪製 UI
   }
 
-
+  return (
+    <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
       
       {/* Mobile Drawer Overlay */}
       {isMobileMenuOpen && (
@@ -2237,7 +2239,6 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
       </aside>
-        </div>
      {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
 
       {(!isAuthenticated && showLoginPrompt) && (
@@ -2271,6 +2272,11 @@ const handleLogin = async (e: React.FormEvent) => {
               >
                 解鎖並登入工作區
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
