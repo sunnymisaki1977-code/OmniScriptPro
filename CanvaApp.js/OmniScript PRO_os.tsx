@@ -216,10 +216,6 @@ export default function App() {
     } else {
       setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
       setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
-<<<<<<< HEAD
-    
-  } 
-=======
     }
   }, []);
 
@@ -291,7 +287,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchArchives();
+    // 封測期間不自動載入 Notion 清單
+    // fetchArchives();
   }, []);
 
   const [logs, setLogs] = useState([
@@ -756,8 +753,8 @@ export default function App() {
       addLog(`🎉 [System] ✨ ${STEPS.length}-Step 所有企劃步驟全自動流水線執行完畢！`, 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
       
-      // 自動匯出至 Notion
-      addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
+      // 自動匯出至 Notion (封測期間不顯示於前台 Log)
+      // addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
       await startNotionExport(currentContextContents, startTheme);
       
       // 生成成功後，讓畫面回到第一步
@@ -958,8 +955,8 @@ export default function App() {
 // --- 匯出資料至 Notion ---
 const startNotionExport = async (customContents = null, customTheme = null) => {
   setIsNotionExporting(true);
-  setNotionStatus('正在同步至 Notion...');
-  addLog(`[System] 開始封裝企劃資料，自動準備匯出...`, 'info');
+  // setNotionStatus('正在同步至 Notion...');
+  // addLog(`[System] 開始封裝企劃資料，自動準備匯出...`, 'info');
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
@@ -988,23 +985,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
     const data = await response.json();
     
-    setNotionStatus('✅ 已成功歸檔');
-    addLog(`[Notion] ✨ 企劃匯出成功！`, 'success');
+    // setNotionStatus('✅ 已成功歸檔');
+    // addLog(`[Notion] ✨ 企劃匯出成功！`, 'success');
     
     // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (data.url) {
       setNotionUrl(data.url);
       fetchArchives(); // 成功後立即刷新歷史清單
-      if (isGlobalMaster) {
-        window.open(data.url, '_blank')
-;
-      }
+      // 封測期間不跳出頁面
+      // if (isGlobalMaster) {
+      //   window.open(data.url, '_blank');
+      // }
     }
     
   } catch (error) {
     console.error("Notion 匯出失敗:", error);
-    setNotionStatus('❌ 歸檔失敗');
-    addLog(`[Error] 匯出失敗: ${error.message}`, 'error');
+    // setNotionStatus('❌ 歸檔失敗');
+    // addLog(`[Error] 匯出失敗: ${error.message}`, 'error');
   } finally {
     setIsNotionExporting(false);
   }
@@ -2240,10 +2237,7 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
       </aside>
-<<<<<<< HEAD
         </div>
-  {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
-=======
      {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
 
       {(!isAuthenticated && showLoginPrompt) && (
