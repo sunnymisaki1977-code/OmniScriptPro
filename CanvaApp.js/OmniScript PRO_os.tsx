@@ -1080,7 +1080,7 @@ const handleLogin = async (e: React.FormEvent) => {
       )}
       
       {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
-       <className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
+       <aside className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
