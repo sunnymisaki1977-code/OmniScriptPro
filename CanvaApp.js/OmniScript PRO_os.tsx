@@ -2089,8 +2089,7 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      <aside >className="w-80 bg-[#070b16] border-l border-slate-900/80 flex flex-col justify-between z-20 shrink-0">
-        
+      <aside className="w-80 bg-[#070b16] border-l border-slate-900/80 flex flex-col justify-between z-20 shrink-0">
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
