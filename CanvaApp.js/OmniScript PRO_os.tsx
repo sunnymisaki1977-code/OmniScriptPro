@@ -39,38 +39,90 @@ const IMAGE_ENGINES = [
   }
 ];
 
-// ============================================================================
+ // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
-    // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
-    const VERCEL_API_URL = '/api/gemini';
+async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+    // 取得 API Key 的邏輯保持不變
+    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    
+    
+    // ==========================================
+    // 階段 1：向 Vercel 請求「組裝好的 Prompt」
+    // ==========================================
+ const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://omni-script-pro.vercel.app' 
+  : '';   
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stepId, context, audienceTheme })
+        body: JSON.stringify({ 
+            currentStepId: stepId, 
+            theme: context.theme, 
+            existingData: context,
+            audienceTheme,
+            apiKey: apiKey,
+            returnPromptOnly: true
+        })
     });
+
     if (!promptResponse.ok) {
-        throw new Error(`Vercel 邏輯引擎錯誤: ${promptResponse.status}`);
+        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
-    const { prompt } = await promptResponse.json();
+
+    const vercelData = await promptResponse.json();
+    const finalPrompt = vercelData.prompt; 
+    const responseSchema = vercelData.schema;
+    const isSearchEnabled = vercelData.isSearchEnabled;
+
+    if (!finalPrompt) {
+        throw new Error("Vercel API 沒有回傳有效的 Prompt");
+    }
+
     // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
-    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const geminiPayload: any = {
+        contents: [{ parts: [{ text: finalPrompt }] }],
+        generationConfig: {
+            maxOutputTokens: 8192
+        }
+    };
+
+    if (isSearchEnabled) {
+        geminiPayload.tools = [{ googleSearch: {} }];
+    } else if (responseSchema) {
+        geminiPayload.generationConfig.responseMimeType = "application/json";
+        geminiPayload.generationConfig.responseSchema = responseSchema;
+    }
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ googleSearch: {} }]
-        })
+        body: JSON.stringify(geminiPayload)
     });
+
     if (!aiResponse.ok) {
         throw new Error(`Google API 錯誤: ${aiResponse.status}`);
     }
     
     const data = await aiResponse.json();
-    return data.candidates[0].content.parts[0].text;
+    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    
+    // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
+    if (!isSearchEnabled) {
+        try {
+            // 清理可能包含的 markdown json block
+            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
+            const parsedData = JSON.parse(cleanText);
+            if (parsedData && parsedData[stepId.toString()]) {
+                return parsedData[stepId.toString()];
+            }
+        } catch(e) {
+            console.error("JSON 解析失敗", e);
+        }
+    }
+    return cleanText;
 }
 
 // ============================================================================
@@ -89,21 +141,6 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 };
 
 
-
-// ============================================================================
-// 2. 瘦身版 STEPS (已移除 Prompt，交由 Vercel 後端處理)
-// ============================================================================
-// 新增：MP4 輪播影片清單 (您可以在此陣列加入多個影片網址)
-const LOADING_VIDEOS_LIST = [
-  "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4",
-  "https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4" // 請替換成您的第二個影片網址
-];
-
-const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
-  if (!stepId) return "請選擇一個步驟進行檢視。";
-  
-  return `【等待從 Vercel 伺服器獲取資料...】\n\n點擊「一鍵全自動模式」或單步「重新生成」來向伺服器發送請求。`;
-};
 
 // ============================================================================
 // 3. React 元件主體與狀態
@@ -188,7 +225,13 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
    
      // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
+   const [isCanvasEnv, setIsCanvasEnv] = useState(false);
+   
+   useEffect(() => {
+     if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
+       setIsCanvasEnv(true);
+     }
+   }, []);
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
