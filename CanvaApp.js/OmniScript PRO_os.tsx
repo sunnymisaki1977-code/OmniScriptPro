@@ -564,29 +564,7 @@ export default function App() {
     setLogs(prev => [...prev, { time: timestamp, text: message, type }]);
   };
 
-  const safeConfirm = (msg: string) => {
-    try {
-      // 判斷是否在 iframe 中，若是則直接放行，避免 sandbox 靜默攔截回傳 false
-      if (window.self !== window.top) {
-        return true;
-      }
-      return window.confirm(msg);
-    } catch (e) {
-      return true; // 封測/Gemini環境中若跨網域存取報錯，也直接放行
-    }
-  };
-
-  const safeAlert = (msg: string) => {
-    try {
-      if (window.self !== window.top) {
-        addLog(`[System Alert] ${msg}`, 'warning');
-        return;
-      }
-      window.alert(msg);
-    } catch (e) {
-      addLog(`[System Alert] ${msg}`, 'warning');
-    }
-  };
+  
 
   const handleThemeChange = (newThemeId) => {
     setAudienceTheme(newThemeId);
@@ -744,10 +722,9 @@ export default function App() {
       addLog(`🎉 [System] ✨ ${STEPS.length}-Step 所有企劃步驟全自動流水線執行完畢！`, 'success');
       setCredits(prevCredits => Math.max(0, prevCredits - 15));
       
-      // 自動匯出至 Notion (封測期間不顯示於前台 Log)
-      // addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
-      // 已依需求移除自動匯出至 Notion 功能
-      
+      // 自動匯出至 Notion
+      addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
+      await startNotionExport(currentContextContents, startTheme);
       // 生成成功後，讓畫面回到第一步
       setActiveStep(1);
 
@@ -1234,39 +1211,42 @@ const handleLogin = async (e: React.FormEvent) => {
           <div className="flex items-center gap-3 lg:gap-4 shrink-0">
            
 
-            {/* 清空企劃按鈕 (從工作區移上來) */}
-            <button 
-              onClick={clearAllData}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>清空企劃</span>
-            </button>
+            {activeTab === 'creation' && (
+              <>
+                <button 
+                  onClick={clearAllData}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>清空企劃</span>
+                </button>
 
-            {/* 一鍵全自動模式 Header Button / 中斷生成 */}
-            {isGenerating ? (
-              <button 
-                onClick={() => {
-                  setIsGenerating(false);
-                  addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                  setViewState('workspace');
-                }}
-                className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>中斷生成</span>
-              </button>
-            ) : (
-              <button 
-                onClick={() => {
-                  isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
-                  handleStartAuto();
-                }}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '自動接續生成' : '一鍵全自動模式'}</span>
-              </button>
+                {/* 一鍵全自動模式 Header Button / 中斷生成 */}
+                {isGenerating ? (
+                  <button 
+                    onClick={() => {
+                      setIsGenerating(false);
+                      addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                      setViewState('workspace');
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>中斷生成</span>
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
+                      handleStartAuto();
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '自動接續生成' : '一鍵全自動模式'}</span>
+                  </button>
+                )}
+              </>
             )}
 
             {/* Quota Metric Button */}
