@@ -568,14 +568,22 @@ export default function App() {
 
   const safeConfirm = (msg: string) => {
     try {
+      // 判斷是否在 iframe 中，若是則直接放行，避免 sandbox 靜默攔截回傳 false
+      if (window.self !== window.top) {
+        return true;
+      }
       return window.confirm(msg);
     } catch (e) {
-      return true; // 封測/Gemini環境中若被阻擋，直接放行
+      return true; // 封測/Gemini環境中若跨網域存取報錯，也直接放行
     }
   };
 
   const safeAlert = (msg: string) => {
     try {
+      if (window.self !== window.top) {
+        addLog(`[System Alert] ${msg}`, 'warning');
+        return;
+      }
       window.alert(msg);
     } catch (e) {
       addLog(`[System Alert] ${msg}`, 'warning');
