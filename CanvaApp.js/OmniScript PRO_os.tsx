@@ -165,17 +165,11 @@ export default function App() {
 
   // --- 狀態管理保持不變 ---
   const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
-  
-  const [activeTab, setActiveTab] = useState('creation'); 
-
- const [isAuthenticated, setIsAuthenticated] = useState(false);
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
-  
-  const [isGlobalMaster, setIsGlobalMaster] = useState(false); // 預設透過密碼驗證解鎖
-  
-  const [activeTab, setActiveTab] = useState('creation'); 
+    const [activeTab, setActiveTab] = useState('creation'); 
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
@@ -825,11 +819,13 @@ export default function App() {
     return;
   }
   if (customContext.length > 5000) {
-    alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+    if (isCanvasEnv) addLog(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`, 'error');
+    else alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
     return;
   }
   if (!theme.trim() && !customContext.trim()) {
-    alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
+    if (isCanvasEnv) addLog("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！", 'error');
+    else alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
     return;
   }
 
@@ -852,11 +848,13 @@ export default function App() {
 };
   const startManualWorkspace = () => {
     if (customContext.length > 5000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+      if (isCanvasEnv) addLog(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`, 'error');
+      else alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
-      alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
+      if (isCanvasEnv) addLog("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！", 'error');
+      else alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
@@ -881,7 +879,9 @@ export default function App() {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
           addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
+          if (!isCanvasEnv) {
+            alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
+          }
           return prev; // 放棄匯入，維持原樣
         }
         addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
@@ -904,7 +904,7 @@ export default function App() {
   };
 
   const clearAllData = () => {
-    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
+    const doClear = () => {
       setTheme('');
       setCustomContext('');
       setStepContents({
@@ -917,6 +917,14 @@ export default function App() {
       setActiveStep(1);
       setViewState('hub');
       addLog('[System] 🗑️ 舊企劃資料已全數清空，隨時可開始新專案。', 'info');
+    };
+
+    if (isCanvasEnv) {
+      doClear();
+    } else {
+      if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
+        doClear();
+      }
     }
   };
 
@@ -1039,6 +1047,36 @@ const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = passcode.trim();
     if (!code) return;
+
+    // --- 針對 Gemini Canvas 環境的離線驗證模擬 ---
+    if (isCanvasEnv) {
+      const ACCESS_CODES: Record<string, string> = {
+        'TECH2026': 'heritage',   // 民俗信仰・文化傳承
+        'GLAM2026': 'beauty',     // 美妝保養・悅己美學
+        'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
+        'RUBY2026': 'food',       // 美食料理・風味探索
+        'PET2026': 'pet',         // 寵物照護・幸福陪伴
+        'SKY2026': 'pet',         // 相容舊碼
+        'MASTER': 'heritage'      // 管理員
+      };
+      const upperCode = code.toUpperCase();
+      if (ACCESS_CODES[upperCode]) {
+        const theme = ACCESS_CODES[upperCode];
+        const isMaster = upperCode === 'MASTER';
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(theme);
+        setIsGlobalMaster(isMaster);
+        sessionStorage.setItem('os_pro_auth', 'true');
+        sessionStorage.setItem('os_pro_theme', theme);
+        if (isMaster) sessionStorage.setItem('os_pro_master', 'true');
+        addLog(`[System] 成功驗證授權 (Canvas 模式)，載入 ${theme} 工作區。`, 'success');
+      } else {
+        setAuthError('通行碼無效或已過期');
+      }
+      return;
+    }
 
     try {
       const res = await fetch('/api/auth', {
