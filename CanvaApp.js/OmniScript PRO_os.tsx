@@ -1059,14 +1059,19 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const authUrl = isCanvasEnv ? 'https://omni-script-pro.vercel.app/api/auth' : '/api/auth';
-      const res = await fetch(authUrl, {
+      const AUTH_API_URL = getApiUrl('/api/auth');
+      const authResponse = await fetch(AUTH_API_URL, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-      const data = await res.json();
 
-      if (res.ok && data.success && data.accessCodes) {
+      if (!authResponse.ok) {
+        throw new Error(`Vercel API 請求失敗：${authResponse.status}`);
+      }
+
+      const data = await authResponse.json();
+
+      if (data.success && data.accessCodes) {
         const upperCode = code.toUpperCase();
         if (data.accessCodes[upperCode]) {
           const theme = data.accessCodes[upperCode];
