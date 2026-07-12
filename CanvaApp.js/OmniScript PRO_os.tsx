@@ -267,8 +267,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    // 封測期間不自動載入 Notion 清單
-    // fetchArchives();
+     fetchArchives();
   }, []);
 
   const [logs, setLogs] = useState([
@@ -948,7 +947,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = '/api/notion';
+    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -993,7 +992,6 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     setIsNotionExporting(false);
   }
 };
-
   const generateNewImage = async () => {
     
     // 封測/Gemini環境：不跳出API視窗，直接運行
