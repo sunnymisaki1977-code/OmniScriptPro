@@ -245,7 +245,14 @@ export default function App() {
      }
    }, []);
 
-   const getApiUrl = (path: string) => isCanvasEnv ? 'https://omni-script-pro.vercel.app' + path : path;
+   const getApiUrl = (path: string) => {
+     if (typeof window === 'undefined') return path;
+     const origin = window.location.origin;
+     if (origin && (origin.includes('localhost') || origin.includes('vercel.app') || origin.includes('127.0.0.1'))) {
+       return path;
+     }
+     return 'https://omni-script-pro.vercel.app' + path;
+   };
 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
