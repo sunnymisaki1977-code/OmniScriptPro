@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useWorkflow } from "@/context/WorkflowContext";
-import { WorkflowStep } from "@/utils/promptConfigs";
+import { WorkflowStep, STEPS } from "@/utils/promptConfigs";
 import { CheckCircle2, Circle, ChevronRight, Youtube, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { cn } from "./ui";
 import { AlmanacCard } from "./AlmanacCard";

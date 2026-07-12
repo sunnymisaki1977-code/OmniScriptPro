@@ -1766,3 +1766,6 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
   return WORKFLOWS_REGISTRY[theme] || [];
 };
+
+export const WORKFLOW_STEPS = WORKFLOWS_REGISTRY['heritage'];
+export const STEPS = WORKFLOWS_REGISTRY['heritage'];
