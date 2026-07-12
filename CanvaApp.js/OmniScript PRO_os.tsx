@@ -215,24 +215,7 @@ export default function App() {
     }, []);
 
 
-  // 全局攔截：確保任何點擊都會觸發驗證
-  useEffect(() => {
-    const handleInteraction = (e: Event) => {
-      if (!isAuthenticated && !showLoginPrompt) {
-        setShowLoginPrompt(true);
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    };
-    if (typeof window !== 'undefined') {
-      window.addEventListener('click', handleInteraction, true);
-      window.addEventListener('keydown', handleInteraction, true);
-      return () => {
-        window.removeEventListener('click', handleInteraction, true);
-        window.removeEventListener('keydown', handleInteraction, true);
-      };
-    }
-  }, [isAuthenticated, showLoginPrompt]);
+  // 封測版：移除全局攔截點擊 (因為改採整合式的 Hub 密碼驗證)
 
 
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
@@ -1318,15 +1301,57 @@ const handleLogin = async (e: React.FormEvent) => {
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
-                  {/* Hub Header */}
-                  <div className="text-center space-y-2">
-                    <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
-                      今天想創作什麼？
-                    </h2>
-                    <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
-                      輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
-                    </p>
-                  </div>
+                  {!isAuthenticated ? (
+                    // --- 密碼輸入模式 (和輸入主題模式相同) ---
+                    <>
+                      <div className="text-center space-y-2">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+                          <Lock className="w-8 h-8 text-white" />
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                          系統已鎖定
+                        </h2>
+                        <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                          請輸入您的專屬受眾授權碼以進入 OmniScript Pro 核心系統。
+                        </p>
+                      </div>
+
+                      <form onSubmit={handleLogin} className="space-y-4 mt-8">
+                        <div className="relative group">
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
+                          <input 
+                            type="password"
+                            placeholder="輸入授權碼"
+                            value={passcode}
+                            onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
+                            className="w-full relative bg-[#070b16] border border-slate-900 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/30 transition-all shadow-inner tracking-widest"
+                            autoFocus
+                          />
+                        </div>
+                        
+                        {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
+                        
+                        <button 
+                          type="submit"
+                          className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-500/25 active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          <Lock className="w-4 h-4" />
+                          解鎖並登入工作區
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    // --- 原有的 Hub 內容 ---
+                    <>
+                      {/* Hub Header */}
+                      <div className="text-center space-y-2">
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                          今天想創作什麼？
+                        </h2>
+                        <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                          輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
+                        </p>
+                      </div>
 
                   {/* Dynamic Theme Select Buttons (Horizontal Row as requested) */}
                   <div className="space-y-3">
@@ -1502,6 +1527,8 @@ const handleLogin = async (e: React.FormEvent) => {
                       清空畫布與舊企劃資料
                     </button>
                   </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -2233,44 +2260,6 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
       </aside>
-     {/* --- Global Auth Overlay (透明防護罩與密碼鎖屏) --- */}
-
-      {(!isAuthenticated && showLoginPrompt) && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
-          <div 
-            className="relative z-10 w-full max-w-sm p-8 bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl flex flex-col items-center animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()} // 點擊密碼框內部不會冒泡
-          >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none" />
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 relative z-10">
-              <Lock className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-black text-white tracking-wider mb-2 relative z-10">OmniScript Pro</h2>
-            <p className="text-xs text-slate-400 mb-8 text-center relative z-10">請輸入您的專屬受眾授權碼以解鎖系統</p>
-            
-            <form onSubmit={handleLogin} className="w-full space-y-4 relative z-10">
-              <div>
-                <input 
-                  type="password"
-                  value={passcode}
-                  onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                  placeholder="輸入授權碼"
-                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl px-4 py-3 text-sm text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all tracking-widest"
-                  autoFocus
-                />
-              </div>
-              {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
-              <button 
-                type="submit"
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg active:scale-95"
-              >
-                解鎖並登入工作區
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
