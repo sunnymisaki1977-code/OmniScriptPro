@@ -1048,38 +1048,9 @@ const handleLogin = async (e: React.FormEvent) => {
     const code = passcode.trim();
     if (!code) return;
 
-    // --- 針對 Gemini Canvas 環境的離線驗證模擬 ---
-    if (isCanvasEnv) {
-      const ACCESS_CODES: Record<string, string> = {
-        'TECH2026': 'heritage',   // 民俗信仰・文化傳承
-        'GLAM2026': 'beauty',     // 美妝保養・悅己美學
-        'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
-        'RUBY2026': 'food',       // 美食料理・風味探索
-        'PET2026': 'pet',         // 寵物照護・幸福陪伴
-        'SKY2026': 'pet',         // 相容舊碼
-        'MASTER': 'heritage'      // 管理員
-      };
-      const upperCode = code.toUpperCase();
-      if (ACCESS_CODES[upperCode]) {
-        const theme = ACCESS_CODES[upperCode];
-        const isMaster = upperCode === 'MASTER';
-        setIsAuthenticated(true);
-        setShowLoginPrompt(false);
-        setAuthError('');
-        setAudienceTheme(theme);
-        setIsGlobalMaster(isMaster);
-        sessionStorage.setItem('os_pro_auth', 'true');
-        sessionStorage.setItem('os_pro_theme', theme);
-        if (isMaster) sessionStorage.setItem('os_pro_master', 'true');
-        addLog(`[System] 成功驗證授權 (Canvas 模式)，載入 ${theme} 工作區。`, 'success');
-      } else {
-        setAuthError('通行碼無效或已過期');
-      }
-      return;
-    }
-
     try {
-      const res = await fetch('/api/auth', {
+      const authUrl = isCanvasEnv ? 'https://omni-script-pro.vercel.app/api/auth' : '/api/auth';
+      const res = await fetch(authUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ passcode: code })
