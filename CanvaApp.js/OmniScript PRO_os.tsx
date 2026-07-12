@@ -41,7 +41,7 @@ const IMAGE_ENGINES = [
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId, context, audienceTheme, userApiKey = "", isCanvasEnv = false) {
+async function callVercelApi(stepId, context, ACCESS_CODES, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -51,7 +51,10 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "", is
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
-    const VERCEL_API_URL = isCanvasEnv ? 'https://omni-script-pro.vercel.app/api/gemini' : '/api/gemini';
+ const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://omni-script-pro.vercel.app' 
+  : '';   
+const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,8 +62,10 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "", is
             currentStepId: stepId, 
             theme: context.theme, 
             existingData: context,
+            passcode: setPasscode,
             audienceTheme,
             apiKey: apiKey,
+
             returnPromptOnly: true
         })
     });
@@ -245,15 +250,6 @@ export default function App() {
      }
    }, []);
 
-   const getApiUrl = (path: string) => {
-     if (typeof window === 'undefined') return path;
-     const origin = window.location.origin;
-     if (origin && (origin.includes('localhost') || origin.includes('vercel.app') || origin.includes('127.0.0.1'))) {
-       return path;
-     }
-     return 'https://omni-script-pro.vercel.app' + path;
-   };
-
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -277,7 +273,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch(getApiUrl('/api/notion/history'));
+      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -324,7 +320,7 @@ export default function App() {
     if (!content || !isConfigLoaded) return;
     
     setIsParsingVisuals(true);
-    fetch(getApiUrl('/api/parse-visuals'), {
+    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -511,7 +507,7 @@ export default function App() {
         aspectRatio = "4:3";
       }
       
-      const response = await fetch(getApiUrl('/api/generate-image'), {
+      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -612,10 +608,7 @@ export default function App() {
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
     const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
     if (startTheme !== savedLastTheme && !isCanvasEmpty) {
-      let wantsNew = true; // 預設為清空 (Canvas 環境)
-      if (!isCanvasEnv) {
-        wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
-      }
+      const wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
       if (wantsNew) {
         currentContextContents = {
           1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
@@ -654,7 +647,7 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(getApiUrl('/api/config'), {
+            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
@@ -787,7 +780,7 @@ export default function App() {
 
     try {
       // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(getApiUrl(`/api/notion/history?id=${pageId}`));
+      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
@@ -828,13 +821,11 @@ export default function App() {
     return;
   }
   if (customContext.length > 5000) {
-    if (isCanvasEnv) addLog(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`, 'error');
-    else alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+    alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
     return;
   }
   if (!theme.trim() && !customContext.trim()) {
-    if (isCanvasEnv) addLog("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！", 'error');
-    else alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
+    alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
     return;
   }
 
@@ -857,13 +848,11 @@ export default function App() {
 };
   const startManualWorkspace = () => {
     if (customContext.length > 5000) {
-      if (isCanvasEnv) addLog(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`, 'error');
-      else alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
-      if (isCanvasEnv) addLog("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！", 'error');
-      else alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
+      alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
@@ -888,9 +877,7 @@ export default function App() {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
           addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          if (!isCanvasEnv) {
-            alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
-          }
+          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
           return prev; // 放棄匯入，維持原樣
         }
         addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
@@ -913,7 +900,7 @@ export default function App() {
   };
 
   const clearAllData = () => {
-    const doClear = () => {
+    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
       setTheme('');
       setCustomContext('');
       setStepContents({
@@ -926,14 +913,6 @@ export default function App() {
       setActiveStep(1);
       setViewState('hub');
       addLog('[System] 🗑️ 舊企劃資料已全數清空，隨時可開始新專案。', 'info');
-    };
-
-    if (isCanvasEnv) {
-      doClear();
-    } else {
-      if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
-        doClear();
-      }
     }
   };
 
@@ -954,8 +933,7 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      // 改打 Vercel API
-      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey, isCanvasEnv);
+      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey);
 
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
@@ -1059,39 +1037,26 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const AUTH_API_URL = getApiUrl('/api/auth');
-      const authResponse = await fetch(AUTH_API_URL, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+      const res = await fetch('https://omni-script-pro.vercel.app/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
       });
+      const data = await res.json();
 
-      if (!authResponse.ok) {
-        throw new Error(`Vercel API 請求失敗：${authResponse.status}`);
-      }
-
-      const data = await authResponse.json();
-
-      if (data.success && data.accessCodes) {
-        const upperCode = code.toUpperCase();
-        if (data.accessCodes[upperCode]) {
-          const theme = data.accessCodes[upperCode];
-          const isMaster = upperCode === 'MASTER';
-
-          setIsAuthenticated(true);
-          setShowLoginPrompt(false);
-          setAuthError('');
-          setAudienceTheme(theme);
-          setIsGlobalMaster(isMaster);
-          sessionStorage.setItem('os_pro_auth', 'true');
-          sessionStorage.setItem('os_pro_theme', theme);
-          if (isMaster) {
-            sessionStorage.setItem('os_pro_master', 'true');
-          }
-          
-          addLog(`[System] 成功驗證授權，載入 ${theme} 工作區。`, 'success');
-        } else {
-          setAuthError('通行碼無效或已過期');
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        setShowLoginPrompt(false);
+        setAuthError('');
+        setAudienceTheme(data.theme);
+        setIsGlobalMaster(data.isMaster);
+        sessionStorage.setItem('os_pro_auth', 'true');
+        sessionStorage.setItem('os_pro_theme', data.theme);
+        if (data.isMaster) {
+          sessionStorage.setItem('os_pro_master', 'true');
         }
+        
+        addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
       } else {
         setAuthError(data.error || '授權碼無效或已過期');
       }
@@ -2348,7 +2313,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="輸入 API Key (例如：AIzaSy..., AIzaSy..., AIzaSy...)"
+                  placeholder="輸入 API Key (例如：AIzaSy..., AQzaSy..., AIzaSy...)"
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
