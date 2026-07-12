@@ -41,7 +41,7 @@ const IMAGE_ENGINES = [
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId, context, ACCESS_CODES, audienceTheme, userApiKey = "") {
+async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -62,10 +62,8 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
             currentStepId: stepId, 
             theme: context.theme, 
             existingData: context,
-            passcode: setPasscode,
             audienceTheme,
             apiKey: apiKey,
-
             returnPromptOnly: true
         })
     });
@@ -2313,7 +2311,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="輸入 API Key (例如：AIzaSy..., AQzaSy..., AIzaSy...)"
+                  placeholder="輸入 API Key (例如：AIzaSy..., AIzaSy..., AIzaSy...)"
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
