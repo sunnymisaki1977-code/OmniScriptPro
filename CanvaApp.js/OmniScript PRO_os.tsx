@@ -222,15 +222,8 @@ export default function App() {
 
   const [isGenerating, setIsGenerating] = useState(false);
    
-   // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const [isCanvasEnv, setIsCanvasEnv] = useState(false);
-   
-   useEffect(() => {
-     if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
-       setIsCanvasEnv(true);
-     }
-   }, []);
-
+     // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
+   const isCanvasEnv = typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__;
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -246,6 +239,7 @@ export default function App() {
       localStorage.setItem('os_pro_audienceTheme', audienceTheme);
     }
   }, [audienceTheme]);
+
 
  // 🔽 新增這三個變數來控制 Notion 下拉選單 🔽
   const [archiveList, setArchiveList] = useState([]); 
