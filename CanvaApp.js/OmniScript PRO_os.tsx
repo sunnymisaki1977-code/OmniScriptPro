@@ -606,7 +606,10 @@ export default function App() {
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
     const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
     if (startTheme !== savedLastTheme && !isCanvasEmpty) {
-      const wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
+      let wantsNew = true; // 預設為清空 (Canvas 環境)
+      if (!isCanvasEnv) {
+        wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
+      }
       if (wantsNew) {
         currentContextContents = {
           1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
