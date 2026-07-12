@@ -1054,25 +1054,32 @@ const handleLogin = async (e: React.FormEvent) => {
     try {
       const authUrl = isCanvasEnv ? 'https://omni-script-pro.vercel.app/api/auth' : '/api/auth';
       const res = await fetch(authUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode: code })
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
       const data = await res.json();
 
-      if (res.ok && data.success) {
-        setIsAuthenticated(true);
-        setShowLoginPrompt(false);
-        setAuthError('');
-        setAudienceTheme(data.theme);
-        setIsGlobalMaster(data.isMaster);
-        sessionStorage.setItem('os_pro_auth', 'true');
-        sessionStorage.setItem('os_pro_theme', data.theme);
-        if (data.isMaster) {
-          sessionStorage.setItem('os_pro_master', 'true');
+      if (res.ok && data.success && data.accessCodes) {
+        const upperCode = code.toUpperCase();
+        if (data.accessCodes[upperCode]) {
+          const theme = data.accessCodes[upperCode];
+          const isMaster = upperCode === 'MASTER';
+
+          setIsAuthenticated(true);
+          setShowLoginPrompt(false);
+          setAuthError('');
+          setAudienceTheme(theme);
+          setIsGlobalMaster(isMaster);
+          sessionStorage.setItem('os_pro_auth', 'true');
+          sessionStorage.setItem('os_pro_theme', theme);
+          if (isMaster) {
+            sessionStorage.setItem('os_pro_master', 'true');
+          }
+          
+          addLog(`[System] 成功驗證授權，載入 ${theme} 工作區。`, 'success');
+        } else {
+          setAuthError('通行碼無效或已過期');
         }
-        
-        addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
       } else {
         setAuthError(data.error || '授權碼無效或已過期');
       }

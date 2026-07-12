@@ -13,30 +13,9 @@ const ACCESS_CODES: Record<string, string> = {
   'MASTER': 'heritage'      // 管理員
 };
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const passcode = body.passcode;
-
-    if (!passcode) {
-      return NextResponse.json({ error: "請輸入通行碼" }, { status: 400 });
-    }
-
-    const code = passcode.trim().toUpperCase();
-    
-    if (ACCESS_CODES[code]) {
-      const isMaster = code === 'MASTER';
-      const theme = ACCESS_CODES[code];
-      
-      return NextResponse.json({
-        success: true,
-        theme: theme,
-        isMaster: isMaster
-      });
-    } else {
-      return NextResponse.json({ error: "通行碼無效或已過期" }, { status: 401 });
-    }
-  } catch (error) {
-    return NextResponse.json({ error: "伺服器錯誤" }, { status: 500 });
-  }
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    accessCodes: ACCESS_CODES
+  });
 }
