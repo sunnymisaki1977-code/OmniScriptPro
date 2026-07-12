@@ -566,6 +566,22 @@ export default function App() {
     setLogs(prev => [...prev, { time: timestamp, text: message, type }]);
   };
 
+  const safeConfirm = (msg: string) => {
+    try {
+      return window.confirm(msg);
+    } catch (e) {
+      return true; // 封測/Gemini環境中若被阻擋，直接放行
+    }
+  };
+
+  const safeAlert = (msg: string) => {
+    try {
+      window.alert(msg);
+    } catch (e) {
+      addLog(`[System Alert] ${msg}`, 'warning');
+    }
+  };
+
   const handleThemeChange = (newThemeId) => {
     setAudienceTheme(newThemeId);
     const selectedTheme = audienceThemes[newThemeId];
@@ -591,7 +607,7 @@ export default function App() {
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
     const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
     if (startTheme !== savedLastTheme && !isCanvasEmpty) {
-      const wantsNew = window.confirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
+      const wantsNew = safeConfirm(`您輸入了全新主題：「${startTheme}」\n請問是否要清空畫布上的舊企劃，重新開始建立？\n(若選擇取消，將嘗試智慧接續未完成的步驟)`);
       if (wantsNew) {
         currentContextContents = {
           1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
@@ -799,11 +815,11 @@ export default function App() {
   //   return;
   // }
   if (customContext.length > 5000) {
-    alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+    safeAlert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
     return;
   }
   if (!theme.trim() && !customContext.trim()) {
-    alert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
+    safeAlert("請輸入「企劃主題」或提供「自訂背景資料」，系統才能為您進行企劃！");
     return;
   }
 
@@ -826,11 +842,11 @@ export default function App() {
 };
   const startManualWorkspace = () => {
     if (customContext.length > 5000) {
-      alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+      safeAlert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
-      alert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
+      safeAlert("請輸入「企劃主題」或提供「自訂背景資料」，以便進入手動工作區！");
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
@@ -855,7 +871,7 @@ export default function App() {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
           addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          alert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
+          safeAlert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
           return prev; // 放棄匯入，維持原樣
         }
         addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
@@ -878,7 +894,7 @@ export default function App() {
   };
 
   const clearAllData = () => {
-    if (window.confirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
+    if (safeConfirm('確定要清空畫布與所有先前的企劃資料嗎？（此動作無法還原）')) {
       setTheme('');
       setCustomContext('');
       setStepContents({
@@ -918,10 +934,9 @@ export default function App() {
       setCredits(prevCredits => Math.max(0, prevCredits - 2));
       addLog(`[AI] ✨ Step ${activeStep} 內容生成完畢！已成功渲染至編輯器。`, 'success');
 
-    } catch (error) {
-      console.error("生成失敗:", error);
+    } catch (error: any) {
       addLog(`[Error] 生成失敗: ${error.message}`, 'error');
-      alert(`API 呼叫失敗，錯誤原因: ${error.message}`);
+      safeAlert(`API 呼叫失敗，錯誤原因: ${error.message}`);
     } finally {
       setIsGenerating(false);
     }
