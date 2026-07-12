@@ -249,27 +249,7 @@ export default function App() {
   }, [audienceTheme]);
 
 
- // 🔽 新增這三個變數來控制 Notion 下拉選單 🔽
-  const [archiveList, setArchiveList] = useState([]); 
-  const [isLoadingArchive, setIsLoadingArchive] = useState(false);
-  const [selectedArchive, setSelectedArchive] = useState("");
-  // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
-  const fetchArchives = async () => {
-    try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
-      const data = await response.json();
-      if (data.history) {
-        setArchiveList(data.history);
-      }
-    } catch (err) {
-      console.error("無法載入 Notion 專案清單", err);
-    }
-  };
-
-  useEffect(() => {
-    // 封測期間不自動載入 Notion 清單
-    // fetchArchives();
-  }, []);
+ 
 
   const [logs, setLogs] = useState([
     { time: "[System]", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
@@ -748,56 +728,7 @@ export default function App() {
     }
   };
 
-    const handleLoadArchive = async (e) => {
-    const pageId = e.target.value;
-    if (!pageId) return;
-
-    if (pageId === "open_current") {
-      if (notionUrl) window.open(notionUrl, '_blank');
-      setSelectedArchive(""); // Reset selection
-      return;
-    }
-
-    setSelectedArchive(pageId);
-    setIsLoadingArchive(true);
-    addLog(`[Notion] 正在從雲端載入專案資料...`, 'info');
-
-    try {
-      // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
-      const data = await response.json();
-
-      if (data.stepsData) {
-        // 成功抓取後，一鍵把內容填回編輯器！
-        if (data.theme) setTheme(data.theme); 
-        // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
-        if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
-          setAudienceTheme(data.audienceTheme);
-        }
-        setStepContents({
-          1: data.stepsData[1] || "",
-          2: data.stepsData[2] || "",
-          3: data.stepsData[3] || "",
-          4: data.stepsData[4] || "",
-          5: data.stepsData[5] || "",
-          6: data.stepsData[6] || "",
-          7: data.stepsData[7] || "",
-          8: data.stepsData[8] || "",
-          9: data.stepsData[9] || "",
-          10: data.stepsData[10] || ""
-        });
-        addLog(`[Notion] ✨ 專案載入成功！`, 'success');
-        setNotionStatus('✅ 已成功歸檔');
-        setNotionUrl(`https://www.notion.so/${pageId.replace(/-/g, '')}`);
-        setViewState('workspace');
-      }
-    } catch (error) {
-      addLog(`[Error] 載入失敗: ${error.message}`, 'error');
-    } finally {
-      setIsLoadingArchive(false);
-      setSelectedArchive("");
-    }
-  };
+    
 
   const handleStartAuto = () => {
   // 封測/Gemini環境：不跳出API視窗，直接運行
