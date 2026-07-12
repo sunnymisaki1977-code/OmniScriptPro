@@ -279,8 +279,7 @@ export default function App() {
   const [aiStatus, setAiStatus] = useState('pro'); 
   const [credits, setCredits] = useState(125);
   const [isNotionExporting, setIsNotionExporting] = useState(false);
-  const [notionStatus, setNotionStatus] = useState('尚未歸檔');
-  const [notionUrl, setNotionUrl] = useState('');
+  // 已依需求移除匯出至 Notion 狀態
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [musicProgress, setMusicProgress] = useState(35);
   const [musicGenre, setMusicGenre] = useState('Synthwave');
@@ -736,7 +735,7 @@ export default function App() {
       
       // 自動匯出至 Notion (封測期間不顯示於前台 Log)
       // addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份...`, 'info');
-      await startNotionExport(currentContextContents, startTheme);
+      // 已依需求移除自動匯出至 Notion 功能
       
       // 生成成功後，讓畫面回到第一步
       setActiveStep(1);
@@ -752,11 +751,7 @@ export default function App() {
     const pageId = e.target.value;
     if (!pageId) return;
 
-    if (pageId === "open_current") {
-      if (notionUrl) window.open(notionUrl, '_blank');
-      setSelectedArchive(""); // Reset selection
-      return;
-    }
+
 
     setSelectedArchive(pageId);
     setIsLoadingArchive(true);
@@ -787,8 +782,6 @@ export default function App() {
           10: data.stepsData[10] || ""
         });
         addLog(`[Notion] ✨ 專案載入成功！`, 'success');
-        setNotionStatus('✅ 已成功歸檔');
-        setNotionUrl(`https://www.notion.so/${pageId.replace(/-/g, '')}`);
         setViewState('workspace');
       }
     } catch (error) {
@@ -935,59 +928,7 @@ export default function App() {
   };
 
 // --- 匯出資料至 Notion ---
-const startNotionExport = async (customContents = null, customTheme = null) => {
-  setIsNotionExporting(true);
-  // setNotionStatus('正在同步至 Notion...');
-  // addLog(`[System] 開始封裝企劃資料，自動準備匯出...`, 'info');
-
-  try {
-    // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
-    
-    const targetTheme = customTheme || theme || "未命名企劃主題";
-    const targetContents = customContents || stepContents;
-
-    // 封裝目前所有的輸入與生成結果，符合後端 /api/notion 預期的格式
-    const payload = {
-      theme: targetTheme,
-      stepsData: targetContents,
-      creatorName: curTheme.title, // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
-      audienceTheme: audienceTheme
-    };
-
-    const response = await fetch(VERCEL_NOTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error(`伺服器錯誤: ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    // setNotionStatus('✅ 已成功歸檔');
-    // addLog(`[Notion] ✨ 企劃匯出成功！`, 'success');
-    
-    // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
-    if (data.url) {
-      setNotionUrl(data.url);
-      fetchArchives(); // 成功後立即刷新歷史清單
-      // 封測期間不跳出頁面
-      // if (isGlobalMaster) {
-      //   window.open(data.url, '_blank');
-      // }
-    }
-    
-  } catch (error) {
-    console.error("Notion 匯出失敗:", error);
-    // setNotionStatus('❌ 歸檔失敗');
-    // addLog(`[Error] 匯出失敗: ${error.message}`, 'error');
-  } finally {
-    setIsNotionExporting(false);
-  }
-};
+// 已依需求移除匯出資料至 Notion 相關功能
 
   const generateNewImage = async () => {
     
@@ -1186,19 +1127,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
         {/* Bottom Sidebar Controls */}
         <div className="p-4 border-t border-slate-900 space-y-3">
-          {/* Notion Connected Indicator */}
-          <div className="hidden items-center justify-between p-3 rounded-xl bg-slate-900/30 border border-slate-900">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center font-black text-xs text-white border border-slate-800">
-                N
-              </div>
-              <div className="text-[11px]">
-                <p className="font-semibold text-slate-300">Notion 連動中</p>
-                <p className="text-[9px] text-slate-500">v2.4.1 Active</p>
-              </div>
-            </div>
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
+
 
           {/* Light Mode Switcher */}
           <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs hover:bg-slate-900/40 transition-all">
@@ -1634,13 +1563,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       </div>
                     </div>
 
-                    {/* Notion synced alert banner */}
-                    {notionStatus === '已同步至 Notion' && (
-                      <div className="mb-4 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs flex items-center gap-2">
-                        <CheckCircle2 className="w-4.5 h-4.5" />
-                        <span>本企劃步驟內容已與 Notion 雲端檔案即時同步備份。</span>
-                      </div>
-                    )}
+
 
                     {/* Markdown text editor card */}
                     <div className="relative flex-1 flex flex-col">
@@ -2202,68 +2125,7 @@ const handleLogin = async (e: React.FormEvent) => {
           </button>
         </div>
 
-        {/* Bottom Part: Notion Synchronization Center */}
-        <div className="hidden p-5 border-t border-slate-900 bg-slate-950/40">
-          <div className="flex items-center gap-2 mb-3.5">
-            <HardDrive className="w-4 h-4 text-slate-400" />
-            <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Notion 同步中心</h4>
-          </div>
 
-          <div className="space-y-4">
-            {/* Sync status feedback */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500">存檔同步狀態</span>
-              <span className={`font-bold ${notionStatus === '已同步至 Notion' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                {notionStatus}
-              </span>
-            </div>
-
-            {/* Notion sync execution button */}
-            {notionStatus === '✅ 已成功歸檔' ? (
-              <div className="space-y-2 w-full">
-                {/* 讓 MASTER 能點擊開啟專案 */}
-                {(notionUrl && isGlobalMaster) && (
-                  <button
-                    onClick={() => window.open(notionUrl, '_blank')}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-95 transition-all animate-pulse"
-                  >
-                    <Link className="w-4 h-4" />
-                    <span>前往 Notion 查看此企劃</span>
-                  </button>
-                )}
-                {/* 團隊專案下拉選單 (僅 MASTER 可用) */}
-                <div className="w-full relative mt-2">
-                  <select
-                    className="w-full py-2 pl-8 pr-8 rounded-xl bg-slate-900/50 hover:bg-slate-800/80 border border-slate-800 text-slate-400 text-xs font-medium appearance-none cursor-pointer outline-none text-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                    onChange={handleLoadArchive}
-                    value={selectedArchive}
-                    disabled={isLoadingArchive || !isGlobalMaster}
-                  >
-                    <option value="">團隊專案庫 (僅限 Master)</option>
-                    {archiveList.map((item: any) => (
-                      <option key={item.id} value={item.id}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                  <Database className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-            ) : (
-              <div className="relative w-full">
-                <button
-                  onClick={startNotionExport}
-                  disabled={isNotionExporting}
-                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-inner active:scale-98 transition-all disabled:opacity-50"
-                >
-                  <UploadCloud className={`w-4 h-4 text-slate-400 ${isNotionExporting ? 'animate-bounce' : ''}`} />
-                  <span>{isNotionExporting ? '正在傳輸數據庫...' : '自動匯出 Notion'}</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
 
       </aside>
       {/* API Key Modal */}
