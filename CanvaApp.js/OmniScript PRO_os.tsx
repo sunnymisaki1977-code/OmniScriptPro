@@ -89,48 +89,6 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 };
 
 
-    const geminiPayload: any = {
-        contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: {
-            maxOutputTokens: 8192
-        }
-    };
-
-    if (isSearchEnabled) {
-        geminiPayload.tools = [{ googleSearch: {} }];
-    } else if (responseSchema) {
-        geminiPayload.generationConfig.responseMimeType = "application/json";
-        geminiPayload.generationConfig.responseSchema = responseSchema;
-    }
-    
-    const aiResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiPayload)
-    });
-
-    if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
-    }
-    
-    const data = await aiResponse.json();
-    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
-    
-    // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
-    if (!isSearchEnabled) {
-        try {
-            // 清理可能包含的 markdown json block
-            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
-            const parsedData = JSON.parse(cleanText);
-            if (parsedData && parsedData[stepId.toString()]) {
-                return parsedData[stepId.toString()];
-            }
-        } catch(e) {
-            console.error("JSON 解析失敗", e);
-        }
-    }
-    return cleanText;
-}
 
 // ============================================================================
 // 2. 瘦身版 STEPS (已移除 Prompt，交由 Vercel 後端處理)
@@ -465,11 +423,12 @@ export default function App() {
 
   const generateGroupImage = async (group) => {
     
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => () => generateGroupImage(group));
-      setShowApiKeyModal(true);
-      return;
-    }
+    // 封測/Gemini環境：不跳出API視窗，直接運行
+    // if (!isCanvasEnv && !geminiApiKey.trim()) {
+    //   setPendingImageTask(() => () => generateGroupImage(group));
+    //   setShowApiKeyModal(true);
+    //   return;
+    // }
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
@@ -798,10 +757,11 @@ export default function App() {
   };
 
   const handleStartAuto = () => {
-  if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
-    setShowApiKeyModal(true);
-    return;
-  }
+  // 封測/Gemini環境：不跳出API視窗，直接運行
+  // if (!isCanvasEnv && !isGlobalMaster && !geminiApiKey.trim()) {
+  //   setShowApiKeyModal(true);
+  //   return;
+  // }
   if (customContext.length > 5000) {
     alert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
     return;
@@ -988,11 +948,12 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   const generateNewImage = async () => {
     
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => generateNewImage);
-      setShowApiKeyModal(true);
-      return;
-    }
+    // 封測/Gemini環境：不跳出API視窗，直接運行
+    // if (!isCanvasEnv && !geminiApiKey.trim()) {
+    //   setPendingImageTask(() => generateNewImage);
+    //   setShowApiKeyModal(true);
+    //   return;
+    // }
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
