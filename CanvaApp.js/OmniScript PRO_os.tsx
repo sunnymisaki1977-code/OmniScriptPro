@@ -41,48 +41,6 @@ const IMAGE_ENGINES = [
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
-    // 取得 API Key 的邏輯保持不變
-    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-    
-    
-    // ==========================================
-    // 階段 1：向 Vercel 請求「組裝好的 Prompt」
-    // ==========================================
- const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://omni-script-pro.vercel.app' 
-  : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
-    const promptResponse = await fetch(VERCEL_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            currentStepId: stepId, 
-            theme: context.theme, 
-            existingData: context,
-            audienceTheme,
-            apiKey: apiKey,
-            returnPromptOnly: true
-        })
-    });
-
-    if (!promptResponse.ok) {
-        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
-    }
-
-    const vercelData = await promptResponse.json();
-    const finalPrompt = vercelData.prompt; 
-    const responseSchema = vercelData.schema;
-    const isSearchEnabled = vercelData.isSearchEnabled;
-
-    if (!finalPrompt) {
-        throw new Error("Vercel API 沒有回傳有效的 Prompt");
-    }
-
-    // 步驟 2：I// ============================================================================
-// --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId: any, context: any, audienceTheme: string, userApiKey: string = "") {
     // 步驟 1：向 Vercel 請求「該步驟專屬的 Prompt 字串」
     const VERCEL_API_URL = '/api/gemini';
@@ -129,6 +87,7 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
   
   return `【等待從 Vercel 伺服器獲取資料...】\n\n點擊「一鍵全自動模式」或單步「重新生成」來向伺服器發送請求。`;
 };
+
 
     const geminiPayload: any = {
         contents: [{ parts: [{ text: finalPrompt }] }],
