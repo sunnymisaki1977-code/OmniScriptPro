@@ -1018,7 +1018,8 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const res = await fetch('https://omni-script-pro.vercel.app/api/auth', {
+      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/auth';
+      const res = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ passcode: code })

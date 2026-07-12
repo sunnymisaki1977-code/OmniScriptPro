@@ -13,9 +13,44 @@ const ACCESS_CODES: Record<string, string> = {
   'MASTER': 'heritage'      // 管理員
 };
 
-export async function GET() {
-  return NextResponse.json({
-    success: true,
-    accessCodes: ACCESS_CODES
-  });
+// ============================================================================
+// --- CORS 處理函數 ---
+// ============================================================================
+function setCorsHeaders(res: NextResponse) {
+  res.headers.set('Access-Control-Allow-Origin', '*');
+  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return res;
+}
+
+export async function OPTIONS() {
+  return setCorsHeaders(new NextResponse(null, { status: 200 }));
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const passcode = body.passcode;
+
+    if (!passcode) {
+      return setCorsHeaders(NextResponse.json({ error: "請輸入通行碼" }, { status: 400 }));
+    }
+
+    const code = passcode.trim().toUpperCase();
+    
+    if (ACCESS_CODES[code]) {
+      const isMaster = code === 'MASTER';
+      const theme = ACCESS_CODES[code];
+      
+      return setCorsHeaders(NextResponse.json({
+        success: true,
+        theme: theme,
+        isMaster: isMaster
+      }));
+    } else {
+      return setCorsHeaders(NextResponse.json({ error: "通行碼無效或已過期" }, { status: 401 }));
+    }
+  } catch (error) {
+    return setCorsHeaders(NextResponse.json({ error: "伺服器錯誤" }, { status: 500 }));
+  }
 }
