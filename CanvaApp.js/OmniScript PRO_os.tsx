@@ -41,7 +41,7 @@ const IMAGE_ENGINES = [
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+async function callVercelApi(stepId, context, audienceTheme, userApiKey = "", isCanvasEnv = false) {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -51,10 +51,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
- const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://omni-script-pro.vercel.app' 
-  : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    const VERCEL_API_URL = isCanvasEnv ? 'https://omni-script-pro.vercel.app/api/gemini' : '/api/gemini';
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -248,6 +245,8 @@ export default function App() {
      }
    }, []);
 
+   const getApiUrl = (path: string) => isCanvasEnv ? 'https://omni-script-pro.vercel.app' + path : path;
+
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -271,7 +270,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const response = await fetch(getApiUrl('/api/notion/history'));
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -318,7 +317,7 @@ export default function App() {
     if (!content || !isConfigLoaded) return;
     
     setIsParsingVisuals(true);
-    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
+    fetch(getApiUrl('/api/parse-visuals'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -505,7 +504,7 @@ export default function App() {
         aspectRatio = "4:3";
       }
       
-      const response = await fetch('https://omni-script-pro.vercel.app/api/generate-image', {
+      const response = await fetch(getApiUrl('/api/generate-image'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -648,7 +647,7 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`${API_BASE_URL}/api/config`, {
+            const configRes = await fetch(getApiUrl('/api/config'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
@@ -781,7 +780,7 @@ export default function App() {
 
     try {
       // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
+      const response = await fetch(getApiUrl(`/api/notion/history?id=${pageId}`));
       const data = await response.json();
 
       if (data.stepsData) {
@@ -948,7 +947,8 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey);
+      // 改打 Vercel API
+      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey, isCanvasEnv);
 
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
