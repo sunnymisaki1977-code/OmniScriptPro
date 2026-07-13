@@ -88,7 +88,11 @@ export default function FeedbackModal({ currentTheme = 'General' }: FeedbackModa
     };
 
     try {
-      const res = await fetch('/api/feedback', {
+      const API_BASE_URL = process.env.NODE_ENV === 'production' 
+        ? 'https://omni-script-pro.vercel.app' 
+        : '';
+        
+      const res = await fetch(`${API_BASE_URL}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -111,7 +115,13 @@ export default function FeedbackModal({ currentTheme = 'General' }: FeedbackModa
     } catch (error) {
       console.error(error);
       trackEvent('submit_feedback_error', { theme: currentTheme, error: String(error) });
-      alert('抱歉，送出回饋時發生錯誤，請稍後再試。');
+      try {
+        if (window.self === window.top) {
+          alert('抱歉，送出回饋時發生錯誤，請稍後再試。');
+        }
+      } catch (e) {
+        // 在 Sandbox 環境中忽略 alert 錯誤
+      }
     } finally {
       setIsSubmitting(false);
     }
