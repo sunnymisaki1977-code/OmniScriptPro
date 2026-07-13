@@ -81,7 +81,7 @@ export async function POST(req: Request) {
         dependsOn: step.dependsOn,
         promptStr: finalPromptStr // 關鍵：原本是 step.prompt.toString()，現在改為已經加入主題的結果
       };
-    };
+    }
 
     return NextResponse.json({ prompt: promptConfigs });
   } catch (error: any) {
