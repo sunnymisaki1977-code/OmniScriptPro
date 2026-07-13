@@ -72,8 +72,23 @@ export async function POST(req: Request) {
         prompt: finalPrompt,
         schema: responseSchema,
         isSearchEnabled: step.id === 1 && !verifiedContext
+});
+    }
+   return NextResponse.json({
+      success: true,
+      stepId: step.id,
+      data: resultData
     });
-   
+
+  } catch (error: any) {
+    // 🌟 修正點 3：補上完整的錯誤捕捉與 Try 區塊關閉
+    console.error("❌ [API Error] Pipeline 執行失敗:", error);
+    return NextResponse.json(
+      { error: `伺服器處理失敗: ${error.message || "未知錯誤"}` },
+      { status: 500 }
+    );
+  }
+}
   
   
  
