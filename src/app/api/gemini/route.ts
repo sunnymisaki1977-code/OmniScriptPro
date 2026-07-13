@@ -74,8 +74,6 @@ export async function POST(req: Request) {
         isSearchEnabled: step.id === 1 && !verifiedContext
       });
     }
-
-   
   
-  }
-
+  
+ 
