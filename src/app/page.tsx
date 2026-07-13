@@ -531,10 +531,10 @@ export default function LandingPage() {
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Solo Survival Architecture</span>
+                    <span>Solo Creator Survival Kit</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    為了不被限流逼瘋，<br />我為自己寫了一套底層防禦網。
+                    為了不被限流打斷靈感，<br />我為自己寫了一套底層防禦網。
                   </h2>
                   <p className="text-lg text-slate-400 mb-8 leading-relaxed">
                     一個人搞定百萬字古籍田調與多模態影音已經夠累了，我絕不允許大腦心流因為 Google 的 2026 金鑰大遷徙或流量限制而中斷。這是我為自己打造、現在與你共享的「永不停擺」備援機制。
@@ -547,8 +547,8 @@ export default function LandingPage() {
                       <Share2 className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">多金鑰負載均衡 (陣列分流)</h4>
-                      <p className="text-slate-400 leading-relaxed">單兵作戰，資源必須極大化。你可以一次輸入多把金鑰。系統會像你的數位分身一樣，自動隨機抽取來分攤動輒數千字的古籍運算，徹底降低被鎖定的風險。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">突破單一帳號極限 (多金鑰智能輪替)</h4>
+                      <p className="text-slate-400 leading-relaxed">單兵作戰，算力就是你的彈藥庫。你可以一次綁定多把 API 金鑰，系統會像你的數位分身一樣，自動隨機抽取來分攤數萬字的古籍運算。不用再擔心單一帳號被鎖，讓靈感與產能全開。</p>
                     </div>
                   </div>
 
@@ -557,8 +557,8 @@ export default function LandingPage() {
                       <Lock className="w-5 h-5 text-red-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰無縫切換</h4>
-                      <p className="text-slate-400 leading-relaxed">過去半夜生成腳本遇到金鑰失效只能進度歸零。現在，後端只要偵測到授權錯誤，會在一秒內自動拋棄無效金鑰並換上備用彈匣，讓創作過程無縫接軌。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">拒絕進度歸零 (失效金鑰自動退膛)</h4>
+                      <p className="text-slate-400 leading-relaxed">最怕半夜趕腳本時，遇到金鑰過期導致進度瞬間歸零。現在只要後端偵測到授權異常，會在一秒內自動拋棄無效金鑰並換上備用彈匣。你甚至不會感覺到錯誤，創作心流無縫接軌。</p>
                     </div>
                   </div>
 
@@ -567,8 +567,8 @@ export default function LandingPage() {
                       <RefreshCw className="w-5 h-5 text-amber-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">突破 429 限流 (指數退避策略)</h4>
-                      <p className="text-slate-400 leading-relaxed">高頻率生成導致金鑰過熱？系統會啟動指數退避 (Exponential Backoff) 策略，並瞬間切換可用金鑰重發請求。這是我為確保每篇深度考據完美落地，寫下的最後一道保險。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">扛住高頻產出 (防限流無感重試)</h4>
+                      <p className="text-slate-400 leading-relaxed">連續產出長影音與視覺指令導致金鑰過熱？系統會啟動智能重試機制，並瞬間切換可用金鑰接力發送請求。這是我為了確保每一支深度考據影片都能完美落地，所寫下的最後一道保險。</p>
                     </div>
                   </div>
                 </div>
