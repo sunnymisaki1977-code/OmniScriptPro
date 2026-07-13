@@ -145,7 +145,7 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 // ============================================================================
 // 3. React 元件主體與狀態
 // ============================================================================
-function FeedbackModal({ currentTheme = 'General' }: FeedbackModalProps) {
+function FeedbackModal({ currentTheme = 'General', config }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -173,28 +173,11 @@ function FeedbackModal({ currentTheme = 'General' }: FeedbackModalProps) {
   const [nps, setNps] = useState<number | null>(null);
   const [wishlist, setWishlist] = useState('');
 
-  const q1Options = [
-    '科技文化 / 知識解說',
-    '時尚美妝 / 悅己保養',
-    '旅遊先行 / 戶外探索',
-    '美食生活 / 探店開箱',
-    '親子教育 / 陪伴成長',
-    '其他'
-  ];
+  const q1Options = config?.audienceOptions || [];
 
-  const q2Options = [
-    'YouTube 長影音圖像',
-    '短影音圖像',
-    '社群圖文排版',
-    '企劃大綱與背景資料查核'
-  ];
+  const q2Options = config?.usageOptions || [];
 
-  const designOptions = [
-    '非常喜歡，很有科技感與專業度',
-    '還不錯，但有些文字對比度可以再加強',
-    '視覺干擾太多，希望能更極簡',
-    '其他'
-  ];
+  const designOptions = config?.designOptions || [];
 
   const toggleQ2 = (option: string) => {
     setQ2(prev => 
@@ -537,7 +520,7 @@ function FeedbackModal({ currentTheme = 'General' }: FeedbackModalProps) {
 
 
 
-function ApplicationModal() {
+function ApplicationModal({ config }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -553,33 +536,13 @@ function ApplicationModal() {
   const [apiKey, setApiKey] = useState('');
   const [goal, setGoal] = useState('');
 
-  const platformOptions = [
-    'YouTube (長影音為主)',
-    'YouTube Shorts / TikTok / IG Reels (短影音為主)',
-    'Facebook / Instagram (圖文為主)',
-    'LinkedIn / 部落格 (深度長文為主)',
-    '其他'
-  ];
+  const platformOptions = config?.platformOptions || [];
 
-  const painPointOptions = [
-    '前期田調、龐大文獻的整理與事實查核。',
-    '把一份資料改寫成不同平台格式（長短影音、社群貼文）太花時間。',
-    '缺乏美術與配樂資源，不知如何下精準的 Prompt 給繪圖/音樂 AI。',
-    '團隊溝通成本太高，想實現一人全包。'
-  ];
+  const painPointOptions = config?.painPointOptions || [];
 
-  const aiToolOptions = [
-    'ChatGPT / Claude (文字生成)',
-    'Midjourney / DALL-E / 任何 AI 繪圖工具',
-    'Suno AI / Udio (AI 配樂)',
-    'Notion AI (筆記與知識庫)',
-    '以上皆無，我是 AI 新手，希望能有一套整合好的工具！'
-  ];
+  const aiToolOptions = config?.aiToolOptions || [];
 
-  const apiKeyOptions = [
-    '沒問題！我已經有 / 我願意去申請免費的 Gemini API Key。',
-    '我不太懂 API 怎麼申請，希望能有簡單的教學引導。'
-  ];
+  const apiKeyOptions = config?.apiKeyOptions || [];
 
   const toggleArray = (setter, option, max = null) => {
     setter(prev => {
@@ -816,6 +779,7 @@ export default function App() {
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [parsedVisualGroups, setParsedVisualGroups] = useState([]);
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
+  const [formConfigs, setFormConfigs] = useState(null);
 
   useEffect(() => {
     fetch(`https://omni-script-pro.vercel.app/api/config`)
@@ -823,6 +787,7 @@ export default function App() {
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES);
         setThemeSteps(data.THEME_STEPS);
+        if (data.FEEDBACK_CONFIG) setFormConfigs({ feedback: data.FEEDBACK_CONFIG, application: data.APPLICATION_CONFIG });
         setIsConfigLoaded(true);
       })
       .catch(err => {
@@ -2812,7 +2777,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
       </aside>
       {/* API Key Modal */}
-      {isGlobalMaster ? <FeedbackModal currentTheme={theme} /> : <ApplicationModal />}
+      {isGlobalMaster ? <FeedbackModal currentTheme={theme} config={formConfigs?.feedback} /> : <ApplicationModal config={formConfigs?.application} />}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
