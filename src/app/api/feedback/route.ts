@@ -6,16 +6,17 @@ const FEEDBACK_DB_ID = process.env.NOTION_FEEDBACK_DB_ID;
 
 export async function POST(req: Request) {
   try {
+    // 檢查環境變數
     if (!FEEDBACK_DB_ID) {
       return NextResponse.json({ error: "Missing NOTION_FEEDBACK_DB_ID" }, { status: 500 });
     }
 
     const payload = await req.json();
-    const isApplication = payload.formType === 'application';
+    console.log("[Vercel 後端偵錯] 收到表單資料:", payload.formType || 'feedback', payload); 
 
-    console.log(`[Vercel 後端偵錯] 收到${isApplication ? '封測申請' : '問卷回饋'}資料`); 
-
+    // 建立 Notion Block 結構
     const childrenBlocks: any[] = [];
+
     const addHeading = (text: string) => {
       childrenBlocks.push({
         object: 'block',
@@ -23,13 +24,15 @@ export async function POST(req: Request) {
         heading_2: { rich_text: [{ type: 'text', text: { content: text } }] }
       });
     };
-    const addSubHeading = (text: string) => {
+
+    const addHeading3 = (text: string) => {
       childrenBlocks.push({
         object: 'block',
         type: 'heading_3',
         heading_3: { rich_text: [{ type: 'text', text: { content: text } }] }
       });
     };
+
     const addText = (text: string) => {
       childrenBlocks.push({
         object: 'block',
@@ -38,33 +41,43 @@ export async function POST(req: Request) {
       });
     };
 
-    if (isApplication) {
-      // --- 封測申請表單排版 ---
-      const { name, email, platforms, link, painPoints, aiTools, apiKey, goal } = payload;
-      
-      addHeading("1. 基本身份與戰場確認");
-      addText(`稱呼/品牌名稱: ${name}`);
-      addText(`聯絡信箱: ${email}`);
-      addText(`主力發布平台: ${Array.isArray(platforms) ? platforms.join(", ") : platforms}`);
-      addText(`頻道/社群/網站連結: ${link}`);
+    let pageTitle = '';
 
-      addHeading("2. 痛點與 AI 熟悉度");
-      addSubHeading("最心力交瘁的環節");
-      addText(Array.isArray(painPoints) ? painPoints.join("\n") : painPoints);
-      
-      addSubHeading("熟悉的 AI 工具");
-      addText(Array.isArray(aiTools) ? aiTools.join(", ") : aiTools);
+    if (payload.formType === 'application') {
+      // ==========================================
+      // 處理「封測申請表單」 (Application Form)
+      // ==========================================
+      pageTitle = `[封測申請] ${payload.name || '未具名'} - ${payload.email || ''}`;
 
-      addHeading("3. 資源對接與承諾");
-      addSubHeading("API 金鑰意願");
-      addText(apiKey);
-      
-      addSubHeading("最希望解決的問題");
-      addText(goal);
+      addHeading("第一區塊：基本身份與戰場確認");
+      addHeading3("稱呼 / 品牌名稱");
+      addText(payload.name);
+      addHeading3("聯絡信箱 (Email)");
+      addText(payload.email);
+      addHeading3("主力發布平台");
+      addText(Array.isArray(payload.platforms) ? payload.platforms.join(", ") : payload.platforms);
+      addHeading3("頻道 / 社群 / 網站連結");
+      addText(payload.link);
+
+      addHeading("第二區塊：痛點與 AI 熟悉度");
+      addHeading3("最感到心力交瘁的環節");
+      addText(Array.isArray(payload.painPoints) ? payload.painPoints.join("\n") : payload.painPoints);
+      addHeading3("熟悉或經常使用的 AI 工具");
+      addText(Array.isArray(payload.aiTools) ? payload.aiTools.join("\n") : payload.aiTools);
+
+      addHeading("第三區塊：資源對接與承諾");
+      addHeading3("關於 API 金鑰與用量意願");
+      addText(payload.apiKey);
+      addHeading3("最希望 OmniScript PRO 解決什麼問題");
+      addText(payload.goal);
+
     } else {
-      // --- 意見回饋問卷排版 ---
+      // ==========================================
+      // 處理「封測回饋問卷」 (Feedback Form)
+      // ==========================================
       const { theme, audience, usage, satisfaction, painPoint, bugReport, designFeel, wowFeature, nps, wishlist } = payload;
-      
+      pageTitle = `[封測回饋] ${theme || 'General'}`;
+
       addHeading("1. 受眾輪廓與使用場景");
       addText(`創作領域: ${audience}`);
       addText(`主要使用內容: ${Array.isArray(usage) ? usage.join(", ") : usage}`);
@@ -80,31 +93,34 @@ export async function POST(req: Request) {
       }
 
       addHeading("3. 體驗痛點與 Bug 回報");
-      addSubHeading("最困惑的環節");
+      addHeading3("最困惑的環節");
       addText(painPoint);
-      addSubHeading("Bug 回報");
+      addHeading3("Bug 回報");
       addText(bugReport);
-      addSubHeading("介面設計與視覺風格感受");
+      addHeading3("介面設計與視覺風格感受");
       addText(designFeel);
 
       addHeading("4. 產品價值與未來期待");
-      addSubHeading("最驚豔或省時的功能");
+      addHeading3("最驚豔或省時的功能");
       addText(wowFeature);
-      addSubHeading("NPS 推薦意願 (0-10)");
-      addText(nps !== null ? `${nps} 分` : "未填寫");
-      addSubHeading("許願池 (優先新增或改善)");
+      addHeading3("NPS 推薦意願 (0-10)");
+      addText(nps !== null && nps !== undefined ? `${nps} 分` : "未填寫");
+      addHeading3("許願池 (優先新增或改善)");
       addText(wishlist);
     }
 
-    const titleText = isApplication 
-      ? `[封測申請] ${payload.name || 'Unknown'}` 
-      : `[封測回饋] ${payload.theme || 'General'}`;
-
+    // 將資料寫入 Notion 資料庫
     await notion.pages.create({
       parent: { database_id: FEEDBACK_DB_ID },
       properties: {
         Name: {
-          title: [{ text: { content: titleText } }],
+          title: [
+            {
+              text: {
+                content: pageTitle,
+              },
+            },
+          ],
         },
       },
       children: childrenBlocks,
@@ -112,7 +128,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Failed to submit to Notion:', error);
+    console.error('Failed to submit form to Notion:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
