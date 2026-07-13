@@ -2032,11 +2032,12 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
 
                   {/* Notion Load Project Component */}
-                  <div className="hidden pt-4 border-t border-slate-900/60 flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 text-indigo-400">
-                      <UploadCloud className="w-4.5 h-4.5" />
-                      <span className="text-xs font-bold">從 Notion 載入已歸檔專案</span>
-                    </div>
+                  {isGlobalMaster && (
+                    <div className="flex pt-4 border-t border-slate-900/60 flex-col items-center gap-3">
+                      <div className="flex items-center gap-2 text-indigo-400">
+                        <UploadCloud className="w-4.5 h-4.5" />
+                        <span className="text-xs font-bold">從 Notion 載入已歸檔專案</span>
+                      </div>
                     
                     {/* Simulated dropdown */}
                     <div className="w-full relative">
@@ -2058,6 +2059,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                     </div>
                   </div>
+                  )}
                   
                   {/* 清空按鈕 */}
                   <div className="pt-4 flex justify-center">
