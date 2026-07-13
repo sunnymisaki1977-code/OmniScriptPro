@@ -1465,16 +1465,11 @@ const handleLogin = async (e: React.FormEvent) => {
               return (
                 <div key={tab.id} className="space-y-1.5">
                   <button 
-                    onClick={() => {
-                      if (tab.id === 'creation') {
-                        setActiveTab(tab.id);
-                      }
-                    }}
-                    disabled={tab.id !== 'creation'}
+                    onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-xs transition-all text-left border relative ${
                       isActive 
                         ? `${curTheme.bgActive} ${curTheme.textActive} ${curTheme.borderActive}` 
-                        : 'text-slate-500 border-transparent disabled:cursor-not-allowed'
+                        : 'text-slate-500 border-transparent hover:text-slate-300 hover:bg-slate-800/50'
                     }`}
                   >
                     {/* Left indicator active line */}
