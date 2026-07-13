@@ -1194,72 +1194,12 @@ const handleLogin = async (e: React.FormEvent) => {
             >
               <Menu className="w-5 h-5" />
             </button>
-            {/* Top Search Input Box */}
-            <div className="flex-1 relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="例如：日本寺廟抽籤攻略"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="w-full bg-[#111827]/60 border border-slate-800/80 rounded-xl py-2 pl-10 pr-4 text-xs font-medium text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all"
-            />
-            </div>
+            
           </div>
-
-          {/* Top Action Buttons & Metrics */}
-          <div className="flex items-center gap-3 lg:gap-4 shrink-0">
+  
            
 
-            {activeTab === 'creation' && (
-              <>
-                <button 
-                  onClick={clearAllData}
-                  className="flex items-center gap-1.5 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>清空企劃</span>
-                </button>
-
-                {/* 一鍵全自動模式 Header Button / 中斷生成 */}
-                {isGenerating ? (
-                  <button 
-                    onClick={() => {
-                      setIsGenerating(false);
-                      addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                      setViewState('workspace');
-                    }}
-                    className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    <span>中斷生成</span>
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => {
-                      isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
-                      handleStartAuto();
-                    }}
-                    className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '自動接續生成' : '一鍵全自動模式'}</span>
-                  </button>
-                )}
-              </>
-            )}
-
-            {/* Quota Metric Button */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
-              <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
-              <span>{credits} 點額度</span>
-            </div>
-
-            {/* User Avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-extrabold text-white shadow-lg border border-indigo-500/20 cursor-pointer hover:scale-105 transition-all">
-              SH
-            </div>
-          </div>
+            
         </header>
 
         {/* --- Central Main Content Panels --- */}
@@ -1501,7 +1441,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       className="text-[10px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      清空畫布與舊企劃資料
+                      <span>清空企劃</span>
                     </button>
                   </div>
                     </>
@@ -1604,7 +1544,37 @@ const handleLogin = async (e: React.FormEvent) => {
                         </button>
                       </div>
                     </div>
+ 
+{/* 接續生成 / 中斷生成 */}
+ <div className="flex items-center gap-3 lg:gap-4 shrink-0"> 
 
+            {isGenerating ? (
+              <button 
+                onClick={() => {
+                  setIsGenerating(false);
+                  addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                  setViewState('workspace');
+                }}
+                className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>中斷生成</span>
+              </button>
+            ) : (
+              <button 
+                onClick={() => {
+                  isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
+                  handleStartAuto();
+                }}
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
+              </button>
+            )}
+          
+           
+          </div>
 
 
                     {/* Markdown text editor card */}
@@ -2099,7 +2069,18 @@ const handleLogin = async (e: React.FormEvent) => {
                 <Sliders className="w-2.5 h-2.5 text-slate-500" />
               </span>
               <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI 狀態監控</h4>
+   {/* Quota Metric Button */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
+              <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
+              <span>{credits} 點額度</span>
             </div>
+ {/* User Avatar */}
+            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-extrabold text-white shadow-lg border border-indigo-500/20 cursor-pointer hover:scale-105 transition-all">
+              SH
+            </div>
+            </div>
+
+
 
             {/* Simulated Active Engine Card */}
             <div className="bg-black/40 border border-slate-900 p-3 rounded-xl flex flex-col gap-2">
