@@ -74,21 +74,18 @@ export async function POST(req: Request) {
         isSearchEnabled: step.id === 1 && !verifiedContext
 });
     }
-   return NextResponse.json({
-      success: true,
-      stepId: step.id,
-      data: resultData
+ return {
+        id: step.id,
+        title: step.title,
+        description: step.description,
+        dependsOn: step.dependsOn,
+        promptStr: finalPromptStr // 關鍵：原本是 step.prompt.toString()，現在改為已經加入主題的結果
+      };
     });
 
+    return NextResponse.json({ prompt: promptConfigs });
   } catch (error: any) {
-    // 🌟 修正點 3：補上完整的錯誤捕捉與 Try 區塊關閉
-    console.error("❌ [API Error] Pipeline 執行失敗:", error);
-    return NextResponse.json(
-      { error: `伺服器處理失敗: ${error.message || "未知錯誤"}` },
-      { status: 500 }
-    );
+    console.error("❌ [API Error] 流水線發生錯誤:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-  
-  
- 
