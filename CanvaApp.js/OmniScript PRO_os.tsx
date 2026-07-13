@@ -8,7 +8,7 @@ import {
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
-, PenLine, Loader2, Star } from 'lucide-react';
+, PenLine, Loader2, Star, Gift } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -529,6 +529,280 @@ function FeedbackModal({ currentTheme = 'General' }: FeedbackModalProps) {
         <div className="fixed bottom-24 right-6 z-50 bg-emerald-500/90 backdrop-blur-md text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-right-8 fade-in duration-300">
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-sm font-medium">感謝您的回饋！我們已經收到您的問卷。</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+
+
+function ApplicationModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  // Form states
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [platforms, setPlatforms] = useState([]);
+  const [platformsOther, setPlatformsOther] = useState('');
+  const [link, setLink] = useState('');
+  const [painPoints, setPainPoints] = useState([]);
+  const [aiTools, setAiTools] = useState([]);
+  const [apiKey, setApiKey] = useState('');
+  const [goal, setGoal] = useState('');
+
+  const platformOptions = [
+    'YouTube (長影音為主)',
+    'YouTube Shorts / TikTok / IG Reels (短影音為主)',
+    'Facebook / Instagram (圖文為主)',
+    'LinkedIn / 部落格 (深度長文為主)',
+    '其他'
+  ];
+
+  const painPointOptions = [
+    '前期田調、龐大文獻的整理與事實查核。',
+    '把一份資料改寫成不同平台格式（長短影音、社群貼文）太花時間。',
+    '缺乏美術與配樂資源，不知如何下精準的 Prompt 給繪圖/音樂 AI。',
+    '團隊溝通成本太高，想實現一人全包。'
+  ];
+
+  const aiToolOptions = [
+    'ChatGPT / Claude (文字生成)',
+    'Midjourney / DALL-E / 任何 AI 繪圖工具',
+    'Suno AI / Udio (AI 配樂)',
+    'Notion AI (筆記與知識庫)',
+    '以上皆無，我是 AI 新手，希望能有一套整合好的工具！'
+  ];
+
+  const apiKeyOptions = [
+    '沒問題！我已經有 / 我願意去申請免費的 Gemini API Key。',
+    '我不太懂 API 怎麼申請，希望能有簡單的教學引導。'
+  ];
+
+  const toggleArray = (setter, option, max = null) => {
+    setter(prev => {
+      if (prev.includes(option)) {
+        return prev.filter(item => item !== option);
+      }
+      if (max && prev.length >= max) {
+        return prev;
+      }
+      return [...prev, option];
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (painPoints.length === 0 || !apiKey) {
+      alert("請完整填寫必填欄位 (痛點、API意願)");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    const payload = {
+      formType: 'application',
+      name,
+      email,
+      platforms: platforms.includes('其他') ? [...platforms.filter(p => p !== '其他'), `其他: ${platformsOther}`] : platforms,
+      link,
+      painPoints,
+      aiTools,
+      apiKey,
+      goal
+    };
+
+    try {
+      const API_BASE_URL = process.env.NODE_ENV === 'production' 
+        ? 'https://omni-script-pro.vercel.app' 
+        : '';
+        
+      await fetch(`${API_BASE_URL}/api/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      setIsOpen(false);
+      setShowToast(true);
+      
+      // Reset form
+      setName(''); setEmail(''); setPlatforms([]); setPlatformsOther('');
+      setLink(''); setPainPoints([]); setAiTools([]); setApiKey(''); setGoal('');
+    } catch (error) {
+      console.error(error);
+      try {
+        if (window.self === window.top) alert('抱歉，送出申請時發生錯誤，請稍後再試。');
+      } catch (e) {}
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 z-50 p-3 bg-amber-500 hover:bg-amber-400 text-white rounded-full shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 transition-all group animate-bounce hover:animate-none"
+      >
+        <Gift className="w-6 h-6 group-hover:scale-110 transition-transform" />
+      </button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+          <div className="bg-[#0f172a] border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200 relative">
+            
+            <div className="p-6 border-b border-slate-800 shrink-0 relative bg-gradient-to-r from-amber-500/10 to-transparent rounded-t-2xl">
+              <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+              <h3 className="text-xl font-black text-amber-400 mb-2 flex items-center gap-2">
+                <Gift className="w-5 h-5" />
+                OmniScript PRO 封閉測試申請｜釋放你的一人團隊算力
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                你好！我是 OmniScript PRO 的開發者。<br/>
+                這套系統，是我經營「世代銘印」經驗流程，轉換成自動內容矩陣，現在正尋找第一批渴望突破產能的創作者與行銷人。
+              </p>
+              <div className="mt-3 inline-block px-3 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                <p className="text-xs font-bold text-amber-300">
+                  🎁 封測專屬福利：審核通過者，將獲得專屬 Workspace 登入授權碼，以及 100 點免費雲端運算額度。
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-8">
+              <form id="application-form" onSubmit={handleSubmit} className="space-y-8">
+                
+                {/* 1. 基本身份與戰場確認 */}
+                <section className="space-y-5">
+                  <h4 className="text-amber-400 font-bold border-b border-amber-500/20 pb-2">1. 基本身份與戰場確認 (Basic Info)</h4>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-1">您的稱呼 / 品牌名稱： <span className="text-red-400">*</span></label>
+                      <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-1">您的聯絡信箱 (Email)： <span className="text-red-400">*</span></label>
+                      <p className="text-xs text-slate-500 mb-2">將用於寄送封測授權碼</p>
+                      <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-2">您的主力發布平台在哪裡？ <span className="text-slate-500 font-normal">(多選)</span></label>
+                      <div className="space-y-2">
+                        {platformOptions.map(opt => (
+                          <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" checked={platforms.includes(opt)} onChange={() => toggleArray(setPlatforms, opt)} className="w-4 h-4 text-amber-500 bg-slate-900 border-slate-700 rounded focus:ring-amber-500 focus:ring-offset-slate-900" />
+                            <span className="text-sm text-slate-400 group-hover:text-slate-200">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {platforms.includes('其他') && (
+                        <input type="text" value={platformsOther} onChange={e => setPlatformsOther(e.target.value)} placeholder="請輸入其他平台" className="w-full mt-2 bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-amber-500 outline-none" />
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-1">請提供您的頻道 / 社群 / 網站連結： <span className="text-red-400">*</span></label>
+                      <p className="text-xs text-slate-500 mb-2">這能讓我審核對方是否為真實創作者</p>
+                      <input required type="text" value={link} onChange={e => setLink(e.target.value)} placeholder="https://" className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-500 outline-none" />
+                    </div>
+                  </div>
+                </section>
+
+                {/* 2. 痛點與 AI 熟悉度 */}
+                <section className="space-y-5">
+                  <h4 className="text-amber-400 font-bold border-b border-amber-500/20 pb-2">2. 痛點與 AI 熟悉度 (Qualifying Questions)</h4>
+                  
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-2">目前在內容產製上，最讓你感到心力交瘁的環節是？ <span className="text-amber-500 font-normal">(限選兩項)</span> <span className="text-red-400">*</span></label>
+                      <div className="space-y-2">
+                        {painPointOptions.map(opt => (
+                          <label key={opt} className={`flex items-start gap-2 cursor-pointer group ${painPoints.length >= 2 && !painPoints.includes(opt) ? 'opacity-50' : ''}`}>
+                            <input type="checkbox" checked={painPoints.includes(opt)} onChange={() => toggleArray(setPainPoints, opt, 2)} className="w-4 h-4 mt-0.5 text-amber-500 bg-slate-900 border-slate-700 rounded focus:ring-amber-500 focus:ring-offset-slate-900" />
+                            <span className="text-sm text-slate-400 group-hover:text-slate-200">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-2">您日常的工作流中，已經熟悉或經常使用哪些 AI 工具？ <span className="text-slate-500 font-normal">(多選)</span></label>
+                      <div className="space-y-2">
+                        {aiToolOptions.map(opt => (
+                          <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" checked={aiTools.includes(opt)} onChange={() => toggleArray(setAiTools, opt)} className="w-4 h-4 text-amber-500 bg-slate-900 border-slate-700 rounded focus:ring-amber-500 focus:ring-offset-slate-900" />
+                            <span className="text-sm text-slate-400 group-hover:text-slate-200">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 3. 資源對接與承諾 */}
+                <section className="space-y-5">
+                  <h4 className="text-amber-400 font-bold border-b border-amber-500/20 pb-2">3. 資源對接與承諾 (Technical & Commitment)</h4>
+                  
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-1">【重要】關於 API 金鑰與用量說明： <span className="text-red-400">*</span></label>
+                      <p className="text-xs text-slate-400 mb-3 leading-relaxed">封測期間，系統會提供您免費的初始運算額度。若未來額度耗盡，OmniScript PRO 支援「綁定個人 Gemini API Key」以實現無限制生成。您是否了解並願意在未來嘗試此模式？</p>
+                      <div className="space-y-2">
+                        {apiKeyOptions.map(opt => (
+                          <label key={opt} className="flex items-start gap-2 cursor-pointer group">
+                            <input type="radio" name="apiKey" value={opt} checked={apiKey === opt} onChange={e => setApiKey(e.target.value)} className="w-4 h-4 mt-0.5 text-amber-500 bg-slate-900 border-slate-700 focus:ring-amber-500" />
+                            <span className="text-sm text-slate-400 group-hover:text-slate-200">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-200 mb-1">最後，請用一句話告訴我，您最希望 OmniScript PRO 幫您解決什麼問題？ <span className="text-slate-500 font-normal">(選填)</span></label>
+                      <textarea value={goal} onChange={e => setGoal(e.target.value)} placeholder="這會是我未來寫行銷文案最強大的金句庫..." className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-amber-500 outline-none min-h-[80px] resize-none" />
+                    </div>
+                  </div>
+                </section>
+
+              </form>
+            </div>
+
+            <div className="p-6 border-t border-slate-800 bg-slate-900/50 rounded-b-2xl shrink-0">
+              <button
+                type="submit"
+                form="application-form"
+                disabled={isSubmitting}
+                className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+              >
+                {isSubmitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> 送出中...</>
+                ) : (
+                  <><Send className="w-4 h-4" /> 提交封測申請</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showToast && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-[#0f172a] border border-amber-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 text-center space-y-6">
+              <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                 <CheckCircle2 className="w-8 h-8 text-amber-400" />
+              </div>
+              <h3 className="text-2xl font-black text-white">申請已送出！⚔️</h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                歡迎加入自動化創作的行列。<br/><br/>
+                我們將在 48 小時內進行審核，若入選封測名單，您的專屬授權碼與登入連結將會寄送至您的信箱。<br/>
+                <strong className="text-amber-400">請密切留意收件匣！</strong>
+              </p>
+              <button onClick={() => setShowToast(false)} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors">
+                我知道了
+              </button>
+           </div>
         </div>
       )}
     </>
@@ -2538,7 +2812,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
       </aside>
       {/* API Key Modal */}
-      <FeedbackModal currentTheme={theme} />
+      {isGlobalMaster ? <FeedbackModal currentTheme={theme} /> : <ApplicationModal />}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
