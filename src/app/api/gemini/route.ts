@@ -10,18 +10,6 @@ export async function POST(req: Request) {
     if (!theme || !currentStepId) {
       return NextResponse.json({ error: "缺少必要參數：theme 或 currentStepId" }, { status: 400 });
     }
-
-    const apiKeyRaw = req.headers.get("x-gemini-api-key") || apiKey || process.env.GEMINI_API_KEY;
-    if (!apiKeyRaw) {
-      return NextResponse.json({ error: "未設定 Gemini API 金鑰。" }, { status: 500 });
-    }
-    
-    // 多金鑰輪替邏輯
-    const apiKeys = apiKeyRaw.split(",").map((k: string) => k.trim()).filter((k: string) => k.length > 0);
-    let currentKeyIndex = Math.floor(Math.random() * apiKeys.length);
-    let ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
-
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     
     // 🔍 抓出當前要執行的那一單個步驟
