@@ -72,8 +72,7 @@ export async function POST(req: Request) {
         prompt: finalPrompt,
         schema: responseSchema,
         isSearchEnabled: step.id === 1 && !verifiedContext
-      });
-      }
+    });
    
   
   
