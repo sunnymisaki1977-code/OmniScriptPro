@@ -76,8 +76,6 @@ export async function POST(req: Request) {
     }
 
    
-    const errObj = error as any;
-    console.error(`後端步驟生成致命錯誤:`, errObj);
-    return NextResponse.json({ error: errObj.message || "單步生成失敗" }, { status: 500 });
+  
   }
-}
+
