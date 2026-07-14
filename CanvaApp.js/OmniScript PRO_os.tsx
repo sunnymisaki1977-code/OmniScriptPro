@@ -14,12 +14,12 @@ import {
 
 const IMAGE_ENGINES = [
   {
-    id: 'gemini-2.5-flash-image',
+    id: 'gemini-2.5-flash-image-preview', // 若未來轉正可直接改為 gemini-2.5-flash-image
     name: 'Nano Banana',
     desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   },
   {
-    id: 'gemini-2.5-flash',
+    id: 'imagen-4.0-generate-001',
     name: 'Imagen 4.0',
     desc: '專案內已有規劃之次世代影像生成引擎，提供極致細節與最高畫質。'
   },
@@ -37,8 +37,7 @@ const IMAGE_ENGINES = [
     id: 'gemini-3-pro-image',
     name: 'Nano Banana Pro',
     desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
-  },
-  
+  }
 ];
 
  // ============================================================================
@@ -1088,7 +1087,9 @@ export default function App() {
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
-    const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
+    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
+    const engineName = engineConfig.name;
+    const isImagen = imageEngine.includes('imagen');
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
@@ -1101,8 +1102,8 @@ export default function App() {
       
       let base64 = "";
 
-      if (imageEngine === 'flash') {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
+      if (!isImagen) {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${activeApiKey}`;
         
         let flashPrompt = prompt;
         if (mainTitle || subTitle || poetry) {
@@ -1112,7 +1113,6 @@ export default function App() {
           if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
         }
         
-        // Flash Image 尚未直接支援 aspectRatio 參數，因此附加在 Prompt 結尾引導模型
         const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
         const response = await fetch(apiUrl, {
@@ -1142,7 +1142,7 @@ export default function App() {
           throw new Error("模型未回傳圖像資料");
         }
       } else {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${activeApiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${activeApiKey}`;
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1165,8 +1165,8 @@ export default function App() {
         const originalImage = `data:image/png;base64,${base64}`;
         
         let finalImage = originalImage;
-        if (imageEngine !== 'flash') {
-          // 只有 Imagen 4 需要本地端字型疊加，Gemini 2.5 Flash 直接由模型產出內建字體
+        if (isImagen) {
+          // 只有 Imagen 4 需要本地端字型疊加，Gemini Image 系列直接由模型產出內建字體
           finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
         }
         
