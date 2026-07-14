@@ -962,13 +962,14 @@ export default function App() {
     }
   }, [logs]);
 
-  const applyTextOverlayToImageBase64 = (base64Image, mainTitle, subTitle, poetry) => {
+// 文字疊加渲染引擎 (純前端)
+  const applyTextOverlayToImageBase64 = (base64Image: string, mainTitle?: string, subTitle?: string, poetry?: string): Promise<string> => {
     return new Promise((resolve) => {
       if (!mainTitle && !subTitle && !poetry) {
         resolve(base64Image);
         return;
       }
-      
+
       const img = new Image();
       img.crossOrigin = "Anonymous";
       img.onload = () => {
@@ -1007,7 +1008,7 @@ export default function App() {
           '"Noto Serif TC", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif'  // 思源宋體
         ];
         const randomFontFamily = fontFamilies[Math.floor(Math.random() * fontFamilies.length)];
-        const fontStr = (size) => `bold ${size}px ${randomFontFamily}`;
+        const fontStr = (size: number) => `bold ${size}px ${randomFontFamily}`;
         
         if (visualStep === 7 && mainTitle) {
           // Step 7 主標直式 (基準線右方 25%)
@@ -1074,34 +1075,6 @@ export default function App() {
       };
       img.onerror = () => resolve(base64Image);
       img.src = base64Image;
-    });
-  };
-
-  const handleCopyAndGo = (group: any, target: 'gemini' | 'chatgpt') => {
-    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
-    const engineName = engineConfig.name;
-    const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
-    
-    let aspectRatio = "16:9";
-    const currentStep = STEPS.find((s: any) => s.id === visualStep);
-    if (currentStep && currentStep.aspectRatio) {
-      aspectRatio = currentStep.aspectRatio;
-    } else if (visualStep === 10) {
-      aspectRatio = "4:3";
-    }
-    
-    const fullPrompt = `[${engineName}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${prompt} --ar ${aspectRatio}`;
-    
-    navigator.clipboard.writeText(fullPrompt).then(() => {
-      addLog(`[Copy & Go] 已複製完整提示詞並前往 ${target === 'gemini' ? 'Gemini' : 'ChatGPT'}！`, 'success');
-      if (target === 'gemini') {
-        window.open('https://gemini.google.com/app', '_blank');
-      } else {
-        window.open('https://chatgpt.com/', '_blank');
-      }
-    }).catch(err => {
-      console.error('Copy failed:', err);
-      addLog(`[Copy & Go] 複製失敗，請檢查瀏覽器剪貼簿權限。`, 'error');
     });
   };
 
@@ -1213,6 +1186,7 @@ export default function App() {
     setIsGeneratingBatch(false);
     addLog(`[Visual Hub] 🎨 所有影像生成完畢！`, 'success');
   };
+
 
 
   const handleDownloadImage = (url, filename) => {
