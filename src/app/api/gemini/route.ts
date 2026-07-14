@@ -44,7 +44,8 @@ export async function POST(req: Request) {
         if (verifiedContext) {
           finalPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止自創與腦補。\n---\n${verifiedContext}\n---\n`;
         }
-        finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}`;
+        finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}
+\n【⚠️ 格式絕對要求】：請務必在輸出的 JSON 字串中保留適當的換行符號（\\n）來進行排版，確保段落分明，絕對不可將所有文字擠在同一行！`;
       }
 
       const responseSchema = {
@@ -75,7 +76,8 @@ export async function POST(req: Request) {
         if (verifiedContext) {
           finalPromptStr += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止自創與腦補。\n---\n${verifiedContext}\n---\n`;
         }
-        finalPromptStr += `\n執行指令：\n${step.prompt(stepContext)}`;
+        finalPromptStr += `\n執行指令：\n${step.prompt(stepContext)}
+\n【⚠️ 格式絕對要求】：請務必在輸出的 JSON 字串中保留適當的換行符號（\\n）來進行排版，確保段落分明，絕對不可將所有文字擠在同一行！`;
       }
 
       return {
