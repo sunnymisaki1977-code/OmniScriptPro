@@ -136,15 +136,15 @@ export const AUDIENCE_THEMES = {
 export const THEME_STEPS = {
   heritage: [
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對主題進行定義釐清與客觀史料彙整', type: "text", dependsOn: ["theme"] },
-    { id: 2, name: "長影音腳本撰寫", icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。", type: "text", dependsOn: ["theme", "step1"] },
-    { id: 3, name: "長影音 SEO 優化", icon: 'Search', category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },
-    { id: 4, name: "短影音腳本撰寫", icon: 'Video', category: 'Content', desc: "產出 60 秒內的精簡爆款短影片文案。", type: "text", dependsOn: ["theme", "step1"] },
-    { id: 5, name: "短影音 SEO 優化", icon: 'Search', category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
-    { id: 6, name: "長影音縮圖設計", icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
-    { id: 7, name: "短影音縮圖設計", icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
-    { id: 8, name: "彩墨風格意象圖", icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
-    { id: 9, name: "Suno AI 配樂設計", icon: 'Music', category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
-    { id: 10, name: "社群推播發控中心", icon: 'Facebook', category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。", type: "text", dependsOn: ["theme", "step1"] },
+    { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: "產出 60 秒內的精簡爆款短影片文案。", type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+    { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+    { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ],
   historyMeme: [
     { id: 1, name: '歷史人物硬核迷因大盤點', icon: 'Database', category: 'Research', desc: '用現代迷因與幽默視角，盤點歷史人物的極限操作與趣事', type: "text", dependsOn: ["theme"] },
