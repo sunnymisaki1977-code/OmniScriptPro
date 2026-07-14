@@ -1102,8 +1102,8 @@ export default function App() {
       
       let base64 = "";
 
-      if (!isImagen) {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:generateContent?key=${activeApiKey}`;
+      if (imageEngine === 'flash') {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
         
         let flashPrompt = prompt;
         if (mainTitle || subTitle || poetry) {
@@ -1142,7 +1142,7 @@ export default function App() {
           throw new Error("模型未回傳圖像資料");
         }
       } else {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${imageEngine}:predict?key=${activeApiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${activeApiKey}`;
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
