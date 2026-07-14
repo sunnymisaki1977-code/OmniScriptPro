@@ -1469,7 +1469,7 @@ export default function App() {
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
   if (!isCanvasEnv && !geminiApiKey.trim()) {
     setPendingImageTask(() => () => runAutoGeneration(finalTheme, isResume));
-    setShowApiKeyModal(true);
+    setShowApiKeyModal(flase);
     return;
   }
   runAutoGeneration(finalTheme, isResume);
