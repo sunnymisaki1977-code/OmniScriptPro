@@ -37,7 +37,7 @@ const IMAGE_ENGINES = [
     id: 'gemini-3-pro-image',
     name: 'Nano Banana Pro',
     desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
-  }
+  },
   
 ];
 
@@ -865,6 +865,10 @@ export default function App() {
        setIsCanvasEnv(true);
      }
    }, []);
+  
+  
+  
+  const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
@@ -932,7 +936,7 @@ export default function App() {
 
   const [groupImages, setGroupImages] = useState({});
   const [generatingGroups, setGeneratingGroups] = useState({});
-  const [imageEngine, setImageEngine] = useState('gemini-3.1-flash-lite-image');
+  const [imageEngine, setImageEngine] = useState('flash');
 
   useEffect(() => {
     const content = stepContents[visualStep];
