@@ -1092,7 +1092,7 @@ export default function App() {
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
-      const activeApiKey = apiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+      const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
       
       let aspectRatio = "1:1";
       if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
