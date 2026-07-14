@@ -14,6 +14,11 @@ import {
 
 const IMAGE_ENGINES = [
   {
+    id: 'gemini-2.5-flash-image',
+    name: 'Nano Banana',
+    desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
+  },
+  {
     id: 'gemini-2.5-flash',
     name: 'Imagen 4.0',
     desc: '專案內已有規劃之次世代影像生成引擎，提供極致細節與最高畫質。'
@@ -32,12 +37,8 @@ const IMAGE_ENGINES = [
     id: 'gemini-3-pro-image',
     name: 'Nano Banana Pro',
     desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
-  },
-  {
-    id: 'gemini-2.5-flash-image',
-    name: 'Nano Banana',
-    desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   }
+  
 ];
 
  // ============================================================================
