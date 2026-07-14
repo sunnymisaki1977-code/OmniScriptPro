@@ -1130,33 +1130,72 @@ export default function App() {
         aspectRatio = "4:3";
       }
       
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          mainTitle,
-          subTitle,
-          poetry,
-          aspectRatio,
-          apiKey
-        })
-      });
+      let base64Result = "";
+      let modelUsedName = engineName;
 
-      
-      const data = await response.json();
-      if (!response.ok) throw new Error(`API Error: ${data.error || response.statusText}`);
-      
-      if (data.success && data.image) {
-        const originalImage = data.image;
-        const finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+      if (isCanvasEnv) {
+        if (!apiKey) throw new Error("Canvas 環境下尚未綁定 Gemini API Key");
+        const fullPrompt = `[${engineName}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${prompt} --ar ${aspectRatio}`;
         
-        setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
-        addLog(`[${engineName}] ✨ ${groupId} 渲染完成！(使用模型: ${data.modelUsed})`, 'success');
-        setCredits(prev => Math.max(0, prev - 5));
+        const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
+        const googleRes = await fetch(googleUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: fullPrompt }] }]
+          })
+        });
+        
+        const googleData = await googleRes.json();
+        if (!googleRes.ok) throw new Error(googleData.error?.message || "Google API 請求失敗");
+        
+        const parts = googleData.candidates?.[0]?.content?.parts?.[0];
+        if (parts?.inlineData?.data) {
+          base64Result = `data:${parts.inlineData.mimeType || 'image/jpeg'};base64,${parts.inlineData.data}`;
+        } else if (parts?.inline_data?.data) {
+          base64Result = `data:image/jpeg;base64,${parts.inline_data.data}`;
+        } else if (parts?.text) {
+          base64Result = parts.text.startsWith('data:image') ? parts.text : `data:image/jpeg;base64,${parts.text}`;
+        } else {
+          const generatedContent = googleData.predictions?.[0]?.output || googleData.candidates?.[0]?.output || "";
+          if (generatedContent) {
+            base64Result = generatedContent.startsWith('data:image') ? generatedContent : `data:image/jpeg;base64,${generatedContent}`;
+          } else {
+            console.error("Unknown Google API structure:", googleData);
+            throw new Error("無法從 Google API 回傳中解析出影像資料格式");
+          }
+        }
+        modelUsedName = "gemini-2.5-flash-image-preview (Canvas 直連)";
+        
       } else {
-        throw new Error(data.error || "未收到圖片資料");
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt,
+            mainTitle,
+            subTitle,
+            poetry,
+            aspectRatio,
+            apiKey
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error || response.statusText}`);
+        
+        if (data.success && data.image) {
+          base64Result = data.image;
+          modelUsedName = data.modelUsed;
+        } else {
+          throw new Error(data.error || "未收到圖片資料");
+        }
       }
+
+      const finalImage = await applyTextOverlayToImageBase64(base64Result, mainTitle, subTitle, poetry);
+      setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
+      addLog(`[${engineName}] ✨ ${groupId} 渲染完成！(使用模型: ${modelUsedName})`, 'success');
+      setCredits(prev => Math.max(0, prev - 5));
     } catch (err) {
       const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
       const engineName = engineConfig.name;
