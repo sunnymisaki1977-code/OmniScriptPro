@@ -902,6 +902,9 @@ export default function App() {
      fetchArchives();
   }, []);
 
+
+ 
+
   const [logs, setLogs] = useState([
     { time: "[System]", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
     { time: "[System]", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
@@ -909,8 +912,8 @@ export default function App() {
   
   const [aiStatus, setAiStatus] = useState('pro'); 
   const [credits, setCredits] = useState(125);
- const [currentProjectTitle, setCurrentProjectTitle] = useState('尚未載入專案'); 
-const [isNotionExporting, setIsNotionExporting] = useState(false);
+  const [currentProjectTitle, setCurrentProjectTitle] = useState('尚未載入專案');
+  const [isNotionExporting, setIsNotionExporting] = useState(false);
   const [notionStatus, setNotionStatus] = useState('尚未歸檔');
   const [notionUrl, setNotionUrl] = useState('');
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
@@ -932,7 +935,7 @@ const [isNotionExporting, setIsNotionExporting] = useState(false);
 
   useEffect(() => {
     const content = stepContents[visualStep];
-    if (!content || !isConfigLoaded) return;
+    if (!content) return;
     
     setIsParsingVisuals(true);
     fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
@@ -949,9 +952,15 @@ const [isNotionExporting, setIsNotionExporting] = useState(false);
         console.error('Parse visuals error:', err);
         setIsParsingVisuals(false);
       });
-  }, [stepContents, visualStep, isConfigLoaded]);
+  }, [stepContents, visualStep]);
 
   const visualGroups = parsedVisualGroups;
+
+  useEffect(() => {
+    if (logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs]);
 
   const applyTextOverlayToImageBase64 = (base64Image, mainTitle, subTitle, poetry) => {
     return new Promise((resolve) => {
@@ -1368,27 +1377,20 @@ const [isNotionExporting, setIsNotionExporting] = useState(false);
     }
   };
 
-    const handleLoadArchive = async (e) => {
+   const handleLoadArchive = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const pageId = e.target.value;
     if (!pageId) return;
 
-    
     setSelectedArchive(pageId);
     setIsLoadingArchive(true);
-    addLog(`[Notion] 正在從雲端載入專案資料...`, 'info');
+    addLog(`[Notion] 正在從資料庫讀取專案內容...`, 'info');
 
     try {
-      // 向 Vercel 請求該 Notion 頁面的詳細內容
-      const response = await fetch(`/api/notion/history?id=${pageId}`);
+      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
-        // 成功抓取後，一鍵把內容填回編輯器！
-        if (data.theme) setTheme(data.theme); 
-        // 確保不會將 "undefined" 字串覆蓋掉使用者選好的受眾
-        if (data.audienceTheme && data.audienceTheme !== "undefined" && data.audienceTheme !== "null") {
-          setAudienceTheme(data.audienceTheme);
-        }
+        setCurrentProjectTitle(data.theme || archiveList.find(a => a.id === pageId)?.title || '未命名專案');
         setStepContents({
           1: data.stepsData[1] || "",
           2: data.stepsData[2] || "",
@@ -1401,16 +1403,12 @@ const [isNotionExporting, setIsNotionExporting] = useState(false);
           9: data.stepsData[9] || "",
           10: data.stepsData[10] || ""
         });
-        addLog(`[Notion] ✨ 專案載入成功！`, 'success');
-        setNotionStatus('✅ 已成功歸檔');
-        setNotionUrl(`https://www.notion.so/${pageId.replace(/-/g, '')}`);
-        setViewState('workspace');
+        addLog(`[Notion] 專案讀取成功，已匯入腳本與提示詞！`, 'success');
       }
-    } catch (error) {
-      addLog(`[Error] 載入失敗: ${error.message}`, 'error');
+    } catch (error: any) {
+      addLog(`[Error] 讀取失敗: ${error.message}`, 'error');
     } finally {
       setIsLoadingArchive(false);
-      setSelectedArchive("");
     }
   };
 
