@@ -146,6 +146,63 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 // ============================================================================
 // 3. React 元件主體與狀態
 // ============================================================================
+export interface StyleOption {
+  id: string;
+  name: string;
+  promptSuffix: string;
+}
+
+export const AUDIENCE_STYLES: Record<string, StyleOption> = {
+  heritage: {
+    id: "style-heritage",
+    name: "東方古典美學 (水墨工筆)",
+    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, art calligraphy text style"
+  },
+  beauty: {
+    id: "style-beauty",
+    name: "高訂雜誌寫實 (微距極簡)",
+    promptSuffix: ", premium editorial beauty photography, macro shot, flawless skin texture, elegant studio softbox lighting, soft neutral background, minimalist makeup aesthetic, commercial cosmetics lighting, 8k resolution"
+  },
+  travelpreneur: {
+    id: "style-travel",
+    name: "電影級廣角紀實 (探索感)",
+    promptSuffix: ", cinematic travel photography, shot on 35mm lens, golden hour natural light, dynamic wide-angle landscape, national geographic style, high-contrast storytelling depth"
+  },
+  food: {
+    id: "style-food",
+    name: "頂級私廚攝影 (食慾感)",
+    promptSuffix: ", professional commercial food photography, macro shot, glistening texture, delicate steam, shallow depth of field, warm cozy bokeh background, dark moody table setting, hyper-realistic food styling"
+  },
+  historyMeme: {
+    id: "style-history",
+    name: "復古漫畫排版 (浮世迷因)",
+    promptSuffix: ", retro manga pop-art illustration style, bold ink outline, halftones patterns, dynamic movement lines, high-contrast vintage colors, graphic novel aesthetics, expressive and funny"
+  },
+  pet: {
+    id: "style-pet",
+    name: "溫暖居家療癒 (毛髮蓬鬆)",
+    promptSuffix: ", heartwarming interior pet photography, soft cozy lighting, high-key pastel color palette, fluffy dog fur details, joyful companion emotion, warm family atmosphere, 50mm lens f/1.8"
+  }
+};
+
+export const POPULAR_STYLES: StyleOption[] = [
+  {
+    id: "style-cyber",
+    name: "3D 賽博龐克 (霓虹電競)",
+    promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
+  },
+  {
+    id: "style-anime",
+    name: "日系手繪動漫 (新海誠風)",
+    promptSuffix: ", makoto shinkai style, anime illustration, vivid colors, beautiful sky, cinematic lighting, highly detailed"
+  },
+  {
+    id: "style-minimal",
+    name: "北歐寫實極簡 (生活感)",
+    promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
+  }
+];
+
 export default function App() {
   const [audienceThemes, setAudienceThemes] = useState({});
   const [themeSteps, setThemeSteps] = useState({});
@@ -245,6 +302,8 @@ export default function App() {
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
 
   const [visualStep, setVisualStep] = useState(6);
+  const [currentImageStyle, setCurrentImageStyle] = useState(AUDIENCE_STYLES['heritage']);
+  useEffect(() => { if (AUDIENCE_STYLES[audienceTheme]) { setCurrentImageStyle(AUDIENCE_STYLES[audienceTheme]); } }, [audienceTheme]);
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
@@ -477,7 +536,9 @@ export default function App() {
       if (imageEngine === 'flash') {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
         
-        let flashPrompt = prompt;
+        const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
+
+        let flashPrompt = finalPromptWithStyle;
         if (mainTitle || subTitle || poetry) {
           flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
           if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
@@ -519,7 +580,7 @@ export default function App() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            instances: [{ prompt: prompt }],
+            instances: [{ prompt: finalPromptWithStyle }],
             parameters: { sampleCount: 1, aspectRatio: aspectRatio }
           })
         });
@@ -1161,16 +1222,43 @@ const handleLogin = async (e: React.FormEvent) => {
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影音縮圖</label>
-                          <select className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none">
-                            <option>長影音</option>
-                            <option>短影音</option>
-                            <option>社群FB/IG</option>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1">畫風濾鏡</label>
+                          <select 
+                            value={currentImageStyle.id}
+                            onChange={(e) => {
+                              const selectedId = e.target.value;
+                              const recommendedStyle = AUDIENCE_STYLES[audienceTheme];
+                              if (recommendedStyle && recommendedStyle.id === selectedId) {
+                                setCurrentImageStyle(recommendedStyle);
+                                return;
+                              }
+                              const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
+                              if (foundPopular) setCurrentImageStyle(foundPopular);
+                            }}
+                            className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
+                          >
+                            {AUDIENCE_STYLES[audienceTheme] && (
+                              <optgroup label="💡 受眾專屬推薦風格">
+                                <option value={AUDIENCE_STYLES[audienceTheme].id}>
+                                  ✨ {AUDIENCE_STYLES[audienceTheme].name} (預設推薦)
+                                </option>
+                              </optgroup>
+                            )}
+                            <optgroup label="🔥 流行與其他風格">
+                              {POPULAR_STYLES.map((style) => (
+                                <option key={style.id} value={style.id}>
+                                  {style.name}
+                                </option>
+                              ))}
+                            </optgroup>
                           </select>
+                          <div className="text-[9px] text-slate-500/80 mt-1 leading-relaxed italic">
+                            已套用風格詞綴：{currentImageStyle.promptSuffix.slice(0, 45)}...
+                          </div>
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">輸出比例</label>
+                          <label className="text-[10px] text-slate-500 font-bold block mb-1 mt-3">輸出比例</label>
                           <select 
                             value={visualStep}
                             onChange={(e) => setVisualStep(Number(e.target.value))}
@@ -1197,20 +1285,6 @@ const handleLogin = async (e: React.FormEvent) => {
                           <p className="text-[9px] text-slate-500/80 mt-1.5 leading-relaxed">
                             {IMAGE_ENGINES.find(e => e.id === imageEngine)?.desc}
                           </p>
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">畫風濾鏡</label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                            {['霓虹電競', '寫實極簡', '3D 賽博', '手繪動漫'].map((style, idx) => (
-                              <button 
-                                key={style}
-                                className={`px-2 py-1.5 rounded-lg text-[9px] font-bold border text-center ${idx === 0 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300' : 'border-slate-800 text-slate-500'}`}
-                              >
-                                {style}
-                              </button>
-                            ))}
-                          </div>
                         </div>
                       </div>
                     </div>
