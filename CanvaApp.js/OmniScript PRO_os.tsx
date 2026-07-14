@@ -909,7 +909,8 @@ export default function App() {
   
   const [aiStatus, setAiStatus] = useState('pro'); 
   const [credits, setCredits] = useState(125);
-  const [isNotionExporting, setIsNotionExporting] = useState(false);
+ const [currentProjectTitle, setCurrentProjectTitle] = useState('尚未載入專案'); 
+const [isNotionExporting, setIsNotionExporting] = useState(false);
   const [notionStatus, setNotionStatus] = useState('尚未歸檔');
   const [notionUrl, setNotionUrl] = useState('');
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
@@ -1371,12 +1372,7 @@ export default function App() {
     const pageId = e.target.value;
     if (!pageId) return;
 
-    if (pageId === "open_current") {
-      if (notionUrl) window.open(notionUrl, '_blank');
-      setSelectedArchive(""); // Reset selection
-      return;
-    }
-
+    
     setSelectedArchive(pageId);
     setIsLoadingArchive(true);
     addLog(`[Notion] 正在從雲端載入專案資料...`, 'info');
