@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
   Play, Pause, FastForward, Sparkles, CheckCircle2, Circle, 
@@ -809,6 +810,7 @@ export default function App() {
   const [selectedSteps, setSelectedSteps] = useState<number[]>([1, 2]);
   const [isStepFlowHidden, setIsStepFlowHidden] = useState(true);
   const [isVisualSidebarHidden, setIsVisualSidebarHidden] = useState(true);
+  const [isPreviewMode, setIsPreviewMode] = useState(true);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const isResumeIntentRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
@@ -1667,6 +1669,36 @@ const handleLogin = async (e: React.FormEvent) => {
 
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
+      <style dangerouslySetInnerHTML={{__html: `
+        .markdown-preview {
+          font-family: 'Noto Sans TC', sans-serif;
+          color: #cbd5e1;
+          line-height: 1.8;
+          font-size: 0.9rem;
+        }
+        .markdown-preview h1, .markdown-preview h2, .markdown-preview h3, .markdown-preview h4 {
+          color: #f8fafc;
+          font-weight: 700;
+          margin-top: 1.5em;
+          margin-bottom: 0.75em;
+        }
+        .markdown-preview h1 { font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 0.3em; }
+        .markdown-preview h2 { font-size: 1.3rem; border-bottom: 1px solid #334155; padding-bottom: 0.3em; }
+        .markdown-preview h3 { font-size: 1.1rem; }
+        .markdown-preview p { margin-bottom: 1em; }
+        .markdown-preview ul, .markdown-preview ol { padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-preview ul { list-style-type: disc; }
+        .markdown-preview ol { list-style-type: decimal; }
+        .markdown-preview li { margin-bottom: 0.5em; }
+        .markdown-preview strong { color: #f1f5f9; font-weight: 700; }
+        .markdown-preview em { color: #94a3b8; font-style: italic; }
+        .markdown-preview blockquote { border-left: 4px solid #6366f1; padding-left: 1em; color: #94a3b8; margin: 1em 0; background: rgba(99,102,241,0.1); padding: 0.5em 1em; border-radius: 4px; }
+        .markdown-preview code { background-color: #1e293b; padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; font-size: 0.85em; color: #818cf8; }
+        .markdown-preview pre { background-color: #0f172a; padding: 1em; border-radius: 0.5em; overflow-x: auto; border: 1px solid #1e293b; margin-bottom: 1em; }
+        .markdown-preview pre code { background-color: transparent; padding: 0; color: #e2e8f0; }
+        .markdown-preview a { color: #818cf8; text-decoration: underline; text-underline-offset: 2px; }
+        .markdown-preview hr { border-color: #334155; margin: 2em 0; }
+      `}} />
       
       {/* Mobile Drawer Overlay */}
       {isMobileMenuOpen && (
