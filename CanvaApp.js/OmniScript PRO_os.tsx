@@ -286,7 +286,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
    
      // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const [isCanvasEnv, setIsCanvasEnv] = useState(true);
+   const [isCanvasEnv, setIsCanvasEnv] = useState(flase);
    
    useEffect(() => {
      if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
