@@ -857,7 +857,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
    
      // --- 新增：獨立 Gemini API Key 狀態與環境偵測 ---
-   const [isCanvasEnv, setIsCanvasEnv] = useState(false);
+   const [isCanvasEnv, setIsCanvasEnv] = useState(true);
    
    useEffect(() => {
      if (typeof window !== 'undefined' && !!(window as any).__GEMINI_API_KEY__) {
@@ -1105,105 +1105,115 @@ export default function App() {
     });
   };
 
-  const generateGroupImage = async (group) => {
-     if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => () => generateGroupImage(group));
-      setShowApiKeyModal(true);
-      return;
-    }
+  const generateGroupImage = async (group: any) => {
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
-    const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
-    const engineName = engineConfig.name;
+    const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
-      const apiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : ""); // Canvas 預覽環境會自動帶入
+      const activeApiKey = apiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
       
       let aspectRatio = "1:1";
-      const currentStep = STEPS.find(s => s.id === visualStep);
-      if (currentStep && currentStep.aspectRatio) {
-        aspectRatio = currentStep.aspectRatio;
-      } else if (visualStep === 10) {
-        aspectRatio = "4:3";
-      }
+      if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
+      if (visualStep === 7) aspectRatio = "9:16";
+      if (visualStep === 10) aspectRatio = "4:3";
       
-      let base64Result = "";
-      let modelUsedName = engineName;
+      let base64 = "";
 
-      if (isCanvasEnv) {
-        if (!apiKey) throw new Error("Canvas 環境下尚未綁定 Gemini API Key");
-        const fullPrompt = `[${engineName}] Masterpiece, extremely detailed, highest quality, ultra-high definition, 8k resolution. Theme: ${mainTitle}. ${subTitle}. Context: ${poetry}. ${prompt} --ar ${aspectRatio}`;
+      if (imageEngine === 'flash') {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
         
-        const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
-        const googleRes = await fetch(googleUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: fullPrompt }] }]
-          })
-        });
-        
-        const googleData = await googleRes.json();
-        if (!googleRes.ok) throw new Error(googleData.error?.message || "Google API 請求失敗");
-        
-        const parts = googleData.candidates?.[0]?.content?.parts?.[0];
-        if (parts?.inlineData?.data) {
-          base64Result = `data:${parts.inlineData.mimeType || 'image/jpeg'};base64,${parts.inlineData.data}`;
-        } else if (parts?.inline_data?.data) {
-          base64Result = `data:image/jpeg;base64,${parts.inline_data.data}`;
-        } else if (parts?.text) {
-          base64Result = parts.text.startsWith('data:image') ? parts.text : `data:image/jpeg;base64,${parts.text}`;
-        } else {
-          const generatedContent = googleData.predictions?.[0]?.output || googleData.candidates?.[0]?.output || "";
-          if (generatedContent) {
-            base64Result = generatedContent.startsWith('data:image') ? generatedContent : `data:image/jpeg;base64,${generatedContent}`;
-          } else {
-            console.error("Unknown Google API structure:", googleData);
-            throw new Error("無法從 Google API 回傳中解析出影像資料格式");
-          }
+        let flashPrompt = prompt;
+        if (mainTitle || subTitle || poetry) {
+          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
+          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
+          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
+          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
         }
-        modelUsedName = "gemini-2.5-flash-image-preview (Canvas 直連)";
         
-      } else {
-        const response = await fetch('/api/generate-image', {
+        // Flash Image 尚未直接支援 aspectRatio 參數，因此附加在 Prompt 結尾引導模型
+        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
+
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt,
-            mainTitle,
-            subTitle,
-            poetry,
-            aspectRatio,
-            apiKey
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: finalPrompt }]
+              }
+            ],
+            generationConfig: {
+              responseModalities: ['TEXT', 'IMAGE']
+            }
           })
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error(`API Error: ${data.error || response.statusText}`);
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
         
-        if (data.success && data.image) {
-          base64Result = data.image;
-          modelUsedName = data.modelUsed;
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const imagePart = parts.find((p: any) => p.inlineData);
+        if (imagePart) {
+          base64 = imagePart.inlineData.data;
         } else {
-          throw new Error(data.error || "未收到圖片資料");
+          throw new Error("模型未回傳圖像資料");
+        }
+      } else {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${activeApiKey}`;
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instances: [{ prompt: prompt }],
+            parameters: { sampleCount: 1, aspectRatio: aspectRatio }
+          })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+        if (data.predictions && data.predictions[0]) {
+          base64 = data.predictions[0].bytesBase64Encoded;
+        } else {
+          throw new Error("未收到圖片資料");
         }
       }
-
-      const finalImage = await applyTextOverlayToImageBase64(base64Result, mainTitle, subTitle, poetry);
-      setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
-      addLog(`[${engineName}] ✨ ${groupId} 渲染完成！(使用模型: ${modelUsedName})`, 'success');
-      setCredits(prev => Math.max(0, prev - 5));
-    } catch (err) {
-      const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
-      const engineName = engineConfig.name;
+      
+      if (base64) {
+        const originalImage = `data:image/png;base64,${base64}`;
+        
+        let finalImage = originalImage;
+        if (imageEngine !== 'flash') {
+          // 只有 Imagen 4 需要本地端字型疊加，Gemini 2.5 Flash 直接由模型產出內建字體
+          finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
+        }
+        
+        setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
+        addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
+      }
+    } catch (err: any) {
+      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
     }
   };
+
+  const generateBatchImages = async () => {
+    if (visualGroups.length === 0) return;
+    setIsGeneratingBatch(true);
+    addLog(`[Visual Hub] 開始批次發送 ${visualGroups.length} 組 Prompt...`, 'info');
+    
+    await Promise.all(visualGroups.map(group => generateGroupImage(group)));
+    
+    setIsGeneratingBatch(false);
+    addLog(`[Visual Hub] 🎨 所有影像生成完畢！`, 'success');
+  };
+
 
   const handleDownloadImage = (url, filename) => {
     if (!url) {
@@ -2850,39 +2860,17 @@ const handleLogin = async (e: React.FormEvent) => {
 
       </aside>
       {/* API Key Modal */}
-      {isGlobalMaster ? <FeedbackModal currentTheme={theme} config={formConfigs?.feedback} /> : <ApplicationModal config={formConfigs?.application} />}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
+          <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Key className="w-6 h-6 text-indigo-400" />
-                需要 Gemini API Key
+                設定 Gemini API Key
               </h3>
               <button onClick={() => setShowApiKeyModal(false)} className="text-slate-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
-            </div>
-            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-              您目前處於獨立運行模式，必須輸入 Gemini API Key 才能執行。
-              <br />
-              <span className="text-indigo-400 font-medium mt-1 inline-block">✨ 系統支援防限流機制：您可以一次貼上多把金鑰，並使用半形逗號 <code className="bg-indigo-500/20 px-1 rounded text-indigo-300">,</code> 分隔。</span>
-            </p>
-
-            <div className="mb-6 bg-slate-900/50 rounded-2xl p-4 border border-slate-700">
-              <h4 className="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-                <ListTodo className="w-4 h-4 text-indigo-400" />
-                本次將生成的素材矩陣：
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {STEPS.filter(s => selectedSteps.includes(s.id) || s.id === 1 || s.id === 2).map(step => (
-                  <span key={step.id} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] border ${step.id === 1 || step.id === 2 ? 'bg-indigo-900/50 text-indigo-300 border-indigo-500/30' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'}`}>
-                    <Check className="w-3 h-3" />
-                    {step.name}
-                    {(step.id === 1 || step.id === 2) && <span className="opacity-60">(必需)</span>}
-                  </span>
-                ))}
-              </div>
             </div>
             
             <div className="space-y-4">
@@ -2890,40 +2878,21 @@ const handleLogin = async (e: React.FormEvent) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  placeholder="輸入 API Key (例如：AIzaSy..., AIzaSy..., AIzaSy...)"
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="輸入 API Key..."
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
                   className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
                 />
               </div>
 
               <div className="flex flex-col gap-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowApiKeyModal(false);
-                    if (geminiApiKey.trim()) {
-                      if (activeTab === 'creation') {
-                        handleStartAuto();
-                      } else if (activeTab === 'visual' && pendingImageTask) {
-                        pendingImageTask();
-                        setPendingImageTask(null);
-                      }
-                    }
-                  }}
+                  onClick={() => setShowApiKeyModal(false)}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  {activeTab === 'creation' ? '確認並開始執行' : (pendingImageTask ? '確認並開始生成' : '確認並儲存金鑰')}
+                  確認並儲存
                 </button>
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                  前往申請 Gemini API Key
-                  <ExternalLink className="w-4 h-4" />
-                </a>
               </div>
             </div>
           </div>
