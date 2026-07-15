@@ -44,17 +44,17 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
-   const apiKey = ""; // Canvas 運行環境會自動注入
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
-    const API_BASE_URL = process.env.NODE_ENV === 'production' 
+     const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
     const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
-    
+
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +74,9 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     const vercelData = await promptResponse.json();
     const finalPrompt = vercelData.prompt; 
-    
+    const responseSchema = vercelData.schema;
+    const isSearchEnabled = vercelData.isSearchEnabled;
+
     if (!finalPrompt) {
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
@@ -86,17 +88,17 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         }
     };
 
-    // 🌟 核心分流邏輯：解決 Google Search 與 JSON Schema 的衝突
-   
+    // 🌟 核心分流邏輯：正確的 Google Search 語法實作
+    if (isSearchEnabled) {
         console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
-        // 啟用 Google Search
-       tools: [{ "google_search": {} }]
-        // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
-    
-      
+        // 啟用 Google Search Tool
+        geminiPayload.tools = [{ "google_search": {} }];
+        // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
+    } else if (responseSchema) {
+        console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
         geminiPayload.generationConfig.responseMimeType = "application/json";
-        
-    
+        geminiPayload.generationConfig.responseSchema = responseSchema;
+    }
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
@@ -111,7 +113,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     const data = await aiResponse.json();
     let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
     
-    // 🛡️ 強健版 JSON 解析器（拿掉了 export，改成一般的區域變數函式）
+    // 🛡️ 強健版 JSON 解析器
     const cleanAndParseJSON = (rawText, stepId) => {
         try {
             return JSON.parse(rawText);
@@ -137,7 +139,19 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     };
     
     // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
-   
+    if (!isSearchEnabled) {
+        try {
+            // 清理可能包含的 markdown json block
+            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
+            const parsedData = cleanAndParseJSON(cleanText, stepId);
+            if (parsedData && parsedData[stepId.toString()]) {
+                return parsedData[stepId.toString()];
+            }
+        } catch(e) {
+            console.error("JSON 解析失敗", e);
+        }
+    }
+    return cleanText;
 }
 
 
@@ -540,11 +554,10 @@ export default function App() {
       if (visualStep === 10) aspectRatio = "4:3";
       
       let base64 = "";
+      const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
 
       if (imageEngine === 'flash') {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
-        
-        const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
 
         let flashPrompt = finalPromptWithStyle;
         if (mainTitle || subTitle || poetry) {
@@ -817,7 +830,7 @@ export default function App() {
             
         } else {
             // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
-            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, isCanvasEnv);
+            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey);
         }
         if (outputText) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
