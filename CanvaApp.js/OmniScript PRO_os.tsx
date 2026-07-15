@@ -40,22 +40,21 @@ const IMAGE_ENGINES = [
   }
 ];
 
- // ============================================================================
+// ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-    
-    
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
     // ==========================================
- const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://omni-script-pro.vercel.app' 
-  : '';   
-const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    const API_BASE_URL = process.env.NODE_ENV === 'production' 
+      ? 'https://omni-script-pro.vercel.app' 
+      : '';   
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,11 +71,50 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     if (!promptResponse.ok) {
         throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
-throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
+
+    const vercelData = await promptResponse.json();
+    const finalPrompt = vercelData.prompt; 
+    const responseSchema = vercelData.schema;
+    const isSearchEnabled = vercelData.isSearchEnabled;
+
+    if (!finalPrompt) {
+        throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
 
+    const geminiPayload = {
+        contents: [{ parts: [{ text: finalPrompt }] }],
+        generationConfig: {
+            maxOutputTokens: 8192
+        }
+    };
+
+    // 🌟 核心分流邏輯：解決 Google Search 與 JSON Schema 的衝突
+    if (isSearchEnabled) {
+        console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
+        // 啟用 Google Search
+        geminiPayload.tools = [{ "google_search": {} }];
+        // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
+    } else if (responseSchema) {
+        console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
+        geminiPayload.generationConfig.responseMimeType = "application/json";
+        geminiPayload.generationConfig.responseSchema = responseSchema;
+    }
+    
+    const aiResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiPayload)
+    });
+
+    if (!aiResponse.ok) {
+        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+    }
+    
+    const data = await aiResponse.json();
+    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    
     // 🛡️ 強健版 JSON 解析器（拿掉了 export，改成一般的區域變數函式）
-    const cleanAndParseJSON = (rawText: string, stepId: number) => {
+    const cleanAndParseJSON = (rawText, stepId) => {
         try {
             return JSON.parse(rawText);
         } catch (e) {
@@ -98,60 +136,14 @@ throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
             }
             return { [stepId.toString()]: rawText };
         }
-    }; // 記得加分號
-
-    // 接著繼續使用它...
-    const parsedData = cleanAndParseJSON(rawText, stepId);
-// === 以下為您的調用邏輯 ===
-const vercelData = await promptResponse.json();
-const finalPrompt = vercelData.prompt; 
-const responseSchema = vercelData.schema;
-const isSearchEnabled = vercelData.isSearchEnabled;
-
-if (!finalPrompt) {
-    throw new Error("Vercel API 沒有回傳有效的 Prompt");
-}
-
-const geminiPayload: any = {
-    contents: [{ parts: [{ text: finalPrompt }] }],
-    generationConfig: {
-        maxOutputTokens: 8192
-    }
-};
-
-// 🌟 核心分流邏輯：解決 Google Search 與 JSON Schema 的衝突
-if (isSearchEnabled) {
-    console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
-    // 啟用 Google Search
-    geminiPayload.tools = [{ "google_search": {} }];
-    // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
-} else if (responseSchema) {
-    console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
-    geminiPayload.generationConfig.responseMimeType = "application/json";
-    geminiPayload.generationConfig.responseSchema = responseSchema;
-}
-// ...發送 geminiPayload 給 Gemini API...
-// 拿到 response 後，使用 cleanAndParseJSON(resultText, stepId) 進行解析。
-    
-    const aiResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiPayload)
-    });
-
-    if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
-    }
-    
-    const data = await aiResponse.json();
-    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    };
     
     // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
     if (!isSearchEnabled) {
         try {
             // 清理可能包含的 markdown json block
             cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
-            const parsedData = JSON.parse(cleanText);
+            const parsedData = cleanAndParseJSON(cleanText, stepId);
             if (parsedData && parsedData[stepId.toString()]) {
                 return parsedData[stepId.toString()];
             }
@@ -162,13 +154,14 @@ if (isSearchEnabled) {
     return cleanText;
 }
 
+
 // ============================================================================
 // 2. 瘦身版 STEPS (已移除 Prompt，交由 Vercel 後端處理)
 // ============================================================================
 // 新增：MP4 輪播影片清單 (您可以在此陣列加入多個影片網址)
 const LOADING_VIDEOS_LIST = [
-  "https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4",
-  "https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4" // 請替換成您的第二個影片網址
+  "[https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4](https://res.cloudinary.com/dhvzfeo7p/video/upload/q_auto/f_auto/v1780920395/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__o5hw6k.mp4)",
+  "[https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4](https://res.cloudinary.com/dhvzfeo7p/video/upload/v1780920477/_%E5%9C%96%E7%94%9F%E5%8B%95%E7%95%AB%E8%A6%8F%E5%8A%83_Animation_Planning__1_umfge3.mp4)" // 請替換成您的第二個影片網址
 ];
 
 const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
@@ -352,7 +345,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const response = await fetch('[https://omni-script-pro.vercel.app/api/notion/history](https://omni-script-pro.vercel.app/api/notion/history)');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -388,9 +381,9 @@ export default function App() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const [generatedImages, setGeneratedImages] = useState([
-    { id: 1, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第一組中文Prompt' },
-    { id: 2, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第二組中文Prompt' },
-    { id: 3, url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80', engine: 'Imagen 4.0', prompt: '第三組中文Prompt' }
+    { id: 1, url: '[https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第一組中文Prompt' },
+    { id: 2, url: '[https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第二組中文Prompt' },
+    { id: 3, url: '[https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第三組中文Prompt' }
   ]);
 
   const [groupImages, setGroupImages] = useState({});
@@ -402,7 +395,7 @@ export default function App() {
     if (!content) return;
     
     setIsParsingVisuals(true);
-    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
+    fetch('[https://omni-script-pro.vercel.app/api/parse-visuals](https://omni-script-pro.vercel.app/api/parse-visuals)', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -823,7 +816,7 @@ export default function App() {
             };
             const masterPrompt = promptFunc(stepContext);
             
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1055,7 +1048,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
+    const VERCEL_NOTION_URL = '[https://omni-script-pro.vercel.app/api/notion](https://omni-script-pro.vercel.app/api/notion)';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -1134,7 +1127,7 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/auth';
+      const VERCEL_API_URL = '[https://omni-script-pro.vercel.app/api/auth](https://omni-script-pro.vercel.app/api/auth)';
       const res = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1572,7 +1565,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <Sliders className="w-4 h-4 text-slate-400" />
                           <span>分步編輯工作流</span>
                         </div>
-                        <span className="text-[10px] text-slate-500 font-normal">手動調校，逐步建構客製化矩陣腳本</span>
+                        <span className="text-[10px] text-slate-500 font-normal">手手動調校，逐步建構客製化矩陣腳本</span>
                       </button>
                     </div>
                   </div>
@@ -1646,7 +1639,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   {STEPS.map((step: any) => {
                     const isActive = activeStep === step.id;
                     const isDone = completedSteps.includes(step.id);
-                    const Icon = iconMap[step.icon] || FileText; // 確保有圖示，退防 fallback
+                    const Icon = iconMap[step.icon] || FileText; 
                     return (
                       <button
                         key={step.id}
@@ -2168,7 +2161,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         <label className="text-[10px] text-slate-500 font-bold block mb-1">YouTube 長影片 URL</label>
                         <input 
                           type="text" 
-                          placeholder="https://www.youtube.com/watch?v=..."
+                          placeholder="[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=)..."
                           className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/40 backdrop-blur-sm"
                         />
                       </div>
@@ -2344,8 +2337,8 @@ const handleLogin = async (e: React.FormEvent) => {
                 <input
                   type="password"
                   placeholder="輸入 API Key..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
                 />
               </div>
