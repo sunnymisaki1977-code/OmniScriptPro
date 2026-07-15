@@ -345,7 +345,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('[https://omni-script-pro.vercel.app/api/notion/history](https://omni-script-pro.vercel.app/api/notion/history)');
+      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -395,7 +395,7 @@ export default function App() {
     if (!content) return;
     
     setIsParsingVisuals(true);
-    fetch('[https://omni-script-pro.vercel.app/api/parse-visuals](https://omni-script-pro.vercel.app/api/parse-visuals)', {
+    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -1127,7 +1127,7 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const VERCEL_API_URL = '[https://omni-script-pro.vercel.app/api/auth](https://omni-script-pro.vercel.app/api/auth)';
+      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/auth';
       const res = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
