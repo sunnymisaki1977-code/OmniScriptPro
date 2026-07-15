@@ -332,7 +332,7 @@ export const Workspace = () => {
       {/* Header - Calligraphy Style */}
       <header className="relative z-10 bg-white/40 backdrop-blur-md border-b border-white/20 sticky top-0 px-8 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
-          <img src="/logo_script.png" alt="世代銘印" className="h-10 object-contain drop-shadow-md" />
+          <img src="/OmniScript logo.png" alt="OmniScript" className="h-10 object-contain drop-shadow-md" />
         </div>
 
         <div className="flex gap-3">
