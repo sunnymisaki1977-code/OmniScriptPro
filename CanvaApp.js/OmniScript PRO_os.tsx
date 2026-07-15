@@ -44,8 +44,8 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
-    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+   const apiKey = ""; // Canvas 運行環境會自動注入
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -92,7 +92,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     if (isSearchEnabled) {
         console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
         // 啟用 Google Search
-        geminiPayload.tools = [{ "google_search": {} }];
+       tools: [{ "google_search": {} }]
         // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
@@ -1048,7 +1048,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = '[https://omni-script-pro.vercel.app/api/notion](https://omni-script-pro.vercel.app/api/notion)';
+    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
