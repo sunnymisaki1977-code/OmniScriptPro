@@ -1207,7 +1207,7 @@ const handleLogin = async (e: React.FormEvent) => {
           
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8 px-1">
-            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${curTheme.gradient} flex items-center justify-center shadow-lg transition-all duration-700`}>
+            <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
               <Sparkles className="w-4.5 h-4.5 text-white" />
             </div>
             <div>
