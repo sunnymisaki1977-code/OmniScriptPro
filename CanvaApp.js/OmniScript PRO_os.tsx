@@ -1131,7 +1131,9 @@ const handleLogin = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="flex h-screen bg-[#030712] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30">
+    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0">
+      {/* 沉浸式環境光暈 */}
+      <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${AUDIENCE_THEMES[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
         .markdown-preview {
           font-family: 'Noto Sans TC', sans-serif;
@@ -1172,7 +1174,7 @@ const handleLogin = async (e: React.FormEvent) => {
       )}
       
       {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
-       <aside className={`fixed inset-y-0 left-0 w-64 bg-[#070b16] border-r border-slate-900 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
+       <aside className={`fixed inset-y-0 left-0 w-64 bg-slate-950/40 backdrop-blur-xl border-r border-white/5 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
@@ -1216,7 +1218,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
                   {isActive && tab.id === 'visual' && (
-                    <div className="mx-2 p-4 bg-[#0f172a]/70 border border-slate-800/80 rounded-xl space-y-4 backdrop-blur-md">
+                    <div className="mx-2 p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-4 backdrop-blur-lg">
                       <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-indigo-400" />
                         視覺裂變
@@ -1237,7 +1239,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
                               if (foundPopular) setCurrentImageStyle(foundPopular);
                             }}
-                            className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
+                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3 backdrop-blur-sm"
                           >
                             {AUDIENCE_STYLES[audienceTheme] && (
                               <optgroup label="💡 受眾專屬推薦風格">
@@ -1264,7 +1266,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <select 
                             value={visualStep}
                             onChange={(e) => setVisualStep(Number(e.target.value))}
-                            className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3"
+                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3 backdrop-blur-sm"
                           >
                             <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫幅縮圖 (YouTube / FB)'}</option>
                             <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '短片直式封面 (Shorts / Reels)'}</option>
@@ -1278,7 +1280,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <select 
                             value={imageEngine}
                             onChange={(e) => setImageEngine(e.target.value)}
-                            className="w-full bg-[#070b16] border border-slate-950 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none"
+                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none backdrop-blur-sm"
                           >
                             {IMAGE_ENGINES.map(engine => (
                               <option key={engine.id} value={engine.id}>{engine.name}</option>
@@ -1315,10 +1317,10 @@ const handleLogin = async (e: React.FormEvent) => {
       </aside >     
 
       {/* --- STREAMING_CHUNK:Center Main Workspace Area --- */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#0a0f1d] relative">
+      <div className="flex-1 flex flex-col min-w-0 bg-transparent relative">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-slate-900 bg-[#0a0f1d]/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
+        <header className="h-16 border-b border-white/5 bg-slate-900/30 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
           <div className="flex items-center gap-3 flex-1 lg:flex-none lg:w-96">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
@@ -1347,7 +1349,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 {/* Glowing Background Glows */}
                 <div className={`absolute top-1/4 w-96 h-96 rounded-full bg-gradient-to-br ${curTheme.gradient} opacity-5 blur-[120px] pointer-events-none`} />
 
-                <div className="w-full max-w-2xl bg-[#0f172a]/60 border border-slate-900/80 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
+                <div className="w-full max-w-2xl bg-slate-900/40 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
@@ -1374,7 +1376,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             placeholder="輸入授權碼"
                             value={passcode}
                             onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                            className="w-full relative bg-[#070b16] border border-slate-900 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/30 transition-all shadow-inner tracking-widest"
+                            className="w-full relative bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner tracking-widest backdrop-blur-sm"
                             autoFocus
                           />
                         </div>
@@ -1438,7 +1440,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         placeholder="例如：日本京阪神五日遊攻略"
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
-                        className="w-full relative bg-[#070b16] border border-slate-900 rounded-2xl px-6 py-4 text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/30 transition-all shadow-inner"
+                        className="w-full relative bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
                       />
                     </div>
 
@@ -1458,7 +1460,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-[#070b16] border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-900'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/30 h-28 resize-none shadow-inner custom-scrollbar pb-6`}
+                          className={`w-full bg-slate-900/50 border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
                         <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
                           {customContext.length} / 5000
@@ -1553,7 +1555,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         value={selectedArchive}
                         onChange={handleLoadArchive}
                         disabled={!isGlobalMaster}
-                        className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
                       >
                         <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
                         
@@ -1589,7 +1591,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 
                 {/* Steps Navigator Left Column */}
                 <div className="relative shrink-0 h-full flex flex-col">
-                  <div className="relative flex flex-col border-r border-slate-900/60 bg-[#070b16]/30 transition-all duration-300 h-full">
+                  <div className="relative flex flex-col border-r border-white/5 bg-slate-900/10 transition-all duration-300 h-full backdrop-blur-sm">
                     {isGlobalMaster && (
                       <button
                         onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
@@ -1641,7 +1643,7 @@ const handleLogin = async (e: React.FormEvent) => {
               </div>
 
               {/* Markdown editor screen */}
-                <div className="flex-1 bg-[#090d19]/40 p-6 overflow-y-auto relative flex flex-col custom-scrollbar pb-24">
+                <div className="flex-1 bg-transparent p-6 overflow-y-auto relative flex flex-col custom-scrollbar pb-24">
                   <div className="max-w-3xl w-full mx-auto flex-1 flex flex-col">
                     
                     {/* Workspace steps Header */}
@@ -1714,8 +1716,8 @@ const handleLogin = async (e: React.FormEvent) => {
 
                     {/* Markdown text editor card */}
                     <div className="relative flex-1 flex flex-col">
-                      <div className="flex-1 bg-[#0f172a]/50 border border-slate-900 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-                        <div className="px-4 py-2.5 bg-[#0a0f1d] border-b border-slate-900 flex items-center justify-between">
+                      <div className="flex-1 bg-slate-900/40 border border-white/5 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+                        <div className="px-4 py-2.5 bg-slate-900/30 border-b border-white/5 backdrop-blur-md flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
                           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
@@ -1753,7 +1755,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       <div className="flex-1 relative min-h-[500px]">
                         {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
                         {isGenerating ? (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090d19]/90 z-10 backdrop-blur-md">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/60 z-10 backdrop-blur-md">
                             <div className="relative group w-[600px] h-[340px] mb-6">
                               <video 
                                 src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
@@ -1799,7 +1801,7 @@ const handleLogin = async (e: React.FormEvent) => {
           {/* TAB 2: Visual Center */}
           {activeTab === 'visual' && (
             /* --- STREAMING_CHUNK:Rendering Visual Hub Control Panel --- */
-            <div className="flex-1 p-6 overflow-y-auto bg-[#0a0f1d] custom-scrollbar">
+            <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 
                 {/* Visual Intro banner */}
@@ -1828,7 +1830,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   )}
 
                   {/* Left Controls column */}
-                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl backdrop-blur-md flex flex-col relative ${isVisualSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-5 space-y-4 opacity-100'}`}>
+                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-slate-900/40 border border-white/5 rounded-2xl backdrop-blur-lg flex flex-col relative ${isVisualSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-5 space-y-4 opacity-100'}`}>
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
@@ -1889,9 +1891,9 @@ const handleLogin = async (e: React.FormEvent) => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {visualGroups.map((group: any) => (
-                        <div key={group.id} className="group bg-[#0f172a]/40 border border-slate-900 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
+                        <div key={group.id} className="group bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
                           {/* Image Area */}
-                          <div className="w-full h-40 bg-[#070b16] relative flex items-center justify-center overflow-hidden">
+                          <div className="w-full h-40 bg-black/40 relative flex items-center justify-center overflow-hidden">
                             {groupImages[group.id] ? (
                                <img src={groupImages[group.id]} alt={group.title} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
                             ) : generatingGroups[group.id] ? (
@@ -1968,7 +1970,7 @@ const handleLogin = async (e: React.FormEvent) => {
           {/* TAB 3: Suno 配樂中心 */}
           {activeTab === 'suno' && (
             /* --- STREAMING_CHUNK:Rendering Suno AI Audio Center --- */
-            <div className="flex-1 p-6 overflow-y-auto bg-[#0a0f1d] custom-scrollbar">
+            <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 
                 <div className="flex items-center justify-between">
@@ -1983,7 +1985,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Lyrics generation */}
-                  <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
+                  <div className="col-span-1 bg-slate-900/40 border border-white/5 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">配樂歌詞生成</h4>
                     
                     <div className="space-y-3">
@@ -1993,7 +1995,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           type="text" 
                           value={musicGenre} 
                           onChange={(e) => setMusicGenre(e.target.value)}
-                          className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none"
+                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none backdrop-blur-sm"
                         />
                       </div>
 
@@ -2002,7 +2004,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         <textarea
                           value={stepContents[9]} 
                           onChange={(e) => setStepContents(prev => ({ ...prev, 9: e.target.value }))}
-                          className="w-full bg-[#070b16] border border-slate-950 rounded-xl p-3 text-xs text-slate-300 focus:outline-none h-36 resize-none"
+                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-3 text-xs text-slate-300 focus:outline-none h-36 resize-none backdrop-blur-sm"
                         />
                       </div>
                     </div>
@@ -2023,7 +2025,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* Active sound visualizer */}
                   <div className="col-span-2 space-y-4">
-                    <div className="bg-[#0f172a]/40 border border-slate-900 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 relative overflow-hidden">
                       {/* Active equalizer simulation */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -2101,7 +2103,7 @@ const handleLogin = async (e: React.FormEvent) => {
           {/* TAB 4: NotebookLM Video Center */}
           {activeTab === 'notebook' && (
             /* --- STREAMING_CHUNK:Rendering NotebookLM Summarizer Panel --- */
-            <div className="flex-1 p-6 overflow-y-auto bg-[#0a0f1d] custom-scrollbar">
+            <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 
                 <div className="flex items-center justify-between">
@@ -2116,7 +2118,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left input container */}
-                  <div className="col-span-1 bg-[#0f172a]/70 border border-slate-900/80 rounded-2xl p-5 space-y-4 backdrop-blur-md">
+                  <div className="col-span-1 bg-slate-900/40 border border-white/5 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
                     <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">外部資料庫匯入</h4>
                     
                     <div className="space-y-3">
@@ -2131,7 +2133,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         <input 
                           type="text" 
                           placeholder="https://www.youtube.com/watch?v=..."
-                          className="w-full bg-[#070b16] border border-slate-950 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/40"
+                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/40 backdrop-blur-sm"
                         />
                       </div>
                     </div>
@@ -2151,7 +2153,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* NotebookLM key points display */}
                   <div className="col-span-2 space-y-4">
-                    <div className="p-5 bg-[#0f172a]/40 border border-slate-900 rounded-2xl space-y-4">
+                    <div className="p-5 bg-slate-900/40 border border-white/5 rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                         <Award className="w-4 h-4" />
                         <span>AI 生成長影片知識卡 (影片時長 35 mins)</span>
@@ -2193,7 +2195,7 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      <aside className="w-80 bg-[#070b16] border-l border-slate-900/80 flex flex-col justify-between z-20 shrink-0">
+      <aside className="w-80 bg-slate-950/40 backdrop-blur-xl border-l border-white/5 flex flex-col justify-between z-20 shrink-0">
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
@@ -2218,7 +2220,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
 
             {/* Simulated Active Engine Card */}
-            <div className="bg-black/40 border border-slate-900 p-3 rounded-xl flex flex-col gap-2">
+            <div className="bg-black/20 border border-white/5 p-3 rounded-xl flex flex-col gap-2 backdrop-blur-md">
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Engine</span>
@@ -2250,7 +2252,7 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
 
             {/* Active Logs Terminal Container */}
-            <div className="flex-1 bg-black/60 border border-slate-950 rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-slate-400">
+            <div className="flex-1 bg-black/20 border border-white/5 rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-slate-400 backdrop-blur-md">
               {logs.map((log, index) => {
                 let colorClass = "text-slate-400";
                 if (log.type === 'info') colorClass = "text-blue-400";
@@ -2289,7 +2291,7 @@ const handleLogin = async (e: React.FormEvent) => {
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0f172a] border border-slate-700/50 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
+          <div className="bg-slate-900/60 backdrop-blur-2xl border border-white/10 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Key className="w-6 h-6 text-indigo-400" />
@@ -2308,7 +2310,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   placeholder="輸入 API Key..."
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  className="w-full bg-[#070b16] border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
                 />
               </div>
 
