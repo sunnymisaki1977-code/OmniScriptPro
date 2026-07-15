@@ -12,7 +12,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
   heritage: [
     {
     id: 1,
-    title: "基礎背景事實查核",
+    title: "核心企劃知識",
     description: "針對主題進行定義釐清與客觀史料彙整",
     type: "text",
     dependsOn: ["theme"],
@@ -248,7 +248,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 
   {
     id: 2,
-    title: "長影音腳本撰寫",
+    title: "主軸腳本文案",
     description: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
@@ -288,7 +288,7 @@ ${ctx.step1}
   },
   {
     id: 3,
-    title: "長影音 SEO 優化",
+    title: "影音 SEO 標題優化",
     description: "生成標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
@@ -324,7 +324,7 @@ ${ctx.step2}
 ... (請依據腳本邏輯抓取 3-5 個時間軸)`  },
   {
     id: 4,
-    title: "短影音腳本撰寫",
+    title: "擴散式影音文案",
     description: "產出 60 秒內的精簡爆款短影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
@@ -356,7 +356,7 @@ ${ctx.step1}
 - 旁白 (VO)：[拋出一個問題讓觀眾留言，並呼籲追蹤]`  },
   {
     id: 5,
-    title: "短影音 SEO 優化",
+    title: "擴散式 SEO 標籤優化",
     description: "生成短影片標題與標籤。",
     type: "text",
     dependsOn: ["theme", "step4"],
@@ -384,7 +384,7 @@ ${ctx.step4}
   
   {
     id: 6,
-    title: "長影音縮圖設計",
+    title: "影音點擊率 (CTR) 圖像",
     description: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
@@ -407,7 +407,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
   },
   {
     id: 7,
-    title: "短影音縮圖設計",
+    title: "擴散式影音吸睛圖像",
     description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
@@ -429,7 +429,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
   },
   {
     id: 8,
-    title: "彩墨風格意象圖",
+    title: "風格化情境視覺",
     description: "生成 3 組 16:9 意象圖指令與搭配詩詞。",
     type: "code",
     language: "markdown",
@@ -451,7 +451,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
   },
   {
     id: 9,
-    title: "Suno AI 配樂設計",
+    title: "Suno AI 情緒配樂",
     description: "生成 3 組符合主題氛圍的音樂生成指令。",
     type: "code",
     language: "markdown",
@@ -480,7 +480,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
   },
   {
     id: 10,
-    title: "社群推播發控中心",
+    title: "全平台社群推播文案",
     description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
     type: "social",
     language: "markdown",
@@ -563,7 +563,7 @@ AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
   beauty: [
   {
     id: 1,
-    title: "基礎背景科學查核",
+    title: "核心企劃知識",
     description: "針對保養成分或美妝趨勢進行定義釐清與科學/歷史文獻彙整",
     type: "text",
     dependsOn: ["theme"],
@@ -614,7 +614,7 @@ AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
   },
   {
     id: 2,
-    title: "長影音腳本撰寫",
+    title: "主軸腳本文案",
     description: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
@@ -630,7 +630,7 @@ ${ctx.step1}
   },
   {
     id: 3,
-    title: "長影音 SEO 優化",
+    title: "影音 SEO 標題優化",
     description: "生成標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
@@ -642,7 +642,7 @@ ${ctx.step2}
   },
   {
     id: 4,
-    title: "短影音腳本撰寫",
+    title: "擴散式影音文案",
     description: "產出 60 秒內的精簡爆款短影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
@@ -654,7 +654,7 @@ ${ctx.step1}
   },
   {
     id: 5,
-    title: "短影音 SEO 優化",
+    title: "擴散式 SEO 標籤優化",
     description: "生成短影片標題與標籤。",
     type: "text",
     dependsOn: ["theme", "step4"],
@@ -666,7 +666,7 @@ ${ctx.step4}
   },
   {
     id: 6,
-    title: "長影音縮圖設計",
+    title: "影音點擊率 (CTR) 圖像",
     description: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
@@ -687,7 +687,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
   },
   {
     id: 7,
-    title: "短影音縮圖設計",
+    title: "擴散式影音吸睛圖像",
     description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
@@ -708,7 +708,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
   },
   {
     id: 8,
-    title: "品牌高奢行銷海報",
+    title: "風格化情境視覺",
     description: "生成 3 組 9:16 高奢行銷海報。",
     type: "code",
     language: "markdown",
@@ -729,7 +729,7 @@ AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury a
   },
   {
     id: 9,
-    title: "Suno AI 配樂設計",
+    title: "Suno AI 情緒配樂",
     description: "生成 3 組符合主題氛圍的音樂生成指令。",
     type: "code",
     language: "markdown",
@@ -758,7 +758,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容，例如：Upbeat
   },
   {
     id: 10,
-    title: "社群推播發控中心",
+    title: "全平台社群推播文案",
     description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
     type: "social",
     language: "markdown",
@@ -794,7 +794,7 @@ ${ctx.step1}
     food: [
   {
     id: 1,
-    title: "美食基礎知識與文化查核",
+    title: "核心企劃知識",
     description: "針對料理、食材、美食文化或飲食趨勢進行科學、歷史與文化查核。",
     type: "text",
     dependsOn: ["theme"],
@@ -855,7 +855,7 @@ ${ctx.step1}
 
   {
     id: 2,
-    title: "長影音腳本撰寫",
+    title: "主軸腳本文案",
     description: "根據美食背景資料產出5-10分鐘YouTube影片腳本。",
     type: "text",
     dependsOn: ["theme","step1"],
@@ -881,7 +881,7 @@ ${ctx.step1}
 
   {
     id:3,
-    title:"長影音SEO優化",
+    title: "影音 SEO 標題優化",
     description:"生成SEO標題、Hashtags、說明欄。",
     type:"text",
     dependsOn:["theme","step2"],
@@ -901,7 +901,7 @@ ${ctx.step2}
 
   {
     id:4,
-    title:"短影音腳本",
+    title: "擴散式影音文案",
     description:"生成60秒內爆款短影音腳本。",
     type:"text",
     dependsOn:["theme","step1"],
@@ -922,7 +922,7 @@ ${ctx.step1}
 
   {
     id:5,
-    title:"短影音SEO",
+    title: "擴散式 SEO 標籤優化",
     description:"生成短影音SEO標題。",
     type:"text",
     dependsOn:["theme","step4"],
@@ -935,7 +935,7 @@ ${ctx.step4}
 
   {
     id:6,
-    title:"長影音縮圖設計",
+    title: "影音點擊率 (CTR) 圖像",
     description:"生成16:9 YouTube縮圖。",
     type:"code",
     language:"markdown",
@@ -972,7 +972,7 @@ ultra detailed,
 
   {
     id:7,
-    title:"短影音封面設計",
+    title: "擴散式影音吸睛圖像",
     description:"生成9:16 Shorts封面。",
     type:"code",
     language:"markdown",
@@ -1006,7 +1006,7 @@ ultra detailed,
 
   {
     id:8,
-    title:"品牌級美食海報",
+    title: "風格化情境視覺",
     description:"生成高質感餐飲行銷海報。",
     type:"code",
     language:"markdown",
@@ -1038,7 +1038,7 @@ ultra detailed,大而醒目藝術文字設計
 
   {
     id:9,
-    title:"Suno AI 美食配樂",
+    title: "Suno AI 情緒配樂",
     description:"生成三組美食影片音樂。",
     type:"code",
     language:"markdown",
@@ -1066,7 +1066,7 @@ Tempo`
 
     {
       id:10,
-      title:"社群美食發布中心",
+      title: "全平台社群推播文案",
       description:"生成Instagram、Facebook、小紅書貼文。",
       type:"social",
       language:"markdown",
@@ -1104,7 +1104,7 @@ ${ctx.step1}
   travelpreneur: [
     {
       id: 1,
-      title: "旅遊目的地背景查核",
+      title: "核心企劃知識",
       description: "蒐集目的地歷史、文化、景點、美食、交通與旅遊資訊，建立可信基礎資料。",
       type: "text",
       dependsOn: ["theme"],
@@ -1175,7 +1175,7 @@ ${ctx.step1}
 
     {
       id: 2,
-      title: "長影音腳本",
+      title: "主軸腳本文案",
       description: "產出8~12分鐘YouTube旅遊攻略影片。",
       type: "text",
       dependsOn: ["theme", "step1"],
@@ -1202,7 +1202,7 @@ ${ctx.step1}
 
     {
       id: 3,
-      title: "長影音SEO",
+      title: "影音 SEO 標題優化",
       description: "產生YouTube SEO內容。",
       type: "text",
       dependsOn: ["theme", "step2"],
@@ -1221,7 +1221,7 @@ ${ctx.step2}
 
     {
       id: 4,
-      title: "Shorts腳本",
+      title: "擴散式影音文案",
       description: "生成60秒旅遊Shorts腳本。",
       type: "text",
       dependsOn: ["theme", "step1"],
@@ -1244,7 +1244,7 @@ ${ctx.step1}
 
     {
       id: 5,
-      title: "Shorts SEO",
+      title: "擴散式 SEO 標籤優化",
       description: "生成Shorts SEO。",
       type: "text",
       dependsOn: ["theme", "step4"],
@@ -1261,7 +1261,7 @@ ${ctx.step4}
 
     {
       id: 6,
-      title: "YouTube縮圖",
+      title: "影音點擊率 (CTR) 圖像",
       description: "生成16:9縮圖Prompt。",
       type: "code",
       language: "markdown",
@@ -1293,7 +1293,7 @@ ultra detailed,,大而醒目藝術文字設計
 
     {
       id: 7,
-      title: "Shorts封面",
+      title: "擴散式影音吸睛圖像",
       description: "生成9:16 Shorts封面。",
       type: "code",
       language: "markdown",
@@ -1321,7 +1321,7 @@ ultra detailed,大而醒目藝術文字設計
 
     {
       id: 8,
-      title: "旅遊品牌海報",
+      title: "風格化情境視覺",
       description: "生成高質感旅遊宣傳海報。",
       type: "code",
       language: "markdown",
@@ -1352,7 +1352,7 @@ ultra detailed,大而醒目藝術文字設計
 
     {
       id: 9,
-      title: "Suno AI 配樂",
+      title: "Suno AI 情緒配樂",
       description: "生成旅遊影片背景音樂。",
       type: "code",
       language: "markdown",
@@ -1384,7 +1384,7 @@ Tempo`
 
     {
       id: 10,
-      title: "社群發布中心",
+      title: "全平台社群推播文案",
       description: "生成IG、Facebook、Threads、小紅書旅遊貼文。",
       type: "social",
       language: "markdown",
@@ -1424,7 +1424,7 @@ ${ctx.step1}
   pet: [
     {
       id: 1,
-      title: "寵物問題研究與專家查核",
+      title: "核心企劃知識",
       description: "深入分析寵物問題成因、行為學、獸醫觀點與最新研究，建立可信基礎資料。",
       type: "text",
       dependsOn: ["theme"],
@@ -1479,7 +1479,7 @@ ${ctx.step1}
 
     {
       id: 2,
-      title: "長影音腳本",
+      title: "主軸腳本文案",
       description: "產出8~12分鐘問題解決型YouTube影片。",
       type: "text",
       dependsOn: ["theme", "step1"],
@@ -1504,7 +1504,7 @@ ${ctx.step1}
 
     {
       id: 3,
-      title: "影片SEO優化",
+      title: "影音 SEO 標題優化",
       description: "產生YouTube SEO。",
       type: "text",
       dependsOn: ["theme", "step2"],
@@ -1525,7 +1525,7 @@ ${ctx.step2}
 
     {
       id: 4,
-      title: "Shorts腳本",
+      title: "擴散式影音文案",
       description: "生成60秒爆款短影音。",
       type: "text",
       dependsOn: ["theme", "step1"],
@@ -1553,7 +1553,7 @@ CTA`
 
     {
       id: 5,
-      title: "Shorts SEO",
+      title: "擴散式 SEO 標籤優化",
       description: "生成Shorts SEO。",
       type: "text",
       dependsOn: ["theme", "step4"],
@@ -1570,7 +1570,7 @@ ${ctx.step4}
 
     {
       id: 6,
-      title: "YouTube縮圖",
+      title: "影音點擊率 (CTR) 圖像",
       description: "生成三組高CTR縮圖。",
       type: "code",
       language: "markdown",
@@ -1601,7 +1601,7 @@ editorial style,大而醒目藝術文字設計
 
     {
       id: 7,
-      title: "Shorts封面",
+      title: "擴散式影音吸睛圖像",
       description: "生成9:16封面。",
       type: "code",
       language: "markdown",
@@ -1631,7 +1631,7 @@ high detail,大而醒目藝術文字設計
 
     {
       id: 8,
-      title: "寵物品牌海報",
+      title: "風格化情境視覺",
       description: "生成高質感寵物宣傳海報。",
       type: "code",
       language: "markdown",
@@ -1661,7 +1661,7 @@ high detail,大而醒目藝術文字設計
 
     {
       id: 9,
-      title: "Suno AI配樂",
+      title: "Suno AI 情緒配樂",
       description: "生成三組寵物影片背景音樂。",
       type: "code",
       language: "markdown",
@@ -1695,7 +1695,7 @@ Instruments`
 
     {
       id: 10,
-      title: "社群內容中心",
+      title: "全平台社群推播文案",
       description: "生成IG、FB、Threads、小紅書完整貼文。",
       type: "social",
       language: "markdown",
