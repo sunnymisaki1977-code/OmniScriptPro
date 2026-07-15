@@ -91,7 +91,7 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     };
 
     if (isSearchEnabled) {
-        geminiPayload.tools: [{ "google_search": {} }] ;
+        geminiPayload.tools = [{ "google_search": {} }];
     } else if (responseSchema) {
         geminiPayload.generationConfig.responseMimeType = "application/json";
         geminiPayload.generationConfig.responseSchema = responseSchema;
