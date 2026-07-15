@@ -74,9 +74,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     const vercelData = await promptResponse.json();
     const finalPrompt = vercelData.prompt; 
-    const responseSchema = vercelData.schema;
-    const isSearchEnabled = vercelData.isSearchEnabled;
-
+    
     if (!finalPrompt) {
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
@@ -89,16 +87,16 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     };
 
     // 🌟 核心分流邏輯：解決 Google Search 與 JSON Schema 的衝突
-    if (isSearchEnabled) {
+   
         console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
         // 啟用 Google Search
        tools: [{ "google_search": {} }]
         // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
-    } else if (responseSchema) {
-        console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
+    
+      
         geminiPayload.generationConfig.responseMimeType = "application/json";
-        geminiPayload.generationConfig.responseSchema = responseSchema;
-    }
+        
+    
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
@@ -139,19 +137,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     };
     
     // 如果有使用 Schema，它回傳的會是帶有 stepId 作為 key 的 JSON
-    if (!isSearchEnabled) {
-        try {
-            // 清理可能包含的 markdown json block
-            cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
-            const parsedData = cleanAndParseJSON(cleanText, stepId);
-            if (parsedData && parsedData[stepId.toString()]) {
-                return parsedData[stepId.toString()];
-            }
-        } catch(e) {
-            console.error("JSON 解析失敗", e);
-        }
-    }
-    return cleanText;
+   
 }
 
 
