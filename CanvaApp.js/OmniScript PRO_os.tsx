@@ -72,32 +72,65 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     if (!promptResponse.ok) {
         throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
+// 🛡️ 強健版 JSON 解析器：專門對付 Google 搜尋模式下夾雜 Markdown 的情況
+export function cleanAndParseJSON(rawText: string, stepId: number) {
+    try {
+        // 1. 嘗試直接解析
+        return JSON.parse(rawText);
+    } catch (e) {
+        console.warn(`⚠️ Step ${stepId} 直接解析 JSON 失敗，啟動 Markdown 容錯清洗程序...`);
+        try {
+            // 2. 嘗試用 Regex 抓取 ```json ... ``` 區塊
+            const markdownRegex = /```json\s*([\s\S]*?)\s*```/;
+            const match = rawText.match(markdownRegex);
+            if (match && match[1]) {
+                return JSON.parse(match[1].trim());
+            }
 
-    const vercelData = await promptResponse.json();
-    const finalPrompt = vercelData.prompt; 
-    const responseSchema = vercelData.schema;
-    const isSearchEnabled = vercelData.isSearchEnabled;
-
-    if (!finalPrompt) {
-        throw new Error("Vercel API 沒有回傳有效的 Prompt");
-    }
-
-    // 步驟 2：拿到 Prompt 後，在前端直接打 Gemini Canva 官方 API
-    const geminiPayload: any = {
-        contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: {
-            maxOutputTokens: 8192
+            // 3. 嘗試抓取第一個 "{" 與最後一個 "}" 之間的內容
+            const firstBrace = rawText.indexOf('{');
+            const lastBrace = rawText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                const jsonSubstring = rawText.substring(firstBrace, lastBrace + 1);
+                return JSON.parse(jsonSubstring);
+            }
+        } catch (innerError) {
+            console.error("❌ 無法從回傳文字中還原 JSON:", innerError);
         }
-    };
-
-    if (isSearchEnabled) {
-        console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
-        geminiPayload.tools = [{ "google_search": {} }];
-    } else if (responseSchema) {
-        console.log(`[JSON Schema] 📄 Step ${stepId} 強制要求 JSON 結構化輸出，因此未啟動搜尋。`);
-        geminiPayload.generationConfig.responseMimeType = "application/json";
-        geminiPayload.generationConfig.responseSchema = responseSchema;
+        
+        // 4. 極端防呆：若完全解析失敗，硬塞入一個帶有原文字的結構，避免前端當機
+        return { [stepId.toString()]: rawText };
     }
+// === 以下為您的調用邏輯 ===
+const vercelData = await promptResponse.json();
+const finalPrompt = vercelData.prompt; 
+const responseSchema = vercelData.schema;
+const isSearchEnabled = vercelData.isSearchEnabled;
+
+if (!finalPrompt) {
+    throw new Error("Vercel API 沒有回傳有效的 Prompt");
+}
+
+const geminiPayload: any = {
+    contents: [{ parts: [{ text: finalPrompt }] }],
+    generationConfig: {
+        maxOutputTokens: 8192
+    }
+};
+
+// 🌟 核心分流邏輯：解決 Google Search 與 JSON Schema 的衝突
+if (isSearchEnabled) {
+    console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
+    // 啟用 Google Search
+    geminiPayload.tools = [{ "google_search": {} }];
+    // ⚠️ 備註：此時不可設定 responseSchema，否則 API 會報錯。
+} else if (responseSchema) {
+    console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
+    geminiPayload.generationConfig.responseMimeType = "application/json";
+    geminiPayload.generationConfig.responseSchema = responseSchema;
+}
+// ...發送 geminiPayload 給 Gemini API...
+// 拿到 response 後，使用 cleanAndParseJSON(resultText, stepId) 進行解析。
     
     const aiResponse = await fetch(apiUrl, {
         method: 'POST',
