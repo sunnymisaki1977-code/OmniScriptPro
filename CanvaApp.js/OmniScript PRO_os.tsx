@@ -72,35 +72,36 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     if (!promptResponse.ok) {
         throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
-// 🛡️ 強健版 JSON 解析器：專門對付 Google 搜尋模式下夾雜 Markdown 的情況
-export function cleanAndParseJSON(rawText: string, stepId: number) {
-    try {
-        // 1. 嘗試直接解析
-        return JSON.parse(rawText);
-    } catch (e) {
-        console.warn(`⚠️ Step ${stepId} 直接解析 JSON 失敗，啟動 Markdown 容錯清洗程序...`);
-        try {
-            // 2. 嘗試用 Regex 抓取 ```json ... ``` 區塊
-            const markdownRegex = /```json\s*([\s\S]*?)\s*```/;
-            const match = rawText.match(markdownRegex);
-            if (match && match[1]) {
-                return JSON.parse(match[1].trim());
-            }
-
-            // 3. 嘗試抓取第一個 "{" 與最後一個 "}" 之間的內容
-            const firstBrace = rawText.indexOf('{');
-            const lastBrace = rawText.lastIndexOf('}');
-            if (firstBrace !== -1 && lastBrace !== -1) {
-                const jsonSubstring = rawText.substring(firstBrace, lastBrace + 1);
-                return JSON.parse(jsonSubstring);
-            }
-        } catch (innerError) {
-            console.error("❌ 無法從回傳文字中還原 JSON:", innerError);
-        }
-        
-        // 4. 極端防呆：若完全解析失敗，硬塞入一個帶有原文字的結構，避免前端當機
-        return { [stepId.toString()]: rawText };
+throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
     }
+
+    // 🛡️ 強健版 JSON 解析器（拿掉了 export，改成一般的區域變數函式）
+    const cleanAndParseJSON = (rawText: string, stepId: number) => {
+        try {
+            return JSON.parse(rawText);
+        } catch (e) {
+            console.warn(`⚠️ Step ${stepId} 直接解析 JSON 失敗，啟動 Markdown 容錯清洗程序...`);
+            try {
+                const markdownRegex = /```json\s*([\s\S]*?)\s*```/;
+                const match = rawText.match(markdownRegex);
+                if (match && match[1]) {
+                    return JSON.parse(match[1].trim());
+                }
+                const firstBrace = rawText.indexOf('{');
+                const lastBrace = rawText.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1) {
+                    const jsonSubstring = rawText.substring(firstBrace, lastBrace + 1);
+                    return JSON.parse(jsonSubstring);
+                }
+            } catch (innerError) {
+                console.error("❌ 無法從回傳文字中還原 JSON:", innerError);
+            }
+            return { [stepId.toString()]: rawText };
+        }
+    }; // 記得加分號
+
+    // 接著繼續使用它...
+    const parsedData = cleanAndParseJSON(rawText, stepId);
 // === 以下為您的調用邏輯 ===
 const vercelData = await promptResponse.json();
 const finalPrompt = vercelData.prompt; 
