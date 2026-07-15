@@ -1229,7 +1229,12 @@ const handleLogin = async (e: React.FormEvent) => {
               return (
                 <div key={tab.id} className="space-y-1.5">
                   <button 
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      if (tab.id === 'creation' && isAuthenticated && stepContents[1] && stepContents[1].length > 10) {
+                        setViewState('workspace');
+                      }
+                      setActiveTab(tab.id);
+                    }}
                     className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-xs transition-all text-left border relative ${
                       isActive 
                         ? `${curTheme.bgActive} ${curTheme.textActive} ${curTheme.borderActive}` 
