@@ -777,6 +777,15 @@ export default function App() {
             const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
                                 ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
             
+            const stepContext = {
+                theme: safeTheme || '自訂企劃 (未命名)',
+                step1: safeStep1 || "【缺乏 Step 1 背景資料】",
+                step2: currentContextContents[2] || "【缺乏 Step 2 資料】",
+                step3: currentContextContents[3] || "【缺乏 Step 3 資料】",
+                step4: currentContextContents[4] || "【缺乏 Step 4 資料】",
+                step5: currentContextContents[5] || "【缺乏 Step 5 資料】"
+            };
+            const masterPrompt = promptFunc(stepContext);
             
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
