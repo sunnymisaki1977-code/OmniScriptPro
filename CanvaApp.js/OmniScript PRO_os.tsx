@@ -1133,7 +1133,7 @@ const handleLogin = async (e: React.FormEvent) => {
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0">
       {/* 沉浸式環境光暈 */}
-      <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${AUDIENCE_THEMES[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
+      <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${audienceThemes[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
         .markdown-preview {
           font-family: 'Noto Sans TC', sans-serif;
