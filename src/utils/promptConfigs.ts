@@ -17,7 +17,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
     type: "text",
     dependsOn: ["theme"],
     // 將 prompt 定義為接收 ctx 的函式
-    prompt: (ctx) => `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家。
+    prompt: (ctx) => `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
 請先判斷主題「${ctx.theme}」屬於哪一種類型：
 
