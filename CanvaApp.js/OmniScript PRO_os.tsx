@@ -45,7 +45,7 @@ const IMAGE_ENGINES = [
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     
     
@@ -91,7 +91,7 @@ const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
     };
 
     if (isSearchEnabled) {
-        geminiPayload.tools = [{ googleSearch: {} }];
+        geminiPayload.tools: [{ "google_search": {} }] ;
     } else if (responseSchema) {
         geminiPayload.generationConfig.responseMimeType = "application/json";
         geminiPayload.generationConfig.responseSchema = responseSchema;
