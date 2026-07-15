@@ -204,6 +204,7 @@ export const POPULAR_STYLES: StyleOption[] = [
 ];
 
 export default function App() {
+  const isCanvasEnv = true; // Added explicitly for Gemini Canvas environment
   const [audienceThemes, setAudienceThemes] = useState({});
   const [themeSteps, setThemeSteps] = useState({});
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
