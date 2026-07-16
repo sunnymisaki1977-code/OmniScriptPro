@@ -88,7 +88,7 @@ export default function ApplicationModal() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 p-3 bg-amber-500 hover:bg-amber-400 text-white rounded-full shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 transition-all group animate-bounce hover:animate-none"
+        className="fixed bottom-6 right-6 z-50 p-3 bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-white rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all group animate-bounce hover:animate-none"
       >
         <Gift className="w-6 h-6 group-hover:scale-110 transition-transform" />
       </button>

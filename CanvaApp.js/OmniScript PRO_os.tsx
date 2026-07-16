@@ -1159,7 +1159,7 @@ const handleLogin = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0">
+    <div className="flex h-screen text-[#1E293B] font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
       {/* 沉浸式環境光暈 */}
       <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${audienceThemes[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
@@ -1202,7 +1202,7 @@ const handleLogin = async (e: React.FormEvent) => {
       )}
       
       {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
-       <aside className={`fixed inset-y-0 left-0 w-64 bg-white/70 backdrop-blur-xl border-r border-slate-200 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
+       <aside className={`fixed inset-y-0 left-0 w-64 bg-transparent flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
@@ -1375,12 +1375,12 @@ const handleLogin = async (e: React.FormEvent) => {
           {activeTab === 'creation' && (
             viewState === 'hub' ? (
               /* --- STREAMING_CHUNK:Rendering Central Creator Welcome Hub --- */
-              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-[#F8FAFC]">
+              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-transparent">
                 
                 {/* Glowing Background Glows */}
-                <div className={`absolute top-1/4 w-96 h-96 rounded-full bg-gradient-to-br ${curTheme.gradient} opacity-5 blur-[120px] pointer-events-none`} />
+                <div className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[100px] opacity-40 transition-colors duration-1000 -z-10 pointer-events-none ${curTheme.ambientGlow || 'bg-slate-200'}`} />
 
-                <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
+                <div className="w-full max-w-2xl bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 md:p-8 relative space-y-6 my-auto shrink-0">
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
@@ -1734,7 +1734,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
                   handleStartAuto();
                 }}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-[#1E293B] font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+                className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 transition-all duration-300 hover:-translate-y-[2px]"
               >
                 <Zap className="w-3.5 h-3.5" />
                 <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
@@ -2226,7 +2226,7 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      <aside className="w-80 bg-white/70 backdrop-blur-xl border-l border-slate-200 flex flex-col justify-between z-20 shrink-0">
+      <aside className="w-80 bg-transparent flex flex-col justify-between z-20 shrink-0">
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
@@ -2267,8 +2267,8 @@ const handleLogin = async (e: React.FormEvent) => {
           </div>
 
           {/* _> 系統與日誌 (Log Terminal Box) */}
-          <div className="flex-1 p-5 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative flex flex-col overflow-hidden m-4 rounded-2xl">
+            <div className="flex items-center justify-between mb-4 px-4 pt-4">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-[#64748B]" />
                 <h4 className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">系統與日誌</h4>
@@ -2283,7 +2283,7 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
 
             {/* Active Logs Terminal Container */}
-            <div className="flex-1 bg-black/20 border border-slate-200 rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-[#64748B] backdrop-blur-md">
+            <div className="flex-1 bg-white/70 border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-[#1E293B] backdrop-blur-md">
               {logs.map((log, index) => {
                 let colorClass = "text-[#64748B]";
                 if (log.type === 'info') colorClass = "text-blue-400";
@@ -2304,7 +2304,7 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
         {/* 返回創作大廳 */}
-        <div className="flex justify-center pb-2 pt-2 border-t border-slate-200 bg-white/70">
+        <div className="flex justify-center pb-2 pt-2 border-t-0 bg-transparent">
           <button
             onClick={() => {
               setActiveTab('creation');

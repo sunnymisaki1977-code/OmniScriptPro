@@ -1,6 +1,7 @@
 export const AUDIENCE_THEMES = {
   heritage: {
     id: 'heritage',
+    ambientGlow: 'bg-teal-600',
     title: '民俗信仰・文化傳承',
     subtitle: 'Cinematic Pink 賽博霓虹粉',
     desc: '冷冽科技感、高對比度的深邃紫與霓虹粉。專為科技產品、未來趨勢與歷史解密設計。',
@@ -23,6 +24,7 @@ export const AUDIENCE_THEMES = {
   },
   beauty: {
     id: 'beauty',
+    ambientGlow: 'bg-rose-400',
     title: '美妝保養・悅己美學',
     subtitle: 'Glamour Rose 奢華玫瑰金',
     desc: '高質感、溫柔優雅、奢華玫瑰粉與香檳金。專為美妝、穿搭與高感性生活視覺設計。',
@@ -45,6 +47,7 @@ export const AUDIENCE_THEMES = {
   },
   travelpreneur: {
     id: 'travelpreneur',
+    ambientGlow: 'bg-amber-500',
     title: '旅遊生活・世界漫遊',
     subtitle: 'Indie Amber 極速金澄風',
     desc: '極速執行力、黃金極簡微光。專為單兵作業、產品發布與高商業價值轉換設計。',
@@ -67,6 +70,7 @@ export const AUDIENCE_THEMES = {
   },
   food: {
     id: 'food',
+    ambientGlow: 'bg-yellow-400',
     title: '美食料理・風味探索',
     subtitle: 'Golden Saffron 晨曦藏紅花',
     desc: '溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌、食譜教學與美食探店視覺設計。',
@@ -111,6 +115,7 @@ export const AUDIENCE_THEMES = {
   },
   pet: {
     id: 'pet',
+    ambientGlow: 'bg-sky-400',
     title: '寵物照護・幸福陪伴',
     subtitle: 'Nurturing Sky 溫和知性藍',
     desc: '傳遞信任與安定的天空藍。專為寵物醫療、動物行為與溫和友善的排版設計。',
