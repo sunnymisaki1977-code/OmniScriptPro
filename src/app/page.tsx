@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Sparkles, 
   Zap, 
-  ArrowRight, 
+  ArrowRight, log
   Moon, 
   Sun,
   LayoutTemplate,
@@ -263,8 +263,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                  <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
               </div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                OmniScript PRO
+              
               </span>
             </div>
 
