@@ -1,7 +1,5 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
@@ -665,6 +663,8 @@ export default function App() {
 
   const handleDownloadZip = async () => {
     try {
+      const JSZip = (await import('jszip')).default;
+      const { saveAs } = await import('file-saver');
       const zip = new JSZip();
       const folderName = `${theme || 'OmniScript'}_企劃包`;
       const folder = zip.folder(folderName);
