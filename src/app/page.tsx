@@ -261,7 +261,7 @@ export default function LandingPage() {
             {/* Logo 區塊 */}
             <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Sparkles className="w-6 h-6 text-white" />
+                 <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
               </div>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
                 OmniScript PRO
