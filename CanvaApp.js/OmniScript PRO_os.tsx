@@ -663,8 +663,10 @@ export default function App() {
 
   const handleDownloadZip = async () => {
     try {
-      const JSZip = (await import('jszip')).default;
-      const { saveAs } = await import('file-saver');
+      const JSZipModule = await import('jszip');
+      const JSZip = JSZipModule.default || JSZipModule;
+      const fileSaverModule = await import('file-saver');
+      const saveAs = fileSaverModule.saveAs || fileSaverModule.default?.saveAs || fileSaverModule.default;
       const zip = new JSZip();
       const folderName = `${theme || 'OmniScript'}_企劃包`;
       const folder = zip.folder(folderName);
@@ -689,7 +691,8 @@ export default function App() {
   const handleDownloadPdf = async () => {
     try {
       addLog('[System] 正在生成 PDF，請稍候...', 'info');
-      const html2pdf = (await import('html2pdf.js')).default;
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default || html2pdfModule;
       const element = document.getElementById('pdf-export-container');
       if (!element) return;
       
