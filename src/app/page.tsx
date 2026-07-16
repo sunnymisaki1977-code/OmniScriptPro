@@ -340,10 +340,12 @@ export default function LandingPage() {
                       onClick={() => setActiveTab(idx)}
                       // 移除生硬邊框，改用微玻璃與極淡線條
                       className={`min-h-[64px] text-left px-6 py-5 rounded-[1.5rem] transition-all duration-300 group ${
-                        activeTab === idx 
-                          ? `bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden transform scale-[1.02]` 
-                          : `bg-white/30 dark:bg-white/5 backdrop-blur-sm border border-transparent hover:bg-white/50 dark:hover:bg-white/10`
-                      }`}
+  activeTab === idx 
+    // Active 狀態：淺色模式用高透白玻璃，深色模式用高透深藍玻璃
+    ? `bg-white/70 dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/80 dark:border-white/15 shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative overflow-hidden transform scale-[1.02]` 
+    // Inactive 狀態：更低調的透明度，與背景融合
+    : `bg-white/20 dark:bg-white/5 backdrop-blur-sm border border-transparent hover:bg-white/40 dark:hover:bg-white/10`
+}`}
                     >
                       {activeTab === idx && (
                         <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${aud.color}`} />
