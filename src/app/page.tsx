@@ -261,7 +261,7 @@ export default function LandingPage() {
             {/* Logo 區塊 */}
             <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
               
-                 <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
+               
               </div>
               
               </span>
