@@ -1,5 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
@@ -659,6 +661,56 @@ export default function App() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleDownloadZip = async () => {
+    try {
+      const zip = new JSZip();
+      const folderName = `${theme || 'OmniScript'}_企劃包`;
+      const folder = zip.folder(folderName);
+      
+      STEPS.forEach((step, idx) => {
+        const content = stepContents[idx + 1];
+        if (content && content.trim() !== '') {
+          const safeName = step.name.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+          folder.file(`Step${idx + 1}_${safeName}.md`, content);
+        }
+      });
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, `${folderName}.zip`);
+      addLog('[System] 成功匯出 ZIP 企劃包', 'success');
+    } catch (err) {
+      console.error(err);
+      addLog('[System] 匯出 ZIP 失敗', 'error');
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      addLog('[System] 正在生成 PDF，請稍候...', 'info');
+      const html2pdf = (await import('html2pdf.js')).default;
+      const element = document.getElementById('pdf-export-container');
+      if (!element) return;
+      
+      element.style.display = 'block';
+      
+      const opt = {
+        margin:       10,
+        filename:     `${theme || 'OmniScript'}_完整企劃.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+      
+      element.style.display = 'none';
+      addLog('[System] 成功匯出 PDF 報告', 'success');
+    } catch (err) {
+      console.error(err);
+      addLog('[System] 匯出 PDF 失敗', 'error');
+    }
   };
 
   const logsEndRef = useRef(null);
