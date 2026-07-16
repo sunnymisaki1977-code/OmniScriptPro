@@ -1207,13 +1207,11 @@ const handleLogin = async (e: React.FormEvent) => {
           
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8 px-1">
-            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${curTheme.gradient} flex items-center justify-center shadow-lg transition-all duration-700`}>
-              <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
-            </div>
+            
+              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
+            
             <div>
-              <h1 className="text-md font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
-                OmniScript Pro
-              </h1>
+                           
             </div>
           </div>
 
