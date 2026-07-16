@@ -1351,7 +1351,7 @@ const handleLogin = async (e: React.FormEvent) => {
       <div className="flex-1 flex flex-col min-w-0 bg-transparent relative">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-slate-200 bg-white/30 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
+        <header className="h-16 bg-transparent border-b-0 flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
           <div className="flex items-center gap-3 flex-1 lg:flex-none lg:w-96">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
