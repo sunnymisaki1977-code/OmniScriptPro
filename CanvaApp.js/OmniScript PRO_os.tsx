@@ -1211,7 +1211,7 @@ const handleLogin = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="flex h-screen text-[#1E293B] font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
+    <div className="flex h-screen text-[#1E293B] font-sans overflow-hidden selection:bg-black/10 relative z-0" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
       {/* 沉浸式環境光暈 */}
       <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${audienceThemes[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
@@ -1459,7 +1459,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             placeholder="輸入授權碼"
                             value={passcode}
                             onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                            className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner tracking-widest backdrop-blur-sm"
+                            className={`w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-[#1E293B] placeholder-slate-500 focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"}  transition-all shadow-inner tracking-widest backdrop-blur-sm`}
                             autoFocus
                           />
                         </div>
@@ -1523,7 +1523,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         placeholder="例如：日本京阪神五日遊攻略"
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
-                        className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
+                        className={`w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"}  transition-all shadow-inner backdrop-blur-sm`}
                       />
                     </div>
 
@@ -1543,7 +1543,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
+                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"} h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
                         <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
                           {customContext.length} / 5000
@@ -1577,10 +1577,10 @@ const handleLogin = async (e: React.FormEvent) => {
                               }}
                               className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
                                 isRequired
-                                  ? 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
+                                  ? curTheme.matrixRequired || 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
                                   : isSelected
-                                  ? 'bg-indigo-500 text-[#1E293B] shadow-md hover:bg-indigo-600'
-                                  : 'bg-slate-50 text-[#64748B] border border-slate-200 hover:bg-slate-200'
+                                  ? curTheme.matrixSelected || 'bg-indigo-500 text-white shadow-md hover:bg-indigo-600'
+                                  : curTheme.matrixUnselected || 'bg-white border border-slate-200 text-[#64748B] hover:bg-slate-50'
                               }`}
                             >
                               <div className="flex items-center gap-1.5">
@@ -1678,7 +1678,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     {isGlobalMaster && (
                       <button
                         onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
-                        className="absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        className={`absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110`}
                         title={isStepFlowHidden ? "展開 Step Flow" : "隱藏 Step Flow"}
                       >
                         {isStepFlowHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1838,7 +1838,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                 document.body.removeChild(a);
                                 URL.revokeObjectURL(url);
                               }}
-                              className="text-[10px] text-[#10B981] hover:text-[#1E293B] flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
+                              className={`text-[10px] ${curTheme.actionBtnOutline || "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"} flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer shadow-sm transition-all  cursor-pointer shadow-sm`}
                               title="下載此步驟內容為 Markdown 檔案"
                             >
                               <Download className="w-3 h-3" />
@@ -1920,7 +1920,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isVisualSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
                       <button
                         onClick={() => setIsVisualSidebarHidden(!isVisualSidebarHidden)}
-                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        className={`flex items-center justify-center w-6 h-6 ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110`}
                         title={isVisualSidebarHidden ? "展開 Prompt 控制台" : "隱藏 Prompt 控制台"}
                       >
                         {isVisualSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1977,7 +1977,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <button
                       onClick={generateNewImage}
                       disabled={isGeneratingImage || visualGroups.length === 0}
-                      className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                      className={`w-full py-2.5 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50`}
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{isGeneratingImage ? '正在批次渲染中...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
@@ -2011,7 +2011,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
-                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] ${curTheme.actionBtnOutline || "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"}  font-semibold`}>
                                   {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
                                 </span>
                                 <div className="flex gap-1.5">
@@ -2033,7 +2033,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             <button
                               onClick={() => generateGroupImage(group)}
                               disabled={generatingGroups[group.id]}
-                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                              className={`w-full mt-3 py-2 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50`}
                             >
                               <Sparkles className="w-3.5 h-3.5" />
                               <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
@@ -2416,7 +2416,7 @@ const handleLogin = async (e: React.FormEvent) => {
               <div className="flex flex-col gap-3 pt-4">
                 <button
                   onClick={() => setShowApiKeyModal(false)}
-                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+                  className={`w-full py-3 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   確認並儲存

@@ -20,6 +20,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-purple-900/50 text-[#10B981] border border-purple-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-purple-500 text-white shadow-md hover:bg-purple-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-purple-50',
+    focusRing: 'focus:border-purple-500/50',
+    actionBtn: 'bg-purple-600 hover:bg-purple-500 text-white',
+    actionBtnOutline: 'bg-purple-500/10 text-purple-600 hover:text-purple-700 border border-purple-500/20 hover:border-purple-500/50 hover:bg-purple-500/20',
     themeLogMessage: '[Theme] 已切換至「民俗信仰・文化傳承 (Cinematic Pink)」模式。優化低光源剪輯視覺，啟動 RGB 電競靈感調幅機制 🟢'
   },
   beauty: {
@@ -43,6 +49,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-pink-900/50 text-[#10B981] border border-pink-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-pink-500 text-white shadow-md hover:bg-pink-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-pink-50',
+    focusRing: 'focus:border-pink-500/50',
+    actionBtn: 'bg-pink-600 hover:bg-pink-500 text-white',
+    actionBtnOutline: 'bg-pink-500/10 text-pink-600 hover:text-pink-700 border border-pink-500/20 hover:border-pink-500/50 hover:bg-pink-500/20',
     themeLogMessage: '[Theme] 已切換至「美妝保養・悅己美學 (Glamour Rose)」模式。啟動精緻暖色調高光補償，提升美感氛圍 🟢'
   },
   travelpreneur: {
@@ -66,6 +78,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-amber-900/50 text-[#10B981] border border-amber-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-amber-500 text-white shadow-md hover:bg-amber-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-amber-50',
+    focusRing: 'focus:border-amber-500/50',
+    actionBtn: 'bg-amber-600 hover:bg-amber-500 text-white',
+    actionBtnOutline: 'bg-amber-500/10 text-amber-600 hover:text-amber-700 border border-amber-500/20 hover:border-amber-500/50 hover:bg-amber-500/20',
     themeLogMessage: '[Theme] 已切換至「旅遊生活・世界漫遊 (Indie Amber)」模式。高對比金黃預警，啟動單兵作戰、快速發布極速模式 🟢'
   },
   food: {
@@ -89,6 +107,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-orange-900/50 text-[#10B981] border border-orange-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-orange-500 text-white shadow-md hover:bg-orange-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-orange-50',
+    focusRing: 'focus:border-orange-500/50',
+    actionBtn: 'bg-orange-600 hover:bg-orange-500 text-white',
+    actionBtnOutline: 'bg-orange-500/10 text-orange-600 hover:text-orange-700 border border-orange-500/20 hover:border-orange-500/50 hover:bg-orange-500/20',
     themeLogMessage: '[Theme] 已切換至「美食料理・風味探索 (Golden Saffron)」模式。啟動高飽和誘人濾鏡與溫馨氛圍光 🟢'
   },
   historyMeme: {
@@ -111,6 +135,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-red-900/50 text-[#10B981] border border-red-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-red-500 text-white shadow-md hover:bg-red-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-red-50',
+    focusRing: 'focus:border-red-500/50',
+    actionBtn: 'bg-red-600 hover:bg-red-500 text-white',
+    actionBtnOutline: 'bg-red-500/10 text-red-600 hover:text-red-700 border border-red-500/20 hover:border-red-500/50 hover:bg-red-500/20',
     themeLogMessage: '[Theme] 已切換至「歷史迷因 (Meme Gold)」模式。啟動迷因引擎，垃圾話滿載準備中 🟢'
   },
   pet: {
@@ -134,6 +164,12 @@ export const AUDIENCE_THEMES = {
     pipelineCurrent: 'bg-white border-[#0A2E5C]/50 shadow-[0_4px_20px_rgba(10,46,92,0.05)]',
     pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
     tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-sky-900/50 text-[#10B981] border border-sky-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-sky-500 text-white shadow-md hover:bg-sky-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-sky-50',
+    focusRing: 'focus:border-sky-500/50',
+    actionBtn: 'bg-sky-600 hover:bg-sky-500 text-white',
+    actionBtnOutline: 'bg-sky-500/10 text-sky-600 hover:text-sky-700 border border-sky-500/20 hover:border-sky-500/50 hover:bg-sky-500/20',
     themeLogMessage: '[Theme] 已切換至「寵物照護・幸福陪伴 (Nurturing Sky)」模式。降低視覺刺激，啟動安定、知性與信任感佈局 🟢'
   }
 };
