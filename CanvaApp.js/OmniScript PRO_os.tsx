@@ -1116,7 +1116,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   const getAiStatusColor = () => {
     if (aiStatus === 'pro') return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    if (aiStatus === 'flash') return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+    if (aiStatus === 'flash') return 'text-[#10B981] bg-amber-400/10 border-amber-400/20';
     return 'text-red-400 bg-red-400/10 border-red-400/20';
   };
 
@@ -1159,7 +1159,7 @@ const handleLogin = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0">
+    <div className="flex h-screen bg-[#F8FAFC] text-slate-100 font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0">
       {/* 沉浸式環境光暈 */}
       <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${audienceThemes[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
@@ -1202,11 +1202,11 @@ const handleLogin = async (e: React.FormEvent) => {
       )}
       
       {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
-       <aside className={`fixed inset-y-0 left-0 w-64 bg-slate-950/40 backdrop-blur-xl border-r border-white/5 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
+       <aside className={`fixed inset-y-0 left-0 w-64 bg-white/70 backdrop-blur-xl border-r border-slate-200 flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
         <div className="p-5">
           
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-8 px-1">
+         <div className="flex items-center gap-3 mb-8 px-1">
             
               <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
             
@@ -1236,7 +1236,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-xs transition-all text-left border relative ${
                       isActive 
                         ? `${curTheme.bgActive} ${curTheme.textActive} ${curTheme.borderActive}` 
-                        : 'text-slate-500 border-transparent hover:text-slate-300 hover:bg-slate-800/50'
+                        : 'text-[#64748B] border-transparent hover:text-[#1E293B] hover:bg-slate-50'
                     }`}
                   >
                     {/* Left indicator active line */}
@@ -1249,15 +1249,15 @@ const handleLogin = async (e: React.FormEvent) => {
                   
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
                   {isActive && tab.id === 'visual' && (
-                    <div className="mx-2 p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-4 backdrop-blur-lg">
-                      <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-                        <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                    <div className="mx-2 p-4 bg-white border border-slate-200 rounded-xl space-y-4 backdrop-blur-lg">
+                      <h4 className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
+                        <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
                         視覺裂變
                       </h4>
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">畫風濾鏡</label>
+                          <label className="text-[10px] text-[#64748B] font-bold block mb-1">畫風濾鏡</label>
                           <select 
                             value={currentImageStyle.id}
                             onChange={(e) => {
@@ -1270,7 +1270,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
                               if (foundPopular) setCurrentImageStyle(foundPopular);
                             }}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3 backdrop-blur-sm"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
                           >
                             {AUDIENCE_STYLES[audienceTheme] && (
                               <optgroup label="💡 受眾專屬推薦風格">
@@ -1287,17 +1287,17 @@ const handleLogin = async (e: React.FormEvent) => {
                               ))}
                             </optgroup>
                           </select>
-                          <div className="text-[9px] text-slate-500/80 mt-1 leading-relaxed italic">
+                          <div className="text-[9px] text-[#64748B]/80 mt-1 leading-relaxed italic">
                             已套用風格詞綴：{currentImageStyle.promptSuffix.slice(0, 45)}...
                           </div>
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1 mt-3">輸出比例</label>
+                          <label className="text-[10px] text-[#64748B] font-bold block mb-1 mt-3">輸出比例</label>
                           <select 
                             value={visualStep}
                             onChange={(e) => setVisualStep(Number(e.target.value))}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none mb-3 backdrop-blur-sm"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
                           >
                             <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫幅縮圖 (YouTube / FB)'}</option>
                             <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '短片直式封面 (Shorts / Reels)'}</option>
@@ -1307,17 +1307,17 @@ const handleLogin = async (e: React.FormEvent) => {
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-slate-500 font-bold block mb-1">影像生成引擎</label>
+                          <label className="text-[10px] text-[#64748B] font-bold block mb-1">影像生成引擎</label>
                           <select 
                             value={imageEngine}
                             onChange={(e) => setImageEngine(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none backdrop-blur-sm"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none backdrop-blur-sm"
                           >
                             {IMAGE_ENGINES.map(engine => (
                               <option key={engine.id} value={engine.id}>{engine.name}</option>
                             ))}
                           </select>
-                          <p className="text-[9px] text-slate-500/80 mt-1.5 leading-relaxed">
+                          <p className="text-[9px] text-[#64748B]/80 mt-1.5 leading-relaxed">
                             {IMAGE_ENGINES.find(e => e.id === imageEngine)?.desc}
                           </p>
                         </div>
@@ -1331,16 +1331,16 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
         {/* Bottom Sidebar Controls */}
-        <div className="p-4 border-t border-slate-900 space-y-3">
+        <div className="p-4 border-t border-slate-200 space-y-3">
 
 
           {/* Light Mode Switcher */}
-          <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs hover:bg-slate-900/40 transition-all">
+          <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[#64748B] hover:text-[#1E293B] text-xs hover:bg-white transition-all">
             <div className="flex items-center gap-2.5">
-              <Sun className="w-4 h-4 text-slate-500" />
-              <span className="font-medium text-slate-400 text-[11px]">淺色模式</span>
+              <Sun className="w-4 h-4 text-[#64748B]" />
+              <span className="font-medium text-[#64748B] text-[11px]">淺色模式</span>
             </div>
-            <div className="w-8 h-4 rounded-full bg-slate-800 flex items-center p-0.5 justify-start">
+            <div className="w-8 h-4 rounded-full bg-slate-50 flex items-center p-0.5 justify-start">
               <div className="w-3 h-3 rounded-full bg-slate-500" />
             </div>
           </button>
@@ -1351,11 +1351,11 @@ const handleLogin = async (e: React.FormEvent) => {
       <div className="flex-1 flex flex-col min-w-0 bg-transparent relative">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-white/5 bg-slate-900/30 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
+        <header className="h-16 border-b border-slate-200 bg-white/30 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 z-10 shrink-0 gap-4">
           <div className="flex items-center gap-3 flex-1 lg:flex-none lg:w-96">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+              className="lg:hidden p-2 -ml-2 text-[#64748B] hover:text-[#1E293B] transition-colors"
            
             >
               <Menu className="w-5 h-5" />
@@ -1375,12 +1375,12 @@ const handleLogin = async (e: React.FormEvent) => {
           {activeTab === 'creation' && (
             viewState === 'hub' ? (
               /* --- STREAMING_CHUNK:Rendering Central Creator Welcome Hub --- */
-              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0f1d] to-[#030712]">
+              <div className="flex-1 p-4 md:p-8 flex flex-col items-center overflow-y-auto relative bg-[#F8FAFC]">
                 
                 {/* Glowing Background Glows */}
                 <div className={`absolute top-1/4 w-96 h-96 rounded-full bg-gradient-to-br ${curTheme.gradient} opacity-5 blur-[120px] pointer-events-none`} />
 
-                <div className="w-full max-w-2xl bg-slate-900/40 border border-white/5 rounded-3xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
+                <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl p-6 md:p-8 backdrop-blur-xl relative shadow-2xl space-y-6 my-auto shrink-0">
                   {/* Glowing Top Frame Accent Line */}
                   <div className={`absolute left-0 right-0 top-0 h-[2px] rounded-t-3xl bg-gradient-to-r ${curTheme.gradient}`} />
                   
@@ -1388,26 +1388,26 @@ const handleLogin = async (e: React.FormEvent) => {
                     // --- 密碼輸入模式 (和輸入主題模式相同) ---
                     <>
                       <div className="text-center space-y-2">
-                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
-                          <Lock className="w-8 h-8 text-white" />
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+                          <Lock className="w-8 h-8 text-[#1E293B]" />
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#1E293B]">
                           系統已鎖定
                         </h2>
-                        <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                        <p className="text-[11px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
                           請輸入您的專屬受眾授權碼以進入 OmniScript Pro 核心系統。
                         </p>
                       </div>
 
                       <form onSubmit={handleLogin} className="space-y-4 mt-8">
                         <div className="relative group">
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                           <input 
                             type="password"
                             placeholder="輸入授權碼"
                             value={passcode}
                             onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                            className="w-full relative bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner tracking-widest backdrop-blur-sm"
+                            className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner tracking-widest backdrop-blur-sm"
                             autoFocus
                           />
                         </div>
@@ -1416,7 +1416,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         
                         <button 
                           type="submit"
-                          className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all shadow-lg shadow-indigo-500/25 active:scale-95 flex items-center justify-center gap-2"
+                          className="w-full py-4 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-sm transition-all duration-300 hover:-translate-y-[2px] shadow-lg active:scale-95 flex items-center justify-center gap-2"
                         >
                           <Lock className="w-4 h-4" />
                           解鎖並登入工作區
@@ -1428,10 +1428,10 @@ const handleLogin = async (e: React.FormEvent) => {
                     <>
                       {/* Hub Header */}
                       <div className="text-center space-y-2">
-                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#1E293B]">
                           今天想創作什麼？
                         </h2>
-                        <p className="text-[11px] md:text-xs text-slate-400 font-medium max-w-md mx-auto leading-relaxed">
+                        <p className="text-[11px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
                           輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
                         </p>
                       </div>
@@ -1451,8 +1451,8 @@ const handleLogin = async (e: React.FormEvent) => {
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
                                 : isGlobalMaster 
-                                  ? 'border-slate-800 text-slate-400 hover:text-white hover:border-slate-500 cursor-pointer'
-                                  : 'border-slate-900/50 text-slate-500 opacity-50 cursor-not-allowed'
+                                  ? 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500 cursor-pointer'
+                                  : 'border-slate-200 text-[#64748B] opacity-50 cursor-not-allowed'
                             }`}
                           >
                             {themeObj.title}
@@ -1465,21 +1465,21 @@ const handleLogin = async (e: React.FormEvent) => {
                   {/* Main Creative Input Container */}
                   <div className="space-y-4">
                     <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                       <input 
                         type="text"
                         placeholder="例如：日本京阪神五日遊攻略"
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
-                        className="w-full relative bg-slate-900/50 border border-white/10 rounded-2xl px-6 py-4 text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
+                        className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
                       />
                     </div>
 
                     {/* --- 新增：自訂背景資料區 --- */}
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-[10px] text-slate-400 font-bold">自訂背景資料 / 參考文件 (選填)</label>
-                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800/50 hover:bg-slate-700 text-slate-300 text-[9px] cursor-pointer transition-colors border border-slate-700">
+                        <label className="text-[10px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
+                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[9px] cursor-pointer transition-colors border border-slate-200">
                           <UploadCloud className="w-3 h-3" />
                           <span>上傳 TXT/MD/CSV</span>
                           <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
@@ -1491,9 +1491,9 @@ const handleLogin = async (e: React.FormEvent) => {
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-slate-900/50 border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
+                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
-                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-slate-500'}`}>
+                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
                           {customContext.length} / 5000
                         </div>
                       </div>
@@ -1502,9 +1502,9 @@ const handleLogin = async (e: React.FormEvent) => {
 
 
                     {/* --- 新增：模組化勾選清單 (Checkbox List) --- */}
-                    <div className="space-y-2 pt-2 border-t border-slate-900/50">
+                    <div className="space-y-2 pt-2 border-t border-slate-200">
                       <div className="flex items-center justify-between">
-                        <label className="text-[10px] text-slate-400 font-bold">📦 選擇要生成的素材矩陣 (可自由勾選)</label>
+                        <label className="text-[10px] text-[#64748B] font-bold">📦 選擇要生成的素材矩陣 (可自由勾選)</label>
                       </div>
                       <div className="flex flex-wrap gap-2 pb-2">
                         {STEPS.map((step, idx) => {
@@ -1525,10 +1525,10 @@ const handleLogin = async (e: React.FormEvent) => {
                               }}
                               className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
                                 isRequired
-                                  ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-500/30 cursor-not-allowed opacity-80'
+                                  ? 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
                                   : isSelected
-                                  ? 'bg-indigo-500 text-white shadow-md hover:bg-indigo-600'
-                                  : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                                  ? 'bg-indigo-500 text-[#1E293B] shadow-md hover:bg-indigo-600'
+                                  : 'bg-slate-50 text-[#64748B] border border-slate-200 hover:bg-slate-200'
                               }`}
                             >
                               <div className="flex items-center gap-1.5">
@@ -1561,21 +1561,21 @@ const handleLogin = async (e: React.FormEvent) => {
                       {/* Right: 手動分步編輯 */}
                       <button
                         onClick={startManualWorkspace}
-                        className="py-4 rounded-2xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-slate-200 font-black text-xs flex flex-col items-center justify-center gap-1 transition-all active:scale-98"
+                        className="py-4 rounded-2xl bg-white hover:bg-slate-50/80 border border-slate-200 text-[#1E293B] font-black text-xs flex flex-col items-center justify-center gap-1 transition-all active:scale-98"
                       >
-                        <div className="flex items-center gap-2 text-slate-200">
-                          <Sliders className="w-4 h-4 text-slate-400" />
+                        <div className="flex items-center gap-2 text-[#1E293B]">
+                          <Sliders className="w-4 h-4 text-[#64748B]" />
                           <span>分步編輯工作流</span>
                         </div>
-                        <span className="text-[10px] text-slate-500 font-normal">手手動調校，逐步建構客製化矩陣腳本</span>
+                        <span className="text-[10px] text-[#64748B] font-normal">手手動調校，逐步建構客製化矩陣腳本</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Notion Load Project Component */}
                   {isGlobalMaster && (
-                    <div className="flex pt-4 border-t border-slate-900/60 flex-col items-center gap-3">
-                      <div className="flex items-center gap-2 text-indigo-400">
+                    <div className="flex pt-4 border-t border-slate-200/60 flex-col items-center gap-3">
+                      <div className="flex items-center gap-2 text-[#10B981]">
                         <UploadCloud className="w-4.5 h-4.5" />
                         <span className="text-xs font-bold">從 Notion 載入已歸檔專案</span>
                       </div>
@@ -1586,7 +1586,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         value={selectedArchive}
                         onChange={handleLoadArchive}
                         disabled={!isGlobalMaster}
-                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-[#64748B] hover:text-[#1E293B] focus:outline-none appearance-none cursor-pointer text-center disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
                       >
                         <option value="">-- {archiveList.length === 0 ? '載入清單中...' : '點擊選擇團隊專案'} --</option>
                         
@@ -1597,7 +1597,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B] pointer-events-none" />
                     </div>
                   </div>
                   )}
@@ -1622,11 +1622,11 @@ const handleLogin = async (e: React.FormEvent) => {
                 
                 {/* Steps Navigator Left Column */}
                 <div className="relative shrink-0 h-full flex flex-col">
-                  <div className="relative flex flex-col border-r border-white/5 bg-slate-900/10 transition-all duration-300 h-full backdrop-blur-sm">
+                  <div className="relative flex flex-col border-r border-slate-200 bg-white/10 transition-all duration-300 h-full backdrop-blur-sm">
                     {isGlobalMaster && (
                       <button
                         onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
-                        className="absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        className="absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
                         title={isStepFlowHidden ? "展開 Step Flow" : "隱藏 Step Flow"}
                       >
                         {isStepFlowHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1635,7 +1635,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                     <div className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar transition-all duration-300 ${isStepFlowHidden ? 'w-0 p-0 overflow-hidden opacity-0' : 'w-64 p-4 opacity-100'}`}>
                       <div className="flex items-center justify-between mb-4 px-2">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{STEPS.length}-Step Flow</span>
+                        <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest">{STEPS.length}-Step Flow</span>
                         <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
                       </div>
                   {STEPS.map((step: any) => {
@@ -1649,21 +1649,21 @@ const handleLogin = async (e: React.FormEvent) => {
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left border group ${
                           isActive 
                             ? `${curTheme.bgActive} ${curTheme.borderActive} ${curTheme.textActive} shadow-md` 
-                            : 'bg-transparent hover:bg-slate-900/40 text-slate-400 border-transparent'
+                            : 'bg-transparent hover:bg-white text-[#64748B] border-transparent'
                         }`}
                       >
                         <div className="relative shrink-0">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isActive ? `${curTheme.bgActive} ${curTheme.textActive}` : 'bg-slate-900 text-slate-500 group-hover:text-slate-300'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isActive ? `${curTheme.bgActive} ${curTheme.textActive}` : 'bg-white text-[#64748B] group-hover:text-[#1E293B]'}`}>
                             <Icon className="w-4 h-4" />
                           </div>
                           {isDone && (
                             <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-950 flex items-center justify-center shadow-md">
-                              <Check className="w-2 h-2 text-white" />
+                              <Check className="w-2 h-2 text-[#1E293B]" />
                             </div>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[9px] text-slate-500 uppercase tracking-widest">Step {step.id}</div>
+                          <div className="text-[9px] text-[#64748B] uppercase tracking-widest">Step {step.id}</div>
                           <div className="text-xs font-bold truncate">{step.name}</div>
                         </div>
                       </button>
@@ -1686,7 +1686,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               setActiveTab('creation');
                               setViewState('hub');
                             }}
-                            className="text-xs text-slate-500 hover:text-indigo-400 flex items-center gap-1 font-bold transition-all"
+                            className="text-xs text-[#64748B] hover:text-[#10B981] flex items-center gap-1 font-bold transition-all"
                           >
                             ← 返回創作大廳
                           </button>
@@ -1695,10 +1695,10 @@ const handleLogin = async (e: React.FormEvent) => {
                             STEP {activeStep} • {STEPS[activeStep-1]?.category || 'Loading'}
                           </span>
                         </div>
-                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
                           {STEPS[activeStep-1]?.name || '載入中...'}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-1">{STEPS[activeStep-1]?.desc || '正在同步伺服器設定檔...'}</p>
+                        <p className="text-xs text-[#64748B] mt-1">{STEPS[activeStep-1]?.desc || '正在同步伺服器設定檔...'}</p>
                       </div>
 
                       <div className="flex items-center gap-3">
@@ -1734,7 +1734,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
                   handleStartAuto();
                 }}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-[#1E293B] font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 active:scale-95 transition-all"
               >
                 <Zap className="w-3.5 h-3.5" />
                 <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
@@ -1747,13 +1747,13 @@ const handleLogin = async (e: React.FormEvent) => {
 
                     {/* Markdown text editor card */}
                     <div className="relative flex-1 flex flex-col">
-                      <div className="flex-1 bg-slate-900/40 border border-white/5 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-                        <div className="px-4 py-2.5 bg-slate-900/30 border-b border-white/5 backdrop-blur-md flex items-center justify-between">
+                      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
+                        <div className="px-4 py-2.5 bg-white/30 border-b border-slate-200 backdrop-blur-md flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
                           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                           <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                          <span className="text-[10px] font-mono text-slate-500 ml-2">Markdown Editor</span>
+                          <span className="text-[10px] font-mono text-[#64748B] ml-2">Markdown Editor</span>
                         </div>
                         <div className="flex items-center gap-3">
                           {stepContents[activeStep] && stepContents[activeStep].trim() !== '' && (
@@ -1770,14 +1770,14 @@ const handleLogin = async (e: React.FormEvent) => {
                                 document.body.removeChild(a);
                                 URL.revokeObjectURL(url);
                               }}
-                              className="text-[10px] text-indigo-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
+                              className="text-[10px] text-[#10B981] hover:text-[#1E293B] flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
                               title="下載此步驟內容為 Markdown 檔案"
                             >
                               <Download className="w-3 h-3" />
                               下載 .md
                             </button>
                           )}
-                          <div className="text-[10px] text-slate-500 font-medium">
+                          <div className="text-[10px] text-[#64748B] font-medium">
                             Auto-saved locally
                           </div>
                         </div>
@@ -1786,7 +1786,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       <div className="flex-1 relative min-h-[500px]">
                         {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
                         {isGenerating ? (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/60 z-10 backdrop-blur-md">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#F8FAFC]/60 z-10 backdrop-blur-md">
                             <div className="relative group w-[600px] h-[340px] mb-6">
                               <video 
                                 src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
@@ -1799,15 +1799,15 @@ const handleLogin = async (e: React.FormEvent) => {
                               />
                               <button
                                 onClick={() => setIsVideoMuted(!isVideoMuted)}
-                                className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-white/20 shadow-lg pointer-events-auto"
+                                className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-[#1E293B] p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-slate-200 shadow-lg pointer-events-auto"
                               >
-                                {isVideoMuted ? <VolumeX className="w-5 h-5 text-slate-300" /> : <Volume2 className="w-5 h-5 text-indigo-400" />}
+                                {isVideoMuted ? <VolumeX className="w-5 h-5 text-[#1E293B]" /> : <Volume2 className="w-5 h-5 text-[#10B981]" />}
                               </button>
                             </div>
                             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse tracking-wider">
                               AI 核心引擎高速運算中...
                             </h3>
-                            <p className="text-slate-400 mt-3 text-sm flex items-center gap-2">
+                            <p className="text-[#64748B] mt-3 text-sm flex items-center gap-2">
                               <RefreshCw className="w-4 h-4 animate-spin" />
                               正在抓取資料，請稍候
                             </p>
@@ -1817,7 +1817,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <textarea 
                             value={stepContents[activeStep]}
                             onChange={(e) => setStepContents(prev => ({ ...prev, [activeStep]: e.target.value }))}
-                            className="absolute inset-0 p-6 font-mono text-sm text-slate-300 focus:outline-none overflow-y-auto whitespace-pre-wrap leading-relaxed select-text cursor-text bg-transparent resize-none border-none w-full h-full custom-scrollbar"
+                            className="absolute inset-0 p-6 font-mono text-sm text-[#1E293B] focus:outline-none overflow-y-auto whitespace-pre-wrap leading-relaxed select-text cursor-text bg-transparent resize-none border-none w-full h-full custom-scrollbar"
                           />
                         )}
                       </div>
@@ -1838,11 +1838,11 @@ const handleLogin = async (e: React.FormEvent) => {
                 {/* Visual Intro banner */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
-                      <ImageIcon className="w-5 h-5 text-indigo-400" />
+                    <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
+                      <ImageIcon className="w-5 h-5 text-[#10B981]" />
                       視覺調度中心
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">控制與生成 16:9 YouTube 橫向縮圖、9:16 短片直式封面及社群視覺素材。</p>
+                    <p className="text-xs text-[#64748B] mt-1">控制與生成 16:9 YouTube 橫向縮圖、9:16 短片直式封面及社群視覺素材。</p>
                   </div>
                 </div>
 
@@ -1852,7 +1852,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isVisualSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
                       <button
                         onClick={() => setIsVisualSidebarHidden(!isVisualSidebarHidden)}
-                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
                         title={isVisualSidebarHidden ? "展開 Prompt 控制台" : "隱藏 Prompt 控制台"}
                       >
                         {isVisualSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1861,7 +1861,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   )}
 
                   {/* Left Controls column */}
-                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-slate-900/40 border border-white/5 rounded-2xl backdrop-blur-lg flex flex-col relative ${isVisualSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-5 space-y-4 opacity-100'}`}>
+                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-white border border-slate-200 rounded-2xl backdrop-blur-lg flex flex-col relative ${isVisualSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-5 space-y-4 opacity-100'}`}>
 
 <div className="relative w-full flex-1 min-h-[500px]">
   
@@ -1881,9 +1881,9 @@ const handleLogin = async (e: React.FormEvent) => {
         />
         <button
           onClick={() => setIsVideoMuted(!isVideoMuted)}
-          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-white/20 shadow-lg pointer-events-auto"
+          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-[#1E293B] p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-slate-200 shadow-lg pointer-events-auto"
         >
-          {isVideoMuted ? <VolumeX className="w-5 h-5 text-slate-300" /> : <Volume2 className="w-5 h-5 text-indigo-400" />}
+          {isVideoMuted ? <VolumeX className="w-5 h-5 text-[#1E293B]" /> : <Volume2 className="w-5 h-5 text-[#10B981]" />}
         </button>
       </div>
       <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 animate-pulse tracking-wider">
@@ -1909,7 +1909,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <button
                       onClick={generateNewImage}
                       disabled={isGeneratingImage || visualGroups.length === 0}
-                      className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                      className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{isGeneratingImage ? '正在批次渲染中...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
@@ -1918,11 +1918,11 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* Right Masonry Grid of images */}
                   <div className="flex-1 w-full space-y-4 min-w-0">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest">已渲染媒體資產庫 ({visualGroups.length})</h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {visualGroups.map((group: any) => (
-                        <div key={group.id} className="group bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
+                        <div key={group.id} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden relative shadow-lg flex flex-col">
                           {/* Image Area */}
                           <div className="w-full h-40 bg-black/40 relative flex items-center justify-center overflow-hidden">
                             {groupImages[group.id] ? (
@@ -1930,7 +1930,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             ) : generatingGroups[group.id] ? (
                                <div className="flex flex-col items-center gap-2">
                                  <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
-                                 <span className="text-[10px] text-purple-400">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
+                                 <span className="text-[10px] text-[#10B981]">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
                                </div>
                             ) : (
                                <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
@@ -1943,29 +1943,29 @@ const handleLogin = async (e: React.FormEvent) => {
                           <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
-                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
                                   {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
                                 </span>
                                 <div className="flex gap-1.5">
                                   <button 
                                     onClick={() => handleDownloadImage(groupImages[group.id], group.title)}
-                                    className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
+                                    className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all"
                                   >
                                     <Download className="w-3.5 h-3.5" />
                                   </button>
-                                  <button className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white transition-all">
+                                  <button className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all">
                                     <Share2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </div>
-                              <h5 className="text-[11px] font-bold text-slate-200">{group.title}</h5>
-                              <p className="text-[9px] text-slate-500 font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
+                              <h5 className="text-[11px] font-bold text-[#1E293B]">{group.title}</h5>
+                              <p className="text-[9px] text-[#64748B] font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
                             </div>
                             
                             <button
                               onClick={() => generateGroupImage(group)}
                               disabled={generatingGroups[group.id]}
-                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
                               <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
@@ -1974,7 +1974,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             <div className="flex gap-2 mt-2">
                               <button
                                 onClick={() => handleCopyAndGo(group, 'gemini')}
-                                className="flex-1 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800 text-indigo-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-indigo-700/50"
+                                className="flex-1 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800 text-[#10B981] text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-indigo-700/50"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 複製開啟 Gemini
@@ -2006,36 +2006,36 @@ const handleLogin = async (e: React.FormEvent) => {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
-                      <Music className="w-5 h-5 text-purple-400" />
+                    <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
+                      <Music className="w-5 h-5 text-[#10B981]" />
                       Suno 配樂中心
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">基於影片受眾調性與腳本節奏，一鍵調用 Suno API 自動生成原創、無版權問題的配樂。</p>
+                    <p className="text-xs text-[#64748B] mt-1">基於影片受眾調性與腳本節奏，一鍵調用 Suno API 自動生成原創、無版權問題的配樂。</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Lyrics generation */}
-                  <div className="col-span-1 bg-slate-900/40 border border-white/5 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">配樂歌詞生成</h4>
+                  <div className="col-span-1 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest">配樂歌詞生成</h4>
                     
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">配樂風格 (Style of Music)</label>
+                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">配樂風格 (Style of Music)</label>
                         <input 
                           type="text" 
                           value={musicGenre} 
                           onChange={(e) => setMusicGenre(e.target.value)}
-                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none backdrop-blur-sm"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#1E293B] focus:outline-none backdrop-blur-sm"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">歌詞內容 / 音調環境</label>
+                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">歌詞內容 / 音調環境</label>
                         <textarea
                           value={stepContents[9]} 
                           onChange={(e) => setStepContents(prev => ({ ...prev, 9: e.target.value }))}
-                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-3 text-xs text-slate-300 focus:outline-none h-36 resize-none backdrop-blur-sm"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs text-[#1E293B] focus:outline-none h-36 resize-none backdrop-blur-sm"
                         />
                       </div>
                     </div>
@@ -2047,7 +2047,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           addLog("[Suno API] ✅ 音軌生成成功！已加入下方配樂庫。", "success");
                         }, 1500);
                       }}
-                      className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-500/10 active:scale-95"
+                      className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-purple-500/10 active:scale-95"
                     >
                       <Sparkles className="w-4 h-4 animate-pulse" />
                       <span>重新調製音訊軌跡</span>
@@ -2056,22 +2056,22 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* Active sound visualizer */}
                   <div className="col-span-2 space-y-4">
-                    <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 relative overflow-hidden">
                       {/* Active equalizer simulation */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <button 
                             onClick={() => setIsPlayingMusic(!isPlayingMusic)}
-                            className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg active:scale-90 transition-all shrink-0"
+                            className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-500 text-[#1E293B] flex items-center justify-center shadow-lg active:scale-90 transition-all shrink-0"
                           >
                             {isPlayingMusic ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white translate-x-0.5" />}
                           </button>
                           <div>
-                            <p className="text-xs font-bold text-white">SaaS Dreamscape - Vol.3</p>
-                            <p className="text-[10px] text-slate-500">Style: Synthwave, Cyberpunk Lofi Beat</p>
+                            <p className="text-xs font-bold text-[#1E293B]">SaaS Dreamscape - Vol.3</p>
+                            <p className="text-[10px] text-[#64748B]">Style: Synthwave, Cyberpunk Lofi Beat</p>
                           </div>
                         </div>
-                        <div className="text-xs font-mono text-purple-400">
+                        <div className="text-xs font-mono text-[#10B981]">
                           {Math.floor((musicProgress / 100) * 120)}s / 120s
                         </div>
                       </div>
@@ -2092,32 +2092,32 @@ const handleLogin = async (e: React.FormEvent) => {
                       </div>
 
                       {/* Progress slider bar */}
-                      <div className="h-1 w-full bg-slate-900 rounded-full overflow-hidden">
+                      <div className="h-1 w-full bg-white rounded-full overflow-hidden">
                         <div className="h-full bg-purple-500" style={{ width: `${musicProgress}%` }} />
                       </div>
                     </div>
 
                     {/* Suno Audio Archive Library */}
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-2">配樂生成庫</h4>
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest pt-2">配樂生成庫</h4>
                     <div className="space-y-2">
                       {[
                         { title: 'SaaS Dreamscape - Vol.3', style: 'Synthwave', dur: '02:00' },
                         { title: 'Neon Coding Vibes', style: 'Lofi Cyberpunk', dur: '01:45' },
                         { title: 'The travelpreneur Spirit', style: 'Acoustic Bright', dur: '02:30' }
                       ].map((track) => (
-                        <div key={track.title} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/30 border border-slate-900/60 hover:border-purple-500/30 transition-all">
+                        <div key={track.title} className="flex items-center justify-between p-3 rounded-xl bg-white/30 border border-slate-200/60 hover:border-purple-500/30 transition-all">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <div className="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-[#10B981]">
                               <Music className="w-4 h-4" />
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-slate-200">{track.title}</p>
-                              <p className="text-[10px] text-slate-500">Style: {track.style}</p>
+                              <p className="text-xs font-bold text-[#1E293B]">{track.title}</p>
+                              <p className="text-[10px] text-[#64748B]">Style: {track.style}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-xs font-mono text-slate-500">{track.dur}</span>
-                            <button className="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 hover:text-white font-bold border border-slate-800">
+                            <span className="text-xs font-mono text-[#64748B]">{track.dur}</span>
+                            <button className="px-2.5 py-1 rounded bg-white hover:bg-slate-50 text-[10px] text-[#64748B] hover:text-[#1E293B] font-bold border border-slate-200">
                               使用此音軌
                             </button>
                           </div>
@@ -2139,32 +2139,32 @@ const handleLogin = async (e: React.FormEvent) => {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2.5">
+                    <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
                       <BookOpen className="w-5 h-5 text-emerald-400" />
                       NotebookLM 影片整合中心
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">匯入長影片、外部文檔或錄音檔，自動生成主題關係圖並轉譯為結構化對談與學習指南。</p>
+                    <p className="text-xs text-[#64748B] mt-1">匯入長影片、外部文檔或錄音檔，自動生成主題關係圖並轉譯為結構化對談與學習指南。</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left input container */}
-                  <div className="col-span-1 bg-slate-900/40 border border-white/5 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest">外部資料庫匯入</h4>
+                  <div className="col-span-1 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest">外部資料庫匯入</h4>
                     
                     <div className="space-y-3">
-                      <div className="p-4 border border-dashed border-slate-800 hover:border-emerald-500/40 rounded-xl bg-slate-900/10 text-center cursor-pointer transition-all">
-                        <UploadCloud className="w-7 h-7 text-slate-500 mx-auto mb-2" />
-                        <span className="text-xs font-bold text-slate-400 block">拖曳 Markdown/PDF 到這裡</span>
+                      <div className="p-4 border border-dashed border-slate-200 hover:border-emerald-500/40 rounded-xl bg-white/10 text-center cursor-pointer transition-all">
+                        <UploadCloud className="w-7 h-7 text-[#64748B] mx-auto mb-2" />
+                        <span className="text-xs font-bold text-[#64748B] block">拖曳 Markdown/PDF 到這裡</span>
                         <span className="text-[10px] text-slate-600 block mt-1">或 點擊選擇上傳</span>
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-500 font-bold block mb-1">YouTube 長影片 URL</label>
+                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">YouTube 長影片 URL</label>
                         <input 
                           type="text" 
                           placeholder="[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=)..."
-                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/40 backdrop-blur-sm"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#1E293B] focus:outline-none focus:border-emerald-500/40 backdrop-blur-sm"
                         />
                       </div>
                     </div>
@@ -2176,7 +2176,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           addLog("[NotebookLM] ✅ 成功解構長影片！摘要資訊已生成。", "success");
                         }, 1200);
                       }}
-                      className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
+                      className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-[#1E293B] text-xs font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
                     >
                       <span>解析影片並載入背景庫</span>
                     </button>
@@ -2184,34 +2184,34 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* NotebookLM key points display */}
                   <div className="col-span-2 space-y-4">
-                    <div className="p-5 bg-slate-900/40 border border-white/5 rounded-2xl space-y-4">
+                    <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                         <Award className="w-4 h-4" />
                         <span>AI 生成長影片知識卡 (影片時長 35 mins)</span>
                       </div>
 
-                      <div className="space-y-3 text-xs leading-relaxed text-slate-300">
+                      <div className="space-y-3 text-xs leading-relaxed text-[#1E293B]">
                         <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-slate-200">關鍵摘要 01 - 跨平台分流之必然趨勢</p>
-                          <p className="text-slate-400 mt-1">2026年單一社群平台流量正在緊縮，頂尖創作者必須建立 YouTube（長格式）- TikTok（短格式）- FB/IG（社群宣傳）的自動分流系統。</p>
+                          <p className="font-bold text-[#1E293B]">關鍵摘要 01 - 跨平台分流之必然趨勢</p>
+                          <p className="text-[#64748B] mt-1">2026年單一社群平台流量正在緊縮，頂尖創作者必須建立 YouTube（長格式）- TikTok（短格式）- FB/IG（社群宣傳）的自動分流系統。</p>
                         </div>
                         <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-slate-200">關鍵摘要 02 - 多工 AI 優勢</p>
-                          <p className="text-slate-400 mt-1">使用整合型 Prompt 比分批下達能更好留存上下文關係。一次解構全域步驟能有效避免宣傳文案與腳本調性不一致的痛點。</p>
+                          <p className="font-bold text-[#1E293B]">關鍵摘要 02 - 多工 AI 優勢</p>
+                          <p className="text-[#64748B] mt-1">使用整合型 Prompt 比分批下達能更好留存上下文關係。一次解構全域步驟能有效避免宣傳文案與腳本調性不一致的痛點。</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Quick interactive Q&As */}
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-widest pt-1">快速導讀問答</h4>
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest pt-1">快速導讀問答</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       {[
                         { q: '這段內容的受眾痛點是什麼？', a: '主要在於重複的發文格式排版以及腳本靈感瓶頸。' },
                         { q: '全域企劃與單純寫腳本差在哪？', a: '全域企劃整合了背景、長短分鏡、Suno 配樂與 SEO，一次完成多重產出。' }
                       ].map((qa, i) => (
-                        <div key={i} className="p-4 bg-slate-900/30 border border-slate-900/80 rounded-xl space-y-1.5">
-                          <p className="font-bold text-slate-200">❓ {qa.q}</p>
-                          <p className="text-slate-400 text-[11px] leading-relaxed">{qa.a}</p>
+                        <div key={i} className="p-4 bg-white/30 border border-slate-200/80 rounded-xl space-y-1.5">
+                          <p className="font-bold text-[#1E293B]">❓ {qa.q}</p>
+                          <p className="text-[#64748B] text-[11px] leading-relaxed">{qa.a}</p>
                         </div>
                       ))}
                     </div>
@@ -2226,24 +2226,24 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      <aside className="w-80 bg-slate-950/40 backdrop-blur-xl border-l border-white/5 flex flex-col justify-between z-20 shrink-0">
+      <aside className="w-80 bg-white/70 backdrop-blur-xl border-l border-slate-200 flex flex-col justify-between z-20 shrink-0">
         {/* Top Part: AI Engine Monitor & Live Logs */}
         <div className="flex-1 flex flex-col overflow-hidden">
           
           {/* AI 狀態監控 Panel */}
-          <div className="p-5 border-b border-slate-900/80">
+          <div className="p-5 border-b border-slate-200/80">
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-3.5 h-3.5 rounded bg-slate-900 flex items-center justify-center">
-                <Sliders className="w-2.5 h-2.5 text-slate-500" />
+              <span className="w-3.5 h-3.5 rounded bg-white flex items-center justify-center">
+                <Sliders className="w-2.5 h-2.5 text-[#64748B]" />
               </span>
-              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AI 狀態監控</h4>
+              <h4 className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">AI 狀態監控</h4>
    {/* Quota Metric Button */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
               <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
               <span>{credits} 點額度</span>
             </div>
  {/* User Avatar */}
-            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-extrabold text-white shadow-lg border border-indigo-500/20 cursor-pointer hover:scale-105 transition-all">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-extrabold text-[#1E293B] shadow-lg border border-indigo-500/20 cursor-pointer hover:scale-105 transition-all">
               SH
             </div>
             </div>
@@ -2251,17 +2251,17 @@ const handleLogin = async (e: React.FormEvent) => {
 
 
             {/* Simulated Active Engine Card */}
-            <div className="bg-black/20 border border-white/5 p-3 rounded-xl flex flex-col gap-2 backdrop-blur-md">
+            <div className="bg-black/20 border border-slate-200 p-3 rounded-xl flex flex-col gap-2 backdrop-blur-md">
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Engine</span>
+                <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-widest">Active Engine</span>
               </div>
-              <div className="text-lg font-black tracking-widest text-white ml-4">
+              <div className="text-lg font-black tracking-widest text-[#1E293B] ml-4">
                 pro
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-mono mt-1 border-t border-slate-950 pt-2 ml-4">
-                <div>Uptime: <span className="text-slate-300">99.99%</span></div>
-                <div>Latency: <span className="text-slate-300">1.2s</span></div>
+              <div className="grid grid-cols-2 gap-2 text-[10px] text-[#64748B] font-mono mt-1 border-t border-slate-950 pt-2 ml-4">
+                <div>Uptime: <span className="text-[#1E293B]">99.99%</span></div>
+                <div>Latency: <span className="text-[#1E293B]">1.2s</span></div>
               </div>
             </div>
           </div>
@@ -2270,8 +2270,8 @@ const handleLogin = async (e: React.FormEvent) => {
           <div className="flex-1 p-5 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-slate-400" />
-                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">系統與日誌</h4>
+                <Terminal className="w-4 h-4 text-[#64748B]" />
+                <h4 className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">系統與日誌</h4>
               </div>
               
               {/* Simulated MacOS close icons */}
@@ -2283,12 +2283,12 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
 
             {/* Active Logs Terminal Container */}
-            <div className="flex-1 bg-black/20 border border-white/5 rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-slate-400 backdrop-blur-md">
+            <div className="flex-1 bg-black/20 border border-slate-200 rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-[#64748B] backdrop-blur-md">
               {logs.map((log, index) => {
-                let colorClass = "text-slate-400";
+                let colorClass = "text-[#64748B]";
                 if (log.type === 'info') colorClass = "text-blue-400";
                 if (log.type === 'success') colorClass = "text-emerald-400";
-                if (log.type === 'warning') colorClass = "text-amber-400";
+                if (log.type === 'warning') colorClass = "text-[#10B981]";
                 
                 return (
                   <div key={index} className="leading-relaxed whitespace-pre-wrap">
@@ -2304,13 +2304,13 @@ const handleLogin = async (e: React.FormEvent) => {
         </div>
 
         {/* 返回創作大廳 */}
-        <div className="flex justify-center pb-2 pt-2 border-t border-slate-900 bg-slate-950/20">
+        <div className="flex justify-center pb-2 pt-2 border-t border-slate-200 bg-white/70">
           <button
             onClick={() => {
               setActiveTab('creation');
               setViewState('hub');
             }}
-            className="py-1.5 px-4 text-[11px] font-bold text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white border border-slate-800 rounded transition-colors"
+            className="py-1.5 px-4 text-[11px] font-bold text-[#64748B] bg-white hover:bg-slate-50 hover:text-[#1E293B] border border-slate-200 rounded transition-colors"
           >
             返回創作大廳
           </button>
@@ -2322,33 +2322,33 @@ const handleLogin = async (e: React.FormEvent) => {
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-slate-900/60 backdrop-blur-2xl border border-white/10 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
+          <div className="bg-white/60 backdrop-blur-2xl border border-slate-200 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Key className="w-6 h-6 text-indigo-400" />
+              <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
+                <Key className="w-6 h-6 text-[#10B981]" />
                 設定 Gemini API Key
               </h3>
-              <button onClick={() => setShowApiKeyModal(false)} className="text-slate-400 hover:text-white transition-colors">
+              <button onClick={() => setShowApiKeyModal(false)} className="text-[#64748B] hover:text-[#1E293B] transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="space-y-4">
               <div className="relative">
-                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
                 <input
                   type="password"
                   placeholder="輸入 API Key..."
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
+                  className="w-full bg-white border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
                 />
               </div>
 
               <div className="flex flex-col gap-3 pt-4">
                 <button
                   onClick={() => setShowApiKeyModal(false)}
-                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   確認並儲存
