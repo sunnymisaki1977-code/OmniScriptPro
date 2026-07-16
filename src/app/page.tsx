@@ -83,17 +83,14 @@ const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colo
 };
 
 export default function LandingPage() {
-  const [isDarkMode, setIsDarkMode] = useState(false); // 預設改為明亮模式，體驗星雲白
-  const [mounted, setMounted] = useState(false);
+    const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
-
-  // 定義六大受眾模組資料 (加入 glowColor 用於動態背景光暈)
+    // 定義六大受眾模組資料 (加入 glowColor 用於動態背景光暈)
   const audiences = [
     { 
       id: "food",
@@ -220,10 +217,10 @@ export default function LandingPage() {
   if (!mounted) return null;
 
   return (
-    <div className={`${isDarkMode ? 'dark' : ''} min-h-screen transition-colors duration-700 font-sans`}>
+    <div className="min-h-screen transition-colors duration-700 font-sans">
       {/* 統一星雲畫布背景 (Pearlescent Canvas) - 取代純白底色 */}
       <div className="min-h-screen text-[#1E293B] selection:bg-[#10B981]/30 overflow-x-hidden relative scroll-smooth transition-colors duration-700" 
-           style={!isDarkMode ? { background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' } : { background: 'radial-gradient(circle at top right, #1E293B 0%, #0F172A 50%, #020617 100%)' }}>
+           style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
         
         {/* 全域背景環境光 (Ambient Glow) - 宇宙藍與香檳金的交織 */}
         <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0A2E5C]/10 dark:bg-[#0A2E5C]/30 blur-[150px] rounded-full pointer-events-none z-0 transition-all duration-700" />
@@ -253,13 +250,7 @@ export default function LandingPage() {
             </div>
 
             <div className="flex items-center gap-4 shrink-0 relative z-10">
-              <button 
-                onClick={toggleTheme}
-                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-white/50 dark:hover:bg-white/10 transition-colors backdrop-blur-sm border border-transparent hover:border-white/20"
-                aria-label="Toggle Theme"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5 text-amber-100" /> : <Moon className="w-5 h-5 text-[#0A2E5C]" />}
-              </button>
+              
             
           </div>
         </nav>
