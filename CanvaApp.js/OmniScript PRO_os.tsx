@@ -1702,6 +1702,22 @@ const handleLogin = async (e: React.FormEvent) => {
                       </div>
 
                       <div className="flex items-center gap-3">
+
+                        <button 
+                          onClick={handleDownloadZip}
+                          className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          📥 下載企劃包 (.zip)
+                        </button>
+                        <button 
+                          onClick={handleDownloadPdf}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          📄 匯出完整企劃 (.PDF)
+                        </button>
+
                         <button 
                           onClick={triggerSingleStepAi}
                           disabled={isGenerating}
@@ -2358,6 +2374,29 @@ const handleLogin = async (e: React.FormEvent) => {
           </div>
         </div>
       )}
+
+      {/* Hidden container for PDF export */}
+      <div id="pdf-export-container" style={{ display: 'none', position: 'absolute', left: '-9999px', top: '-9999px', width: '800px', backgroundColor: '#ffffff', padding: '40px', color: '#1E293B' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} crossOrigin="anonymous" />
+          <h1 style={{ fontSize: '28px', marginTop: '20px', color: '#0A2E5C', fontWeight: 'bold' }}>{theme || 'OmniScript'} 完整企劃報告</h1>
+        </div>
+        {STEPS.map((step, idx) => {
+          const content = stepContents[idx + 1];
+          if (!content || content.trim() === '') return null;
+          return (
+            <div key={idx} style={{ marginBottom: '40px', pageBreakInside: 'avoid' }}>
+              <h2 style={{ fontSize: '22px', color: '#10B981', borderBottom: '2px solid #E2E8F0', paddingBottom: '10px', marginBottom: '20px', fontWeight: 'bold' }}>
+                Step {idx + 1}: {step.name}
+              </h2>
+              <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', fontFamily: 'sans-serif' }}>
+                {content}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
     </div>
   );
 }
