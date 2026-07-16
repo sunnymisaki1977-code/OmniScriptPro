@@ -697,6 +697,7 @@ export default function App() {
       if (!element) return;
       
       element.style.display = 'block';
+      await new Promise(r => setTimeout(r, 500)); // Wait for render and images
       
       const opt = {
         margin:       10,
@@ -1238,6 +1239,26 @@ const handleLogin = async (e: React.FormEvent) => {
         .markdown-preview ul { list-style-type: disc; }
         .markdown-preview ol { list-style-type: decimal; }
         .markdown-preview li { margin-bottom: 0.5em; }
+        .pdf-markdown-content {
+          color: #1E293B;
+          font-family: 'Noto Sans TC', sans-serif;
+          line-height: 1.8;
+          font-size: 14px;
+        }
+        .pdf-markdown-content h1, .pdf-markdown-content h2, .pdf-markdown-content h3 {
+          color: #0A2E5C;
+          font-weight: bold;
+          margin-top: 1.5em;
+          margin-bottom: 0.5em;
+        }
+        .pdf-markdown-content h1 { font-size: 20px; }
+        .pdf-markdown-content h2 { font-size: 18px; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
+        .pdf-markdown-content h3 { font-size: 16px; }
+        .pdf-markdown-content p { margin-bottom: 1em; }
+        .pdf-markdown-content ul, .pdf-markdown-content ol { padding-left: 20px; margin-bottom: 1em; }
+        .pdf-markdown-content li { margin-bottom: 0.25em; }
+        .pdf-markdown-content strong { color: #0F172A; }
+
         .markdown-preview strong { color: #f1f5f9; font-weight: 700; }
         .markdown-preview em { color: #94a3b8; font-style: italic; }
         .markdown-preview blockquote { border-left: 4px solid #6366f1; padding-left: 1em; color: #94a3b8; margin: 1em 0; background: rgba(99,102,241,0.1); padding: 0.5em 1em; border-radius: 4px; }
@@ -2437,7 +2458,7 @@ const handleLogin = async (e: React.FormEvent) => {
       {/* Hidden container for PDF export */}
       <div id="pdf-export-container" style={{ display: 'none', position: 'absolute', left: '-9999px', top: '-9999px', width: '800px', backgroundColor: '#ffffff', padding: '40px', color: '#1E293B' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} crossOrigin="anonymous" />
+          <img src="/OmniScript logo.png" alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} />
           <h1 style={{ fontSize: '28px', marginTop: '20px', color: '#0A2E5C', fontWeight: 'bold' }}>{theme || 'OmniScript'} 完整企劃報告</h1>
         </div>
         {STEPS.map((step, idx) => {
@@ -2445,11 +2466,11 @@ const handleLogin = async (e: React.FormEvent) => {
           if (!content || content.trim() === '') return null;
           return (
             <div key={idx} style={{ marginBottom: '40px', pageBreakInside: 'avoid' }}>
-              <h2 style={{ fontSize: '22px', color: '#10B981', borderBottom: '2px solid #E2E8F0', paddingBottom: '10px', marginBottom: '20px', fontWeight: 'bold' }}>
+              <h2 style={{ fontSize: '22px', color: '#0A2E5C', borderBottom: '2px solid #E2E8F0', paddingBottom: '10px', marginBottom: '20px', fontWeight: 'bold' }}>
                 Step {idx + 1}: {step.name}
               </h2>
-              <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', fontFamily: 'sans-serif' }}>
-                {content}
+              <div className="pdf-markdown-content">
+                <ReactMarkdown>{content}</ReactMarkdown>
               </div>
             </div>
           );
