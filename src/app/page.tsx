@@ -251,7 +251,7 @@ export default function LandingPage() {
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''} min-h-screen transition-colors duration-500`}>
-      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative scroll-smooth">
+      <div className="min-h-screen text-[#1E293B] font-sans selection:bg-indigo-500/30 overflow-x-hidden relative scroll-smooth" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
         
         {/* 背景裝飾光暈 */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0" />
@@ -260,7 +260,7 @@ export default function LandingPage() {
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             {/* Logo 區塊 */}
             <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
-             <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
+             <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-md hover:scale-105 transition-transform" />
             </div>
 
             {/* 品牌精神 Slogan (絕對置中) */}
@@ -345,7 +345,7 @@ export default function LandingPage() {
               <p className="text-lg text-slate-600 dark:text-slate-400">解決一人公司與行銷團隊最大的痛點：內容碎片化與繁雜的手動搬運。</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none">
+              <div className="p-8 rounded-3xl bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-6">
                   <LayoutTemplate className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
@@ -354,7 +354,7 @@ export default function LandingPage() {
                   短平快矩陣，或是深度展演。自動根據受眾目標切割執行步驟，確保邏輯世界觀 100% 連貫。
                 </p>
               </div>
-              <div className="p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none">
+              <div className="p-8 rounded-3xl bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center mb-6">
                   <Database className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
@@ -363,7 +363,7 @@ export default function LandingPage() {
                   不再瞎子摸象。直接貼上官方新聞稿、長篇逐字稿，AI 會強制鎖定這些事實展開所有的企劃分支。
                 </p>
               </div>
-              <div className="p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none">
+              <div className="p-8 rounded-3xl bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mb-6">
                   <RefreshCw className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
@@ -376,7 +376,7 @@ export default function LandingPage() {
           </section>
 
           {/* 3. 互動式受眾展示區 (Audience Hub) */}
-          <section className="py-24 px-6 bg-slate-100 dark:bg-[#0a0f1c] border-y border-slate-200 dark:border-slate-800">
+          <section className="py-24 px-6 bg-transparent">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-black mb-4">6 大專業受眾模組切換</h2>
@@ -394,8 +394,8 @@ export default function LandingPage() {
                       onClick={() => setActiveTab(idx)}
                       className={`min-h-[64px] text-left px-6 py-4 rounded-2xl border transition-all ${
                         activeTab === idx 
-                          ? `bg-white dark:bg-slate-900 border-transparent shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden` 
-                          : `bg-transparent border-slate-200 dark:border-slate-800 hover:bg-slate-200/50 dark:hover:bg-slate-800/50`
+                          ? `bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden` 
+                          : `bg-white/30 backdrop-blur-sm border-white/20 hover:bg-white/50`
                       }`}
                     >
                       {/* Active State Background Gradient */}
@@ -452,7 +452,7 @@ export default function LandingPage() {
           </section>
 
           {/* 3.5 實戰背書 (Social Proof) */}
-          <section className="py-24 px-6 bg-slate-900 dark:bg-[#030712] border-y border-slate-800">
+          <section className="py-24 px-6 bg-transparent">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-8 items-stretch">
                 {/* 左側：數據與引言 (7欄) */}
@@ -516,7 +516,7 @@ export default function LandingPage() {
 
           {/* 4. 系統穩定度模組 (Technical Trust) */}
           <section className="py-24 px-6 max-w-7xl mx-auto">
-            <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-8 md:p-12 relative overflow-hidden">
               {/* InfoCard Decor */}
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                 <Server className="w-64 h-64 text-emerald-500" />
@@ -572,7 +572,7 @@ export default function LandingPage() {
           </section>
 
           {/* 4.5 願景與使命 (Vision & Mission) */}
-          <section className="py-24 px-6 bg-white dark:bg-[#070b16]">
+          <section className="py-24 px-6 bg-transparent">
             <div className="max-w-5xl mx-auto">
               <div className="text-center max-w-3xl mx-auto mb-20">
                 <div className="inline-block px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold mb-6">
