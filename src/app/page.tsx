@@ -260,12 +260,7 @@ export default function LandingPage() {
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             {/* Logo 區塊 */}
             <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                OmniScript PRO
-              </span>
+             <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
             </div>
 
             {/* 品牌精神 Slogan (絕對置中) */}
