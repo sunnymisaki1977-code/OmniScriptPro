@@ -227,7 +227,7 @@ export default function LandingPage() {
         <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/10  blur-[120px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         
         {/* Navbar - 玻璃擬物設計 */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-transparent border-b border-white/40 bg-white/40 backdrop-blur-xl transition-colors duration-500">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-transparent bg-white/40 backdrop-blur-xl transition-colors duration-500">
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             <div className="flex items-center gap-2 shrink-0 relative z-10">
              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
@@ -278,7 +278,7 @@ export default function LandingPage() {
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
             <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
-              <div className="absolute inset-0 bg-white/40  backdrop-blur-2xl rounded-[3rem] border-transparent border border-white/60  shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
+              <div className="absolute inset-0 bg-white/40  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
               <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/60  border border-white/80  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-[#10B981]" />
