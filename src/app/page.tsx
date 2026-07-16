@@ -242,10 +242,20 @@ export default function LandingPage() {
              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
             </div>
 
-            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
-              <span className="text-[24px] xl:text-[28px] text-[#1E293B]/80 dark:text-white/80 tracking-widest drop-shadow-sm transition-colors duration-500" style={{ fontFamily: "'Noto Serif TC', serif" }}>
-                讓你的影響力，無所不在｜あなたの影響力を、あらゆる場所へ
-              </span>
+         <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
+  <div className="relative inline-block">
+    {/* 1. 底層微光暈：為文字墊上一層隱約的星雲光澤 */}
+    <div className="absolute inset-0 blur-lg bg-gradient-to-r from-[#0A2E5C]/10 via-[#10B981]/10 to-[#D4AF37]/10 dark:from-sky-400/20 dark:via-white/10 dark:to-amber-100/20 -z-10 transition-all duration-700" />
+    
+    {/* 2. 主文字：套用高質感的漸層金屬色澤 */}
+    <span 
+      className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] via-[#1E293B] to-[#0A2E5C] dark:from-white dark:via-slate-200 dark:to-slate-400 drop-shadow-sm transition-all duration-700" 
+      style={{ fontFamily: "'Noto Serif TC', serif" }}
+    >
+      讓你的影響力，無所不在<span className="mx-2 text-[#10B981]/70 dark:text-sky-300/60 font-light">｜</span>あなたの影響力を、あらゆる場所へ
+    </span>
+  </div>
+</div>
             </div>
 
             <div className="flex items-center gap-4 shrink-0 relative z-10">
