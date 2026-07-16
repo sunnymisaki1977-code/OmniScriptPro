@@ -260,7 +260,7 @@ export default function LandingPage() {
               >
                 {isDarkMode ? <Sun className="w-5 h-5 text-amber-100" /> : <Moon className="w-5 h-5 text-[#0A2E5C]" />}
               </button>
-            </div>
+            
           </div>
         </nav>
 
