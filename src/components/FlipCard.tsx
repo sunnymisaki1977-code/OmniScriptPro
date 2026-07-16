@@ -47,7 +47,7 @@ export default function FlipCard({
         {/* ==================== 
             卡片正面 (The Wow) 
             ==================== */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-700">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(10,46,92,0.3)] bg-[#0A2E5C] border border-[#10B981]/30">
           {/* 背景圖片 (支援單張、漸層或自動輪播) */}
           {images.map((imgSrc, idx) => (
             <div 
@@ -109,7 +109,7 @@ export default function FlipCard({
         {/* ==================== 
             卡片背面 (The How) 
             ==================== */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-2xl bg-slate-900 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] border border-slate-700 rotate-y-180 p-6 sm:p-8 flex flex-col justify-center relative">
+        <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(10,46,92,0.3)] bg-[#0A2E5C] bg-[linear-gradient(to_right,rgba(16,185,129,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(16,185,129,0.1)_1px,transparent_1px)] bg-[size:24px_24px] border border-[#10B981]/30 rotate-y-180 p-6 sm:p-8 flex flex-col justify-center relative">
           
           {/* 背景裝飾 */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
