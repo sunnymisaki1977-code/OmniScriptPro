@@ -1167,8 +1167,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   
 
   const getAiStatusColor = () => {
-    if (aiStatus === 'pro') return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    if (aiStatus === 'flash') return 'text-[#10B981] bg-amber-400/10 border-amber-400/20';
+    if (aiStatus === 'PRO') return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+    if (aiStatus === 'FLASH') return 'text-[#10B981] bg-amber-400/10 border-amber-400/20';
     return 'text-red-400 bg-red-400/10 border-red-400/20';
   };
 
@@ -1211,7 +1211,7 @@ const handleLogin = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="flex h-screen text-[#1E293B] font-sans overflow-hidden selection:bg-black/10 relative z-0" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
+    <div className="flex h-screen text-[#1E293B] font-sans overflow-hidden selection:bg-indigo-500/30 relative z-0" style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
       {/* 沉浸式環境光暈 */}
       <div className={`fixed inset-0 opacity-15 blur-[120px] bg-gradient-to-br ${audienceThemes[audienceTheme]?.gradient || 'from-slate-800 to-slate-900'} -z-10 transition-colors duration-1000`} />
       <style dangerouslySetInnerHTML={{__html: `
@@ -1459,7 +1459,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             placeholder="輸入授權碼"
                             value={passcode}
                             onChange={(e) => { setPasscode(e.target.value); setAuthError(''); }}
-                            className={`w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-[#1E293B] placeholder-slate-500 focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"}  transition-all shadow-inner tracking-widest backdrop-blur-sm`}
+                            className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-center text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner tracking-widest backdrop-blur-sm"
                             autoFocus
                           />
                         </div>
@@ -1523,7 +1523,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         placeholder="例如：日本京阪神五日遊攻略"
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
-                        className={`w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"}  transition-all shadow-inner backdrop-blur-sm`}
+                        className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
                       />
                     </div>
 
@@ -1543,7 +1543,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none ${curTheme.focusRing || "focus:border-indigo-500/50"} h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
+                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
                         <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
                           {customContext.length} / 5000
@@ -1577,10 +1577,10 @@ const handleLogin = async (e: React.FormEvent) => {
                               }}
                               className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
                                 isRequired
-                                  ? curTheme.matrixRequired || 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
+                                  ? 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
                                   : isSelected
-                                  ? curTheme.matrixSelected || 'bg-indigo-500 text-white shadow-md hover:bg-indigo-600'
-                                  : curTheme.matrixUnselected || 'bg-white border border-slate-200 text-[#64748B] hover:bg-slate-50'
+                                  ? 'bg-indigo-500 text-[#1E293B] shadow-md hover:bg-indigo-600'
+                                  : 'bg-slate-50 text-[#64748B] border border-slate-200 hover:bg-slate-200'
                               }`}
                             >
                               <div className="flex items-center gap-1.5">
@@ -1678,7 +1678,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     {isGlobalMaster && (
                       <button
                         onClick={() => setIsStepFlowHidden(!isStepFlowHidden)}
-                        className={`absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110`}
+                        className="absolute top-4 -right-3 z-20 flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
                         title={isStepFlowHidden ? "展開 Step Flow" : "隱藏 Step Flow"}
                       >
                         {isStepFlowHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1838,7 +1838,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                 document.body.removeChild(a);
                                 URL.revokeObjectURL(url);
                               }}
-                              className={`text-[10px] ${curTheme.actionBtnOutline || "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"} flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer shadow-sm transition-all  cursor-pointer shadow-sm`}
+                              className="text-[10px] text-[#10B981] hover:text-[#1E293B] flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
                               title="下載此步驟內容為 Markdown 檔案"
                             >
                               <Download className="w-3 h-3" />
@@ -1920,7 +1920,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isVisualSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
                       <button
                         onClick={() => setIsVisualSidebarHidden(!isVisualSidebarHidden)}
-                        className={`flex items-center justify-center w-6 h-6 ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110`}
+                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
                         title={isVisualSidebarHidden ? "展開 Prompt 控制台" : "隱藏 Prompt 控制台"}
                       >
                         {isVisualSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
@@ -1977,7 +1977,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <button
                       onClick={generateNewImage}
                       disabled={isGeneratingImage || visualGroups.length === 0}
-                      className={`w-full py-2.5 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50`}
+                      className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{isGeneratingImage ? '正在批次渲染中...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
@@ -2011,7 +2011,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
-                                <span className={`px-1.5 py-0.5 rounded text-[9px] ${curTheme.actionBtnOutline || "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"}  font-semibold`}>
+                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
                                   {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
                                 </span>
                                 <div className="flex gap-1.5">
@@ -2033,7 +2033,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             <button
                               onClick={() => generateGroupImage(group)}
                               disabled={generatingGroups[group.id]}
-                              className={`w-full mt-3 py-2 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50`}
+                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
                               <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
@@ -2294,73 +2294,79 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* --- STREAMING_CHUNK:Right Control and Monitor Panel --- */}
-      <aside className="w-80 bg-transparent flex flex-col justify-between z-20 shrink-0">
+      <aside className="hidden lg:flex w-80 bg-transparent border-l border-transparent flex-col justify-between z-20 shrink-0">
+        
         {/* Top Part: AI Engine Monitor & Live Logs */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden p-5 space-y-6">
           
           {/* AI 狀態監控 Panel */}
-          <div className="p-5 border-b border-slate-200/80">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-3.5 h-3.5 rounded bg-white flex items-center justify-center">
-                <Sliders className="w-2.5 h-2.5 text-[#64748B]" />
-              </span>
-              <h4 className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">AI 狀態監控</h4>
-   {/* Quota Metric Button */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 font-bold text-xs">
-              <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
-              <span>{credits} 點額度</span>
-            </div>
- {/* User Avatar */}
-            <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-extrabold text-[#1E293B] shadow-lg border border-indigo-500/20 cursor-pointer hover:scale-105 transition-all">
-              SH
-            </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center border border-slate-200 shadow-sm">
+                  <Sliders className="w-3 h-3 text-[#10B981]" />
+                </span>
+                <h4 className="text-[11px] font-bold text-[#1E293B] uppercase tracking-wider">AI 狀態監控</h4>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {/* Quota Metric Button */}
+                <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-600 font-bold text-[10px]">
+                  <Zap className="w-3 h-3 fill-amber-500/20" />
+                  <span>{credits} 點</span>
+                </div>
+                {/* User Avatar */}
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#10B981] to-[#0A2E5C] flex items-center justify-center text-[10px] font-extrabold text-white shadow-md cursor-pointer hover:scale-105 transition-all">
+                  SH
+                </div>
+              </div>
             </div>
 
-
-
-            {/* Simulated Active Engine Card */}
-            <div className="bg-black/20 border border-slate-200 p-3 rounded-xl flex flex-col gap-2 backdrop-blur-md">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            {/* Active Engine Card */}
+            <div className="border-transparent border border-slate-200 p-4 rounded-xl flex flex-col gap-2 shadow-[0_2px_10px_rgb(0,0,0,0.02)] relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#10B981] to-emerald-300"></div>
+              <div className="flex items-center gap-2.5 pl-2">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                 <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-widest">Active Engine</span>
               </div>
-              <div className="text-lg font-black tracking-widest text-[#1E293B] ml-4">
-                pro
+              <div className="text-xl font-black tracking-widest text-[#1E293B] pl-2 mt-1">
+                PRO
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[10px] text-[#64748B] font-mono mt-1 border-t border-slate-950 pt-2 ml-4">
-                <div>Uptime: <span className="text-[#1E293B]">99.99%</span></div>
-                <div>Latency: <span className="text-[#1E293B]">1.2s</span></div>
+              <div className="grid grid-cols-2 gap-2 text-[10px] text-[#64748B] font-mono mt-3 border-transparent border-t border-slate-100 pt-3 pl-2">
+                <div>Uptime: <span className="text-[#10B981] font-bold">99.99%</span></div>
+                <div>Latency: <span className="text-[#1E293B] font-bold">1.2s</span></div>
               </div>
             </div>
           </div>
 
           {/* _> 系統與日誌 (Log Terminal Box) */}
-          <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative flex flex-col overflow-hidden m-4 rounded-2xl">
-            <div className="flex items-center justify-between mb-4 px-4 pt-4">
+          <div className="flex-1 flex flex-col overflow-hidden border-transparent border border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.02)] rounded-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-transparent border-b border-slate-100 bg-transparent">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-[#64748B]" />
-                <h4 className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">系統與日誌</h4>
+                <h4 className="text-[11px]  font-bold text-[#1E293B] uppercase tracking-wider">系統與日誌</h4>
               </div>
               
               {/* Simulated MacOS close icons */}
               <div className="flex gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-500/80" />
-                <span className="w-2 h-2 rounded-full bg-yellow-500/80" />
-                <span className="w-2 h-2 rounded-full bg-green-500/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400 border  border-red-500/20" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 border  border-amber-500/20" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border  border-emerald-500/20" />
               </div>
             </div>
 
             {/* Active Logs Terminal Container */}
-            <div className="flex-1 bg-white/70 border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-xl p-4 font-mono text-[10px] overflow-y-auto space-y-2.5 custom-scrollbar text-[#1E293B] backdrop-blur-md">
+            <div className="flex-1 bg-transparent p-4 font-mono text-[12px] overflow-y-auto space-y-3 custom-scrollbar text-slate-300">
               {logs.map((log, index) => {
-                let colorClass = "text-[#64748B]";
+                let colorClass = "text-slate-300";
                 if (log.type === 'info') colorClass = "text-blue-400";
                 if (log.type === 'success') colorClass = "text-emerald-400";
-                if (log.type === 'warning') colorClass = "text-[#10B981]";
+                if (log.type === 'warning') colorClass = "text-amber-400";
+                if (log.type === 'error') colorClass = "text-red-400";
                 
                 return (
-                  <div key={index} className="leading-relaxed whitespace-pre-wrap">
-                    <span className="text-slate-600">[{log.time}]</span>{' '}
+                  <div key={index} className="leading-relaxed whitespace-pre-wrap break-words">
+                    <span className="text-slate-500">[{log.time}]</span>{' '}
                     <span className={colorClass}>{log.text}</span>
                   </div>
                 );
@@ -2368,29 +2374,27 @@ const handleLogin = async (e: React.FormEvent) => {
               <div ref={logsEndRef} />
             </div>
           </div>
-
         </div>
 
-        {/* 返回創作大廳 */}
-        <div className="flex justify-center pb-2 pt-2 border-t-0 bg-transparent">
+        {/* Bottom Part (Matches Left Panel's padding and border-t) */}
+        <div className="p-4 border-transparent border-t border-slate-200 space-y-3">
           <button
             onClick={() => {
               setActiveTab('creation');
               setViewState('hub');
             }}
-            className="py-1.5 px-4 text-[11px] font-bold text-[#64748B] bg-white hover:bg-slate-50 hover:text-[#1E293B] border border-slate-200 rounded transition-colors"
+            className="w-full py-3 px-4 text-xs font-bold 'text-[#64748B] border-transparent hover:text-[#1E293B] hover:bg-slate-50  border border-slate-200 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm"
           >
+            <LayoutDashboard className="w-4 h-4" />
             返回創作大廳
           </button>
         </div>
-
-
 
       </aside>
       {/* API Key Modal */}
       {showApiKeyModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-white/60 backdrop-blur-2xl border border-slate-200 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+          <div className="bg-white/60 backdrop-blur-2xl border-transparent border border-slate-200 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
                 <Key className="w-6 h-6 text-[#10B981]" />
@@ -2409,14 +2413,14 @@ const handleLogin = async (e: React.FormEvent) => {
                   placeholder="輸入 API Key..."
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
+                  className="w-full bg-white border-transparent border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
                 />
               </div>
 
               <div className="flex flex-col gap-3 pt-4">
                 <button
                   onClick={() => setShowApiKeyModal(false)}
-                  className={`w-full py-3 rounded-xl ${curTheme.actionBtn || "bg-indigo-600 hover:bg-indigo-500 text-white"}  font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2`}
+                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   確認並儲存
