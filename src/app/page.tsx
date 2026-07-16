@@ -240,7 +240,7 @@ export default function LandingPage() {
     
     {/* 2. 主文字：套用高質感的漸層金屬色澤 */}
     <span 
-      className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]    drop-shadow-sm transition-all duration-700" 
+      className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]    drop-shadow-sm transition-all duration-700" 
       style={{ fontFamily: "'Noto Serif TC', serif" }}
     >
       讓你的影響力，無所不在<span className="mx-2 text-[#10B981]/70  font-light">｜</span>あなたの影響力を、あらゆる場所へ
@@ -287,7 +287,7 @@ export default function LandingPage() {
               
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight animate-fade-in-up delay-100 text-[#1E293B]  drop-shadow-sm">
                 您的全自動化 <br className="hidden sm:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]  ">
+                <span className="text-transparent bg-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]  ">
                   多模態生成引擎
                 </span>
               </h1>
