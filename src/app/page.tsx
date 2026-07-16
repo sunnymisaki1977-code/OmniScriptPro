@@ -1,10 +1,4 @@
-這份 Landing Page 的程式碼架構已經非常完整，且很好地整合了您之前提到的功能（例如多金鑰輪替、YouTube 播放器、FlipCard 等）。為了讓整個版面能完美體現「一體成型」與「自由軌道」的微玻璃星雲質感，我為您對程式碼進行了優化。
 
-主要的修改重點在於**移除過於生硬的卡片邊界**、**導入柔和的光暈效果 (Ambient Glow)**，以及**確保六大受眾主題的切換能平滑地反映在畫面的光影變化上**。
-
-以下是優化後的 `LandingPage` 元件程式碼：
-
-```tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -436,6 +430,3 @@ export default function LandingPage() {
   );
 }
 
-```
-
-這個版本引入了 `bg-white/80 backdrop-blur-xl border-white/60` 的組合，它會讓卡片看起來像是一塊精緻的毛玻璃，透出後方星雲般的漸層色彩，徹底擺脫死板的色塊拼接感！
