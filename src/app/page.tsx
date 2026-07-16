@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Sparkles, 
   Zap, 
-  ArrowRight, log
+  ArrowRight, 
   Moon, 
   Sun,
   LayoutTemplate,
@@ -259,15 +259,14 @@ export default function LandingPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/70 dark:bg-[#070b16]/70 backdrop-blur-xl">
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             {/* Logo 區塊 */}
-             <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
+            <div className="flex items-center gap-2 font-black text-xl tracking-tight shrink-0 relative z-10">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <img src="/OmniScript logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
-            </div>
+                <Sparkles className="w-6 h-6 text-white" />
               </div>
-              
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                OmniScript PRO
               </span>
             </div>
-
 
             {/* 品牌精神 Slogan (絕對置中) */}
             <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
