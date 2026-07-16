@@ -688,7 +688,7 @@ export default function App() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+    const handleDownloadPdf = async () => {
     try {
       addLog('[System] 正在生成 PDF，請稍候...', 'info');
       const html2pdfModule = await import('html2pdf.js');
@@ -696,20 +696,39 @@ export default function App() {
       const element = document.getElementById('pdf-export-container');
       if (!element) return;
       
+      // Store original styles to restore later
+      const origDisplay = element.style.display;
+      const origPosition = element.style.position;
+      const origLeft = element.style.left;
+      const origTop = element.style.top;
+      const origZIndex = element.style.zIndex;
+
+      // Make element visible but behind the current UI
       element.style.display = 'block';
-      await new Promise(r => setTimeout(r, 500)); // Wait for render and images
+      element.style.position = 'absolute';
+      element.style.left = '0px';
+      element.style.top = '0px';
+      element.style.zIndex = '-9999';
+      
+      await new Promise(r => setTimeout(r, 800)); // Give it enough time to render fonts and images
       
       const opt = {
         margin:       10,
-        filename:     `${theme || 'OmniScript'}_完整企劃.pdf`,
+        filename:     `${theme || 'OmniScript'}_企劃.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        html2canvas:  { scale: 2, useCORS: true, logging: false, scrollY: 0, scrollX: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       
       await html2pdf().set(opt).from(element).save();
       
-      element.style.display = 'none';
+      // Restore original styles
+      element.style.display = origDisplay;
+      element.style.position = origPosition;
+      element.style.left = origLeft;
+      element.style.top = origTop;
+      element.style.zIndex = origZIndex;
+      
       addLog('[System] 成功匯出 PDF 報告', 'success');
     } catch (err) {
       console.error(err);
