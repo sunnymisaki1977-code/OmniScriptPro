@@ -518,6 +518,7 @@ export default function LandingPage() {
                       </div>
                       <LazyYoutube 
                         playlistId="PL0WZUXr5VzkcDbUbMjUIUeom8T4ksmhxK" 
+                        previewVideoId="gP5C4CvaOAk"
                         title="@genimprint 實戰紀錄片"
                         isShorts={true}
                         colorClass="from-slate-700 to-slate-900"
