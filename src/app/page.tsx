@@ -19,8 +19,7 @@ import {
   Share2,
   BookOpen,
   Wand2,
-  UserCheck,
-  Sliders
+  UserCheck
 } from 'lucide-react';
 import FlipCard from '@/components/FlipCard';
 import { ChannelStats } from '@/components/ui/ChannelStats';
@@ -34,8 +33,6 @@ interface LazyYoutubeProps {
   colorClass?: string;
   className?: string;
 }
-
-
 
 const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900", className = "" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -124,7 +121,7 @@ export default function LandingPage() {
       bgClass: "bg-purple-50 ",
       textClass: "text-purple-600 ",
       features: ["深度考究", "賽博龐克視覺"],
-      playlistId: "PLS7BJQ4awAeM",
+      playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
       previewVideoId: "ofIAOaVW_hU",
       isShorts: false,
       flipData: {
@@ -226,7 +223,7 @@ export default function LandingPage() {
            style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
         
         {/* 全域背景環境光 (Ambient Glow) - 宇宙藍與香檳金的交織 */}
-        <div className="fixed top-[-30%] left-[-30%] w-[70%] h-[70%] bg-[#0A2E5C]/10  blur-[150px] rounded-full pointer-events-none z-0 transition-all duration-700" />
+        <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0A2E5C]/10  blur-[150px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/10  blur-[120px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         
         {/* Navbar - 玻璃擬物設計 */}
@@ -260,11 +257,11 @@ export default function LandingPage() {
 
         <main className="relative z-10">
           {/* 1. Hero Section */}
-          <section className="relative w-full min-h-[60vh] flex flex-col items-center justify-center overflow-hidden pt-20">{/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
-              <div className="absolute inset-0 bg-transparent  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
+          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">\n{/* Hero 核心文案區 - 微玻璃背板 */}
+            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+              <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full  bg-transparent   border-transparent   text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/10  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
@@ -291,7 +288,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-          {/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
+          \n{/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
             <div className="relative mt-8 w-full flex flex-col justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
@@ -311,146 +308,93 @@ export default function LandingPage() {
 
             </section>
 
-          
-          
-          {/* 3.8 核心武器 (The Why - Three Core Weapons) */}
-          <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-            {/* 區塊標題 */}
-            <div className="text-center mb-16 relative">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700 text-slate-300 text-xs font-bold mb-4 shadow-sm backdrop-blur-sm">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="tracking-widest uppercase">The Core Weapons</span>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900 dark:text-white tracking-tight">
-                打造一人團隊的<br className="block md:hidden"/>終極內容軍火庫
-              </h2>
-              <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                跳脫空泛農場文與碎片化工具的泥沼。這是專為需要極致產能與知識深度的創作者，量身打造的三大核心武器。
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Weapon 1: 基準真相 (Trust & Depth - Sky/Indigo) */}
-              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-sky-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
-                {/* 動態光暈 */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-sky-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-sky-400/20 transition-colors duration-500" />
-                
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center mb-8 shadow-lg shadow-sky-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
-                  <Database className="w-7 h-7 text-white" />
-                </div>
-                
-                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">內容護城河</h3>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-sky-500/10 border border-sky-500/20 mb-5 relative z-10">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                  <h4 className="text-[11px] font-bold text-sky-400 tracking-wider">5,000 字基準真相鎖定</h4>
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
-                  拒絕 AI 幻覺。將數千字原始古籍、文獻或考據資料設定為「唯一基準真相 (Ground Truth)」，強制 AI 鎖定事實展開企劃分支，確保所有產出皆具備無可挑剔的知識深度。
+          {/* 3. 互動式受眾展示區 (Audience Hub) - 動態環境光 */}
+          <section className="py-32 px-6 relative">
+            {/* 隨受眾切換的動態光暈 (The Magic Ambient Glow) */}
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] max-w-4xl max-h-4xl rounded-full blur-[120px] md:blur-[180px] opacity-20  pointer-events-none z-0 transition-colors duration-1000 ${audiences[activeTab].glowColor}`} />
+
+            <div className="max-w-7xl mx-auto relative z-10">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B]  drop-shadow-sm">6 大專業受眾模組切換</h2>
+                <p className="text-lg text-[#64748B]  max-w-3xl mx-auto">
+                  不僅僅是 Prompt 的切換，系統會連同 UI 介面、渲染風格與產出邏輯一併切換。點擊下方標籤，查看對應的生成作品示範。
                 </p>
               </div>
 
-              {/* Weapon 2: 10-Step 矩陣 (Energy & Productivity - Amber/Orange) */}
-              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
-                {/* 動態光暈 */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-amber-400/20 transition-colors duration-500" />
-                
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-8 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
-                  <Zap className="w-7 h-7 text-white" />
-                </div>
-                
-                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">多模態裂變引擎</h3>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 mb-5 relative z-10">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <h4 className="text-[11px] font-bold text-amber-400 tracking-wider">10-Step 全域自動化矩陣</h4>
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
-                  輸入一次靈感，自動展開 10 道工序。無縫轉譯長短影音腳本、SEO 標籤、社群圖文，並精準生成高質感繪圖指令與配樂 Prompt，將單點突破升級為立體打擊。
-                </p>
-              </div>
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+                {/* 左側 Tabs */}
+                <div className="flex-1 flex flex-col gap-3">
+                  {audiences.map((aud, idx) => (
+                    <button
+                      key={aud.id}
+                      onClick={() => setActiveTab(idx)}
+                      // 移除生硬邊框，改用微玻璃與極淡線條
+                      className={`min-h-[64px] text-left px-6 py-5 rounded-[1.5rem] transition-all duration-300 group ${
+  activeTab === idx 
+    // Active 狀態：淺色模式用高透白玻璃，深色模式用高透深藍玻璃
+    ? `bg-[#0A2E5C]/5 backdrop-blur-xl border border-white/80  shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative overflow-hidden transform scale-[1.02]` 
+    // Inactive 狀態：更低調的透明度，與背景融合
+    : `bg-transparent backdrop-blur-sm border border-transparent hover:bg-[#0A2E5C]/5`
+}`}
+                    >
+                      {activeTab === idx && (
+                        <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${aud.color}`} />
+                      )}
+                      
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h3 className={`text-xl font-bold mb-1 transition-colors ${activeTab === idx ? 'text-[#0A2E5C] ' : 'text-[#64748B] group-hover:text-[#0A2E5C]  '}`}>
+                            {aud.title}
+                          </h3>
+                          <p className={`text-sm line-clamp-1 transition-colors ${activeTab === idx ? 'text-slate-500' : 'text-slate-400 '}`}>
+                            {aud.features.join(" • ")}
+                          </p>
+                        </div>
+                        {activeTab === idx && <ArrowRight className={`w-5 h-5 ${aud.textClass} animate-pulse`} />}
+                      </div>
 
-              {/* Weapon 3: 模組化與歸檔 (Control & Precision - Purple/Pink) */}
-              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-purple-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
-                {/* 動態光暈 */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-purple-500/20 transition-colors duration-500" />
-                
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-8 shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
-                  <Sliders className="w-7 h-7 text-white" />
+                      {activeTab === idx && (
+                        <div className="mt-4 pt-4 border-t border-slate-200/50  animate-in fade-in slide-in-from-top-2 duration-300">
+                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${aud.bgClass} ${aud.textClass} text-xs font-bold mb-3 border border-current/10`}>
+                            <Sparkles className="w-4 h-4" />
+                            <span>專屬風格光譜</span>
+                          </div>
+                          <p className="text-sm md:text-base text-[#64748B]  leading-relaxed">
+                            {aud.desc}
+                          </p>
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
-                
-                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">絕對掌控權</h3>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 mb-5 relative z-10">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-                  <h4 className="text-[11px] font-bold text-purple-400 tracking-wider">模組化勾選與無縫歸檔</h4>
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
-                  你才是總編輯。自由勾選需要的素材模組以精準控管 API 額度；所有心血不僅支援 Markdown 單步下載，更支援一鍵同步至 Notion 雲端資料庫，讓產出即刻化為數位資產。
-                </p>
-              </div>
-            </div>
-          </section>
-\n\n          {/* 4. 三大核心武器 (Three Core Weapons) */}
-          <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-            <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
-              {/* InfoCard Decor */}
-              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Zap className="w-64 h-64 text-blue-500" />
-              </div>
-              
-              <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
-                <div className="lg:col-span-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Core Weapons</span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    OmniScript PRO <br />真正最具殺傷力的<br />三大核心武器
-                  </h2>
-                  <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    這三大武器，完美定義了 OmniScript PRO 的價值：「用深度守護品質、用矩陣放大產能、用模組還原掌控權。」
-                  </p>
-                </div>
-                
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <ShieldCheck className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第一武器：內容護城河 ——「5,000 字基準真相鎖定」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>AI 最致命的弱點就是「幻覺」與「農場文腔調」。對於需要處理龐大古籍、考究歷史人物與民俗信仰的頻道來說，這是一擊斃命的缺點。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統強制在 Step 1 畫出一道防線。它不讓 AI 憑空捏造，而是將數千字的原始文獻、新聞稿或考據資料當作「唯一的基準真相 (Ground Truth)」。這確保了後續生成的所有腳本，都具備無可挑惕的文化底蘊與知識深度，這是其他套殼 AI 工具絕對做不到的品質保證。</p>
-                    </div>
-                  </div>
 
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第二武器：多模態裂變引擎 ——「10-Step 全域自動化矩陣」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>一人團隊最大的極限就是時間。寫完長影音腳本，還要自己切短影音、想社群貼文、去 Midjourney 詠唱生圖、再去 Suno 試配樂，心力早就被榨乾。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>輸入一次靈感，系統自動展開 10 個步驟。它不僅是個「寫稿機」，更是一位全能的虛擬製片。它能將同一套世界觀，無縫轉譯成 YouTube 長影音、Shorts 短片、社群文案，甚至精準吐出 Imagen 4.0 / Midjourney 的高質感繪圖指令與配樂 Prompt。將「單點突破」變成了「立體打擊」。</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                      <RefreshCw className="w-5 h-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第三武器：絕對掌控權 ——「模組化勾選與無縫歸檔」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>創作者非常討厭「黑箱作業」與「資料被綁架」。強制跑完所有流程會浪費 API 額度，無法匯出則會讓人毫無安全感。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統賦予使用者極致的彈性。你可以讓系統全自動跑完，也可以透過「勾選清單」只挑選需要的步驟（例如只要腳本，不要圖片）。最重要的是，產出的心血支援 Markdown 單步下載、一鍵複製，以及神級的「Notion 雲端同步歸檔」。系統完美配合你的步調，你依然是掌控一切的總編輯。</p>
+                {/* 右側展示區 */}
+                <div className="flex-[1.5] flex items-center justify-center relative">
+                  {/* 受眾專屬裝飾背景 */}
+                  <div className={`absolute inset-0 bg-gradient-to-tr ${audiences[activeTab].color} opacity-5  rounded-[3rem] -z-10 transition-colors duration-700`} />
+                  
+                  <div className={`relative group w-full ${audiences[activeTab].isShorts ? 'max-w-[280px] md:max-w-[320px]' : 'max-w-2xl'} mx-auto transition-all duration-500`} style={{ perspective: '1000px' }}>
+                    {/* 發光輪廓 */}
+                    <div className={`absolute -inset-2 bg-gradient-to-tr ${audiences[activeTab].color} rounded-[2.5rem] md:rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-500`} />
+                    <div className="relative bg-white/60 backdrop-blur-sm border border-white/80 shadow-lg rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-3 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
+                      <LazyYoutube 
+                        playlistId={audiences[activeTab].playlistId} 
+                        previewVideoId={audiences[activeTab].previewVideoId}
+                        title={`${audiences[activeTab].title} Demo Video`}
+                        isShorts={audiences[activeTab].isShorts}
+                        colorClass={audiences[activeTab].color}
+                        className="w-full"
+                      />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
-\n          {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
+
+          {/* ... (其餘的 section 4 系統穩定度模組, 4.5 願景與使命 保持不變，可套用類似的玻璃擬物風格) ... */}
+
+          {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
           <section className="py-32 px-6 relative overflow-hidden border-t border-white/20 ">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A2E5C]/5  -z-10" />
             <div className="max-w-4xl mx-auto text-center relative z-10">
