@@ -219,7 +219,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen transition-colors duration-700 font-sans">
       {/* 統一星雲畫布背景 (Pearlescent Canvas) - 取代純白底色 */}
-      <div className="min-h-screen text-[#1E293B] selection:bg-[#10B981]/30 overflow-x-hidden relative scroll-smooth transition-colors duration-700" 
+      <div className="min-h-screen text-[#1E293B] selection:bg-transparent  overflow-x-hidden relative scroll-smooth transition-colors duration-700" 
            style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
         
         {/* 全域背景環境光 (Ambient Glow) - 宇宙藍與香檳金的交織 */}
