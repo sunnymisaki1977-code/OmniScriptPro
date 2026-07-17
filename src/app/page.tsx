@@ -240,7 +240,7 @@ export default function LandingPage() {
     
     {/* 2. 主文字：套用高質感的漸層金屬色澤 */}
     <span 
-      className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent  bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]    drop-shadow-sm transition-all duration-700" 
+      className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent  bg-transparent  bg-clip-text bg-transparent bg-gradient-to-r from-[#0A2E5C] to-[#10B981]    drop-shadow-sm transition-all duration-700" 
       style={{ fontFamily: "'Noto Serif TC', serif" }}
     >
       讓你的影響力，無所不在<span className="mx-2 text-[#10B981]/70  font-light">｜</span>あなたの影響力を、あらゆる場所へ
@@ -278,9 +278,9 @@ export default function LandingPage() {
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
             <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
-              <div className="absolute inset-0 bg-white/40  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
+              <div className="absolute inset-0 bg-white/10  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/60  border border-white/80  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/50  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
