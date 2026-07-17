@@ -259,7 +259,7 @@ export default function LandingPage() {
           {/* 1. Hero Section */}
           <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
             {/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
-            <div className="absolute inset-0 pt-20 w-full flex flex-col justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
+            <div className="absolute inset-0 pt-20 w-full flex flex-c!ol justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
                   <div key={`marquee-${a.id}-${idx}`} className="w-[280px] sm:w-[360px] shrink-0 transition-transform duration-300 hover:scale-[1.02]">
@@ -277,7 +277,7 @@ export default function LandingPage() {
             </div>
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[30%] max-w-4xl mx-auto py-14 flex flex-col items-center justify-center text-center pointer-events-none">
+            <div className="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
               <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/20  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
@@ -285,9 +285,9 @@ export default function LandingPage() {
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight animate-fade-in-up delay-100 text-[#1E293B]  drop-shadow-sm">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
                 您的全自動化 <br className="hidden sm:block" />
-                <span className="text-transparent bg-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]  ">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
                   多模態生成引擎
                 </span>
               </h1>
