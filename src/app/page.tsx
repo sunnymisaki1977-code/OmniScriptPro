@@ -277,35 +277,31 @@ export default function LandingPage() {
             </div>
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
-              <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
-              
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/20  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
-                <Sparkles className="w-4 h-4 text-[#10B981]" />
-                <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
-              </div>
-              
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
-                您的全自動化 <br className="hidden sm:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
-                  多模態生成引擎
-                </span>
-              </h1>
-              
-              <p className="text-base sm:text-lg md:text-xl text-[#64748B]  max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200 font-medium">
-                打破跨平台內容碎片化的窘境。只需輸入靈感，系統即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300 pointer-events-auto">
-                <Link 
-                  href="/workspace"
-                  // 按鈕使用品牌主色漸層 (超新星綠 -> 宇宙藍)
-                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:from-[#0ea5e9] hover:to-[#0A2E5C] text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(10,46,92,0.3)] hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(16,185,129,0.4)] transition-all duration-300"
-                >
-                  進入自由軌道工作區
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
+         <div class="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+                <div class="absolute inset-0 bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500"></div>
+                
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/10 text-brandBlue text-xs md:text-sm font-bold mb-8 shadow-sm backdrop-blur-md">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-brandGreen"></i>
+                    <span>OmniScript PRO 多模態生成矩陣 v2.5</span>
+                </div>
+                
+                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
+                    您的全自動化 <br class="hidden sm:block" />
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
+                      多模態生成引擎
+                    </span>
+                </h1>
+                
+                <p class="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mb-10 leading-relaxed font-medium">
+                    打破跨平台內容碎片化的窘境。只需輸入一次靈感，系統即自動為您展開長影音腳本、抖音短影片、SEO標籤與AI高畫質視覺繪圖指令。
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <button onclick="scrollToWorkspace()" class="px-8 py-4 rounded-full bg-gradient-to-r from-brandGreen to-brandBlue text-white font-bold text-lg flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:-translate-y-1 hover:shadow-[0_12px_25px_rgba(16,185,129,0.5)] transition-all duration-300">
+                        <span>啟動智慧切換矩陣</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
           </section>
 
