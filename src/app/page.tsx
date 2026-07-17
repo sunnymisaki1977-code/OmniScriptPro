@@ -287,8 +287,8 @@ export default function LandingPage() {
               
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
                     您的全自動化 <br className="hidden sm:block" />
-                    <span className="pr-2 text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
-                      多模態生成引擎
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
+                      多模態生成引擎&nbsp;
                     </span>
                 </h1>
               
