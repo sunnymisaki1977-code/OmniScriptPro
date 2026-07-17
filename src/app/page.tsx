@@ -285,7 +285,7 @@ export default function LandingPage() {
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
               
-              <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
                     您的全自動化 <br class="hidden sm:block" />
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
                       多模態生成引擎
