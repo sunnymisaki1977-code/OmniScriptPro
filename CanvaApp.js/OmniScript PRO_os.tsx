@@ -688,11 +688,28 @@ export default function App() {
     }
   };
 
-      const handleDownloadPdf = async () => {
+        const handleDownloadPdf = async () => {
     try {
       addLog('[System] 正在生成 PDF，請稍候...', 'info');
-      const html2pdfModule = await import('html2pdf.js');
-      const html2pdf = html2pdfModule.default || html2pdfModule;
+      
+      let html2pdf;
+      try {
+        const html2pdfModule = await import('html2pdf.js');
+        html2pdf = html2pdfModule.default || html2pdfModule;
+      } catch (importErr) {
+        console.warn("Local import failed, trying CDN...", importErr);
+        if (!window.html2pdf) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        html2pdf = window.html2pdf;
+      }
+
       const element = document.getElementById('pdf-export-container');
       if (!element) return;
       
