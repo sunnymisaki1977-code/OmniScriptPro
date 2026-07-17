@@ -277,7 +277,7 @@ export default function LandingPage() {
             </div>
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[40%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
               <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/10  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
@@ -287,13 +287,13 @@ export default function LandingPage() {
               
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
                     您的全自動化 <br className="hidden sm:block" />
-                    <span className="inline-block pr-1 text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
+                    <span className="inline-block pr-4 py-2 text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
                       多模態生成引擎
                     </span>
                 </h1>
               
               <p className="text-base sm:text-lg md:text-xl text-[#64748B]  max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200 font-medium">
-                打破跨平台內容碎片化的窘境。只需輸入靈感，系統即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
+                打破跨平台內容碎片化的窘境。只需輸入靈感即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300 pointer-events-auto">
