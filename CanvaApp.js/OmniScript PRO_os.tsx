@@ -727,6 +727,8 @@ export default function App() {
       wrapper.style.position = 'absolute';
       wrapper.style.top = '-9999px';
       wrapper.style.left = '-9999px';
+      // Force Microsoft JhengHei as primary font for html2canvas to prevent garbled text (亂碼) on Windows
+      wrapper.style.fontFamily = '"Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Heiti TC", sans-serif';
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
       
@@ -1055,7 +1057,17 @@ export default function App() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target.result;
+      const buffer = event.target.result;
+      let text = '';
+      try {
+        text = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+      } catch (err) {
+        try {
+          text = new TextDecoder('big5').decode(buffer);
+        } catch (e) {
+          text = new TextDecoder('utf-8').decode(buffer);
+        }
+      }
       setCustomContext(prev => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
