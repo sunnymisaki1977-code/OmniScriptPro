@@ -19,7 +19,8 @@ import {
   Share2,
   BookOpen,
   Wand2,
-  UserCheck
+  UserCheck,
+  Sliders
 } from 'lucide-react';
 import FlipCard from '@/components/FlipCard';
 import { ChannelStats } from '@/components/ui/ChannelStats';
@@ -311,7 +312,86 @@ export default function LandingPage() {
             </section>
 
           
-          {/* 4. 三大核心武器 (Three Core Weapons) */}
+          
+          {/* 3.8 核心武器 (The Why - Three Core Weapons) */}
+          <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
+            {/* 區塊標題 */}
+            <div className="text-center mb-16 relative">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700 text-slate-300 text-xs font-bold mb-4 shadow-sm backdrop-blur-sm">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span className="tracking-widest uppercase">The Core Weapons</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 text-slate-900 dark:text-white tracking-tight">
+                打造一人團隊的<br className="block md:hidden"/>終極內容軍火庫
+              </h2>
+              <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                跳脫空泛農場文與碎片化工具的泥沼。這是專為需要極致產能與知識深度的創作者，量身打造的三大核心武器。
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Weapon 1: 基準真相 (Trust & Depth - Sky/Indigo) */}
+              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-sky-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
+                {/* 動態光暈 */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-sky-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-sky-400/20 transition-colors duration-500" />
+                
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center mb-8 shadow-lg shadow-sky-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
+                  <Database className="w-7 h-7 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">內容護城河</h3>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-sky-500/10 border border-sky-500/20 mb-5 relative z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+                  <h4 className="text-[11px] font-bold text-sky-400 tracking-wider">5,000 字基準真相鎖定</h4>
+                </div>
+                
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
+                  拒絕 AI 幻覺。將數千字原始古籍、文獻或考據資料設定為「唯一基準真相 (Ground Truth)」，強制 AI 鎖定事實展開企劃分支，確保所有產出皆具備無可挑剔的知識深度。
+                </p>
+              </div>
+
+              {/* Weapon 2: 10-Step 矩陣 (Energy & Productivity - Amber/Orange) */}
+              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
+                {/* 動態光暈 */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-amber-400/20 transition-colors duration-500" />
+                
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-8 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
+                  <Zap className="w-7 h-7 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">多模態裂變引擎</h3>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 mb-5 relative z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <h4 className="text-[11px] font-bold text-amber-400 tracking-wider">10-Step 全域自動化矩陣</h4>
+                </div>
+                
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
+                  輸入一次靈感，自動展開 10 道工序。無縫轉譯長短影音腳本、SEO 標籤、社群圖文，並精準生成高質感繪圖指令與配樂 Prompt，將單點突破升級為立體打擊。
+                </p>
+              </div>
+
+              {/* Weapon 3: 模組化與歸檔 (Control & Precision - Purple/Pink) */}
+              <div className="group p-8 rounded-[2rem] bg-white dark:bg-[#0f172a]/60 border border-slate-200 dark:border-slate-800 shadow-xl hover:border-purple-500/40 transition-all duration-500 hover:-translate-y-2 relative overflow-hidden backdrop-blur-xl">
+                {/* 動態光暈 */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-purple-500/20 transition-colors duration-500" />
+                
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-8 shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform duration-500 relative z-10">
+                  <Sliders className="w-7 h-7 text-white" />
+                </div>
+                
+                <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white relative z-10">絕對掌控權</h3>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 mb-5 relative z-10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                  <h4 className="text-[11px] font-bold text-purple-400 tracking-wider">模組化勾選與無縫歸檔</h4>
+                </div>
+                
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10 font-medium">
+                  你才是總編輯。自由勾選需要的素材模組以精準控管 API 額度；所有心血不僅支援 Markdown 單步下載，更支援一鍵同步至 Notion 雲端資料庫，讓產出即刻化為數位資產。
+                </p>
+              </div>
+            </div>
+          </section>
+\n\n          {/* 4. 三大核心武器 (Three Core Weapons) */}
           <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
             <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
               {/* InfoCard Decor */}
