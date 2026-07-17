@@ -227,7 +227,7 @@ export default function LandingPage() {
         <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/10  blur-[120px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         
         {/* Navbar - 玻璃擬物設計 */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-transparent bg-white/40 backdrop-blur-xl transition-colors duration-500">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-transparent bg-transparent backdrop-blur-xl transition-colors duration-500">
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             <div className="flex items-center gap-2 shrink-0 relative z-10">
              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
