@@ -34,6 +34,8 @@ interface LazyYoutubeProps {
   className?: string;
 }
 
+
+
 const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colorClass = "from-slate-700 to-slate-900", className = "" }: LazyYoutubeProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const baseAspect = isShorts ? 'aspect-[9/16] rounded-[2rem] md:rounded-[2.5rem] border-[4px] md:border-[8px] border-[#0A2E5C]' : 'aspect-video rounded-2xl md:rounded-[2rem]';
@@ -223,7 +225,7 @@ export default function LandingPage() {
            style={{ background: 'radial-gradient(circle at top right, #F9F7F1 0%, #E8EDF2 50%, #E2E6ED 100%)' }}>
         
         {/* 全域背景環境光 (Ambient Glow) - 宇宙藍與香檳金的交織 */}
-        <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#0A2E5C]/10  blur-[150px] rounded-full pointer-events-none z-0 transition-all duration-700" />
+        <div className="fixed top-[-30%] left-[-30%] w-[70%] h-[70%] bg-[#0A2E5C]/10  blur-[150px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D4AF37]/10  blur-[120px] rounded-full pointer-events-none z-0 transition-all duration-700" />
         
         {/* Navbar - 玻璃擬物設計 */}
@@ -257,11 +259,11 @@ export default function LandingPage() {
 
         <main className="relative z-10">
           {/* 1. Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">\n{/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
-              <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
+          <section className="relative w-full min-h-[60vh] flex flex-col items-center justify-center overflow-hidden pt-20">{/* Hero 核心文案區 - 微玻璃背板 */}
+            <div className="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+              <div className="absolute inset-0 bg-transparent  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/10  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full  bg-transparent   border-transparent   text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
@@ -288,7 +290,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-          \n{/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
+          {/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
             <div className="relative mt-8 w-full flex flex-col justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
@@ -392,7 +394,89 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* ... (其餘的 section 4 系統穩定度模組, 4.5 願景與使命 保持不變，可套用類似的玻璃擬物風格) ... */}
+          
+          {/* 4. 系統穩定度模組 (Technical Trust) */}
+          <section className="py-24 px-6 max-w-7xl mx-auto">
+            <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
+              {/* InfoCard Decor */}
+              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                <Server className="w-64 h-64 text-emerald-500" />
+              </div>
+              
+              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Technical Trust</span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
+                    企業級的容錯穩定度 <br />不再擔心 API 中斷
+                  </h2>
+                  <p className="text-lg text-slate-400 mb-8 leading-relaxed">
+                    面對 Google 嚴格的流量限制與 2026 金鑰大遷徙，我們的系統在後端築起了最強壯的防禦網，確保您的靈感產出永不停擺。
+                  </p>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <Share2 className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-2">負載均衡 (隨機起手式)</h4>
+                      <p className="text-slate-400 leading-relaxed">支援輸入多把金鑰 (以逗號分隔)。系統啟動時會隨機選用陣列中的金鑰，均攤每一把的流量消耗，降低被鎖定的風險。</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰自動切換</h4>
+                      <p className="text-slate-400 leading-relaxed">混用新舊金鑰毫無顧忌。當遭遇舊金鑰淘汰或授權失效，後端會自動捕捉 401 錯誤，在一秒內背景拋棄它並切換至下一把備用金鑰，無縫接軌。</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                      <RefreshCw className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-2">突破 429 流量限流機制</h4>
+                      <p className="text-slate-400 leading-relaxed">連續生成導致單一金鑰過熱？系統會如同換彈匣般，瞬間切換金鑰並重發請求，輔以指數退避 (Exponential Backoff) 重試策略，確保每一次生成都能成功抵達。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4.5 共同創作影片區 (Co-creation Video) */}
+          <section className="py-24 px-6 relative z-10">
+             <div className="max-w-5xl mx-auto">
+                <div className="text-center mb-16">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold mb-4">
+                    <Play className="w-4 h-4" />
+                    <span>Watch in Action</span>
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B]">見證全自動化的魅力</h2>
+                  <p className="text-lg text-[#64748B] max-w-2xl mx-auto">
+                    看看 OmniScript PRO 如何在幾秒鐘內將您的靈感轉化為跨平台的完整內容矩陣。
+                  </p>
+                </div>
+                
+                <div className="relative rounded-[2.5rem] bg-white/40 backdrop-blur-xl border border-white/50 p-3 shadow-2xl">
+                    <LazyYoutube 
+                      playlistId="PLF3eQyAQueV4" 
+                      previewVideoId="E1Oc1Eo_LcE"
+                      title="OmniScript PRO 共同創作展示影片"
+                      colorClass="from-[#0A2E5C] to-[#10B981]"
+                    />
+                </div>
+             </div>
+          </section>
+
 
           {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
           <section className="py-32 px-6 relative overflow-hidden border-t border-white/20 ">
