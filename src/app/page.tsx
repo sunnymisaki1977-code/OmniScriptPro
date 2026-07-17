@@ -19,8 +19,7 @@ import {
   Share2,
   BookOpen,
   Wand2,
-  UserCheck,
-  Sliders
+  UserCheck
 } from 'lucide-react';
 import FlipCard from '@/components/FlipCard';
 import { ChannelStats } from '@/components/ui/ChannelStats';
@@ -311,322 +310,67 @@ export default function LandingPage() {
 
             </section>
 
-          {/* 4. 系統穩定度模組 (Technical Trust) */}
-          <section className="py-24 px-6 max-w-7xl mx-auto">
-            <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
-              {/* InfoCard Decor */}
-              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Server className="w-64 h-64 text-emerald-500" />
-              </div>
-              
-              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Technical Trust</span>
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    企業級的容錯穩定度 <br />不再擔心 API 中斷
-                  </h2>
-                  <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    面對 Google 嚴格的流量限制與 2026 金鑰大遷徙，我們的系統在後端築起了最強壯的防禦網，確保您的靈感產出永不停擺。
-                  </p>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Share2 className="w-5 h-5 text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">負載均衡 (隨機起手式)</h4>
-                      <p className="text-slate-400 leading-relaxed">支援輸入多把金鑰 (以逗號分隔)。系統啟動時會隨機選用陣列中的金鑰，均攤每一把的流量消耗，降低被鎖定的風險。</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-red-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰自動切換</h4>
-                      <p className="text-slate-400 leading-relaxed">混用新舊金鑰毫無顧忌。當遭遇舊金鑰淘汰或授權失效，後端會自動捕捉 401 錯誤，在一秒內背景拋棄它並切換至下一把備用金鑰，無縫接軌。</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <RefreshCw className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">突破 429 流量限流機制</h4>
-                      <p className="text-slate-400 leading-relaxed">連續生成導致單一金鑰過熱？系統會如同換彈匣般，瞬間切換金鑰並重發請求，輔以指數退避 (Exponential Backoff) 重試策略，確保每一次生成都能成功抵達。</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
           
-          \n
-          {/* 2. 核心武器 (The Why - Three Core Weapons) */}
+          {/* 4. 三大核心武器 (Three Core Weapons) */}
           <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-            <div className="text-center mb-16 relative">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold mb-4 shadow-sm">
-                <Sparkles className="w-4 h-4" />
-                <span>The Core Weapons</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-black mb-4 text-slate-900 dark:text-white tracking-tight">
-                打造一人團隊的終極內容軍火庫
-              </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                跳脫空泛農場文與碎片化工具的泥沼。這是專為需要極致產能與知識深度的創作者，量身打造的三大核心武器。
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Weapon 1: 基準真相 (Depth) */}
-              <div className="group p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none hover:border-emerald-500/30 transition-all hover:-translate-y-1 duration-300">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Database className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">內容護城河</h3>
-                <h4 className="text-sm font-bold text-emerald-500 mb-4 tracking-wider">5,000 字基準真相鎖定</h4>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                  拒絕 AI 幻覺。將數千字原始古籍、文獻或考據資料設定為「唯一基準真相 (Ground Truth)」，強制 AI 鎖定事實展開企劃分支，確保所有產出皆具備無可挑剔的知識深度。
-                </p>
-              </div>
-
-              {/* Weapon 2: 10-Step 矩陣 (Productivity) */}
-              <div className="group p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none hover:border-indigo-500/30 transition-all hover:-translate-y-1 duration-300 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
-                <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform relative z-10">
-                  <Zap className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white relative z-10">多模態裂變引擎</h3>
-                <h4 className="text-sm font-bold text-indigo-500 mb-4 tracking-wider relative z-10">10-Step 全域自動化矩陣</h4>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm relative z-10">
-                  輸入一次靈感，自動展開 10 道工序。無縫轉譯長短影音腳本、SEO 標籤、社群圖文，並精準生成高質感繪圖 (Imagen/Midjourney) 與配樂指令，將單點突破升級為立體打擊。
-                </p>
-              </div>
-
-              {/* Weapon 3: 模組化與歸檔 (Control) */}
-              <div className="group p-8 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none hover:border-blue-500/30 transition-all hover:-translate-y-1 duration-300">
-                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Sliders className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">絕對掌控權</h3>
-                <h4 className="text-sm font-bold text-blue-500 mb-4 tracking-wider">模組化勾選與無縫歸檔</h4>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
-                  你才是總編輯。自由勾選需要的素材模組以精準控管 API 額度；所有心血不僅支援 Markdown 單步下載，更支援一鍵同步至 Notion 雲端資料庫，讓產出即刻化為數位資產。
-                </p>
-              </div>
-            </div>
-          </section>
-\n{/* 3. 互動式受眾展示區 (Audience Hub) - 動態環境光 */}
-          <section className="py-32 px-6 relative">
-            {/* 隨受眾切換的動態光暈 (The Magic Ambient Glow) */}
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] max-w-4xl max-h-4xl rounded-full blur-[120px] md:blur-[180px] opacity-20  pointer-events-none z-0 transition-colors duration-1000 ${audiences[activeTab].glowColor}`} />
-
-            <div className="max-w-7xl mx-auto relative z-10">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B]  drop-shadow-sm">6 大專業受眾模組切換</h2>
-                <p className="text-lg text-[#64748B]  max-w-3xl mx-auto">
-                  不僅僅是 Prompt 的切換，系統會連同 UI 介面、渲染風格與產出邏輯一併切換。點擊下方標籤，查看對應的生成作品示範。
-                </p>
-              </div>
-
-              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
-                {/* 左側 Tabs */}
-                <div className="flex-1 flex flex-col gap-3">
-                  {audiences.map((aud, idx) => (
-                    <button
-                      key={aud.id}
-                      onClick={() => setActiveTab(idx)}
-                      // 移除生硬邊框，改用微玻璃與極淡線條
-                      className={`min-h-[64px] text-left px-6 py-5 rounded-[1.5rem] transition-all duration-300 group ${
-  activeTab === idx 
-    // Active 狀態：淺色模式用高透白玻璃，深色模式用高透深藍玻璃
-    ? `bg-[#0A2E5C]/5 backdrop-blur-xl border border-white/80  shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative overflow-hidden transform scale-[1.02]` 
-    // Inactive 狀態：更低調的透明度，與背景融合
-    : `bg-transparent backdrop-blur-sm border border-transparent hover:bg-[#0A2E5C]/5`
-}`}
-                    >
-                      {activeTab === idx && (
-                        <div className={`absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b ${aud.color}`} />
-                      )}
-                      
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className={`text-xl font-bold mb-1 transition-colors ${activeTab === idx ? 'text-[#0A2E5C] ' : 'text-[#64748B] group-hover:text-[#0A2E5C]  '}`}>
-                            {aud.title}
-                          </h3>
-                          <p className={`text-sm line-clamp-1 transition-colors ${activeTab === idx ? 'text-slate-500' : 'text-slate-400 '}`}>
-                            {aud.features.join(" • ")}
-                          </p>
-                        </div>
-                        {activeTab === idx && <ArrowRight className={`w-5 h-5 ${aud.textClass} animate-pulse`} />}
-                      </div>
-
-                      {activeTab === idx && (
-                        <div className="mt-4 pt-4 border-t border-slate-200/50  animate-in fade-in slide-in-from-top-2 duration-300">
-                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${aud.bgClass} ${aud.textClass} text-xs font-bold mb-3 border border-current/10`}>
-                            <Sparkles className="w-4 h-4" />
-                            <span>專屬風格光譜</span>
-                          </div>
-                          <p className="text-sm md:text-base text-[#64748B]  leading-relaxed">
-                            {aud.desc}
-                          </p>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 右側展示區 */}
-                <div className="flex-[1.5] flex items-center justify-center relative">
-                  {/* 受眾專屬裝飾背景 */}
-                  <div className={`absolute inset-0 bg-gradient-to-tr ${audiences[activeTab].color} opacity-5  rounded-[3rem] -z-10 transition-colors duration-700`} />
-                  
-                  <div className={`relative group w-full ${audiences[activeTab].isShorts ? 'max-w-[280px] md:max-w-[320px]' : 'max-w-2xl'} mx-auto transition-all duration-500`} style={{ perspective: '1000px' }}>
-                    {/* 發光輪廓 */}
-                    <div className={`absolute -inset-2 bg-gradient-to-tr ${audiences[activeTab].color} rounded-[2.5rem] md:rounded-[3rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-500`} />
-                    <div className="relative bg-white/60 backdrop-blur-sm border border-white/80 shadow-lg rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-3 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
-                      <LazyYoutube 
-                        playlistId={audiences[activeTab].playlistId} 
-                        previewVideoId={audiences[activeTab].previewVideoId}
-                        title={`${audiences[activeTab].title} Demo Video`}
-                        isShorts={audiences[activeTab].isShorts}
-                        colorClass={audiences[activeTab].color}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          
-          {/* 4. 系統穩定度模組 (Technical Trust) */}
-          <section className="py-24 px-6 max-w-7xl mx-auto">
             <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
               {/* InfoCard Decor */}
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Server className="w-64 h-64 text-emerald-500" />
+                <Zap className="w-64 h-64 text-blue-500" />
               </div>
               
-              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                <div>
+              <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-5">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Technical Trust</span>
+                    <span>Core Weapons</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    企業級的容錯穩定度 <br />不再擔心 API 中斷
+                    OmniScript PRO <br />真正最具殺傷力的<br />三大核心武器
                   </h2>
                   <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    面對 Google 嚴格的流量限制與 2026 金鑰大遷徙，我們的系統在後端築起了最強壯的防禦網，確保您的靈感產出永不停擺。
+                    這三大武器，完美定義了 OmniScript PRO 的價值：「用深度守護品質、用矩陣放大產能、用模組還原掌控權。」
                   </p>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="lg:col-span-7 space-y-6">
                   <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Share2 className="w-5 h-5 text-blue-400" />
+                      <ShieldCheck className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">負載均衡 (隨機起手式)</h4>
-                      <p className="text-slate-400 leading-relaxed">支援輸入多把金鑰 (以逗號分隔)。系統啟動時會隨機選用陣列中的金鑰，均攤每一把的流量消耗，降低被鎖定的風險。</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-red-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰自動切換</h4>
-                      <p className="text-slate-400 leading-relaxed">混用新舊金鑰毫無顧忌。當遭遇舊金鑰淘汰或授權失效，後端會自動捕捉 401 錯誤，在一秒內背景拋棄它並切換至下一把備用金鑰，無縫接軌。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第一武器：內容護城河 ——「5,000 字基準真相鎖定」</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>AI 最致命的弱點就是「幻覺」與「農場文腔調」。對於需要處理龐大古籍、考究歷史人物與民俗信仰的頻道來說，這是一擊斃命的缺點。</p>
+                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統強制在 Step 1 畫出一道防線。它不讓 AI 憑空捏造，而是將數千字的原始文獻、新聞稿或考據資料當作「唯一的基準真相 (Ground Truth)」。這確保了後續生成的所有腳本，都具備無可挑惕的文化底蘊與知識深度，這是其他套殼 AI 工具絕對做不到的品質保證。</p>
                     </div>
                   </div>
 
                   <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <RefreshCw className="w-5 h-5 text-amber-400" />
+                      <Zap className="w-5 h-5 text-amber-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">突破 429 流量限流機制</h4>
-                      <p className="text-slate-400 leading-relaxed">連續生成導致單一金鑰過熱？系統會如同換彈匣般，瞬間切換金鑰並重發請求，輔以指數退避 (Exponential Backoff) 重試策略，確保每一次生成都能成功抵達。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第二武器：多模態裂變引擎 ——「10-Step 全域自動化矩陣」</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>一人團隊最大的極限就是時間。寫完長影音腳本，還要自己切短影音、想社群貼文、去 Midjourney 詠唱生圖、再去 Suno 試配樂，心力早就被榨乾。</p>
+                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>輸入一次靈感，系統自動展開 10 個步驟。它不僅是個「寫稿機」，更是一位全能的虛擬製片。它能將同一套世界觀，無縫轉譯成 YouTube 長影音、Shorts 短片、社群文案，甚至精準吐出 Imagen 4.0 / Midjourney 的高質感繪圖指令與配樂 Prompt。將「單點突破」變成了「立體打擊」。</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <RefreshCw className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第三武器：絕對掌控權 ——「模組化勾選與無縫歸檔」</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>創作者非常討厭「黑箱作業」與「資料被綁架」。強制跑完所有流程會浪費 API 額度，無法匯出則會讓人毫無安全感。</p>
+                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統賦予使用者極致的彈性。你可以讓系統全自動跑完，也可以透過「勾選清單」只挑選需要的步驟（例如只要腳本，不要圖片）。最重要的是，產出的心血支援 Markdown 單步下載、一鍵複製，以及神級的「Notion 雲端同步歸檔」。系統完美配合你的步調，你依然是掌控一切的總編輯。</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
-
-          
-          \n
-          {/* 4. 系統穩定度模組 (Technical Trust) */}
-          <section className="py-24 px-6 relative bg-[#090b14] border-t border-slate-800">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                
-                {/* Left Side: Texts */}
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold mb-8">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Solo Survival Architecture</span>
-                  </div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight tracking-tight">
-                    為了不被限流逼瘋，<br />我為自己寫了一套底層防禦網。
-                  </h2>
-                  <p className="text-lg text-slate-400 leading-relaxed">
-                    一個人搞定百萬字古籍田調與多模態影音已經夠累了，我絕不允許大腦心流因為 Google 的 2026 金鑰大遷徙或流量限制而中斷。這是我為自己打造、現在與你共享的「永不停擺」備援機制。
-                  </p>
-                </div>
-                
-                {/* Right Side: Cards */}
-                <div className="space-y-4">
-                  {/* Card 1 */}
-                  <div className="flex gap-5 p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                    <div className="shrink-0 w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <Share2 className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">多金鑰負載均衡 (陣列分流)</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed">單兵作戰，資源必須極大化。你可以一次輸入多把金鑰。系統會像你的數位分身一樣，自動隨機抽取來分攤動輒數千字的古籍運算，徹底降低被鎖定的風險。</p>
-                    </div>
-                  </div>
-
-                  {/* Card 2 */}
-                  <div className="flex gap-5 p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                    <div className="shrink-0 w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                      <Lock className="w-6 h-6 text-red-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰無縫切換</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed">過去半夜生成腳本遇到金鑰失效只能進度歸零。現在，後端只要偵測到授權錯誤，會在一秒內自動拋棄無效金鑰並換上備用彈匣，讓創作過程無縫接軌。</p>
-                    </div>
-                  </div>
-
-                  {/* Card 3 */}
-                  <div className="flex gap-5 p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-                    <div className="shrink-0 w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                      <RefreshCw className="w-6 h-6 text-amber-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">突破 429 限流 (指數退避策略)</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed">高頻率生成導致金鑰過熱？系統會啟動指數退避 (Exponential Backoff) 策略，並瞬間切換可用金鑰重發請求。這是我為確保每篇深度考據完美落地，寫下的最後一道保險。</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </section>
-\n{/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
+\n          {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
           <section className="py-32 px-6 relative overflow-hidden border-t border-white/20 ">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A2E5C]/5  -z-10" />
             <div className="max-w-4xl mx-auto text-center relative z-10">
