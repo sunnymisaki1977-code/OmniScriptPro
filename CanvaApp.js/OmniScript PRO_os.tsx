@@ -1635,8 +1635,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                 }
                               }}
                               className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
-                                isRequired
-                                  ? 'bg-indigo-900/50 text-[#10B981] border border-indigo-500/30 cursor-not-allowed opacity-80'
+                                isRequired ? 'bg-indigo-500 text-[#1E293B] shadow-md cursor-not-allowed opacity-80'
                                   : isSelected
                                   ? 'bg-indigo-500 text-[#1E293B] shadow-md hover:bg-indigo-600'
                                   : 'bg-slate-50 text-[#64748B] border border-slate-200 hover:bg-slate-200'
