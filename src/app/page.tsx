@@ -257,26 +257,7 @@ export default function LandingPage() {
 
         <main className="relative z-10">
           {/* 1. Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">
-            {/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
-            <div className="absolute inset-0 pt-20 w-full flex flex-c!ol justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
-              <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
-                {[...audiences, ...audiences].map((a, idx) => (
-                  <div key={`marquee-${a.id}-${idx}`} className="w-[280px] sm:w-[360px] shrink-0 transition-transform duration-300 hover:scale-[1.02]">
-                    <FlipCard 
-                      theme={a.title}
-                      frontImage={a.flipData.frontImage}
-                      frontText={a.flipData.frontText}
-                      frontTags={a.flipData.frontTags}
-                      backInput={a.flipData.backInput}
-                      systemTasks={a.flipData.systemTasks}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Hero 核心文案區 - 微玻璃背板 */}
+          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">\n{/* Hero 核心文案區 - 微玻璃背板 */}
             <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
@@ -285,12 +266,12 @@ export default function LandingPage() {
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-tight text-brandBlue">
-                    您的全自動化 <br className="hidden sm:block" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brandBlue via-brandGreen to-brandGold">
-                      多模態生成引擎&nbsp;
-                    </span>
-                </h1>
+            <h1 className="text-4xl md:text-6xl font-black leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] via-[#10B981] to-[#D4AF37]">
+  您的全自動化 <br className="hidden sm:block" />
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] via-[#10B981] to-[#D4AF37]">
+    多模態生成引擎
+  </span>
+</h1>
               
               <p className="text-base sm:text-lg md:text-xl text-[#64748B]  max-w-2xl mb-10 leading-relaxed animate-fade-in-up delay-200 font-medium">
                 打破跨平台內容碎片化的窘境。只需輸入靈感即為您展開長短影音腳本、SEO 標籤、社群圖文與 AI 視覺指令。
@@ -307,7 +288,25 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-          </section>
+          \n{/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
+            <div className="relative mt-8 w-full flex flex-col justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
+              <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
+                {[...audiences, ...audiences].map((a, idx) => (
+                  <div key={`marquee-${a.id}-${idx}`} className="w-[280px] sm:w-[360px] shrink-0 transition-transform duration-300 hover:scale-[1.02]">
+                    <FlipCard 
+                      theme={a.title}
+                      frontImage={a.flipData.frontImage}
+                      frontText={a.flipData.frontText}
+                      frontTags={a.flipData.frontTags}
+                      backInput={a.flipData.backInput}
+                      systemTasks={a.flipData.systemTasks}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            </section>
 
           {/* 3. 互動式受眾展示區 (Audience Hub) - 動態環境光 */}
           <section className="py-32 px-6 relative">
