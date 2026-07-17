@@ -277,7 +277,7 @@ export default function LandingPage() {
             </div>
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[50%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+            <div className="relative z-20 px-6 sm:px-12 w-[30%] max-w-4xl mx-auto py-12 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
               <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/20  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
