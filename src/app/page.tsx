@@ -452,30 +452,86 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 4.5 共同創作影片區 (Co-creation Video) */}
-          <section className="py-24 px-6 relative z-10">
-             <div className="max-w-5xl mx-auto">
-                <div className="text-center mb-16">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold mb-4">
-                    <Play className="w-4 h-4" />
-                    <span>Watch in Action</span>
+          
+          {/* 3.5 Social Proof Section (@genimprint 實戰案例) */}
+          <section className="py-24 px-6 bg-slate-900 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
+            <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] bg-emerald-600/10 blur-[120px] rounded-full pointer-events-none" />
+            
+            <div className="max-w-7xl mx-auto relative z-10">
+              <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-12 items-center">
+                
+                {/* 左側資訊區 (7 欄) */}
+                <div className="lg:col-span-7 flex flex-col justify-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm font-bold mb-8 w-max shadow-sm backdrop-blur-md">
+                    <span>🏆</span>
+                    <span>Featured Case Study / 官方實戰案例</span>
                   </div>
-                  <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B]">見證全自動化的魅力</h2>
-                  <p className="text-lg text-[#64748B] max-w-2xl mx-auto">
-                    看看 OmniScript PRO 如何在幾秒鐘內將您的靈感轉化為跨平台的完整內容矩陣。
-                  </p>
+                  
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+                    將百萬字古籍田調，<br />濃縮於彈指之間。
+                  </h2>
+                  
+                  <blockquote className="text-lg md:text-xl text-slate-300 mb-10 pl-6 border-l-4 border-emerald-500 italic leading-relaxed">
+                    「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
+                    <footer className="mt-4 text-emerald-400 font-bold not-italic">
+                      — @genimprint 世代銘印
+                    </footer>
+                  </blockquote>
+                  
+                  {/* 關鍵數據 Metrics (Bento box style) */}
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
+                      <div className="text-slate-400 text-sm font-semibold mb-2">腳本產出時間</div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl text-slate-500 line-through">3 Weeks</span>
+                        <span className="text-emerald-400 font-black text-2xl">➔ 2 Hours</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
+                      <div className="text-slate-400 text-sm font-semibold mb-2">內容深度基準</div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-emerald-400 font-black text-2xl">5,000+</span>
+                        <span className="text-white text-lg">字真相查核</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* YouTube 頻道數據組件 */}
+                  <div className="mt-8">
+                     <ChannelStats />
+                  </div>
                 </div>
                 
-                <div className="relative rounded-[2.5rem] bg-white/40 backdrop-blur-xl border border-white/50 p-3 shadow-2xl">
-                    <LazyYoutube 
-                      playlistId="PLF3eQyAQueV4" 
-                      previewVideoId="E1Oc1Eo_LcE"
-                      title="OmniScript PRO 共同創作展示影片"
-                      colorClass="from-[#0A2E5C] to-[#10B981]"
-                    />
+                {/* 右側影片展品區 (5 欄) */}
+                <div className="lg:col-span-5 w-full flex justify-center lg:justify-end">
+                  <div className="w-full max-w-md relative group" style={{ perspective: '1000px' }}>
+                    <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600 to-emerald-500 rounded-[2.5rem] blur-2xl opacity-30 group-hover:opacity-50 transition duration-700"></div>
+                    <div className="relative bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 shadow-2xl p-3 md:p-4 rounded-[2rem] transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
+                      {/* MacOS Style window controls */}
+                      <div className="flex gap-1.5 mb-3 px-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                      </div>
+                      <LazyYoutube 
+                        playlistId="PLF3eQyAQueV4" 
+                        previewVideoId="E1Oc1Eo_LcE"
+                        title="@genimprint 實戰紀錄片"
+                        isShorts={true}
+                        colorClass="from-slate-700 to-slate-900"
+                        className="w-full mx-auto"
+                      />
+                    </div>
+                  </div>
                 </div>
-             </div>
+                
+              </div>
+            </div>
           </section>
+
 
 
           {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
