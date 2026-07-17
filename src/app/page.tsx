@@ -102,7 +102,7 @@ export default function LandingPage() {
       textClass: "text-orange-500",
       features: ["勾引食慾視覺", "強烈 CTA"],
       playlistId: "PLF3eQyAQueV4",
-      previewVideoId: "E1Oc1Eo_LcE",
+      
       isShorts: false,
       flipData: {
         frontImage: ["/Golden_Mango_Summer_p1.jpg", "/Golden_Mango_Summer_p2.jpg", "/Golden_Mango_Summer_p3.jpg", "/Golden_Mango_Summer_p4.jpg", "/Golden_Mango_Summer_p5.jpg"],
@@ -121,8 +121,8 @@ export default function LandingPage() {
       bgClass: "bg-purple-50 ",
       textClass: "text-purple-600 ",
       features: ["深度考究", "賽博龐克視覺"],
-      playlistId: "PL0WZUXr5VzkfAeqC9BCtya9yRVCfyimyC",
-      previewVideoId: "ofIAOaVW_hU",
+      playlistId: "PLS7BJQ4awAeM",
+      
       isShorts: false,
       flipData: {
         frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
@@ -142,7 +142,7 @@ export default function LandingPage() {
       textClass: "text-sky-600 ",
       features: ["知性信任感", "專業感排版"],
       playlistId: "PLC-IrJAPGBww",
-      previewVideoId: "5_4nrMvE4tg",
+      
       isShorts: false,
       flipData: {
         frontImage: ["/Managing_Pet_p1.jpg", "/Managing_Pet_p2.jpg", "/Managing_Pet_p3.jpg", "/Managing_Pet_p4.jpg", "/Managing_Pet_p5.jpg"],
@@ -162,7 +162,7 @@ export default function LandingPage() {
       textClass: "text-rose-600 ",
       features: ["高質感腳本", "暖光濾鏡"],
       playlistId: "PLA1T_pcDfevM",
-      previewVideoId: "CQMXYgWGWZo",
+      
       isShorts: false,
       flipData: {
         frontImage: ["/Sensory_Medical_Aesthetics _p1.jpg", "/Sensory_Medical_Aesthetics _p2.jpg", "/Sensory_Medical_Aesthetics _p3.jpg"],
@@ -182,7 +182,7 @@ export default function LandingPage() {
       textClass: "text-amber-600 ",
       features: [ "極速執行", "商業轉換"],
       playlistId: "PLCaj4rNP2njM",
-      previewVideoId: "X2zk7iQPGd8",
+      
       isShorts: false,
       flipData: {
         frontImage: ["/2026_大阪旅遊全攻略 P1.jpg", "/2026_大阪旅遊全攻略 P2.jpg", "/2026_大阪旅遊全攻略 P3.jpg", "/2026_大阪旅遊全攻略 P4.jpg", "/2026_大阪旅遊全攻略 P5.jpg"],
@@ -202,7 +202,7 @@ export default function LandingPage() {
       textClass: "text-red-500",
       features: ["流量收割", "毒雞湯語錄"],
       playlistId: "PLS7BJQ4awAeM",
-      previewVideoId: "Anq2dnER4TA",
+      
       isShorts: true,
       flipData: {
         frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
@@ -257,7 +257,7 @@ export default function LandingPage() {
 
         <main className="relative z-10">
           {/* 1. Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">\n{/* Hero 核心文案區 - 微玻璃背板 */}
+          <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-20">{/* Hero 核心文案區 - 微玻璃背板 */}
             <div className="relative z-20 px-6 sm:px-12 w-[90%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
@@ -288,7 +288,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-          \n{/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
+          {/* 隱藏過於生硬的漸層遮罩，讓卡片自然融入星雲背景 */}
             <div className="relative mt-8 w-full flex flex-col justify-center z-10 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity duration-700">
               <div className="flex w-max animate-marquee hover:[animation-play-state:paused] gap-6 px-3">
                 {[...audiences, ...audiences].map((a, idx) => (
@@ -379,7 +379,6 @@ export default function LandingPage() {
                     <div className="relative bg-white/60 backdrop-blur-sm border border-white/80 shadow-lg rounded-[2rem] md:rounded-[2.5rem] p-2 md:p-3 overflow-hidden shadow-2xl transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
                       <LazyYoutube 
                         playlistId={audiences[activeTab].playlistId} 
-                        previewVideoId={audiences[activeTab].previewVideoId}
                         title={`${audiences[activeTab].title} Demo Video`}
                         isShorts={audiences[activeTab].isShorts}
                         colorClass={audiences[activeTab].color}
@@ -392,7 +391,84 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* ... (其餘的 section 4 系統穩定度模組, 4.5 願景與使命 保持不變，可套用類似的玻璃擬物風格) ... */}
+ {/* 3.5 Social Proof Section (@genimprint 實戰案例) */}
+<section className="py-24 px-6 bg-slate-900 text-white relative overflow-hidden">
+  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
+  <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none" />
+  <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] bg-emerald-600/10 blur-[120px] rounded-full pointer-events-none" />
+  
+  <div className="max-w-7xl mx-auto relative z-10">
+    <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-12 items-center">
+      
+      {/* 左側資訊區 (7 欄) */}
+      <div className="lg:col-span-7 flex flex-col justify-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm font-bold mb-8 w-max shadow-sm backdrop-blur-md">
+          <span>🏆</span>
+          <span>Featured Case Study / 官方實戰案例</span>
+        </div>
+        
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-8 leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
+          將百萬字古籍田調，<br />濃縮於彈指之間。
+        </h2>
+        
+        <blockquote className="text-lg md:text-xl text-slate-300 mb-10 pl-6 border-l-4 border-emerald-500 italic leading-relaxed">
+          「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
+          <footer className="mt-4 text-emerald-400 font-bold not-italic">
+            — @genimprint 世代銘印
+          </footer>
+        </blockquote>
+        
+        {/* 關鍵數據 Metrics (Bento box style) */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
+            <div className="text-slate-400 text-sm font-semibold mb-2">腳本產出時間</div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl text-slate-500 line-through">3 Weeks</span>
+              <span className="text-emerald-400 font-black text-2xl">➔ 2 Hours</span>
+            </div>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm">
+            <div className="text-slate-400 text-sm font-semibold mb-2">內容深度基準</div>
+            <div className="flex items-center gap-3">
+              <span className="text-emerald-400 font-black text-2xl">5,000+</span>
+              <span className="text-white text-lg">字真相查核</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* YouTube 頻道數據組件 (SSR + Client Animation) */}
+        <div className="mt-8">
+           <ChannelStats />
+        </div>
+      </div>
+      
+      {/* 右側影片展品區 (5 欄) */}
+      <div className="lg:col-span-5 w-full flex justify-center lg:justify-end">
+        <div className="w-full max-w-md relative group" style={{ perspective: '1000px' }}>
+          <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600 to-emerald-500 rounded-[2.5rem] blur-2xl opacity-30 group-hover:opacity-50 transition duration-700"></div>
+          <div className="relative bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 shadow-2xl p-3 md:p-4 rounded-[2rem] transform transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
+            {/* MacOS Style window controls */}
+            <div className="flex gap-1.5 mb-3 px-2">
+              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <LazyYoutube 
+              playlistId="PLF3eQyAQueV4" 
+              previewVideoId="E1Oc1Eo_LcE"
+              title="@genimprint 實戰紀錄片"
+              isShorts={true}
+              colorClass="from-slate-700 to-slate-900"
+              className="w-full mx-auto"
+            />
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>       
 
           {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
           <section className="py-32 px-6 relative overflow-hidden border-t border-white/20 ">
