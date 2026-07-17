@@ -277,10 +277,10 @@ export default function LandingPage() {
             </div>
 
             {/* Hero 核心文案區 - 微玻璃背板 */}
-            <div className="relative z-20 px-6 sm:px-12 w-[60%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
+            <div className="relative z-20 px-6 sm:px-12 w-[40%] max-w-4xl mx-auto py-16 flex flex-col items-center justify-center text-center pointer-events-none">
               <div className="absolute inset-0 bg-white/5  backdrop-blur-2xl rounded-[3rem] border border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)]  -z-10 transition-colors duration-500" />
               
-              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/20  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
+              <div className="pointer-events-auto inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10  border border-white/10  text-[#0A2E5C]  text-xs md:text-sm font-bold mb-8 animate-fade-in-up shadow-sm backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span>OmniScript PRO 智能矩陣引擎 v2.0</span>
               </div>
