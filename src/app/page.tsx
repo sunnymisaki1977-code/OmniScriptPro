@@ -391,66 +391,64 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-\n\n          {/* 4. 三大核心武器 (Three Core Weapons) */}
+\n\n                    {/* 4. 系統穩定度模組 (Technical Trust) */}
           <section className="py-24 px-6 max-w-7xl mx-auto relative z-10">
             <div className="bg-slate-900 dark:bg-black rounded-3xl border border-slate-800 p-8 md:p-12 shadow-2xl relative overflow-hidden">
               {/* InfoCard Decor */}
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Zap className="w-64 h-64 text-blue-500" />
+                <Server className="w-64 h-64 text-emerald-500" />
               </div>
               
               <div className="relative z-10 grid lg:grid-cols-12 gap-12 items-center">
                 <div className="lg:col-span-5">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Core Weapons</span>
+                    <span>Solo Survival Architecture</span>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                    OmniScript PRO <br />真正最具殺傷力的<br />三大核心武器
+                    為了不被限流逼瘋，<br />我為自己寫了一套底層防禦網。
                   </h2>
                   <p className="text-lg text-slate-400 mb-8 leading-relaxed">
-                    這三大武器，完美定義了 OmniScript PRO 的價值：「用深度守護品質、用矩陣放大產能、用模組還原掌控權。」
+                    一個人搞定百萬字古籍田調與多模態影音已經夠累了，我絕不允許大腦心流因為 Google 的 2026 金鑰大遷徙或流量限制而中斷。這是我為自己打造、現在與你共享的「永不停擺」備援機制。
                   </p>
                 </div>
                 
                 <div className="lg:col-span-7 space-y-6">
                   <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <ShieldCheck className="w-5 h-5 text-blue-400" />
+                      <Share2 className="w-5 h-5 text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第一武器：內容護城河 ——「5,000 字基準真相鎖定」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>AI 最致命的弱點就是「幻覺」與「農場文腔調」。對於需要處理龐大古籍、考究歷史人物與民俗信仰的頻道來說，這是一擊斃命的缺點。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統強制在 Step 1 畫出一道防線。它不讓 AI 憑空捏造，而是將數千字的原始文獻、新聞稿或考據資料當作「唯一的基準真相 (Ground Truth)」。這確保了後續生成的所有腳本，都具備無可挑惕的文化底蘊與知識深度，這是其他套殼 AI 工具絕對做不到的品質保證。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">多金鑰負載均衡 (陣列分流)</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm">單兵作戰，資源必須極大化。你可以一次輸入多把金鑰。系統會像你的數位分身一樣，自動隨機抽取來分攤動輒數千字的古籍運算，徹底降低被鎖定的風險。</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-2">401/403 無效金鑰無縫切換</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm">過去半夜生成腳本遇到金鑰失效只能進度歸零。現在，後端只要偵測到授權錯誤，會在一秒內自動拋棄無效金鑰並換上備用彈匣，讓創作過程無縫接軌。</p>
                     </div>
                   </div>
 
                   <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
                     <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-amber-400" />
+                      <RefreshCw className="w-5 h-5 text-amber-400" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第二武器：多模態裂變引擎 ——「10-Step 全域自動化矩陣」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>一人團隊最大的極限就是時間。寫完長影音腳本，還要自己切短影音、想社群貼文、去 Midjourney 詠唱生圖、再去 Suno 試配樂，心力早就被榨乾。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>輸入一次靈感，系統自動展開 10 個步驟。它不僅是個「寫稿機」，更是一位全能的虛擬製片。它能將同一套世界觀，無縫轉譯成 YouTube 長影音、Shorts 短片、社群文案，甚至精準吐出 Imagen 4.0 / Midjourney 的高質感繪圖指令與配樂 Prompt。將「單點突破」變成了「立體打擊」。</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                      <RefreshCw className="w-5 h-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-2">⚔️ 第三武器：絕對掌控權 ——「模組化勾選與無縫歸檔」</h4>
-                      <p className="text-slate-400 leading-relaxed text-sm mb-3"><span className="text-red-400 font-semibold">解決痛點：</span>創作者非常討厭「黑箱作業」與「資料被綁架」。強制跑完所有流程會浪費 API 額度，無法匯出則會讓人毫無安全感。</p>
-                      <p className="text-slate-400 leading-relaxed text-sm"><span className="text-emerald-400 font-semibold">武器威力：</span>系統賦予使用者極致的彈性。你可以讓系統全自動跑完，也可以透過「勾選清單」只挑選需要的步驟（例如只要腳本，不要圖片）。最重要的是，產出的心血支援 Markdown 單步下載、一鍵複製，以及神級的「Notion 雲端同步歸檔」。系統完美配合你的步調，你依然是掌控一切的總編輯。</p>
+                      <h4 className="text-white font-bold text-lg mb-2">突破 429 限流 (指數退避策略)</h4>
+                      <p className="text-slate-400 leading-relaxed text-sm">高頻率生成導致金鑰過熱？系統會啟動指數退避 (Exponential Backoff) 策略，並瞬間切換可用金鑰重發請求。這是我為確保每篇深度考據完美落地，寫下的最後一道保險。</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
-\n          {/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
+
+{/* 5. Final CTA - 採用香檳星光與宇宙藍交織 */}
           <section className="py-32 px-6 relative overflow-hidden border-t border-white/20 ">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A2E5C]/5  -z-10" />
             <div className="max-w-4xl mx-auto text-center relative z-10">
