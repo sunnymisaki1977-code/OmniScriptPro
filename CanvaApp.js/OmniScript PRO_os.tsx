@@ -2286,7 +2286,8 @@ const handleLogin = async (e: React.FormEvent) => {
       {/* Hidden container for PDF export */}
       <div id="pdf-export-container" style={{ display: 'none', position: 'absolute', left: '-9999px', top: '-9999px', width: '800px', backgroundColor: '#ffffff', padding: '40px', color: '#1E293B' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-           <img src={LOGO_BASE64} alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} />
+            <img src={"https://synxrphphbfg1mpw.public.blob.vercel-storage.com/OmniScript%20logo.png"} alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} />
+
           <h1 style={{ fontSize: '28px', marginTop: '20px', color: '#0A2E5C', fontWeight: 'bold' }}>{theme || 'OmniScript'} 完整企劃報告</h1>
         </div>
         {STEPS.map((step, idx) => {
