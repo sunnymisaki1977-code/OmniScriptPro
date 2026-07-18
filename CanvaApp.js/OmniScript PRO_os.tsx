@@ -385,6 +385,186 @@ export default function App() {
   const [generatingGroups, setGeneratingGroups] = useState({});
   const [imageEngine, setImageEngine] = useState('flash');
 
+  const [notebookImages, setNotebookImages] = useState<any[]>([]);
+  const [isGeneratingNotebook, setIsGeneratingNotebook] = useState(false);
+
+  const handleGenerateNotebookImages = async () => {
+    const content = stepContents[2] || ""; // Step 2 (0-indexed array, wait, stepContents keys are activeStep which is 1-indexed. So stepContents[2] is STEP 2).
+    if (!content.trim()) {
+      safeAlert("STEP 2 主軸腳本文案尚無內容！請先在內容創作中心產出腳本。");
+      return;
+    }
+
+    const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
+    const newImages = [];
+    
+    for (let i = 1; i < blocks.length; i += 2) {
+      const blockText = blocks[i+1] || "";
+      const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+      const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+      
+      if (visualMatch) {
+        const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
+        const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
+        newImages.push({
+          prompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`
+        });
+      }
+    }
+
+    if (newImages.length === 0) {
+      safeAlert("無法在 STEP 2 中解析出任何視覺畫面建議！");
+      return;
+    }
+
+    const targetImages = newImages.slice(0, 16);
+    
+    setIsGeneratingNotebook(true);
+    setNotebookImages([]);
+    addLog(`[NotebookLM] 準備生成 ${targetImages.length} 張分鏡圖片...`, 'info');
+
+    const placeholderImages = targetImages.map((img, idx) => ({
+      id: idx + 1,
+      url: '',
+      engine: imageEngine,
+      prompt: img.prompt,
+      loading: true
+    }));
+    setNotebookImages(placeholderImages);
+
+    const finalImages = [...placeholderImages];
+    for (let i = 0; i < targetImages.length; i++) {
+      try {
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: targetImages[i].prompt,
+            aspectRatio: STEPS.find(s => s.id === visualStep)?.aspectRatio || '16:9'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          finalImages[i].url = data.imageUrl || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
+          finalImages[i].loading = false;
+        } else {
+          finalImages[i].url = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
+          finalImages[i].loading = false;
+        }
+      } catch (err) {
+        finalImages[i].url = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
+        finalImages[i].loading = false;
+      }
+      setNotebookImages([...finalImages]);
+      addLog(`[NotebookLM] 分鏡 ${i+1}/${targetImages.length} 生成完畢。`, 'success');
+    }
+
+    setIsGeneratingNotebook(false);
+    addLog(`[NotebookLM] ${targetImages.length} 張分鏡全部生成完畢！`, 'success');
+  };
+
+  const handleDownloadNotebookPython = () => {
+    const pythonCode = `import json
+import os
+import uuid
+import glob
+
+# 1. 剪映草稿路徑 (請替換為您的真實草稿路徑)
+DRAFT_PATH = r"C:\\\\Users\\\\sunny\\\\AppData\\\\Local\\\\JianyingPro\\\\User Data\\\\Projects\\\\com.lveditor.draft\\\\【您的專案名稱】\\\\draft_content.json"
+
+# 自動抓取當前資料夾下的所有圖片 (jpg, png) 作為素材
+current_dir = os.path.dirname(os.path.abspath(__file__))
+image_files = sorted(glob.glob(os.path.join(current_dir, "*.jpg")) + glob.glob(os.path.join(current_dir, "*.png")))
+
+if not image_files:
+    print("❌ 在當前資料夾找不到任何 .jpg 或 .png 圖片！請將下載的圖片與此腳本放在同一個資料夾。")
+    exit()
+
+# 轉換為剪映需要的格式，每張預設 30 秒
+image_list = [{"path": img, "duration_sec": 30} for img in image_files[:16]]
+
+def generate_ids():
+    return str(uuid.uuid4()).upper(), str(uuid.uuid4()).upper()
+
+def inject_images_to_capcut(draft_path, images):
+    if not os.path.exists(draft_path):
+        print(f"❌ 找不到剪映草稿檔案：{draft_path}")
+        return
+
+    with open(draft_path, 'r', encoding='utf-8') as f:
+        draft = json.load(f)
+
+    if "materials" not in draft: draft["materials"] = {}
+    if "videos" not in draft["materials"]: draft["materials"]["videos"] = []
+    
+    image_track = {"id": str(uuid.uuid4()).upper(), "type": "video", "segments": []}
+    draft.setdefault("tracks", []).insert(0, image_track)
+
+    current_start_time = 0
+
+    print("🚀 開始注入本機圖片至剪映草稿...")
+
+    for index, img in enumerate(images):
+        segment_id, material_id = generate_ids()
+        duration_microsec = int(img["duration_sec"] * 1000000)
+
+        photo_material = {
+            "id": material_id,
+            "type": "photo",
+            "path": img["path"],
+            "duration": duration_microsec,
+            "width": 1920,
+            "height": 1080,
+            "photograph_type": 1
+        }
+        draft["materials"]["videos"].append(photo_material)
+
+        image_segment = {
+            "id": segment_id,
+            "material_id": material_id,
+            "source_timerange": {"start": 0, "duration": duration_microsec},
+            "target_timerange": {"start": current_start_time, "duration": duration_microsec},
+            "speed": 1.0,
+            "render_index": 1000 + index,
+            "clip": {
+                "alpha": 1.0, 
+                "scale": {"x": 1.0, "y": 1.0},
+                "transform": {"x": 0.0, "y": 0.0}
+            }
+        }
+        image_track["segments"].append(image_segment)
+        current_start_time += duration_microsec
+
+    # 備份
+    backup_path = draft_path + ".backup"
+    if not os.path.exists(backup_path):
+        import shutil
+        shutil.copy2(draft_path, backup_path)
+        print(f"✅ 已建立草稿備份：{backup_path}")
+
+    with open(draft_path, 'w', encoding='utf-8') as f:
+        json.dump(draft, f, ensure_ascii=False, indent=4)
+        
+    print(f"🎉 成功！已將 {len(images)} 張本機圖片寫入剪映影像軌道。")
+
+if __name__ == "__main__":
+    inject_images_to_capcut(DRAFT_PATH, image_list)
+`;
+
+    const blob = new Blob([pythonCode], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'inject_local_images.py';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    addLog(`[System] 下載剪映本機圖片注入腳本 (Python) 成功！`, 'success');
+  };
+
+
   useEffect(() => {
     const content = stepContents[visualStep];
     if (!content) return;
@@ -2118,73 +2298,141 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left input container */}
-                  <div className="col-span-1 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
-                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest">外部資料庫匯入</h4>
-                    
-                    <div className="space-y-3">
-                      <div className="p-4 border border-dashed border-slate-200 hover:border-emerald-500/40 rounded-xl bg-white/10 text-center cursor-pointer transition-all">
-                        <UploadCloud className="w-7 h-7 text-[#64748B] mx-auto mb-2" />
-                        <span className="text-xs font-bold text-[#64748B] block">拖曳 Markdown/PDF 到這裡</span>
-                        <span className=" text-[14px] text-slate-600 block mt-1">或 點擊選擇上傳</span>
-                      </div>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {/* Left Column: Visual Fission + Export Python */}
+                  <div className="col-span-1 space-y-6">
+                    {/* Visual Fission Panel */}
+                    <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-4 backdrop-blur-lg">
+                      <h4 className="text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
+                        <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
+                        視覺裂變
+                      </h4>
 
-                      <div>
-                        <label className=" text-[14px] text-[#64748B] font-bold block mb-1">YouTube 長影片 URL</label>
-                        <input 
-                          type="text" 
-                          placeholder="[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=)..."
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-[#1E293B] focus:outline-none focus:border-emerald-500/40 backdrop-blur-sm"
-                        />
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[14px] text-[#64748B] font-bold block mb-1">畫風濾鏡</label>
+                          <select 
+                            value={currentImageStyle.id}
+                            onChange={(e) => {
+                              const selectedId = e.target.value;
+                              const recommendedStyle = AUDIENCE_STYLES[audienceTheme];
+                              if (recommendedStyle && recommendedStyle.id === selectedId) {
+                                setCurrentImageStyle(recommendedStyle);
+                                return;
+                              }
+                              const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
+                              if (foundPopular) setCurrentImageStyle(foundPopular);
+                            }}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
+                          >
+                            {AUDIENCE_STYLES[audienceTheme] && (
+                              <optgroup label="✨ 專屬推薦">
+                                <option value={AUDIENCE_STYLES[audienceTheme].id}>
+                                  ✨ {AUDIENCE_STYLES[audienceTheme].name} (預設推薦)
+                                </option>
+                              </optgroup>
+                            )}
+                            <optgroup label="🔥 流行濾鏡">
+                              {POPULAR_STYLES.map((style) => (
+                                <option key={style.id} value={style.id}>
+                                  {style.name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          </select>
+                          <div className="text-[12px] text-[#64748B]/80 mt-1 leading-relaxed italic">
+                            已套用風格詞綴：{currentImageStyle.promptSuffix.slice(0, 45)}...
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[14px] text-[#64748B] font-bold block mb-1 mt-3">輸出比例</label>
+                          <select 
+                            value={visualStep}
+                            onChange={(e) => setVisualStep(Number(e.target.value))}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
+                          >
+                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫式 (YouTube / FB)'}</option>
+                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '直式 (Shorts / Reels)'}</option>
+                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '封面圖 / 首圖'}</option>
+                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '方圖 / 輪播圖'}</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[14px] text-[#64748B] font-bold block mb-1 mt-3">影像生成引擎</label>
+                          <select 
+                            value={imageEngine}
+                            onChange={(e) => setImageEngine(e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
+                          >
+                            {IMAGE_ENGINES.map((engine) => (
+                              <option key={engine.id} value={engine.id}>
+                                {engine.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     </div>
 
                     <button 
-                      onClick={() => {
-                        addLog("[NotebookLM] 正在解析影片語音，進行語意關係圖對應分析...", "info");
-                        setTimeout(() => {
-                          addLog("[NotebookLM] ✅ 成功解構長影片！摘要資訊已生成。", "success");
-                        }, 1200);
-                      }}
-                      className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-[#1E293B] text-xs font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
+                      onClick={handleGenerateNotebookImages}
+                      disabled={isGeneratingNotebook}
+                      className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      <span>解析影片並載入背景庫</span>
+                      {isGeneratingNotebook ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          生成中...
+                        </>
+                      ) : (
+                        <>
+                          <Palette className="w-4 h-4" />
+                          開始生成 16 張分鏡
+                        </>
+                      )}
+                    </button>
+
+                    <button 
+                      onClick={handleDownloadNotebookPython}
+                      className="w-full py-3 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      一鍵下載 Python 剪映草稿
                     </button>
                   </div>
 
-                  {/* NotebookLM key points display */}
-                  <div className="col-span-2 space-y-4">
-                    <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-4">
-                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                        <Award className="w-4 h-4" />
-                        <span>AI 生成長影片知識卡 (影片時長 35 mins)</span>
-                      </div>
-
-                      <div className="space-y-3 text-xs leading-relaxed text-[#1E293B]">
-                        <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-[#1E293B]">關鍵摘要 01 - 跨平台分流之必然趨勢</p>
-                          <p className="text-[#64748B] mt-1">2026年單一社群平台流量正在緊縮，頂尖創作者必須建立 YouTube（長格式）- TikTok（短格式）- FB/IG（社群宣傳）的自動分流系統。</p>
+                  {/* Right Column: 16 Grid images */}
+                  <div className="col-span-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-3xl p-6 min-h-[600px]">
+                      {notebookImages.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20">
+                          <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <Palette className="w-8 h-8 text-slate-300" />
+                          </div>
+                          <h4 className="text-xl font-bold text-slate-700">準備生成分鏡圖片</h4>
+                          <p className="text-slate-500 text-sm max-w-sm">請點擊左側「開始生成 16 張分鏡」，系統將自動從 STEP 2 中提取視覺與字卡來為您產生專屬分鏡圖。</p>
                         </div>
-                        <div className="border-l-2 border-emerald-500/40 pl-3">
-                          <p className="font-bold text-[#1E293B]">關鍵摘要 02 - 多工 AI 優勢</p>
-                          <p className="text-[#64748B] mt-1">使用整合型 Prompt 比分批下達能更好留存上下文關係。一次解構全域步驟能有效避免宣傳文案與腳本調性不一致的痛點。</p>
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {notebookImages.map((img, i) => (
+                            <div key={img.id} className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
+                              {img.loading ? (
+                                <div className="absolute inset-0 flex items-center justify-center flex-col bg-slate-50/80 backdrop-blur-sm z-10">
+                                  <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mb-2" />
+                                  <span className="text-[10px] text-emerald-600 font-bold">Generating...</span>
+                                </div>
+                              ) : (
+                                <img src={img.url} alt={`Scene ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                              )}
+                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded-md text-[10px] text-white font-mono font-bold">
+                                {String(i+1).padStart(2, '0')}
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Quick interactive Q&As */}
-                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest pt-1">快速導讀問答</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                      {[
-                        { q: '這段內容的受眾痛點是什麼？', a: '主要在於重複的發文格式排版以及腳本靈感瓶頸。' },
-                        { q: '全域企劃與單純寫腳本差在哪？', a: '全域企劃整合了背景、長短分鏡、Suno 配樂與 SEO，一次完成多重產出。' }
-                      ].map((qa, i) => (
-                        <div key={i} className="p-4 bg-white/30 border border-slate-200/80 rounded-xl space-y-1.5">
-                          <p className="font-bold text-[#1E293B]">❓ {qa.q}</p>
-                          <p className="text-[#64748B] text-[11px] leading-relaxed">{qa.a}</p>
-                        </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>
