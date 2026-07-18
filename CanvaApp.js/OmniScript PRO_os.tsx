@@ -398,7 +398,30 @@ export default function App() {
     }
     
     const newImages: any[] = [];
-    if (content.includes('### ')) {
+    const timecodeRegex = /\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g;
+    
+    if (timecodeRegex.test(content)) {
+      timecodeRegex.lastIndex = 0;
+      const blocks = content.split(timecodeRegex);
+      for (let i = 1; i < blocks.length; i += 2) {
+        const timecode = blocks[i].trim();
+        const blockText = blocks[i+1] || "";
+        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        if (visualMatch) {
+          const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
+          const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
+          newImages.push({
+            id: Math.floor(i/2) + 1,
+            title: `[${timecode}]`,
+            prompt: `視覺建議: ${visualPrompt.substring(0, 30)}... | 字卡: ${caption}`,
+            fullPrompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`,
+            url: '',
+            loading: false
+          });
+        }
+      }
+    } else if (content.includes('### ')) {
       const parts = content.split(/###\s+/);
       for(let i=1; i<parts.length; i++) {
         const lines = parts[i].split('\n');
@@ -413,26 +436,6 @@ export default function App() {
           url: '',
           loading: false
         });
-      }
-    } else {
-      const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
-      for (let i = 1; i < blocks.length; i += 2) {
-        const timecode = blocks[i].trim();
-        const blockText = blocks[i+1] || "";
-        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        if (visualMatch) {
-          const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
-          const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
-          newImages.push({
-            id: Math.floor(i/2) + 1,
-            title: timecode,
-            prompt: `視覺建議: ${visualPrompt.substring(0, 30)}... | 字卡: ${caption}`,
-            fullPrompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`,
-            url: '',
-            loading: false
-          });
-        }
       }
     }
     
@@ -2349,8 +2352,37 @@ const handleLogin = async (e: React.FormEvent) => {
                      </div>
                   </div>
 
-                  {/* Right Column: 16 Grid images */}
-                  <div className="flex-1 w-full min-h-[600px]">
+                  {/* Right Column: 16 Grid images & Buttons */}
+                  <div className="flex-1 w-full min-h-[600px] flex flex-col gap-4">
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-end gap-3 mb-2">
+                      <button 
+                        onClick={handleGenerateNotebookImages}
+                        disabled={isGeneratingNotebook}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isGeneratingNotebook ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            生成中...
+                          </>
+                        ) : (
+                          <>
+                            <Palette className="w-4 h-4" />
+                            開始生成 16 張分鏡
+                          </>
+                        )}
+                      </button>
+
+                      <button 
+                        onClick={handleDownloadNotebookPython}
+                        className="px-5 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        一鍵下載 Python 剪映草稿
+                      </button>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {notebookImages.length === 0 ? (
                         <div className="col-span-full h-64 flex flex-col items-center justify-center text-center space-y-4">
