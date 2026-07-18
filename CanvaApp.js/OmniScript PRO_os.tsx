@@ -1147,10 +1147,10 @@ const handleLogin = async (e: React.FormEvent) => {
       
       {/* --- STREAMING<CHUNK:Left Navigation Bar --- */}
        <aside className={`fixed inset-y-0 left-0 w-64 bg-transparent flex flex-col justify-between z-50 shrink-0 transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'}`}>
-        <div className="p-5">
+       <div className="p-0">
           
           {/* Logo */}
-         <div className="flex items-center gap-3 mb-8 px-1">
+         <div className="flex items-center gap-0 mb-0 px-0">
             
               <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-24 md:h-32 object-contain" />
             
@@ -1194,14 +1194,14 @@ const handleLogin = async (e: React.FormEvent) => {
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
                   {isActive && tab.id === 'visual' && (
                     <div className="mx-2 p-4 bg-white border border-slate-200 rounded-xl space-y-4 backdrop-blur-lg">
-                      <h4 className="text-[10px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
+                      <h4 className=" text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
                         視覺裂變
                       </h4>
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] text-[#64748B] font-bold block mb-1">畫風濾鏡</label>
+                          <label className=" text-[14px] text-[#64748B] font-bold block mb-1">畫風濾鏡</label>
                           <select 
                             value={currentImageStyle.id}
                             onChange={(e) => {
@@ -1231,13 +1231,13 @@ const handleLogin = async (e: React.FormEvent) => {
                               ))}
                             </optgroup>
                           </select>
-                          <div className="text-[9px] text-[#64748B]/80 mt-1 leading-relaxed italic">
+                          <div className="text-[12px] text-[#64748B]/80 mt-1 leading-relaxed italic">
                             已套用風格詞綴：{currentImageStyle.promptSuffix.slice(0, 45)}...
                           </div>
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-[#64748B] font-bold block mb-1 mt-3">輸出比例</label>
+                          <label className=" text-[14px] text-[#64748B] font-bold block mb-1 mt-3">輸出比例</label>
                           <select 
                             value={visualStep}
                             onChange={(e) => setVisualStep(Number(e.target.value))}
@@ -1251,7 +1251,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         </div>
 
                         <div>
-                          <label className="text-[10px] text-[#64748B] font-bold block mb-1">影像生成引擎</label>
+                          <label className=" text-[14px] text-[#64748B] font-bold block mb-1">影像生成引擎</label>
                           <select 
                             value={imageEngine}
                             onChange={(e) => setImageEngine(e.target.value)}
@@ -1261,7 +1261,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               <option key={engine.id} value={engine.id}>{engine.name}</option>
                             ))}
                           </select>
-                          <p className="text-[9px] text-[#64748B]/80 mt-1.5 leading-relaxed">
+                          <p className="text-[12px] text-[#64748B]/80 mt-1.5 leading-relaxed">
                             {IMAGE_ENGINES.find(e => e.id === imageEngine)?.desc}
                           </p>
                         </div>
@@ -1356,7 +1356,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           />
                         </div>
                         
-                        {authError && <p className="text-red-400 text-[10px] text-center font-bold">{authError}</p>}
+                        {authError && <p className="text-red-400  text-[14px] text-center font-bold">{authError}</p>}
                         
                         <button 
                           type="submit"
@@ -1422,8 +1422,8 @@ const handleLogin = async (e: React.FormEvent) => {
                     {/* --- 新增：自訂背景資料區 --- */}
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-[10px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
-                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[9px] cursor-pointer transition-colors border border-slate-200">
+                        <label className=" text-[14px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
+                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200">
                           <UploadCloud className="w-3 h-3" />
                           <span>上傳 TXT/MD/CSV</span>
                           <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
@@ -1437,7 +1437,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           onChange={(e) => setCustomContext(e.target.value)}
                           className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
-                        <div className={`absolute bottom-2 right-3 text-[9px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
+                        <div className={`absolute bottom-2 right-3 text-[12px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
                           {customContext.length} / 5000
                         </div>
                       </div>
@@ -1448,7 +1448,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     {/* --- 新增：模組化勾選清單 (Checkbox List) --- */}
                     <div className="space-y-2 pt-2 border-t border-slate-200">
                       <div className="flex items-center justify-between">
-                        <label className="text-[10px] text-[#64748B] font-bold">📦 選擇要生成的素材矩陣 (可自由勾選)</label>
+                        <label className=" text-[14px] text-[#64748B] font-bold">📦 選擇要生成的素材矩陣 (可自由勾選)</label>
                       </div>
                       <div className="flex flex-wrap gap-2 pb-2">
                         {STEPS.map((step, idx) => {
@@ -1467,7 +1467,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                   setSelectedSteps(prev => [...prev, stepNum].sort((a, b) => a - b));
                                 }
                               }}
-                              className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+                              className={`px-3 py-1.5 rounded-full  text-[14px] font-bold transition-all ${
                                 isRequired ? 'bg-indigo-500 text-[#1E293B] shadow-md cursor-not-allowed opacity-80'
                                   : isSelected
                                   ? 'bg-indigo-500 text-[#1E293B] shadow-md hover:bg-indigo-600'
@@ -1498,7 +1498,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <Play className="w-4 h-4 fill-white" />
                           <span>一鍵全自動模式</span>
                         </div>
-                        <span className="text-[10px] opacity-70 font-normal">單次呼叫，自動化處理所有步驟與歸檔</span>
+                        <span className=" text-[14px] opacity-70 font-normal">單次呼叫，自動化處理所有步驟與歸檔</span>
                       </button>
 
                       {/* Right: 手動分步編輯 */}
@@ -1510,7 +1510,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <Sliders className="w-4 h-4 text-[#64748B]" />
                           <span>分步編輯工作流</span>
                         </div>
-                        <span className="text-[10px] text-[#64748B] font-normal">手手動調校，逐步建構客製化矩陣腳本</span>
+                        <span className=" text-[14px] text-[#64748B] font-normal">手手動調校，逐步建構客製化矩陣腳本</span>
                       </button>
                     </div>
                   </div>
@@ -1549,7 +1549,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   <div className="pt-4 flex justify-center">
                     <button 
                       onClick={clearAllData}
-                      className="text-[10px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
+                      className=" text-[14px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>清空企劃</span>
@@ -1578,8 +1578,8 @@ const handleLogin = async (e: React.FormEvent) => {
 
                     <div className={`flex-1 overflow-y-auto space-y-1.5 custom-scrollbar transition-all duration-300 ${isStepFlowHidden ? 'w-0 p-0 overflow-hidden opacity-0' : 'w-64 p-4 opacity-100'}`}>
                       <div className="flex items-center justify-between mb-4 px-2">
-                        <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest">{STEPS.length}-Step Flow</span>
-                        <span className={`${curTheme.accentText} text-[10px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
+                        <span className=" text-[14px] font-bold text-[#64748B] uppercase tracking-widest">{STEPS.length}-Step Flow</span>
+                        <span className={`${curTheme.accentText}  text-[14px] font-mono`}>{completedSteps.length}/{STEPS.length} 已完成</span>
                       </div>
                   {STEPS.map((step: any) => {
                     const isActive = activeStep === step.id;
@@ -1606,7 +1606,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[9px] text-[#64748B] uppercase tracking-widest">Step {step.id}</div>
+                          <div className="text-[12px] text-[#64748B] uppercase tracking-widest">Step {step.id}</div>
                           <div className="text-xs font-bold truncate">{step.name}</div>
                         </div>
                       </button>
@@ -1634,7 +1634,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             ← 返回創作大廳
                           </button>
                           <span className="text-slate-600">•</span>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${curTheme.bgBadge}`}>
+                          <span className={`px-2 py-0.5 rounded  text-[14px] font-bold ${curTheme.bgBadge}`}>
                             STEP {activeStep} • {STEPS[activeStep-1]?.category || 'Loading'}
                           </span>
                         </div>
@@ -1695,7 +1695,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           )}
                         </div>
                         
-                        <div className="text-[10px] text-[#64748B] font-medium flex items-center">
+                        <div className=" text-[14px] text-[#64748B] font-medium flex items-center">
                           <CheckCircle2 className="w-3 h-3 text-[#10B981] mr-1" />
                           Auto-saved locally
                         </div>
@@ -1846,7 +1846,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             ) : generatingGroups[group.id] ? (
                                <div className="flex flex-col items-center gap-2">
                                  <RefreshCw className="w-5 h-5 animate-spin text-purple-500" />
-                                 <span className="text-[10px] text-[#10B981]">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
+                                 <span className=" text-[14px] text-[#10B981]">正在透過 {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'} 生成...</span>
                                </div>
                             ) : (
                                <div className="text-slate-700 font-medium text-xs flex items-center gap-2">
@@ -1859,7 +1859,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
                             <div>
                               <div className="flex items-center justify-between mb-1.5">
-                                <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
+                                <span className="px-1.5 py-0.5 rounded text-[12px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
                                   {IMAGE_ENGINES.find(e => e.id === imageEngine)?.name || 'AI'}
                                 </span>
                                 <div className="flex gap-1.5">
@@ -1875,13 +1875,13 @@ const handleLogin = async (e: React.FormEvent) => {
                                 </div>
                               </div>
                               <h5 className="text-[11px] font-bold text-[#1E293B]">{group.title}</h5>
-                              <p className="text-[9px] text-[#64748B] font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
+                              <p className="text-[12px] text-[#64748B] font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
                             </div>
                             
                             <button
                               onClick={() => generateGroupImage(group)}
                               disabled={generatingGroups[group.id]}
-                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
+                              className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B]  text-[14px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
                               <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
@@ -1890,14 +1890,14 @@ const handleLogin = async (e: React.FormEvent) => {
                             <div className="flex gap-2 mt-2">
                               <button
                                 onClick={() => handleCopyAndGo(group, 'gemini')}
-                                className="flex-1 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800 text-[#10B981] text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-indigo-700/50"
+                                className="flex-1 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800 text-[#10B981]  text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-indigo-700/50"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 複製開啟 Gemini
                               </button>
                               <button
                                 onClick={() => handleCopyAndGo(group, 'chatgpt')}
-                                className="flex-1 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-emerald-700/50"
+                                className="flex-1 py-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-800 text-emerald-300  text-[14px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm border border-emerald-700/50"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 ChatGPT
@@ -1937,7 +1937,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">配樂風格 (Style of Music)</label>
+                        <label className=" text-[14px] text-[#64748B] font-bold block mb-1">配樂風格 (Style of Music)</label>
                         <input 
                           type="text" 
                           value={musicGenre} 
@@ -1947,7 +1947,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">歌詞內容 / 音調環境</label>
+                        <label className=" text-[14px] text-[#64748B] font-bold block mb-1">歌詞內容 / 音調環境</label>
                         <textarea
                           value={stepContents[9]} 
                           onChange={(e) => setStepContents(prev => ({ ...prev, 9: e.target.value }))}
@@ -1984,7 +1984,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           </button>
                           <div>
                             <p className="text-xs font-bold text-[#1E293B]">SaaS Dreamscape - Vol.3</p>
-                            <p className="text-[10px] text-[#64748B]">Style: Synthwave, Cyberpunk Lofi Beat</p>
+                            <p className=" text-[14px] text-[#64748B]">Style: Synthwave, Cyberpunk Lofi Beat</p>
                           </div>
                         </div>
                         <div className="text-xs font-mono text-[#10B981]">
@@ -2028,12 +2028,12 @@ const handleLogin = async (e: React.FormEvent) => {
                             </div>
                             <div>
                               <p className="text-xs font-bold text-[#1E293B]">{track.title}</p>
-                              <p className="text-[10px] text-[#64748B]">Style: {track.style}</p>
+                              <p className=" text-[14px] text-[#64748B]">Style: {track.style}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-xs font-mono text-[#64748B]">{track.dur}</span>
-                            <button className="px-2.5 py-1 rounded bg-white hover:bg-slate-50 text-[10px] text-[#64748B] hover:text-[#1E293B] font-bold border border-slate-200">
+                            <button className="px-2.5 py-1 rounded bg-white hover:bg-slate-50  text-[14px] text-[#64748B] hover:text-[#1E293B] font-bold border border-slate-200">
                               使用此音軌
                             </button>
                           </div>
@@ -2072,11 +2072,11 @@ const handleLogin = async (e: React.FormEvent) => {
                       <div className="p-4 border border-dashed border-slate-200 hover:border-emerald-500/40 rounded-xl bg-white/10 text-center cursor-pointer transition-all">
                         <UploadCloud className="w-7 h-7 text-[#64748B] mx-auto mb-2" />
                         <span className="text-xs font-bold text-[#64748B] block">拖曳 Markdown/PDF 到這裡</span>
-                        <span className="text-[10px] text-slate-600 block mt-1">或 點擊選擇上傳</span>
+                        <span className=" text-[14px] text-slate-600 block mt-1">或 點擊選擇上傳</span>
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-[#64748B] font-bold block mb-1">YouTube 長影片 URL</label>
+                        <label className=" text-[14px] text-[#64748B] font-bold block mb-1">YouTube 長影片 URL</label>
                         <input 
                           type="text" 
                           placeholder="[https://www.youtube.com/watch?v=](https://www.youtube.com/watch?v=)..."
@@ -2159,12 +2159,12 @@ const handleLogin = async (e: React.FormEvent) => {
               
               <div className="flex items-center gap-2">
                 {/* Quota Metric Button */}
-                <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-600 font-bold text-[10px]">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-600 font-bold  text-[14px]">
                   <Zap className="w-3 h-3 fill-amber-500/20" />
                   <span>{credits} 點</span>
                 </div>
                 {/* User Avatar */}
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#10B981] to-[#0A2E5C] flex items-center justify-center text-[10px] font-extrabold text-white shadow-md cursor-pointer hover:scale-105 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#10B981] to-[#0A2E5C] flex items-center justify-center  text-[14px] font-extrabold text-white shadow-md cursor-pointer hover:scale-105 transition-all">
                   SH
                 </div>
               </div>
@@ -2175,12 +2175,12 @@ const handleLogin = async (e: React.FormEvent) => {
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#10B981] to-emerald-300"></div>
               <div className="flex items-center gap-2.5 pl-2">
                 <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-widest">Active Engine</span>
+                <span className=" text-[14px] text-[#64748B] font-bold uppercase tracking-widest">Active Engine</span>
               </div>
               <div className="text-xl font-black tracking-widest text-[#1E293B] pl-2 mt-1">
                 PRO
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[10px] text-[#64748B] font-mono mt-3 border-transparent border-t border-slate-100 pt-3 pl-2">
+              <div className="grid grid-cols-2 gap-2  text-[14px] text-[#64748B] font-mono mt-3 border-transparent border-t border-slate-100 pt-3 pl-2">
                 <div>Uptime: <span className="text-[#10B981] font-bold">99.99%</span></div>
                 <div>Latency: <span className="text-[#1E293B] font-bold">1.2s</span></div>
               </div>
@@ -2204,7 +2204,7 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
 
             {/* Active Logs Terminal Container */}
-            <div className="flex-1 bg-transparent p-4 font-mono text-[12px] overflow-y-auto space-y-3 custom-scrollbar text-slate-300">
+            <div className="flex-1 bg-transparent p-4 font-mono text-[14px] overflow-y-auto space-y-3 custom-scrollbar text-slate-300">
               {logs.map((log, index) => {
                 let colorClass = "text-slate-300";
                 if (log.type === 'info') colorClass = "text-blue-400";
