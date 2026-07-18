@@ -518,6 +518,54 @@ export default function App() {
     document.body.removeChild(a);
   };
 
+  const handleDownloadCapCutJson = () => {
+    try {
+      const content = stepContents[activeStep] || "";
+      if (!content.trim()) {
+        safeAlert("當前步驟沒有腳本可以匯出！");
+        return;
+      }
+
+      const jsonOutput = [];
+      const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
+      
+      for (let i = 1; i < blocks.length; i += 2) {
+        const timecode = blocks[i].trim();
+        const blockText = blocks[i+1] || "";
+        
+        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const voiceoverMatch = blockText.match(/旁白配音\s*\(VO\)[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        
+        if (visualMatch || captionMatch || voiceoverMatch) {
+          jsonOutput.push({
+            timecode,
+            visual_prompt: visualMatch ? visualMatch[1].replace(/\*+/g, '').trim() : "",
+            caption: captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "",
+            voiceover: voiceoverMatch ? voiceoverMatch[1].replace(/\*+/g, '').trim() : ""
+          });
+        }
+      }
+
+      if (jsonOutput.length === 0) {
+        safeAlert("無法解析腳本。請確認腳本格式是否包含時間軸與「旁白配音」等關鍵字。");
+        return;
+      }
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonOutput, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `capcut_script_step${activeStep}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+
+      addLog(`[System] 剪映結構化 JSON 匯出成功！(${jsonOutput.length} 段分鏡)`, 'success');
+    } catch (err: any) {
+      console.error(err);
+      addLog(`[Error] 剪映 JSON 匯出失敗: ${err.message}`, 'error');
+    }
+  };
 
         const handleDownloadPdf = async () => {
     try {
@@ -1646,7 +1694,14 @@ const handleLogin = async (e: React.FormEvent) => {
 
                       <div className="flex items-center gap-3">
 
-                        
+                        <button 
+                          onClick={handleDownloadCapCutJson}
+                          className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          🎬 匯出剪映草稿 (.JSON)
+                        </button>
+
                         <button 
                           onClick={handleDownloadPdf}
                           className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
