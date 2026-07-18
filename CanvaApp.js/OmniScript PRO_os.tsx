@@ -661,32 +661,6 @@ export default function App() {
     document.body.removeChild(a);
   };
 
-  const handleDownloadZip = async () => {
-    try {
-      const JSZipModule = await import('jszip');
-      const JSZip = JSZipModule.default || JSZipModule;
-      const fileSaverModule = await import('file-saver');
-      const saveAs = fileSaverModule.saveAs || fileSaverModule.default?.saveAs || fileSaverModule.default;
-      const zip = new JSZip();
-      const folderName = `${theme || 'OmniScript'}_企劃包`;
-      const folder = zip.folder(folderName);
-      
-      STEPS.forEach((step, idx) => {
-        const content = stepContents[idx + 1];
-        if (content && content.trim() !== '') {
-          const safeName = step.name.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-          folder.file(`Step${idx + 1}_${safeName}.md`, content);
-        }
-      });
-      
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, `${folderName}.zip`);
-      addLog('[System] 成功匯出 ZIP 企劃包', 'success');
-    } catch (err) {
-      console.error(err);
-      addLog('[System] 匯出 ZIP 失敗', 'error');
-    }
-  };
 
         const handleDownloadPdf = async () => {
     try {
@@ -727,8 +701,6 @@ export default function App() {
       wrapper.style.position = 'absolute';
       wrapper.style.top = '-9999px';
       wrapper.style.left = '-9999px';
-      // Force Microsoft JhengHei as primary font for html2canvas to prevent garbled text (亂碼) on Windows
-      wrapper.style.fontFamily = '"Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Heiti TC", sans-serif';
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
       
@@ -1057,17 +1029,7 @@ export default function App() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-      const buffer = event.target.result;
-      let text = '';
-      try {
-        text = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
-      } catch (err) {
-        try {
-          text = new TextDecoder('big5').decode(buffer);
-        } catch (e) {
-          text = new TextDecoder('utf-8').decode(buffer);
-        }
-      }
+      const text = event.target.result;
       setCustomContext(prev => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
@@ -1825,13 +1787,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                       <div className="flex items-center gap-3">
 
-                        <button 
-                          onClick={handleDownloadZip}
-                          className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          📥 下載企劃包 (.zip)
-                        </button>
+                        
                         <button 
                           onClick={handleDownloadPdf}
                           className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
@@ -1880,46 +1836,15 @@ const handleLogin = async (e: React.FormEvent) => {
             )}
           
            
-          </div>
+          
 
 
-                    {/* Markdown text editor card */}
-                    <div className="relative flex-1 flex flex-col">
-                      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-                        <div className="px-4 py-2.5 bg-white/30 border-b border-slate-200 backdrop-blur-md flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                          <span className="text-[10px] font-mono text-[#64748B] ml-2">Markdown Editor</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {stepContents[activeStep] && stepContents[activeStep].trim() !== '' && (
-                            <button
-                              onClick={() => {
-                                const text = stepContents[activeStep];
-                                const blob = new Blob([text], { type: 'text/markdown' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `${theme || '企劃'}_Step${activeStep}_${STEPS[activeStep-1]?.name.split(' ')[0] || 'Doc'}.md`;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
-                              }}
-                              className="text-[10px] text-[#10B981] hover:text-[#1E293B] flex items-center gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 hover:bg-indigo-500/30 transition-all border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer shadow-sm"
-                              title="下載此步驟內容為 Markdown 檔案"
-                            >
-                              <Download className="w-3 h-3" />
-                              下載 .md
-                            </button>
-                          )}
+                   
                           <div className="text-[10px] text-[#64748B] font-medium">
                             Auto-saved locally
-                          </div>
-                        </div>
-                      </div>
+                          
+                        
+                      
 
                       <div className="flex-1 relative min-h-[500px]">
                         {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
@@ -2504,7 +2429,7 @@ const handleLogin = async (e: React.FormEvent) => {
       {/* Hidden container for PDF export */}
       <div id="pdf-export-container" style={{ display: 'none', position: 'absolute', left: '-9999px', top: '-9999px', width: '800px', backgroundColor: '#ffffff', padding: '40px', color: '#1E293B' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <img src={LOGO_BASE64} alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} />
+           <img src={LOGO_BASE64} alt="Logo" style={{ height: '60px', margin: '0 auto', display: 'block' }} />
           <h1 style={{ fontSize: '28px', marginTop: '20px', color: '#0A2E5C', fontWeight: 'bold' }}>{theme || 'OmniScript'} 完整企劃報告</h1>
         </div>
         {STEPS.map((step, idx) => {
