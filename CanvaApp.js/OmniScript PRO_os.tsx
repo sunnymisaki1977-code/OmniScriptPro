@@ -450,6 +450,52 @@ export default function App() {
     if (changed) setNotebookImages(newImages.slice(0, 16));
   }, [stepContents, isGeneratingNotebook, currentImageStyle]);
 
+  const handleFetchNotebookNotion = async () => {
+    if (!selectedArchive) {
+      safeAlert("請先選擇要載入的 Notion 專案！");
+      return;
+    }
+
+    setIsGeneratingNotebook(true);
+    addLog(`[NotebookLM] 正在從 Notion 擷取並解析腳本...`, 'info');
+
+    try {
+      const response = await fetch(`/api/notion/notebooklm?id=${selectedArchive}`);
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.step2Content) {
+        setStepContents(prev => ({ ...prev, 2: data.step2Content }));
+      }
+
+      if (data.parsedScenes && data.parsedScenes.length > 0) {
+        const newImages = data.parsedScenes.map((scene: any, idx: number) => {
+           return {
+             id: scene.id || idx + 1,
+             title: scene.title,
+             prompt: `視覺建議: ${scene.desc.substring(0, 30)}... | 字卡: ${scene.caption}`,
+             fullPrompt: `${currentImageStyle.promptPrefix}, ${scene.desc}, caption: ${scene.caption}, ${currentImageStyle.promptSuffix}`,
+             url: '',
+             loading: false
+           };
+        });
+        setNotebookImages(newImages.slice(0, 16));
+        addLog(`[NotebookLM] 成功從 Notion 擷取並由後端解析 ${newImages.length} 張分鏡腳本！`, 'success');
+      } else {
+        safeAlert("無法在該專案的 STEP 2 中解析出任何視覺畫面建議！");
+        setNotebookImages([]);
+      }
+    } catch (err: any) {
+      addLog(`[Error] 讀取 Notion 失敗: ${err.message}`, 'error');
+      safeAlert("讀取 Notion 失敗：" + err.message);
+    } finally {
+      setIsGeneratingNotebook(false);
+    }
+  };
+
   const handleGenerateNotebookImages = async () => {
     if (notebookImages.length === 0) {
       safeAlert("無法在 STEP 2 中解析出任何視覺畫面建議！");
@@ -2355,9 +2401,33 @@ const handleLogin = async (e: React.FormEvent) => {
                   {/* Right Column: 16 Grid images & Buttons */}
                   <div className="flex-1 w-full min-h-[600px] flex flex-col gap-4">
                     {/* Action Buttons */}
-                    <div className="flex items-center justify-end gap-3 mb-2">
-                      <button 
-                        onClick={handleGenerateNotebookImages}
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <div className="flex items-center gap-2">
+                        <select 
+                          value={selectedArchive}
+                          onChange={(e) => setSelectedArchive(e.target.value)}
+                          className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-[#64748B] focus:outline-none cursor-pointer backdrop-blur-sm max-w-[150px] truncate"
+                        >
+                          <option value="">-- 選擇 Notion 專案 --</option>
+                          {archiveList.map((item: any) => (
+                            <option key={item.id} value={item.id}>
+                              {item.title}
+                            </option>
+                          ))}
+                        </select>
+                        <button 
+                          onClick={handleFetchNotebookNotion}
+                          disabled={isGeneratingNotebook}
+                          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                        >
+                          <UploadCloud className="w-4 h-4" />
+                          從 Notion 擷取腳本
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={handleGenerateNotebookImages}
                         disabled={isGeneratingNotebook}
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
                       >
@@ -2381,6 +2451,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         <Download className="w-4 h-4" />
                         一鍵下載 Python 剪映草稿
                       </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
