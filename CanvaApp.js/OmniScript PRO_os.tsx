@@ -387,59 +387,88 @@ export default function App() {
 
   const [notebookImages, setNotebookImages] = useState<any[]>([]);
   const [isGeneratingNotebook, setIsGeneratingNotebook] = useState(false);
+  const [isNotebookSidebarHidden, setIsNotebookSidebarHidden] = useState(false);
 
-  const handleGenerateNotebookImages = async () => {
-    const content = stepContents[2] || ""; // Step 2 (0-indexed array, wait, stepContents keys are activeStep which is 1-indexed. So stepContents[2] is STEP 2).
+  useEffect(() => {
+    if (isGeneratingNotebook) return;
+    const content = stepContents[2] || "";
     if (!content.trim()) {
-      safeAlert("STEP 2 主軸腳本文案尚無內容！請先在內容創作中心產出腳本。");
+      if (notebookImages.length > 0) setNotebookImages([]);
       return;
     }
-
-    const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
-    const newImages = [];
     
-    for (let i = 1; i < blocks.length; i += 2) {
-      const blockText = blocks[i+1] || "";
-      const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-      const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-      
-      if (visualMatch) {
-        const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
-        const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
+    const newImages: any[] = [];
+    if (content.includes('### ')) {
+      const parts = content.split(/###\s+/);
+      for(let i=1; i<parts.length; i++) {
+        const lines = parts[i].split('\n');
+        const title = lines[0].trim();
+        const descMatch = parts[i].match(/中文[：:]\s*(.*?)(?=\n|$)/);
+        const desc = descMatch ? descMatch[1].trim() : lines.slice(1).join(' ').substring(0, 100);
         newImages.push({
-          prompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`
+          id: i,
+          title: title,
+          prompt: `畫面細節與標籤：${desc}`,
+          fullPrompt: `${currentImageStyle.promptPrefix}, ${desc}, ${currentImageStyle.promptSuffix}`,
+          url: '',
+          loading: false
         });
       }
+    } else {
+      const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
+      for (let i = 1; i < blocks.length; i += 2) {
+        const timecode = blocks[i].trim();
+        const blockText = blocks[i+1] || "";
+        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        if (visualMatch) {
+          const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
+          const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
+          newImages.push({
+            id: Math.floor(i/2) + 1,
+            title: timecode,
+            prompt: `視覺建議: ${visualPrompt.substring(0, 30)}... | 字卡: ${caption}`,
+            fullPrompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`,
+            url: '',
+            loading: false
+          });
+        }
+      }
     }
+    
+    let changed = newImages.length !== notebookImages.length;
+    if (!changed) {
+       for (let i=0; i<newImages.length; i++) {
+          if (newImages[i].title !== notebookImages[i].title || newImages[i].prompt !== notebookImages[i].prompt) {
+              changed = true; break;
+          }
+       }
+    }
+    if (changed) setNotebookImages(newImages.slice(0, 16));
+  }, [stepContents, isGeneratingNotebook, currentImageStyle]);
 
-    if (newImages.length === 0) {
+  const handleGenerateNotebookImages = async () => {
+    if (notebookImages.length === 0) {
       safeAlert("無法在 STEP 2 中解析出任何視覺畫面建議！");
       return;
     }
 
-    const targetImages = newImages.slice(0, 16);
-    
     setIsGeneratingNotebook(true);
-    setNotebookImages([]);
-    addLog(`[NotebookLM] 準備生成 ${targetImages.length} 張分鏡圖片...`, 'info');
+    addLog(`[NotebookLM] 準備生成 ${notebookImages.length} 張分鏡圖片...`, 'info');
 
-    const placeholderImages = targetImages.map((img, idx) => ({
-      id: idx + 1,
-      url: '',
-      engine: imageEngine,
-      prompt: img.prompt,
-      loading: true
-    }));
-    setNotebookImages(placeholderImages);
+    const finalImages = [...notebookImages];
+    for (let i = 0; i < finalImages.length; i++) {
+      finalImages[i].loading = true;
+    }
+    setNotebookImages([...finalImages]);
 
-    const finalImages = [...placeholderImages];
-    for (let i = 0; i < targetImages.length; i++) {
+    for (let i = 0; i < finalImages.length; i++) {
       try {
         const response = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: targetImages[i].prompt,
+            prompt: finalImages[i].fullPrompt || finalImages[i].prompt,
             aspectRatio: STEPS.find(s => s.id === visualStep)?.aspectRatio || '16:9'
           })
         });
@@ -457,11 +486,11 @@ export default function App() {
         finalImages[i].loading = false;
       }
       setNotebookImages([...finalImages]);
-      addLog(`[NotebookLM] 分鏡 ${i+1}/${targetImages.length} 生成完畢。`, 'success');
+      addLog(`[NotebookLM] 分鏡 ${i+1}/${finalImages.length} 生成完畢。`, 'success');
     }
 
     setIsGeneratingNotebook(false);
-    addLog(`[NotebookLM] ${targetImages.length} 張分鏡全部生成完畢！`, 'success');
+    addLog(`[NotebookLM] ${finalImages.length} 張分鏡全部生成完畢！`, 'success');
   };
 
   const handleDownloadNotebookPython = () => {
@@ -1323,10 +1352,6 @@ const handleLogin = async (e: React.FormEvent) => {
         }
         .markdown-preview h1, .markdown-preview h2, .markdown-preview h3, .markdown-preview h4 {
           color: #f8fafc;
-          font-weight: 700;
-          margin-top: 1.5em;
-          margin-bottom: 0.75em;
-        }
         .markdown-preview h1 { font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 0.3em; }
         .markdown-preview h2 { font-size: 1.3rem; border-bottom: 1px solid #334155; padding-bottom: 0.3em; }
         .markdown-preview h3 { font-size: 1.1rem; }
@@ -1420,7 +1445,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </button>
                   
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
-                  {isActive && tab.id === 'visual' && (
+                  {isActive && (tab.id === 'visual' || tab.id === 'notebook') && (
                     <div className="mx-2 p-4 bg-white border border-slate-200 rounded-xl space-y-4 backdrop-blur-lg">
                       <h4 className=" text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
@@ -2298,140 +2323,113 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                  {/* Left Column: Visual Fission + Export Python */}
-                  <div className="col-span-1 space-y-6">
-                    {/* Visual Fission Panel */}
-                    <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-4 backdrop-blur-lg">
-                      <h4 className="text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
-                        <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
-                        視覺裂變
-                      </h4>
-
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-[14px] text-[#64748B] font-bold block mb-1">畫風濾鏡</label>
-                          <select 
-                            value={currentImageStyle.id}
-                            onChange={(e) => {
-                              const selectedId = e.target.value;
-                              const recommendedStyle = AUDIENCE_STYLES[audienceTheme];
-                              if (recommendedStyle && recommendedStyle.id === selectedId) {
-                                setCurrentImageStyle(recommendedStyle);
-                                return;
-                              }
-                              const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
-                              if (foundPopular) setCurrentImageStyle(foundPopular);
-                            }}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
-                          >
-                            {AUDIENCE_STYLES[audienceTheme] && (
-                              <optgroup label="✨ 專屬推薦">
-                                <option value={AUDIENCE_STYLES[audienceTheme].id}>
-                                  ✨ {AUDIENCE_STYLES[audienceTheme].name} (預設推薦)
-                                </option>
-                              </optgroup>
-                            )}
-                            <optgroup label="🔥 流行濾鏡">
-                              {POPULAR_STYLES.map((style) => (
-                                <option key={style.id} value={style.id}>
-                                  {style.name}
-                                </option>
-                              ))}
-                            </optgroup>
-                          </select>
-                          <div className="text-[12px] text-[#64748B]/80 mt-1 leading-relaxed italic">
-                            已套用風格詞綴：{currentImageStyle.promptSuffix.slice(0, 45)}...
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="text-[14px] text-[#64748B] font-bold block mb-1 mt-3">輸出比例</label>
-                          <select 
-                            value={visualStep}
-                            onChange={(e) => setVisualStep(Number(e.target.value))}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
-                          >
-                            <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫式 (YouTube / FB)'}</option>
-                            <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '直式 (Shorts / Reels)'}</option>
-                            <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '封面圖 / 首圖'}</option>
-                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '方圖 / 輪播圖'}</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-[14px] text-[#64748B] font-bold block mb-1 mt-3">影像生成引擎</label>
-                          <select 
-                            value={imageEngine}
-                            onChange={(e) => setImageEngine(e.target.value)}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
-                          >
-                            {IMAGE_ENGINES.map((engine) => (
-                              <option key={engine.id} value={engine.id}>
-                                {engine.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
+                <div className="flex flex-col lg:flex-row gap-6 items-start relative w-full h-full">
+                  
+                  {isGlobalMaster && (
+                    <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isNotebookSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
+                      <button
+                        onClick={() => setIsNotebookSidebarHidden(!isNotebookSidebarHidden)}
+                        className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
+                        title={isNotebookSidebarHidden ? "展開腳本" : "收合腳本"}
+                      >
+                        {isNotebookSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
+                      </button>
                     </div>
+                  )}
 
-                    <button 
-                      onClick={handleGenerateNotebookImages}
-                      disabled={isGeneratingNotebook}
-                      className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {isGeneratingNotebook ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          生成中...
-                        </>
-                      ) : (
-                        <>
-                          <Palette className="w-4 h-4" />
-                          開始生成 16 張分鏡
-                        </>
-                      )}
-                    </button>
-
-                    <button 
-                      onClick={handleDownloadNotebookPython}
-                      className="w-full py-3 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      一鍵下載 Python 剪映草稿
-                    </button>
+                  {/* Left Column: STEP 2 content */}
+                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-white border border-slate-200 rounded-2xl backdrop-blur-lg flex flex-col relative ${isNotebookSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-0 opacity-100'}`}>
+                     <div className="p-4 bg-slate-100 rounded-t-2xl border-b border-slate-200 flex items-center justify-between">
+                       <h4 className="text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
+                         STEP 2 主軸腳本文案
+                       </h4>
+                     </div>
+                     <div className="p-4 bg-slate-500 text-white font-mono text-sm leading-relaxed overflow-y-auto custom-scrollbar whitespace-pre-wrap" style={{ height: 'calc(100vh - 250px)' }}>
+                       {stepContents[2] || "尚無內容"}
+                     </div>
                   </div>
 
                   {/* Right Column: 16 Grid images */}
-                  <div className="col-span-3">
-                    <div className="bg-white/40 border border-slate-200/50 rounded-3xl p-6 min-h-[600px]">
+                  <div className="flex-1 w-full min-h-[600px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {notebookImages.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20">
-                          <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <Palette className="w-8 h-8 text-slate-300" />
+                        <div className="col-span-full h-64 flex flex-col items-center justify-center text-center space-y-4">
+                          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
+                            <Palette className="w-6 h-6 text-slate-300" />
                           </div>
-                          <h4 className="text-xl font-bold text-slate-700">準備生成分鏡圖片</h4>
-                          <p className="text-slate-500 text-sm max-w-sm">請點擊左側「開始生成 16 張分鏡」，系統將自動從 STEP 2 中提取視覺與字卡來為您產生專屬分鏡圖。</p>
+                          <h4 className="text-lg font-bold text-slate-700">準備生成分鏡圖片</h4>
+                          <p className="text-slate-500 text-xs max-w-sm">請點擊左側選單「開始生成 16 張分鏡」</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          {notebookImages.map((img, i) => (
-                            <div key={img.id} className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
+                        notebookImages.map((img, i) => (
+                          <div key={img.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                            {/* Image Placeholder or Actual Image */}
+                            <div className="relative aspect-video bg-slate-400 group">
                               {img.loading ? (
                                 <div className="absolute inset-0 flex items-center justify-center flex-col bg-slate-50/80 backdrop-blur-sm z-10">
                                   <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mb-2" />
                                   <span className="text-[10px] text-emerald-600 font-bold">Generating...</span>
                                 </div>
+                              ) : img.url ? (
+                                <img src={img.url} alt={`Scene ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                               ) : (
-                                <img src={img.url} alt={`Scene ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <div className="absolute inset-0 flex items-center justify-center text-slate-600 text-xs gap-2">
+                                  <ImageIcon className="w-4 h-4" /> 尚未生成影像
+                                </div>
                               )}
-                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded-md text-[10px] text-white font-mono font-bold">
+                              <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/40 backdrop-blur-sm rounded text-[10px] text-white font-mono font-bold">
                                 {String(i+1).padStart(2, '0')}
                               </div>
                             </div>
-                          ))}
-                        </div>
+                            
+                            {/* Card Content matching Visual Center */}
+                            <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
+                              <div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/10 text-[#10B981] border border-indigo-500/20 font-semibold">
+                                    AI
+                                  </span>
+                                  <div className="flex gap-1.5">
+                                    <button 
+                                      className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all"
+                                      title="下載"
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all">
+                                      <Share2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <h5 className="text-[11px] font-bold text-[#1E293B] truncate">{img.title}</h5>
+                                <p className="text-[10px] text-[#64748B] font-mono mt-1 line-clamp-2" title={img.prompt}>{img.prompt}</p>
+                              </div>
+                              
+                              <button
+                                disabled={img.loading}
+                                className="w-full mt-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                              >
+                                <Sparkles className="w-3 h-3" />
+                                <span>AI 繪製影像 (-5 點)</span>
+                              </button>
+                              
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  className="flex-1 py-1 rounded-md bg-indigo-900/10 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center gap-1 transition-all border border-indigo-200"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                  複製開啟 Gemini
+                                </button>
+                                <button
+                                  className="flex-1 py-1 rounded-md bg-emerald-900/10 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center justify-center gap-1 transition-all border border-emerald-200"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                  ChatGPT
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
                       )}
                     </div>
                   </div>
