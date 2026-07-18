@@ -816,7 +816,9 @@ export default function App() {
           9: data.stepsData[9] || "",
           10: data.stepsData[10] || ""
         });
-        addLog(`[Notion] 專案讀取成功，已匯入腳本與提示詞！`, 'success');
+        setViewState('workspace');
+        setActiveTab('creation');
+        addLog(`[Notion] 專案讀取成功，已導入內容創作中心！`, 'success');
       }
     } catch (error: any) {
       addLog(`[Error] 讀取失敗: ${error.message}`, 'error');
@@ -1665,43 +1667,39 @@ const handleLogin = async (e: React.FormEvent) => {
                     </div>
  
 {/* 接續生成 / 中斷生成 */}
- <div className="flex items-center gap-3 lg:gap-4 shrink-0"> 
-
-            {isGenerating ? (
-              <button 
-                onClick={() => {
-                  setIsGenerating(false);
-                  addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                  setViewState('workspace');
-                }}
-                className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>中斷生成</span>
-              </button>
-            ) : (
-              <button 
-                onClick={() => {
-                  isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
-                  handleStartAuto();
-                }}
-                className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 transition-all duration-300 hover:-translate-y-[2px]"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
-              </button>
-            )}
-          
-           
-          
-
-
-                   
-                          <div className="text-[10px] text-[#64748B] font-medium">
-                            Auto-saved locally
-                          
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3 lg:gap-4 shrink-0"> 
+                          {isGenerating ? (
+                            <button 
+                              onClick={() => {
+                                setIsGenerating(false);
+                                addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                                setViewState('workspace');
+                              }}
+                              className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>中斷生成</span>
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => {
+                                isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
+                                handleStartAuto();
+                              }}
+                              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 transition-all duration-300 hover:-translate-y-[2px]"
+                            >
+                              <Zap className="w-3.5 h-3.5" />
+                              <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
+                            </button>
+                          )}
+                        </div>
                         
-                      
+                        <div className="text-[10px] text-[#64748B] font-medium flex items-center">
+                          <CheckCircle2 className="w-3 h-3 text-[#10B981] mr-1" />
+                          Auto-saved locally
+                        </div>
+                      </div>
 
                       <div className="flex-1 relative min-h-[500px]">
                         {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
@@ -1744,8 +1742,6 @@ const handleLogin = async (e: React.FormEvent) => {
                     </div>
                   </div>
                 </div>
-              </div>
-              </div>
             )
           )}
 
