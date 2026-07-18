@@ -502,6 +502,12 @@ export default function App() {
       return;
     }
 
+    const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    if (!activeApiKey) {
+      safeAlert("請先在側邊欄輸入並儲存 Gemini API Key！");
+      return;
+    }
+
     setIsGeneratingNotebook(true);
     addLog(`[NotebookLM] 準備生成 ${notebookImages.length} 張分鏡圖片...`, 'info');
 
@@ -513,29 +519,43 @@ export default function App() {
 
     for (let i = 0; i < finalImages.length; i++) {
       try {
-        const response = await fetch('/api/generate-image', {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
+        const finalPrompt = `${finalImages[i].fullPrompt || finalImages[i].prompt}\n(Please generate image with aspect ratio 16:9)`;
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: finalImages[i].fullPrompt || finalImages[i].prompt,
-            aspectRatio: STEPS.find(s => s.id === visualStep)?.aspectRatio || '16:9'
+            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          finalImages[i].url = data.imageUrl || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
-          finalImages[i].loading = false;
+          const parts = data.candidates?.[0]?.content?.parts || [];
+          const imagePart = parts.find((p: any) => p.inlineData);
+          if (imagePart && imagePart.inlineData.data) {
+            finalImages[i].url = `data:image/png;base64,${imagePart.inlineData.data}`;
+          } else {
+            throw new Error("模型未回傳圖像資料");
+          }
         } else {
-          finalImages[i].url = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
-          finalImages[i].loading = false;
+          const errData = await response.json();
+          throw new Error(errData.error?.message || "生成失敗");
         }
-      } catch (err) {
+      } catch (err: any) {
+        addLog(`[NotebookLM] 分鏡 ${i+1} 生成失敗: ${err.message}`, 'error');
+        // Fallback or placeholder on error
         finalImages[i].url = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
+      } finally {
         finalImages[i].loading = false;
+        setNotebookImages([...finalImages]);
       }
-      setNotebookImages([...finalImages]);
-      addLog(`[NotebookLM] 分鏡 ${i+1}/${finalImages.length} 生成完畢。`, 'success');
+      
+      if (finalImages[i].url && !finalImages[i].url.includes('unsplash.com')) {
+         addLog(`[NotebookLM] ✨ 分鏡 ${i+1}/${finalImages.length} 生成完畢。`, 'success');
+      }
     }
 
     setIsGeneratingNotebook(false);
