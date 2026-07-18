@@ -10,7 +10,7 @@ import {
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
 , PenLine, Loader2, Star, Gift } from 'lucide-react';
-
+const safeAlert = (msg: string) => typeof window !== 'undefined' ? window.alert(msg) : console.log(msg);
 
 const IMAGE_ENGINES = [
   {
