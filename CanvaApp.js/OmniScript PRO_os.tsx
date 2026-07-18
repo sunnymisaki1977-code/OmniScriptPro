@@ -19,11 +19,6 @@ const IMAGE_ENGINES = [
     desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   },
   {
-    id: 'imagen-4.0-generate-001',
-    name: 'Imagen 4.0',
-    desc: '專案內已有規劃之次世代影像生成引擎，提供極致細節與最高畫質。'
-  },
-  {
     id: 'gemini-3.1-flash-lite-image',
     name: 'Nano Banana 2 Lite',
     desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
@@ -381,9 +376,9 @@ export default function App() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const [generatedImages, setGeneratedImages] = useState([
-    { id: 1, url: '[https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第一組中文Prompt' },
-    { id: 2, url: '[https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第二組中文Prompt' },
-    { id: 3, url: '[https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80)', engine: 'Imagen 4.0', prompt: '第三組中文Prompt' }
+    { id: 1, url: '[https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80)', engine: 'Gemini 2.5 Flash', prompt: '第一組中文Prompt' },
+    { id: 2, url: '[https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80)', engine: 'Gemini 2.5 Flash', prompt: '第二組中文Prompt' },
+    { id: 3, url: '[https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80)', engine: 'Gemini 2.5 Flash', prompt: '第三組中文Prompt' }
   ]);
 
   const [groupImages, setGroupImages] = useState({});
@@ -419,121 +414,7 @@ export default function App() {
     }
   }, [logs]);
 
-// 文字疊加渲染引擎 (純前端)
-  const applyTextOverlayToImageBase64 = (base64Image: string, mainTitle?: string, subTitle?: string, poetry?: string): Promise<string> => {
-    return new Promise((resolve) => {
-      if (!mainTitle && !subTitle && !poetry) {
-        resolve(base64Image);
-        return;
-      }
 
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const width = img.width;
-        const height = img.height;
-        canvas.width = width;
-        canvas.height = height;
-        if (!ctx) return resolve(base64Image);
-        
-        ctx.drawImage(img, 0, 0);
-        
-        const mainFontSize = Math.floor(width * 0.065);
-        const subFontSize = Math.floor(width * 0.028);
-        const poetryFontSize = Math.floor(width * 0.04);
-        
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // --- 隨機多樣化風格定義 (由 AI 隨機取樣) ---
-        const palettes = [
-          { main: 'rgba(255, 251, 240, 1)', mainShadow: 'rgba(20, 10, 0, 0.7)', sub: 'rgba(240, 200, 80, 1)', subShadow: 'rgba(0, 0, 0, 0.58)' },
-          { main: 'rgba(255, 223, 130, 1)', mainShadow: 'rgba(0, 0, 0, 0.8)', sub: 'rgba(255, 255, 255, 1)', subShadow: 'rgba(0, 0, 0, 0.7)' },
-          { main: 'rgba(240, 245, 255, 1)', mainShadow: 'rgba(5, 15, 40, 0.8)', sub: 'rgba(150, 220, 255, 1)', subShadow: 'rgba(0, 5, 20, 0.7)' },
-          { main: 'rgba(255, 200, 100, 1)', mainShadow: 'rgba(20, 10, 5, 0.8)', sub: 'rgba(255, 150, 80, 1)', subShadow: 'rgba(20, 5, 0, 0.7)' },
-          { main: 'rgba(255, 240, 245, 1)', mainShadow: 'rgba(30, 10, 40, 0.8)', sub: 'rgba(230, 180, 255, 1)', subShadow: 'rgba(20, 0, 30, 0.7)' }
-        ];
-        const style = palettes[Math.floor(Math.random() * palettes.length)];
-        
-        // 藝術書法字優先 (加入 Google Fonts 行書/毛筆/小薇體/宋體 隨機抽樣)
-        const fontFamilies = [
-          '"Ma Shan Zheng", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 馬善政毛筆楷書
-          '"Zhi Mang Xing", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 志莽行書
-          '"ZCOOL XiaoWei", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif', // 站酷小薇體
-          '"Noto Serif TC", "DFKai-SB", "BiauKai", "Kaiti TC", "STKaiti", serif'  // 思源宋體
-        ];
-        const randomFontFamily = fontFamilies[Math.floor(Math.random() * fontFamilies.length)];
-        const fontStr = (size: number) => `bold ${size}px ${randomFontFamily}`;
-        
-        if (visualStep === 7 && mainTitle) {
-          // Step 7 主標直式 (基準線右方 25%)
-          const startX = width * 0.75;
-          const startY = height * 0.15;
-          ctx.font = fontStr(mainFontSize);
-          let currentY = startY;
-          for (let i = 0; i < mainTitle.length; i++) {
-            const char = mainTitle[i];
-            ctx.fillStyle = style.mainShadow;
-            ctx.fillText(char, startX + 2, currentY + 2);
-            ctx.fillStyle = style.main;
-            ctx.fillText(char, startX, currentY);
-            currentY += mainFontSize * 1.1;
-          }
-        } else if (visualStep === 8 && poetry) {
-          // Step 8 詩詞直式 (基準線右方 25%，移除標點)
-          const startX = width * 0.75;
-          const startY = height * 0.15;
-          ctx.font = fontStr(poetryFontSize);
-          const cleanText = poetry.replace(/[，。！？；、\s]/g, "");
-          const lines = [];
-          // 七言四句: 每 7 字換行
-          for (let i = 0; i < cleanText.length; i += 7) {
-            lines.push(cleanText.slice(i, i + 7));
-          }
-          let xOffset = startX;
-          lines.forEach((line) => {
-            let currentY = startY;
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              ctx.fillStyle = style.mainShadow;
-              ctx.fillText(char, xOffset + 2, currentY + 2);
-              ctx.fillStyle = style.main;
-              ctx.fillText(char, xOffset, currentY);
-              currentY += poetryFontSize * 1.1;
-            }
-            xOffset -= poetryFontSize * 1.3; // 往左換行
-          });
-        } else {
-          // 一般橫式 (主標下移至 25%)
-          const mainX = width / 2;
-          const mainY = height * 0.25;
-          if (mainTitle) {
-            ctx.font = fontStr(mainFontSize);
-            const shadowOffset = Math.max(1, Math.floor(width * 0.003));
-            ctx.fillStyle = style.mainShadow;
-            ctx.fillText(mainTitle, mainX + shadowOffset, mainY + shadowOffset);
-            ctx.fillStyle = style.main;
-            ctx.fillText(mainTitle, mainX, mainY);
-          }
-          if (subTitle) {
-            const subX = width / 2;
-            const subY = mainY + (mainFontSize * 0.8);
-            ctx.font = fontStr(subFontSize);
-            ctx.fillStyle = style.subShadow;
-            ctx.fillText(subTitle, subX + 1, subY + 1);
-            ctx.fillStyle = style.sub;
-            ctx.fillText(subTitle, subX, subY);
-          }
-        }
-        
-        resolve(canvas.toDataURL('image/png', 0.95));
-      };
-      img.onerror = () => resolve(base64Image);
-      img.src = base64Image;
-    });
-  };
 
   const generateGroupImage = async (group: any) => {
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
@@ -542,7 +423,6 @@ export default function App() {
     
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
     const engineName = engineConfig.name;
-    const isImagen = imageEngine.includes('imagen');
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
     
     try {
@@ -595,40 +475,17 @@ export default function App() {
         } else {
           throw new Error("模型未回傳圖像資料");
         }
-      } else {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${activeApiKey}`;
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            instances: [{ prompt: finalPromptWithStyle }],
-            parameters: { sampleCount: 1, aspectRatio: aspectRatio }
-          })
-        });
-        
-        const data = await response.json();
-        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-        if (data.predictions && data.predictions[0]) {
-          base64 = data.predictions[0].bytesBase64Encoded;
-        } else {
-          throw new Error("未收到圖片資料");
-        }
-      }
       
+      }
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
-        
         let finalImage = originalImage;
-        if (isImagen) {
-          // 只有 Imagen 4 需要本地端字型疊加，Gemini Image 系列直接由模型產出內建字體
-          finalImage = await applyTextOverlayToImageBase64(originalImage, mainTitle, subTitle, poetry);
-        }
         
         setGroupImages(prev => ({ ...prev, [groupId]: finalImage }));
         addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
       }
     } catch (err: any) {
-      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Imagen 4.0';
+      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Gemini 2.5 Flash';
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
