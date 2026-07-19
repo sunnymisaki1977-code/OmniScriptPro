@@ -67,7 +67,7 @@ export async function GET(req: Request) {
     
     // Parse step2Content for NotebookLM scenes
     const parsedScenes: any[] = [];
-    const timecodeRegex = /\**\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\**/g;
+    const timecodeRegex = /[\[【\*]*(\d{1,2}:\d{2}(?::\d{2})?\s*[-~～到]\s*\d{1,2}:\d{2}(?::\d{2})?)[\]】\*]*/g;
     
     if (timecodeRegex.test(step2Content)) {
       timecodeRegex.lastIndex = 0;
@@ -75,8 +75,8 @@ export async function GET(req: Request) {
       for (let i = 1; i < blocks.length; i += 2) {
         const timecode = blocks[i].trim();
         const blockText = blocks[i+1] || "";
-        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\**\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/畫面字卡[：:]\s*\**\s*(.*?)(?=\n|$)/);
+        const visualMatch = blockText.match(/(?:視覺畫面建議|視覺畫面|視覺|畫面)[：:\s]\s*\**\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/(?:畫面字卡|字卡)[：:\s]\s*\**\s*(.*?)(?=\n|$)/);
         if (visualMatch) {
           const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
           const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
