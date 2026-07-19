@@ -20,9 +20,9 @@ export async function POST(req: Request) {
       for (let i = 1; i < blocks.length; i += 2) {
         const timecode = blocks[i].trim();
         const blockText = blocks[i+1] || "";
-        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const voiceoverMatch = blockText.match(/旁白配音\s*\(VO\)[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const visualMatch = blockText.match(/視覺畫面建議\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/畫面字卡\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const voiceoverMatch = blockText.match(/旁白配音\s*\(VO\)\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
         
         if (visualMatch) {
           const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
