@@ -74,9 +74,14 @@ const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colo
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [sloganIdx, setSloganIdx] = useState(0);
 
   useEffect(() => {
     setMounted(true);
+    const timer = setInterval(() => {
+      setSloganIdx(prev => (prev === 0 ? 1 : 0));
+    }, 4000); // 4秒切換一次
+    return () => clearInterval(timer);
   }, []);
 
   // 定義六大受眾模組資料 (加深文字色彩提升在淺色背景的對比)
@@ -218,23 +223,29 @@ export default function LandingPage() {
         {/* 雜訊質感層 */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.25] mix-blend-overlay pointer-events-none z-0" />
         
+        {/* Top Banner (As requested) */}
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-[#F4F6F8] h-[36px] flex items-center justify-center border-b border-gray-200/50 overflow-hidden">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <span 
+              className={`absolute transition-all duration-700 ease-in-out ${sloganIdx === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} text-[13px] md:text-[15px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]`} 
+              style={{ fontFamily: "'Noto Serif TC', serif" }}
+            >
+              讓你的影響力，無所不在<span className="mx-2 text-[#10B981] font-light">｜</span>あなたの影響力を、あらゆる場所へ
+            </span>
+            <span 
+              className={`absolute transition-all duration-700 ease-in-out ${sloganIdx === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} text-[13px] md:text-[15px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#0A2E5C]`} 
+              style={{ fontFamily: "'Noto Serif TC', serif" }}
+            >
+              Your Influence, Everywhere.
+            </span>
+          </div>
+        </div>
+
         {/* Navbar - 玻璃擬物設計 */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/40 bg-white/40 backdrop-blur-xl transition-colors duration-500 shadow-sm">
+        <nav className="fixed top-[44px] left-0 right-0 z-50 border-b border-white/40 bg-white/40 backdrop-blur-xl transition-colors duration-500 shadow-sm">
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             <div className="flex items-center gap-2 shrink-0 relative z-10">
              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
-            </div>
-
-            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-transparent transition-all duration-700" />
-                <span 
-                  className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981] transition-all duration-700" 
-                  style={{ fontFamily: "'Noto Serif TC', serif" }}
-                >
-                  讓你的影響力，無所不在<span className="mx-2 text-[#10B981] font-light">｜</span>あなたの影響力を、あらゆる場所へ
-                </span>
-              </div>
             </div>
 
             <div className="flex items-center gap-4 shrink-0 relative z-10">
@@ -245,7 +256,7 @@ export default function LandingPage() {
 
         <main className="relative z-10">
           {/* 1. Hero Section */}
-          <section className="relative w-full min-h-[40vh] flex flex-col items-center justify-center overflow-hidden pt-20">
+          <section className="relative w-full min-h-[40vh] flex flex-col items-center justify-center overflow-hidden pt-32">
             
             {/* 增強版光暈：大幅提高彩度與不透明度，確保能穿透前方的玻璃 */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl h-full flex justify-center items-center pointer-events-none z-0">
