@@ -10,7 +10,7 @@ import {
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
 , PenLine, Loader2, Star, Gift } from 'lucide-react';
-const safeAlert = (msg: string) => typeof window !== 'undefined' ? window.alert(msg) : console.log(msg);
+
 
 const IMAGE_ENGINES = [
   {
@@ -385,283 +385,12 @@ export default function App() {
   const [generatingGroups, setGeneratingGroups] = useState({});
   const [imageEngine, setImageEngine] = useState('flash');
 
+  const [notebookParsedGroups, setNotebookParsedGroups] = useState<any[]>([]);
   const [notebookImages, setNotebookImages] = useState<any[]>([]);
   const [isGeneratingNotebook, setIsGeneratingNotebook] = useState(false);
   const [isNotebookSidebarHidden, setIsNotebookSidebarHidden] = useState(false);
 
-  useEffect(() => {
-    if (isGeneratingNotebook) return;
-    const content = stepContents[2] || "";
-    if (!content.trim()) {
-      if (notebookImages.length > 0) setNotebookImages([]);
-      return;
-    }
-    
-    const newImages: any[] = [];
-    const timecodeRegex = /\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g;
-    
-    if (timecodeRegex.test(content)) {
-      timecodeRegex.lastIndex = 0;
-      const blocks = content.split(timecodeRegex);
-      for (let i = 1; i < blocks.length; i += 2) {
-        const timecode = blocks[i].trim();
-        const blockText = blocks[i+1] || "";
-        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        if (visualMatch) {
-          const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
-          const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
-          newImages.push({
-            id: Math.floor(i/2) + 1,
-            title: `[${timecode}]`,
-            prompt: `視覺建議: ${visualPrompt.substring(0, 30)}... | 字卡: ${caption}`,
-            fullPrompt: `${currentImageStyle.promptPrefix}, ${visualPrompt}, caption: ${caption}, ${currentImageStyle.promptSuffix}`,
-            url: '',
-            loading: false
-          });
-        }
-      }
-    } else if (content.includes('### ')) {
-      const parts = content.split(/###\s+/);
-      for(let i=1; i<parts.length; i++) {
-        const lines = parts[i].split('\n');
-        const title = lines[0].trim();
-        const descMatch = parts[i].match(/中文[：:]\s*(.*?)(?=\n|$)/);
-        const desc = descMatch ? descMatch[1].trim() : lines.slice(1).join(' ').substring(0, 100);
-        newImages.push({
-          id: i,
-          title: title,
-          prompt: `畫面細節與標籤：${desc}`,
-          fullPrompt: `${currentImageStyle.promptPrefix}, ${desc}, ${currentImageStyle.promptSuffix}`,
-          url: '',
-          loading: false
-        });
-      }
-    }
-    
-    let changed = newImages.length !== notebookImages.length;
-    if (!changed) {
-       for (let i=0; i<newImages.length; i++) {
-          if (newImages[i].title !== notebookImages[i].title || newImages[i].prompt !== notebookImages[i].prompt) {
-              changed = true; break;
-          }
-       }
-    }
-    if (changed) setNotebookImages(newImages.slice(0, 16));
-  }, [stepContents, isGeneratingNotebook, currentImageStyle]);
-
-  const handleFetchNotebookNotion = async () => {
-    if (!selectedArchive) {
-      safeAlert("請先選擇要載入的 Notion 專案！");
-      return;
-    }
-
-    setIsGeneratingNotebook(true);
-    addLog(`[NotebookLM] 正在從 Notion 擷取並解析腳本...`, 'info');
-
-    try {
-      const response = await fetch(`/api/notion/notebooklm?id=${selectedArchive}`);
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.step2Content) {
-        setStepContents(prev => ({ ...prev, 2: data.step2Content }));
-      }
-
-      if (data.parsedScenes && data.parsedScenes.length > 0) {
-        const newImages = data.parsedScenes.map((scene: any, idx: number) => {
-           return {
-             id: scene.id || idx + 1,
-             title: scene.title,
-             prompt: `視覺建議: ${scene.desc.substring(0, 30)}... | 字卡: ${scene.caption}`,
-             fullPrompt: `${currentImageStyle.promptPrefix}, ${scene.desc}, caption: ${scene.caption}, ${currentImageStyle.promptSuffix}`,
-             url: '',
-             loading: false
-           };
-        });
-        setNotebookImages(newImages.slice(0, 16));
-        addLog(`[NotebookLM] 成功從 Notion 擷取並由後端解析 ${newImages.length} 張分鏡腳本！`, 'success');
-      } else {
-        safeAlert("無法在該專案的 STEP 2 中解析出任何視覺畫面建議！");
-        setNotebookImages([]);
-      }
-    } catch (err: any) {
-      addLog(`[Error] 讀取 Notion 失敗: ${err.message}`, 'error');
-      safeAlert("讀取 Notion 失敗：" + err.message);
-    } finally {
-      setIsGeneratingNotebook(false);
-    }
-  };
-
-  const handleGenerateNotebookImages = async () => {
-    if (notebookImages.length === 0) {
-      safeAlert("無法在 STEP 2 中解析出任何視覺畫面建議！");
-      return;
-    }
-
-    const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    if (!activeApiKey) {
-      safeAlert("請先在側邊欄輸入並儲存 Gemini API Key！");
-      return;
-    }
-
-    setIsGeneratingNotebook(true);
-    addLog(`[NotebookLM] 準備生成 ${notebookImages.length} 張分鏡圖片...`, 'info');
-
-    const finalImages = [...notebookImages];
-    for (let i = 0; i < finalImages.length; i++) {
-      finalImages[i].loading = true;
-    }
-    setNotebookImages([...finalImages]);
-
-    for (let i = 0; i < finalImages.length; i++) {
-      try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
-        const finalPrompt = `${finalImages[i].fullPrompt || finalImages[i].prompt}\n(Please generate image with aspect ratio 16:9)`;
-        
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
-            generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const parts = data.candidates?.[0]?.content?.parts || [];
-          const imagePart = parts.find((p: any) => p.inlineData);
-          if (imagePart && imagePart.inlineData.data) {
-            finalImages[i].url = `data:image/png;base64,${imagePart.inlineData.data}`;
-          } else {
-            throw new Error("模型未回傳圖像資料");
-          }
-        } else {
-          const errData = await response.json();
-          throw new Error(errData.error?.message || "生成失敗");
-        }
-      } catch (err: any) {
-        addLog(`[NotebookLM] 分鏡 ${i+1} 生成失敗: ${err.message}`, 'error');
-        // Fallback or placeholder on error
-        finalImages[i].url = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80';
-      } finally {
-        finalImages[i].loading = false;
-        setNotebookImages([...finalImages]);
-      }
-      
-      if (finalImages[i].url && !finalImages[i].url.includes('unsplash.com')) {
-         addLog(`[NotebookLM] ✨ 分鏡 ${i+1}/${finalImages.length} 生成完畢。`, 'success');
-      }
-    }
-
-    setIsGeneratingNotebook(false);
-    addLog(`[NotebookLM] ${finalImages.length} 張分鏡全部生成完畢！`, 'success');
-  };
-
-  const handleDownloadNotebookPython = () => {
-    const pythonCode = `import json
-import os
-import uuid
-import glob
-
-# 1. 剪映草稿路徑 (請替換為您的真實草稿路徑)
-DRAFT_PATH = r"C:\\\\Users\\\\sunny\\\\AppData\\\\Local\\\\JianyingPro\\\\User Data\\\\Projects\\\\com.lveditor.draft\\\\【您的專案名稱】\\\\draft_content.json"
-
-# 自動抓取當前資料夾下的所有圖片 (jpg, png) 作為素材
-current_dir = os.path.dirname(os.path.abspath(__file__))
-image_files = sorted(glob.glob(os.path.join(current_dir, "*.jpg")) + glob.glob(os.path.join(current_dir, "*.png")))
-
-if not image_files:
-    print("❌ 在當前資料夾找不到任何 .jpg 或 .png 圖片！請將下載的圖片與此腳本放在同一個資料夾。")
-    exit()
-
-# 轉換為剪映需要的格式，每張預設 30 秒
-image_list = [{"path": img, "duration_sec": 30} for img in image_files[:16]]
-
-def generate_ids():
-    return str(uuid.uuid4()).upper(), str(uuid.uuid4()).upper()
-
-def inject_images_to_capcut(draft_path, images):
-    if not os.path.exists(draft_path):
-        print(f"❌ 找不到剪映草稿檔案：{draft_path}")
-        return
-
-    with open(draft_path, 'r', encoding='utf-8') as f:
-        draft = json.load(f)
-
-    if "materials" not in draft: draft["materials"] = {}
-    if "videos" not in draft["materials"]: draft["materials"]["videos"] = []
-    
-    image_track = {"id": str(uuid.uuid4()).upper(), "type": "video", "segments": []}
-    draft.setdefault("tracks", []).insert(0, image_track)
-
-    current_start_time = 0
-
-    print("🚀 開始注入本機圖片至剪映草稿...")
-
-    for index, img in enumerate(images):
-        segment_id, material_id = generate_ids()
-        duration_microsec = int(img["duration_sec"] * 1000000)
-
-        photo_material = {
-            "id": material_id,
-            "type": "photo",
-            "path": img["path"],
-            "duration": duration_microsec,
-            "width": 1920,
-            "height": 1080,
-            "photograph_type": 1
-        }
-        draft["materials"]["videos"].append(photo_material)
-
-        image_segment = {
-            "id": segment_id,
-            "material_id": material_id,
-            "source_timerange": {"start": 0, "duration": duration_microsec},
-            "target_timerange": {"start": current_start_time, "duration": duration_microsec},
-            "speed": 1.0,
-            "render_index": 1000 + index,
-            "clip": {
-                "alpha": 1.0, 
-                "scale": {"x": 1.0, "y": 1.0},
-                "transform": {"x": 0.0, "y": 0.0}
-            }
-        }
-        image_track["segments"].append(image_segment)
-        current_start_time += duration_microsec
-
-    # 備份
-    backup_path = draft_path + ".backup"
-    if not os.path.exists(backup_path):
-        import shutil
-        shutil.copy2(draft_path, backup_path)
-        print(f"✅ 已建立草稿備份：{backup_path}")
-
-    with open(draft_path, 'w', encoding='utf-8') as f:
-        json.dump(draft, f, ensure_ascii=False, indent=4)
-        
-    print(f"🎉 成功！已將 {len(images)} 張本機圖片寫入剪映影像軌道。")
-
-if __name__ == "__main__":
-    inject_images_to_capcut(DRAFT_PATH, image_list)
-`;
-
-    const blob = new Blob([pythonCode], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'inject_local_images.py';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    addLog(`[System] 下載剪映本機圖片注入腳本 (Python) 成功！`, 'success');
-  };
-
+  
 
   useEffect(() => {
     const content = stepContents[visualStep];
@@ -687,12 +416,93 @@ if __name__ == "__main__":
   const visualGroups = parsedVisualGroups;
 
   useEffect(() => {
+    if (activeTab === 'notebook' && stepContents[2]) {
+      setIsGeneratingNotebook(true);
+      fetch('/api/notebooklm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: stepContents[2] })
+      })
+        .then(res => res.json())
+        .then(data => {
+          setNotebookParsedGroups(data.parsedScenes || []);
+          setIsGeneratingNotebook(false);
+        })
+        .catch(err => {
+          console.error('Parse notebookLM error:', err);
+          setIsGeneratingNotebook(false);
+        });
+    }
+  }, [stepContents, activeTab]);
+
+  useEffect(() => {
     if (logsEndRef.current) {
       logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [logs]);
 
 
+
+  const handleGenerateNotebookImages = async () => {
+    if (notebookParsedGroups.length === 0) {
+      safeAlert("請先確認腳本中包含有效的視覺畫面建議！");
+      return;
+    }
+    
+    setIsGeneratingNotebook(true);
+    addLog(`[NotebookLM] 開始批次發送 ${notebookParsedGroups.length} 組 Prompt 進行動態組裝...`, 'info');
+    
+    await Promise.all(notebookParsedGroups.map(group => generateGroupImage(group)));
+    
+    setIsGeneratingNotebook(false);
+    addLog(`[NotebookLM] 🎨 所有影像生成完畢！`, 'success');
+  };
+
+  const handleDownloadNotebookPython = async () => {
+    if (notebookParsedGroups.length === 0) {
+      safeAlert("請先產生分鏡卡片！");
+      return;
+    }
+    
+    addLog(`[System] 正在向後端請求產生 Python 自動化草稿...`, 'info');
+    
+    const scenesToExport = notebookParsedGroups.map(g => {
+        return {
+            title: g.title,
+            caption: g.subTitle || "",
+            voiceover: g.poetry || "",
+            prompt: g.prompt || ""
+        };
+    });
+
+    try {
+        const response = await fetch('/api/notebooklm/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scenes: scenesToExport })
+        });
+        
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || "匯出失敗");
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'capcut_generator.py';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        addLog(`[System] 成功下載 Python 剪映草稿腳本！`, 'success');
+    } catch (err: any) {
+        addLog(`[Error] 匯出 Python 腳本失敗: ${err.message}`, 'error');
+        safeAlert("匯出失敗：" + err.message);
+    }
+  };
 
   const generateGroupImage = async (group: any) => {
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
@@ -805,15 +615,15 @@ if __name__ == "__main__":
       }
 
       const jsonOutput = [];
-      const blocks = content.split(/[\[【\*]*(\d{1,2}:\d{2}(?::\d{2})?\s*[-~～到]\s*\d{1,2}:\d{2}(?::\d{2})?)[\]】\*]*/g);
+      const blocks = content.split(/\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g);
       
       for (let i = 1; i < blocks.length; i += 2) {
         const timecode = blocks[i].trim();
         const blockText = blocks[i+1] || "";
         
-        const visualMatch = blockText.match(/(?:視覺畫面建議|視覺畫面|視覺|畫面)[：:\s]\s*\**\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/(?:畫面字卡|字卡)[：:\s]\s*\**\s*(.*?)(?=\n|$)/);
-        const voiceoverMatch = blockText.match(/(?:旁白配音|旁白)(?:\s*\(VO\))?[：:\s]\s*\**\s*(.*?)(?=\n|$)/);
+        const visualMatch = blockText.match(/視覺畫面建議[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const captionMatch = blockText.match(/畫面字卡[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+        const voiceoverMatch = blockText.match(/旁白配音\s*\(VO\)[：:]\s*\*?\s*(.*?)(?=\n|$)/);
         
         if (visualMatch || captionMatch || voiceoverMatch) {
           jsonOutput.push({
@@ -1344,12 +1154,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
   const generateNewImage = async () => {
     
-    // 封測/Gemini環境：不跳出API視窗，直接運行
-    // if (!isCanvasEnv && !geminiApiKey.trim()) {
-    //   setPendingImageTask(() => generateNewImage);
-    //   setShowApiKeyModal(true);
-    //   return;
-    // }
+   
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
@@ -2421,82 +2226,63 @@ const handleLogin = async (e: React.FormEvent) => {
                   {/* Right Column: 16 Grid images & Buttons */}
                   <div className="flex-1 w-full min-h-[600px] flex flex-col gap-4">
                     {/* Action Buttons */}
-                    <div className="flex items-center justify-between w-full mb-2">
-                      <div className="flex items-center gap-2">
-                        <select 
-                          value={selectedArchive}
-                          onChange={(e) => setSelectedArchive(e.target.value)}
-                          className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-[#64748B] focus:outline-none cursor-pointer backdrop-blur-sm max-w-[150px] truncate"
-                        >
-                          <option value="">-- 選擇 Notion 專案 --</option>
-                          {archiveList.map((item: any) => (
-                            <option key={item.id} value={item.id}>
-                              {item.title}
-                            </option>
-                          ))}
-                        </select>
-                        <button 
-                          onClick={handleFetchNotebookNotion}
-                          disabled={isGeneratingNotebook}
-                          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                        >
-                          <UploadCloud className="w-4 h-4" />
-                          從 Notion 擷取腳本
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col md:flex-row items-center justify-end w-full mb-2 gap-3">
+                      <div className="flex items-center gap-3 w-full md:w-auto">
                         <button 
                           onClick={handleGenerateNotebookImages}
-                        disabled={isGeneratingNotebook}
-                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {isGeneratingNotebook ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            生成中...
-                          </>
-                        ) : (
-                          <>
-                            <Palette className="w-4 h-4" />
-                            開始生成 16 張分鏡
-                          </>
-                        )}
-                      </button>
+                          disabled={isGeneratingNotebook}
+                          className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {isGeneratingNotebook ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              生成中...
+                            </>
+                          ) : (
+                            <>
+                              <Palette className="w-4 h-4" />
+                              開始生成 16 張分鏡
+                            </>
+                          )}
+                        </button>
 
-                      <button 
-                        onClick={handleDownloadNotebookPython}
-                        className="px-5 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        一鍵下載 Python 剪映草稿
-                      </button>
+                        <button 
+                          onClick={handleDownloadNotebookPython}
+                          className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          匯出剪映草稿
+                        </button>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {notebookImages.length === 0 ? (
+                      {notebookParsedGroups.length === 0 ? (
                         <div className="col-span-full h-64 flex flex-col items-center justify-center text-center space-y-4">
                           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
                             <Palette className="w-6 h-6 text-slate-300" />
                           </div>
                           <h4 className="text-lg font-bold text-slate-700">準備生成分鏡圖片</h4>
-                          <p className="text-slate-500 text-xs max-w-sm">請點擊左側選單「開始生成 16 張分鏡」</p>
+                          <p className="text-slate-500 text-xs max-w-sm">請確認主軸腳本文案已載入，再「開始生成 16 張分鏡」</p>
                         </div>
                       ) : (
-                        notebookImages.map((img, i) => (
-                          <div key={img.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                        notebookParsedGroups.map((g: any, i: number) => {
+                          const isGenerating = generatingGroups[g.id];
+                          const imageBase64 = groupImages[g.id];
+                          
+                          return (
+                          <div key={g.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
                             {/* Image Placeholder or Actual Image */}
                             <div className="relative aspect-video bg-slate-400 group">
-                              {img.loading ? (
+                              {isGenerating ? (
                                 <div className="absolute inset-0 flex items-center justify-center flex-col bg-slate-50/80 backdrop-blur-sm z-10">
                                   <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mb-2" />
                                   <span className="text-[10px] text-emerald-600 font-bold">Generating...</span>
                                 </div>
-                              ) : img.url ? (
-                                <img src={img.url} alt={`Scene ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                              ) : imageBase64 ? (
+                                <img src={imageBase64} alt={`Scene ${i+1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                               ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-slate-600 text-xs gap-2">
+                                <div className="absolute inset-0 flex items-center justify-center text-slate-600 text-xs gap-2 bg-slate-100">
                                   <ImageIcon className="w-4 h-4" /> 尚未生成影像
                                 </div>
                               )}
@@ -2514,45 +2300,29 @@ const handleLogin = async (e: React.FormEvent) => {
                                   </span>
                                   <div className="flex gap-1.5">
                                     <button 
+                                      onClick={() => handleDownloadImage(imageBase64, `scene_${i+1}`)}
                                       className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all"
                                       title="下載"
                                     >
                                       <Download className="w-3.5 h-3.5" />
                                     </button>
-                                    <button className="p-1 rounded bg-white hover:bg-slate-50 text-[#64748B] hover:text-[#1E293B] transition-all">
-                                      <Share2 className="w-3.5 h-3.5" />
-                                    </button>
                                   </div>
                                 </div>
-                                <h5 className="text-[11px] font-bold text-[#1E293B] truncate">{img.title}</h5>
-                                <p className="text-[10px] text-[#64748B] font-mono mt-1 line-clamp-2" title={img.prompt}>{img.prompt}</p>
+                                <h5 className="text-[11px] font-bold text-[#1E293B] truncate">{g.title}</h5>
+                                <p className="text-[10px] text-[#64748B] font-mono mt-1 line-clamp-2" title={g.prompt}>{g.prompt}</p>
                               </div>
                               
                               <button
-                                disabled={img.loading}
+                                onClick={() => generateGroupImage(g)}
+                                disabled={isGenerating}
                                 className="w-full mt-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all disabled:opacity-50"
                               >
                                 <Sparkles className="w-3 h-3" />
-                                <span>AI 繪製影像 (-5 點)</span>
+                                <span>單張重新生成</span>
                               </button>
-                              
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  className="flex-1 py-1 rounded-md bg-indigo-900/10 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center gap-1 transition-all border border-indigo-200"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                  複製開啟 Gemini
-                                </button>
-                                <button
-                                  className="flex-1 py-1 rounded-md bg-emerald-900/10 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center justify-center gap-1 transition-all border border-emerald-200"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                  ChatGPT
-                                </button>
-                              </div>
                             </div>
                           </div>
-                        ))
+                        )})
                       )}
                     </div>
                   </div>
