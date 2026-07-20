@@ -74,14 +74,9 @@ const LazyYoutube = ({ playlistId, previewVideoId, title, isShorts = false, colo
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [declarationIdx, setDeclarationIdx] = useState(0);
 
   useEffect(() => {
     setMounted(true);
-    const timer = setInterval(() => {
-      setDeclarationIdx((prev) => (prev === 0 ? 1 : 0));
-    }, 4000);
-    return () => clearInterval(timer);
   }, []);
 
   // 定義六大受眾模組資料 (加深文字色彩提升在淺色背景的對比)
@@ -230,19 +225,14 @@ export default function LandingPage() {
              <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
             </div>
 
-            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none">
-              <div className="relative flex justify-center items-center h-[40px] overflow-hidden">
+            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-transparent transition-all duration-700" />
                 <span 
-                  className={`absolute whitespace-nowrap transition-all duration-700 ease-in-out ${declarationIdx === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'} text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]`} 
+                  className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981] transition-all duration-700" 
                   style={{ fontFamily: "'Noto Serif TC', serif" }}
                 >
                   讓你的影響力，無所不在<span className="mx-2 text-[#10B981] font-light">｜</span>あなたの影響力を、あらゆる場所へ
-                </span>
-                <span 
-                  className={`absolute whitespace-nowrap transition-all duration-700 ease-in-out ${declarationIdx === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981]`} 
-                  style={{ fontFamily: "'Noto Serif TC', serif" }}
-                >
-                  Your Influence, Everywhere.
                 </span>
               </div>
             </div>

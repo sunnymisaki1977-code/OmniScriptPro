@@ -157,3 +157,18 @@ def inject_to_capcut(draft_path, images, scenes):
 
 if __name__ == "__main__":
     inject_to_capcut(DRAFT_PATH, image_files, SCENES_DATA)
+`;
+
+    return new NextResponse(pythonCode, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/x-python',
+        'Content-Disposition': 'attachment; filename="capcut_generator.py"'
+      }
+    });
+
+  } catch (error: any) {
+    console.error("Export API Error:", error);
+    return NextResponse.json({ error: error.message || "匯出失敗" }, { status: 500 });
+  }
+}

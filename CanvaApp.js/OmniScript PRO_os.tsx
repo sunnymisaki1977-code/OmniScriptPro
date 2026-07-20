@@ -1773,7 +1773,13 @@ const handleLogin = async (e: React.FormEvent) => {
 
                       <div className="flex items-center gap-3">
 
-                       
+ <button 
+                          onClick={handleDownloadCapCutJson}
+                          className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold text-xs flex items-center gap-1.5 transition-all"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          🎬 匯出剪映草稿 (.JSON)
+                        </button>                     
 
                         <button 
                           onClick={handleDownloadPdf}
