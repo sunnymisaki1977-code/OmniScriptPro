@@ -2260,6 +2260,27 @@ const handleLogin = async (e: React.FormEvent) => {
                           <Download className="w-4 h-4" />
                           匯出剪映草稿
                         </button>
+                        
+                        <button 
+                          onClick={async () => {
+                            if (!notebookParsedGroups || notebookParsedGroups.length === 0) return;
+                            addLog(`[NotebookLM] 開始批次下載 ${notebookParsedGroups.length} 張分鏡圖...`, 'info');
+                            let downloaded = 0;
+                            for (let i = 0; i < notebookParsedGroups.length; i++) {
+                              const g = notebookParsedGroups[i];
+                              if (groupImages[g.id]) {
+                                handleDownloadImage(groupImages[g.id], `notebooklm-scene-${i+1}`);
+                                downloaded++;
+                                await new Promise(r => setTimeout(r, 400));
+                              }
+                            }
+                            addLog(`[NotebookLM] 批次下載完畢！共下載 ${downloaded} 張圖片。`, 'success');
+                          }}
+                          className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          一鍵下載全部影像
+                        </button>
                       </div>
                     </div>
 
