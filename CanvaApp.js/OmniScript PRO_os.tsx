@@ -1326,7 +1326,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </button>
                   
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
-                  {isActive && (tab.id === 'visual' || tab.id === 'notebook') && (
+                  {isActive && (tab.id === 'visual' || tab.id === 'notebook' || tab.id === 'gods_data') && (
                     <div className="mx-2 p-4 bg-white border border-slate-200 rounded-xl space-y-4 backdrop-blur-lg">
                       <h4 className=" text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
@@ -2363,7 +2363,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         const res = await fetch('/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ cards: godsCards })
+                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
                         });
                         const data = await res.json();
                         if (data.error) throw new Error(data.error);
@@ -2454,59 +2454,33 @@ const handleLogin = async (e: React.FormEvent) => {
                       
                       {/* Image Preview / Generation */}
                       <div className="relative aspect-[3/4] bg-slate-100 flex items-center justify-center border-b border-slate-200">
-                        {card.imageUrl ? (
-                          <img src={card.imageUrl} alt={card.name} className="absolute inset-0 w-full h-full object-cover" />
+                        {groupImages[card.id] ? (
+                          <img src={groupImages[card.id]} alt={card.name} className="absolute inset-0 w-full h-full object-cover" />
                         ) : (
                           <div className="text-center p-6 text-slate-400">
-                            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <span className="text-xs font-medium">尚未生成水墨影像</span>
+                            {generatingGroups[card.id] ? (
+                              <Loader2 className="w-8 h-8 mx-auto mb-2 opacity-50 animate-spin" />
+                            ) : (
+                              <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            )}
+                            <span className="text-xs font-medium">{generatingGroups[card.id] ? '正在繪製水墨影像...' : '尚未生成水墨影像'}</span>
                           </div>
                         )}
                         
                         <div className="absolute inset-x-4 bottom-4 z-10 flex gap-2">
                            <button
-                             onClick={async () => {
-                               addLog(`[視覺] 開始生成 [${card.name}] 影像...`, 'info');
-                               try {
-                                 const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
-                                 if (!activeApiKey) {
-                                   setShowApiKeyModal(true);
-                                   throw new Error("請先輸入 Gemini API Key");
-                                 }
-                                 const promptText = "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt;
-                                 
-                                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
-                                 const res = await fetch(apiUrl, {
-                                     method: 'POST',
-                                     headers: { 'Content-Type': 'application/json' },
-                                     body: JSON.stringify({
-                                         contents: [{ role: "user", parts: [{ text: promptText }] }],
-                                         generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
-                                     })
-                                 });
-                                 const resultRaw = await res.json();
-                                 if (!res.ok) throw new Error(resultRaw.error?.message || "Image API Error");
-                                 
-                                 const parts = resultRaw.candidates?.[0]?.content?.parts || [];
-                                 const imagePart = parts.find((p) => p.inlineData);
-                                 if (!imagePart) throw new Error("模型未回傳圖像資料");
-                                 const base64 = imagePart.inlineData.data;
-                                 const mimeType = imagePart.inlineData.mimeType || 'image/png';
-                                 
-                                 const data = { url: `data:${mimeType};base64,${base64}` };
-                                 if (data.error) throw new Error(data.error);
-                                 
-                                 const newCards = [...godsCards];
-                                 newCards[i].imageUrl = data.url || data.imageUrl || data.image_url;
-                                 setGodsCards(newCards);
-                                 addLog(`[視覺] [${card.name}] 影像生成完成！`, 'success');
-                               } catch (e: any) {
-                                 addLog(`[視覺] 影像生成失敗: ${e.message}`, 'error');
-                               }
-                             }}
-                             className="flex-1 py-2 rounded-lg bg-indigo-500/90 hover:bg-indigo-600 text-white text-xs font-medium backdrop-blur-sm transition flex justify-center items-center gap-1.5"
+                             onClick={() => generateGroupImage({
+                               id: card.id,
+                               prompt: "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt,
+                               mainTitle: card.name,
+                               subTitle: card.title,
+                               poetry: card.poem
+                             })}
+                             disabled={generatingGroups[card.id]}
+                             className="flex-1 py-2 rounded-lg bg-indigo-500/90 hover:bg-indigo-600 text-white text-xs font-medium backdrop-blur-sm transition flex justify-center items-center gap-1.5 disabled:opacity-50"
                            >
-                             <Sparkles className="w-3.5 h-3.5" />單張重新生成
+                             <Sparkles className="w-3.5 h-3.5" />
+                             {generatingGroups[card.id] ? '單張渲染中...' : '單張重新生成'}
                            </button>
                         </div>
                         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
