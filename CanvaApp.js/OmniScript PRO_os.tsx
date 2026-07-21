@@ -2379,7 +2379,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     onClick={async () => {
                       if (!godsCards || godsCards.length === 0) return;
                       setIsSavingGods(true);
-                      addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info'); ${godsCards.length} 筆神明資料...`, 'info');
+                      addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
                       try {
                         const res = await fetch('/api/gods-notion', {
                           method: 'POST',
