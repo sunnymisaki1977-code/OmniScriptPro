@@ -2354,13 +2354,34 @@ const handleLogin = async (e: React.FormEvent) => {
                       批次輸入神佛尊號，考證文獻、文化脈絡並動態生成水墨圖卡。
                     </p>
                   </div>
+                  <div className="flex items-center gap-3">
+                  <button 
+                    onClick={async () => {
+                      if (!godsCards || godsCards.length === 0) return;
+                      addLog(`[諸神解碼] 開始批次下載 ${godsCards.length} 張圖文卡片...`, 'info');
+                      let downloaded = 0;
+                      for (let i = 0; i < godsCards.length; i++) {
+                        const c = godsCards[i];
+                        if (groupImages[c.id]) {
+                          handleDownloadImage(groupImages[c.id], c.name);
+                          downloaded++;
+                          await new Promise(r => setTimeout(r, 400));
+                        }
+                      }
+                      addLog(`[諸神解碼] 批次下載完畢！共下載 ${downloaded} 張圖片。`, 'success');
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-[#1E293B] rounded-xl shadow-sm transition-all font-medium text-sm disabled:opacity-50"
+                  >
+                    <Download className="w-4 h-4" />
+                    一鍵下載
+                  </button>
                   <button 
                     onClick={async () => {
                       if (!godsCards || godsCards.length === 0) return;
                       setIsSavingGods(true);
-                      addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
+                      addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info'); ${godsCards.length} 筆神明資料...`, 'info');
                       try {
-                        const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
+                        const res = await fetch('/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
@@ -2411,6 +2432,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         let data = { results: [] };
                         
                         for (const name of names) {
+                            addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
                             const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
                             const response = await fetch(apiUrl, {
                                 method: 'POST',
@@ -2431,6 +2453,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                     ...parsed,
                                     imageUrl: ""
                                 });
+                                addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
                             }
                         }
                         if (data.error) throw new Error(data.error);
@@ -2484,6 +2507,14 @@ const handleLogin = async (e: React.FormEvent) => {
                            >
                              <Sparkles className="w-3.5 h-3.5" />
                              {generatingGroups[card.id] ? '單張渲染中...' : '單張重新生成'}
+                           </button>
+                           <button
+                             onClick={() => handleDownloadImage(groupImages[card.id], card.name)}
+                             disabled={!groupImages[card.id]}
+                             className="px-3 py-2 rounded-lg bg-white/90 hover:bg-white text-indigo-600 font-medium backdrop-blur-sm transition flex justify-center items-center shadow-sm disabled:opacity-50 border border-slate-200 ml-2"
+                             title="下載圖片"
+                           >
+                             <Download className="w-4 h-4" />
                            </button>
                         </div>
                         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
