@@ -12,36 +12,55 @@ export async function POST(req: Request) {
 
     // Parse content for NotebookLM scenes
     const parsedScenes: any[] = [];
-    const timecodeRegex = /\*\*\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]\*\*/g;
+    const timecodeRegex = /\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]/g;
     
-    if (timecodeRegex.test(content)) {
-      timecodeRegex.lastIndex = 0;
-      const blocks = content.split(timecodeRegex);
-      for (let i = 1; i < blocks.length; i += 2) {
-        const timecode = blocks[i].trim();
-        const blockText = blocks[i+1] || "";
-        const visualMatch = blockText.match(/視覺畫面建議\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const captionMatch = blockText.match(/畫面字卡\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
-        const voiceoverMatch = blockText.match(/旁白配音\s*\(VO\)\**[：:]\s*\*?\s*(.*?)(?=\n|$)/);
+    let matches = [];
+    let match;
+    while ((match = timecodeRegex.exec(content)) !== null) {
+      matches.push({ index: match.index, timecode: match[1] });
+    }
+    
+    if (matches.length > 0) {
+      for (let i = 0; i < matches.length; i++) {
+        const start = matches[i].index;
+        const end = i + 1 < matches.length ? matches[i+1].index : content.length;
+        const blockRaw = content.substring(start, end);
         
-        if (visualMatch) {
-          const visualPrompt = visualMatch[1].replace(/\*+/g, '').trim();
-          const caption = captionMatch ? captionMatch[1].replace(/\*+/g, '').trim() : "";
-          const voiceover = voiceoverMatch ? voiceoverMatch[1].replace(/\*+/g, '').trim() : "";
-          
-          const combinedPrompt = `[${timecode}]\n視覺畫面建議：${visualPrompt}\n畫面字卡：${caption}`;
-
-          parsedScenes.push({
-            id: `group-notebooklm-${Math.floor(i/2) + 1}`,
-            title: `[${timecode}]`,
-            prompt: combinedPrompt,
-            mainTitle: "",
-            subTitle: caption,
-            poetry: voiceover
-          });
+        if (blockRaw.includes("畫面節點") || blockRaw.includes("視覺畫面建議") || blockRaw.includes("畫面字卡")) {
+            const lines = blockRaw.split('\n');
+            let visualPrompt = "";
+            let caption = "";
+            let voiceover = "";
+            
+            for (const line of lines) {
+                if (line.includes("畫面節點") || line.includes("視覺畫面建議")) {
+                    visualPrompt = line.replace(/^.*?(畫面節點|視覺畫面建議)\**[：:]\s*\*?\s*/, '').trim();
+                } else if (line.includes("畫面字卡")) {
+                    caption = line.replace(/^.*?畫面字卡\**[：:]\s*\*?\s*/, '').trim();
+                } else if (line.includes("旁白配音") || line.includes("(VO)")) {
+                    voiceover = line.replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/, '').trim();
+                }
+            }
+            
+            if (!visualPrompt) {
+               const cleaned = blockRaw.replace(/\[\d{2}:\d{2}\s*-\s*\d{2}:\d{2}\]/, '').replace(/#+/g, '').trim();
+               visualPrompt = cleaned.split('\n')[0].trim();
+            }
+            
+            parsedScenes.push({
+                id: `group-notebooklm-${parsedScenes.length + 1}`,
+                title: `[${matches[i].timecode}]`,
+                prompt: `[${matches[i].timecode}]\n視覺畫面建議：${visualPrompt}\n畫面字卡：${caption}`,
+                mainTitle: "",
+                subTitle: caption,
+                poetry: voiceover
+            });
         }
       }
-    } else if (content.includes('### ')) {
+    }
+    
+    // Fallback: If no structured timecodes were found, split by ### headers
+    if (parsedScenes.length === 0 && content.includes('### ')) {
       const parts = content.split(/###\s+/);
       for(let i=1; i<parts.length; i++) {
         const lines = parts[i].split('\n');
