@@ -310,7 +310,7 @@ export default function LandingPage() {
 
             <div className="max-w-7xl mx-auto relative z-10">
               <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B] drop-shadow-sm">6 大專業受眾模組切換</h2>
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-[#1E293B] drop-shadow-sm">主題模組切換</h2>
                 <p className="text-lg text-slate-700 max-w-4xl mx-auto font-medium">
                   總會你的風格，系統會連同 UI 介面、渲染風格與產出邏輯一併切換。點擊下方標籤，查看對應的生成作品示範。
                 </p>
