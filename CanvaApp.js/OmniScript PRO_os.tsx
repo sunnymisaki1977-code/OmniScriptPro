@@ -36,11 +36,17 @@ const IMAGE_ENGINES = [
 ];
 
 // ============================================================================
+// ============================================================================
+// --- 共用 Gemini API URL ---
+function getGeminiTextApiUrl(apiKey: string) {
+    return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+}
+
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = getGeminiTextApiUrl(apiKey);
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -879,7 +885,7 @@ export default function App() {
             };
             const masterPrompt = promptFunc(stepContext);
             
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+            const apiUrl = getGeminiTextApiUrl(activeApiKey);
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
