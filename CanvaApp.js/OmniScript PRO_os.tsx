@@ -2428,7 +2428,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               }
                           }
                         } else {
-                          const res = await fetch('/api/gods-generate', {
+                          const res = await fetch('https://omni-script-pro.vercel.app/api/gods-generate', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ names })
