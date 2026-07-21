@@ -2,11 +2,12 @@ import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DATABASE_ID = "3a483ac4203780c89a41d8f53601c864";
+const DEFAULT_DATABASE_ID = "3a483ac4203780c89a41d8f53601c864";
 
 export async function POST(req: Request) {
   try {
-    const { cards } = await req.json();
+    const { cards, databaseId } = await req.json();
+    const targetDatabaseId = databaseId || DEFAULT_DATABASE_ID;
 
     if (!cards || !Array.isArray(cards) || cards.length === 0) {
       return NextResponse.json({ error: "Missing cards array" }, { status: 400 });
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
       }
 
       const response = await notion.pages.create({
-        parent: { database_id: DATABASE_ID },
+        parent: { database_id: targetDatabaseId },
         properties: {
           Name: { // Note: Assuming the default Title property is named 'Name'
             title: [

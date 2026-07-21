@@ -2384,7 +2384,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         const res = await fetch('/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
+                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })), databaseId: "3a483ac4203780c89a41d8f53601c864" })
                         });
                         const data = await res.json();
                         if (data.error) throw new Error(data.error);
@@ -2461,6 +2461,22 @@ const handleLogin = async (e: React.FormEvent) => {
                         setGodsCards(prev => [...prev, ...data.results]);
                         addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
                         setGodsInput('');
+                        
+                        // 自動儲存至 Notion
+                        addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
+                        try {
+                          const res = await fetch('/api/gods-notion', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ cards: data.results, databaseId: "3a483ac4203780c89a41d8f53601c864" })
+                          });
+                          const notionData = await res.json();
+                          if (notionData.error) throw new Error(notionData.error);
+                          addLog(`[Notion] 自動寫入資料庫成功！`, 'success');
+                        } catch (e: any) {
+                          addLog(`[Notion] 自動寫入失敗: ${e.message}`, 'error');
+                        }
+
                       } catch (e: any) {
                         addLog(`[諸神解碼] 生成失敗: ${e.message}`, 'error');
                       }
