@@ -2381,7 +2381,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsSavingGods(true);
                       addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
                       try {
-                        const res = await fetch('/api/gods-notion', {
+                        const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })), databaseId: "3a483ac4203780c89a41d8f53601c864" })
@@ -2465,7 +2465,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         // 自動儲存至 Notion
                         addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
                         try {
-                          const res = await fetch('/api/gods-notion', {
+                          const res = await fetch('https://omni-script-pro.vercel.app//api/gods-notion', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ cards: data.results, databaseId: "3a483ac4203780c89a41d8f53601c864" })
