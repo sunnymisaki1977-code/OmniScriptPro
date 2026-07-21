@@ -365,7 +365,7 @@ export default function App() {
 
   const [logs, setLogs] = useState([
     { time: "[System]", text: "[System] OmniScript Pro OS 初始化完畢。", type: "info" },
-    { time: "[System]", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "default" }
+    { time: "[System]", text: "[System] 系統就緒。主美學配置：全職影音創作者 (Cinematic Pink)", type: "info" }
   ]);
   
   const [aiStatus, setAiStatus] = useState('pro'); 

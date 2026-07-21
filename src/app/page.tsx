@@ -8,7 +8,8 @@ import {
   ArrowRight, 
   Database,
   Play,
-  Sliders
+  Sliders,
+  Youtube
 } from 'lucide-react';
 import FlipCard from '@/components/FlipCard';
 import { ChannelStats } from '@/components/ui/ChannelStats';
@@ -397,8 +398,12 @@ export default function LandingPage() {
                   
                   <blockquote className="text-lg md:text-xl text-slate-600 mb-10 pl-6 border-l-4 border-[#10B981] italic leading-relaxed font-medium">
                     「製作這樣一支考據嚴謹的歷史紀錄片，過去需要耗費數週。現在透過 OmniScript PRO，從文獻整理到腳本產出的時間大幅縮短，讓創作者能真正專注於『說好故事』。」
-                    <footer className="mt-4 text-[#10B981] font-bold not-italic">
-                      — @genimprint 世代銘印
+                    <footer className="mt-4 font-bold not-italic">
+                      <a href="https://www.youtube.com/@GenImprint" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#10B981] hover:text-[#0ea5e9] transition-colors">
+                        — 
+                        <Youtube className="w-5 h-5 text-red-500" />
+                        @genimprint 世代銘印
+                      </a>
                     </footer>
                   </blockquote>
                   
