@@ -2398,12 +2398,38 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsGeneratingGods(true);
                       addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
                       try {
-                        const res = await fetch('/api/gods-generate', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ names })
-                        });
-                        const data = await res.json();
+                        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
+                        if (!activeApiKey) {
+                          setShowApiKeyModal(true);
+                          throw new Error("請先輸入 Gemini API Key");
+                        }
+                        
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`;
+                        const data = { results: [] };
+                        
+                        for (const name of names) {
+                            const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                    generationConfig: { temperature: 0.7 }
+                                })
+                            });
+                            const resultRaw = await response.json();
+                            if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
+                            const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                            const jsonMatch = text.match(/\{[\s\S]*\}/);
+                            if (jsonMatch) {
+                                const parsed = JSON.parse(jsonMatch[0]);
+                                data.results.push({
+                                    id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                    ...parsed,
+                                    imageUrl: ""
+                                });
+                            }
+                        }
                         if (data.error) throw new Error(data.error);
                         setGodsCards(prev => [...prev, ...data.results]);
                         addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
@@ -2442,14 +2468,32 @@ const handleLogin = async (e: React.FormEvent) => {
                              onClick={async () => {
                                addLog(`[視覺] 開始生成 [${card.name}] 影像...`, 'info');
                                try {
-                                 const res = await fetch('/api/generate-image', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ 
-                                      prompt: "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt 
-                                    })
+                                 const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
+                                 if (!activeApiKey) {
+                                   setShowApiKeyModal(true);
+                                   throw new Error("請先輸入 Gemini API Key");
+                                 }
+                                 const promptText = "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt;
+                                 
+                                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
+                                 const res = await fetch(apiUrl, {
+                                     method: 'POST',
+                                     headers: { 'Content-Type': 'application/json' },
+                                     body: JSON.stringify({
+                                         contents: [{ role: "user", parts: [{ text: promptText }] }],
+                                         generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+                                     })
                                  });
-                                 const data = await res.json();
+                                 const resultRaw = await res.json();
+                                 if (!res.ok) throw new Error(resultRaw.error?.message || "Image API Error");
+                                 
+                                 const parts = resultRaw.candidates?.[0]?.content?.parts || [];
+                                 const imagePart = parts.find((p) => p.inlineData);
+                                 if (!imagePart) throw new Error("模型未回傳圖像資料");
+                                 const base64 = imagePart.inlineData.data;
+                                 const mimeType = imagePart.inlineData.mimeType || 'image/png';
+                                 
+                                 const data = { url: `data:${mimeType};base64,${base64}` };
                                  if (data.error) throw new Error(data.error);
                                  
                                  const newCards = [...godsCards];
