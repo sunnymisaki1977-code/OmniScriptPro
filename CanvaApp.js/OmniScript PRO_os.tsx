@@ -424,7 +424,7 @@ export default function App() {
   useEffect(() => {
     if (activeTab === 'notebook' && stepContents[2]) {
       setIsGeneratingNotebook(true);
-      fetch('/api/notebooklm', {
+      fetch('https://omni-script-pro.vercel.app/api/notebooklm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: stepContents[2] })
@@ -482,7 +482,7 @@ export default function App() {
     });
 
     try {
-        const response = await fetch('/api/notebooklm/export', {
+        const response = await fetch('https://omni-script-pro.vercel.app/api/notebooklm/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ scenes: scenesToExport })
@@ -2360,7 +2360,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsSavingGods(true);
                       addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
                       try {
-                        const res = await fetch('/api/gods-notion', {
+                        const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
@@ -2404,7 +2404,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           throw new Error("請先輸入 Gemini API Key");
                         }
                         
-                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeApiKey}`;
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
                         const data = { results: [] };
                         
                         for (const name of names) {
