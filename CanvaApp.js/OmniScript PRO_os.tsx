@@ -256,7 +256,13 @@ export default function App() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
-    const [activeTab, setActiveTab] = useState('creation'); 
+    const [activeTab, setActiveTab] = useState('creation');
+
+  const [godsInput, setGodsInput] = useState('');
+  const [isGeneratingGods, setIsGeneratingGods] = useState(false);
+  const [godsCards, setGodsCards] = useState<any[]>([]);
+  const [isSavingGods, setIsSavingGods] = useState(false);
+ 
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======
   const [isMounted, setIsMounted] = useState(false);
@@ -1292,7 +1298,8 @@ const handleLogin = async (e: React.FormEvent) => {
               { id: 'creation', icon: FileText, label: '內容創作中心' },
               { id: 'visual', icon: ImageIcon, label: '視覺發控中心' },
               { id: 'suno', icon: Music, label: 'Suno 配樂中心' },
-              { id: 'notebook', icon: BookOpen, label: 'NotebookLM 影片中心' }
+              { id: 'notebook', icon: BookOpen, label: 'NotebookLM 影片中心' },
+              { id: 'gods_data', icon: Star, label: '諸神文化解碼中心' }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -2331,6 +2338,175 @@ const handleLogin = async (e: React.FormEvent) => {
               </div>
             </div>
           )}
+
+          {/* TAB 5: Gods Data Center */}
+          {activeTab === 'gods_data' && (
+            <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
+              <div className="max-w-6xl mx-auto space-y-6">
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
+                      <Star className="w-5 h-5 text-indigo-500" />
+                      諸神文化解碼中心
+                    </h3>
+                    <p className="text-sm text-[#64748B] mt-1">
+                      批次輸入神佛尊號，考證文獻、文化脈絡並動態生成水墨圖卡。
+                    </p>
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      if (!godsCards || godsCards.length === 0) return;
+                      setIsSavingGods(true);
+                      addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
+                      try {
+                        const res = await fetch('/api/gods-notion', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ cards: godsCards })
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        addLog(`[Notion] 成功寫入資料庫！`, 'success');
+                      } catch (e: any) {
+                        addLog(`[Notion] 寫入失敗: ${e.message}`, 'error');
+                      }
+                      setIsSavingGods(false);
+                    }}
+                    disabled={isSavingGods || godsCards.length === 0}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl shadow-lg transition-all"
+                  >
+                    <Database className="w-4 h-4" />
+                    {isSavingGods ? '儲存中...' : '儲存至 Notion'}
+                  </button>
+                </div>
+
+                {/* Input Area */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
+                  <input
+                    value={godsInput}
+                    onChange={(e) => setGodsInput(e.target.value)}
+                    placeholder="輸入神明尊號，支援多筆以逗號分隔 (例: 天上聖母, 關聖帝君)"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!godsInput.trim()) return;
+                      const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
+                      if (names.length === 0) return;
+
+                      setIsGeneratingGods(true);
+                      addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
+                      try {
+                        const res = await fetch('/api/gods-generate', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ names })
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        setGodsCards(prev => [...prev, ...data.results]);
+                        addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
+                        setGodsInput('');
+                      } catch (e: any) {
+                        addLog(`[諸神解碼] 生成失敗: ${e.message}`, 'error');
+                      }
+                      setIsGeneratingGods(false);
+                    }}
+                    disabled={isGeneratingGods}
+                    className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow transition-all font-medium whitespace-nowrap disabled:opacity-50"
+                  >
+                    {isGeneratingGods ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    開始考證
+                  </button>
+                </div>
+
+                {/* Cards Area */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {godsCards.map((card, i) => (
+                    <div key={card.id || i} className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden group hover:shadow-lg transition-all">
+                      
+                      {/* Image Preview / Generation */}
+                      <div className="relative aspect-[3/4] bg-slate-100 flex items-center justify-center border-b border-slate-200">
+                        {card.imageUrl ? (
+                          <img src={card.imageUrl} alt={card.name} className="absolute inset-0 w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-center p-6 text-slate-400">
+                            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <span className="text-xs font-medium">尚未生成水墨影像</span>
+                          </div>
+                        )}
+                        
+                        <div className="absolute inset-x-4 bottom-4 z-10 flex gap-2">
+                           <button
+                             onClick={async () => {
+                               addLog(`[視覺] 開始生成 [${card.name}] 影像...`, 'info');
+                               try {
+                                 const res = await fetch('/api/generate-image', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ 
+                                      prompt: "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt 
+                                    })
+                                 });
+                                 const data = await res.json();
+                                 if (data.error) throw new Error(data.error);
+                                 
+                                 const newCards = [...godsCards];
+                                 newCards[i].imageUrl = data.url || data.imageUrl || data.image_url;
+                                 setGodsCards(newCards);
+                                 addLog(`[視覺] [${card.name}] 影像生成完成！`, 'success');
+                               } catch (e: any) {
+                                 addLog(`[視覺] 影像生成失敗: ${e.message}`, 'error');
+                               }
+                             }}
+                             className="flex-1 py-2 rounded-lg bg-indigo-500/90 hover:bg-indigo-600 text-white text-xs font-medium backdrop-blur-sm transition flex justify-center items-center gap-1.5"
+                           >
+                             <Sparkles className="w-3.5 h-3.5" />單張重新生成
+                           </button>
+                        </div>
+                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                      </div>
+
+                      {/* Info Area */}
+                      <div className="p-4 flex-1 flex flex-col">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="px-2 py-0.5 bg-rose-50 text-rose-600 text-[10px] font-bold rounded">
+                            {card.organization}
+                          </span>
+                          <h4 className="font-bold text-slate-800 truncate">{card.name}</h4>
+                        </div>
+                        <p className="text-xs font-bold text-indigo-600 mb-2 truncate">{card.title}</p>
+                        <p className="text-[11px] text-slate-600 leading-relaxed mb-3 line-clamp-3">
+                          {card.desc}
+                        </p>
+                        
+                        <div className="mt-auto">
+                           <div className="bg-amber-50 border border-amber-100 rounded-lg p-2.5 mb-2 relative">
+                             <span className="absolute top-1 left-2 text-3xl font-serif text-amber-200 opacity-50">"</span>
+                             <p className="text-xs font-serif text-amber-900 text-center tracking-widest relative z-10">
+                               {card.poem}
+                             </p>
+                           </div>
+                           
+                           <div className="flex flex-wrap gap-1">
+                             {card.tags?.map((t: string, tidx: number) => (
+                               <span key={tidx} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] rounded-sm">
+                                 #{t}
+                               </span>
+                             ))}
+                           </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+          )}
+
 
         </div>
       </div>

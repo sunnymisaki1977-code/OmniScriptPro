@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【諸神・紀略】文化密碼解碼器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 色彩規範實作 */
+        :root {
+            --color-xuan: #151515; /* 玄色 */
+            --color-jiang: #4a1525; /* 絳紫 */
+            --color-gold: #d4af37; /* 琥珀金 */
+            --color-bone: #e3dac9; /* 骨色 */
+        }
+        body { background-color: var(--color-xuan); font-family: 'Noto Sans TC', sans-serif; }
+        .font-serif { font-family: 'Noto Serif TC', serif; }
+        .text-gold { color: var(--color-gold); }
+        .bg-jiang { background-color: var(--color-jiang); }
+        .bg-bone { background-color: var(--color-bone); color: #222; }
+        
+        /* 印章落款設計：確保方型邊框細緻不沉重 */
+        .seal-stamp {
+            display: inline-block;
+            border: 1px solid #a73a3a;
+            color: #a73a3a;
+            padding: 4px 6px;
+            font-size: 0.85rem;
+            writing-mode: vertical-rl;
+            letter-spacing: 3px;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        /* 捲軸與卡片過渡動畫 */
+        .card-enter {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 圖片載入過渡效果 */
+        .img-fade {
+            transition: opacity 1s ease-in-out;
+            opacity: 0;
+        }
+        .img-fade.loaded {
+            opacity: 1;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--color-gold);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen p-4 md:p-8 relative">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- 頂部控制區 (玄色背景) -->
+        <header class="mb-12 text-center pt-8">
+            <h1 class="text-4xl md:text-5xl font-serif text-gold mb-4 tracking-widest">諸神・紀略</h1>
+            <p class="text-base text-gray-400 mb-8 font-light tracking-wider">解碼銘印於心的文化密碼</p>
+            
+            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <input type="text" id="themeInput" placeholder="輸入神明尊號 (支援多筆，以逗號或空白分隔)" 
+                       class="px-6 py-4 w-full md:w-[28rem] bg-gray-800/50 border border-gray-600 rounded text-white focus:outline-none focus:border-[#d4af37] transition font-serif tracking-wider">
+                <button id="generateBtn" onclick="generateContent()" 
+                        class="px-8 py-4 bg-jiang text-gold font-serif rounded hover:bg-opacity-80 transition shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
+                    <span id="btnText">生成考證文獻</span>
+                    <div id="btnLoading" class="spinner hidden"></div>
+                </button>
+            </div>
+        </header>
+
+        <!-- 訊息提示區 -->
+        <div id="notification" class="hidden text-center mb-8 text-[#d4af37] font-serif tracking-widest bg-[#4a1525]/50 py-3 px-6 rounded max-w-md mx-auto border border-[#d4af37]/30 transition-opacity duration-300">
+        </div>
+
+        <!-- 卡片展示區 -->
+        <div id="cardContainer" class="hidden pb-12 flex-col gap-12">
+            <!-- 動態生成的卡片將插入於此 -->
+        </div>
+    </div>
+
+    <!-- 卡片模板 (Template) -->
+    <template id="deityCardTemplate">
+        <div class="card-enter flex flex-col md:flex-row rounded-sm overflow-hidden shadow-2xl border border-gray-700/50">
+            <!-- 左側：圖像誌 -->
+            <div class="w-full md:w-5/12 bg-[#1a1a1a] relative min-h-[400px] md:min-h-[600px] flex items-center justify-center border-b md:border-b-0 md:border-r border-[#d4af37]/30 overflow-hidden group">
+                <div class="image-placeholder text-[#d4af37]/40 text-sm z-0 font-serif tracking-widest flex flex-col items-center gap-4">
+                    <div class="spinner"></div>
+                    繪製神像彩墨中...
+                </div>
+                <img src="" alt="神像彩墨" class="deity-image absolute inset-0 w-full h-full object-cover img-fade mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105 hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute bottom-8 left-8 z-20 flex gap-4">
+                    <div class="card-poem font-serif text-[#d4af37] text-2xl tracking-[0.3em] font-bold" style="writing-mode: vertical-rl;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：文獻百科 -->
+            <div class="w-full md:w-7/12 bg-bone p-8 md:p-14 relative flex flex-col justify-center">
+                <div class="absolute top-8 right-8 font-serif seal-stamp select-none opacity-60">紀略考證</div>
+                <h2 class="card-title text-4xl md:text-5xl font-serif text-gray-900 mb-8 border-b-2 border-[#d4af37] pb-4 inline-block self-start tracking-widest">
+                </h2>
+                <div class="space-y-8 flex-grow">
+                    <div>
+                        <h3 class="text-xl font-serif text-[#4a1525] mb-3 font-bold tracking-widest flex items-center">
+                            <span class="w-2 h-2 bg-[#d4af37] mr-3 transform rotate-45"></span>
+                            起源與歷史考證
+                        </h3>
+                        <p class="card-origin text-gray-800 leading-loose text-justify text-base md:text-lg font-light tracking-wide"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-serif text-[#4a1525] mb-3 font-bold tracking-widest flex items-center">
+                            <span class="w-2 h-2 bg-[#d4af37] mr-3 transform rotate-45"></span>
+                            文化意涵與傳承
+                        </h3>
+                        <p class="card-significance text-gray-800 leading-loose text-justify text-base md:text-lg font-light tracking-wide"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        const apiKey = ""; // API Key handled by Canvas environment
+
+        function showNotification(message, duration = 3000) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.remove('hidden');
+            setTimeout(() => {
+                notif.classList.add('hidden');
+            }, duration);
+        }
+
+        async function generateContent() {
+            const inputEl = document.getElementById('themeInput');
+            const rawInput = inputEl.value.trim();
+
+            if (!rawInput) {
+                showNotification("請先輸入神明尊號");
+                return;
+            }
+
+            // 1. 智慧字串解析：支援逗號、全形逗號、空白分割，並去重
+            const deityNames = [...new Set(
+                rawInput.split(/[,，\s]+/)
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0)
+            )];
+
+            if (deityNames.length === 0) {
+                showNotification("請輸入有效的神明尊號");
+                return;
+            }
+
+            // UI Loading 狀態
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            const cardContainer = document.getElementById('cardContainer');
+            const generateBtn = document.getElementById('generateBtn');
+            const template = document.getElementById('deityCardTemplate');
+            
+            generateBtn.disabled = true;
+            btnText.textContent = `考證 ${deityNames.length} 尊神明中...`;
+            btnLoading.classList.remove('hidden');
+            
+            // 清空舊卡片並顯示容器
+            cardContainer.innerHTML = '';
+            cardContainer.classList.remove('hidden');
+            cardContainer.classList.add('flex'); // 使用 flex 排列多張卡片
+
+            // 建立 Promise 陣列
+            const fetchPromises = deityNames.map(name => processSingleDeity(name, template, cardContainer));
+
+            try {
+                // 2. 並行處理所有神明請求 (使用 allSettled 確保單一失敗不會導致整體崩潰)
+                const results = await Promise.allSettled(fetchPromises);
+                
+                const failedCount = results.filter(r => r.status === 'rejected').length;
+                if (failedCount > 0) {
+                    showNotification(`考證完成，但有 ${failedCount} 筆資料生成失敗。`, 5000);
+                } else {
+                    showNotification("考證文獻生成完畢！");
+                }
+
+            } catch (error) {
+                console.error("Batch generation error:", error);
+                showNotification("批次考證過程發生嚴重錯誤。");
+            } finally {
+                // 恢復 UI 狀態
+                generateBtn.disabled = false;
+                btnText.textContent = "生成考證文獻";
+                btnLoading.classList.add('hidden');
+            }
+        }
+
+        async function processSingleDeity(deityName, template, container) {
+            // 複製 Template 節點
+            const cardNode = template.content.cloneNode(true);
+            const cardElement = cardNode.firstElementChild;
+            
+            // 預先設定標題為 Loading 狀態
+            cardElement.querySelector('.card-title').textContent = `${deityName} (考證中...)`;
+            
+            // 先將骨架插入頁面
+            container.appendChild(cardElement);
+
+            try {
+                // 並行獲取該神明的文字與圖片
+                const [textResult, imageResult] = await Promise.all([
+                    fetchDeityText(deityName),
+                    fetchDeityImage(deityName)
+                ]);
+
+                // 更新文字內容
+                cardElement.querySelector('.card-title').textContent = textResult.title;
+                cardElement.querySelector('.card-poem').textContent = textResult.poem;
+                cardElement.querySelector('.card-origin').textContent = textResult.origin;
+                cardElement.querySelector('.card-significance').textContent = textResult.significance;
+
+                // 更新圖片內容
+                const imageEl = cardElement.querySelector('.deity-image');
+                const placeholderEl = cardElement.querySelector('.image-placeholder');
+                
+                if (imageResult) {
+                    imageEl.src = imageResult;
+                    imageEl.onload = () => {
+                        imageEl.classList.remove('hidden');
+                        imageEl.classList.add('loaded');
+                        placeholderEl.classList.add('hidden'); // 隱藏 Loading 動畫
+                    };
+                } else {
+                     placeholderEl.innerHTML = "無法生成神像圖片";
+                }
+
+                return { deityName, status: 'success' };
+
+            } catch (error) {
+                console.error(`Error processing ${deityName}:`, error);
+                // 處理單一卡片失敗狀態
+                cardElement.querySelector('.card-title').textContent = `${deityName} (考證失敗)`;
+                cardElement.querySelector('.card-origin').textContent = "文獻調閱失敗，請稍後再試。";
+                cardElement.querySelector('.card-significance').textContent = "文獻調閱失敗，請稍後再試。";
+                cardElement.querySelector('.image-placeholder').innerHTML = "圖片生成失敗";
+                throw error; // 拋出給 allSettled 捕捉
+            }
+        }
+
+        async function fetchDeityText(deityName) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            const prompt = `請以台灣民間信仰與文化人類學的學術角度，考證神明「${deityName}」。
+            請提供精確、具文化深度的繁體中文內容。不可有虛構的歷史。`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            title: { type: "STRING", description: "神明的正式尊號，如『天上聖母・媽祖』或『關聖帝君』" },
+                            birthday: { type: "STRING", description: "農曆聖誕千秋日" },
+                            poem: { type: "STRING", description: "一句代表該神明神格或精神的優美短詩句或對聯（嚴格限制在5到8字之間）" },
+                            origin: { type: "STRING", description: "神明的起源、歷史原型考證與信仰傳入台灣的歷史背景（約150字）" },
+                            significance: { type: "STRING", description: "該信仰在民間社會的文化意涵、職能轉變或當代意義（約150字）" }
+                        },
+                        required: ["title", "birthday","poem", "origin", "significance"]
+                    }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Text API request failed');
+            
+            const result = await response.json();
+            if (result.candidates && result.candidates[0].content.parts[0].text) {
+                return JSON.parse(result.candidates[0].content.parts[0].text);
+            } else {
+                throw new Error('Invalid text response structure');
+            }
+        }
+
+        async function fetchDeityImage(deityName) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
+            
+            // Crafting a prompt for a minimalist, ethereal ink wash painting without text.
+            const prompt = `Traditional East Asian ink wash painting (水墨畫) of the deity ${deityName}. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece.`;
+
+            const payload = {
+                contents: [{
+                    role: 'user',
+                    parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                    responseModalities: ['IMAGE'],
+                    imageConfig: { aspectRatio: "3:4" }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Image API request failed');
+
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+            
+            if (part && part.inlineData) {
+                return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            } else {
+                console.warn('Image generation failed or was blocked, returning null.');
+                return null;
+            }
+        }
+        
+        // 支援 Enter 鍵送出
+        document.getElementById('themeInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                generateContent();
+            }
+        });
+    </script>
+</body>
+</html>
