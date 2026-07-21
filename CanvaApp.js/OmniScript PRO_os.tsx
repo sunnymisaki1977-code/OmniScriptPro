@@ -2396,47 +2396,43 @@ const handleLogin = async (e: React.FormEvent) => {
                       if (names.length === 0) return;
 
                       setIsGeneratingGods(true);
-                      addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
+                                            addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
                       try {
                         const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
-                        let data;
-                        if (activeApiKey) {
-                          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
-                          data = { results: [] };
-                          
-                          for (const name of names) {
-                              const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
-                              const response = await fetch(apiUrl, {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                      contents: [{ role: "user", parts: [{ text: prompt }] }],
-                                      generationConfig: { temperature: 0.7 }
-                                 })
-                              });
-                              const resultRaw = await response.json();
-                              if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
-                              const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                              const jsonMatch = text.match(/\{[\s\S]*\}/);
-                              if (jsonMatch) {
-                                  const parsed = JSON.parse(jsonMatch[0]);
-                                  data.results.push({
-                                      id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                                      ...parsed,
-                                      imageUrl: ""
-                                  });
-                              }
-                          }
-                        } else {
-                          const res = await fetch('https://omni-script-pro.vercel.app/api/gods-generate', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ names })
-                          });
-                          data = await res.json();
-                        }
-                        
 
+                        
+                        if (!isCanvasEnv && !activeApiKey.trim()) {
+                            setShowApiKeyModal(true);
+                            setIsGeneratingGods(false);
+                            return;
+                        }
+
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+                        let data = { results: [] };
+                        
+                        for (const name of names) {
+                            const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                    generationConfig: { temperature: 0.7 }
+                                })
+                            });
+                            const resultRaw = await response.json();
+                            if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
+                            const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                            const jsonMatch = text.match(/\{[\s\S]*\}/);
+                            if (jsonMatch) {
+                                const parsed = JSON.parse(jsonMatch[0]);
+                                data.results.push({
+                                    id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                    ...parsed,
+                                    imageUrl: ""
+                                });
+                            }
+                        }
                         if (data.error) throw new Error(data.error);
                         setGodsCards(prev => [...prev, ...data.results]);
                         addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
