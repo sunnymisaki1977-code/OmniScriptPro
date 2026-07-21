@@ -2400,6 +2400,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     <Database className="w-4 h-4" />
                     {isSavingGods ? '儲存中...' : '儲存至 Notion'}
                   </button>
+                  </div>
                 </div>
 
                 {/* Input Area */}
