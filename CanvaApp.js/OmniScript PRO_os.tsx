@@ -2747,9 +2747,14 @@ const handleLogin = async (e: React.FormEvent) => {
                 <button
                   onClick={() => {
                     setShowApiKeyModal(false);
-                    if (geminiApiKey.trim() && pendingImageTask) {
-                      pendingImageTask();
-                      setPendingImageTask(null);
+                    if (geminiApiKey.trim()) {
+                      if (typeof window !== 'undefined') {
+                        (window as any).__GEMINI_API_KEY__ = geminiApiKey.trim();
+                      }
+                      if (pendingImageTask) {
+                        pendingImageTask();
+                        setPendingImageTask(null);
+                      }
                     }
                   }}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
