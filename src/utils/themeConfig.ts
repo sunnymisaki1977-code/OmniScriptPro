@@ -31,7 +31,7 @@ export const AUDIENCE_THEMES = {
   beauty: {
     id: 'beauty',
     ambientGlow: 'bg-rose-400',
-    title: '美妝保養・悅己美學-開發中-',
+    title: '美妝保養・悅己美學',
     subtitle: 'Glamour Rose 奢華玫瑰金',
     desc: '高質感、溫柔優雅、奢華玫瑰粉與香檳金。專為美妝、穿搭與高感性生活視覺設計。',
     gradient: 'from-[#10B981] to-[#0A2E5C]',
@@ -89,7 +89,7 @@ export const AUDIENCE_THEMES = {
   food: {
     id: 'food',
     ambientGlow: 'bg-yellow-400',
-    title: '美食料理・風味探索-開發中-',
+    title: '美食料理・風味探索',
     subtitle: 'Golden Saffron 晨曦藏紅花',
     desc: '溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌、食譜教學與美食探店視覺設計。',
     gradient: 'from-[#10B981] to-[#0A2E5C]',
@@ -146,7 +146,7 @@ export const AUDIENCE_THEMES = {
   pet: {
     id: 'pet',
     ambientGlow: 'bg-sky-400',
-    title: '寵物照護・幸福陪伴-開發中-',
+    title: '寵物照護・幸福陪伴',
     subtitle: 'Nurturing Sky 溫和知性藍',
     desc: '傳遞信任與安定的天空藍。專為寵物醫療、動物行為與溫和友善的排版設計。',
     gradient: 'from-[#10B981] to-[#0A2E5C]',
@@ -179,8 +179,13 @@ export const THEME_STEPS = {
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對主題進行定義釐清與客觀史料彙整', type: "text", dependsOn: ["theme"] },
     { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。", type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: "產出 60 秒內的精簡爆款短影片文案。", type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。", type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: "生成 3 組 16:9 意象圖指令與搭配詩詞。", type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: "生成 3 組符合主題氛圍的音樂生成指令。", type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文", type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ],
   historyMeme: [
     { id: 1, name: '歷史人物硬核迷因大盤點', icon: 'Database', category: 'Research', desc: '用現代迷因與幽默視角，盤點歷史人物的極限操作與趣事', type: "text", dependsOn: ["theme"] },
@@ -193,28 +198,48 @@ export const THEME_STEPS = {
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對保養成分或美妝趨勢進行定義釐清與科學/歷史文獻彙整', type: "text", dependsOn: ["theme"] },
     { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '生成標題、標籤與說明欄內容。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '產出 60 秒內的精簡爆款短影片文案。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成短影片標題與標籤。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 3 組 9:16 高奢行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成 3 組符合主題氛圍的音樂生成指令。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ],
     food: [
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對料理、食材、美食文化或飲食趨勢進行科學、歷史與文化查核。', type: "text", dependsOn: ["theme"] },
     { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據美食背景資料產出5-10分鐘YouTube影片腳本。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '生成SEO標題、Hashtags、說明欄。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '生成60秒內爆款短影音腳本。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成短影音SEO標題。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成16:9 YouTube縮圖。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16 Shorts封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成高質感餐飲行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成三組美食影片音樂。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '生成Instagram、Facebook、小紅書貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ],
   travelpreneur: [
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '蒐集目的地歷史、文化、景點、美食、交通與旅遊資訊，建立可信基礎資料。', type: "text", dependsOn: ["theme"] },
     { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '產出8~12分鐘YouTube旅遊攻略影片。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '產生YouTube SEO內容。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '生成60秒旅遊Shorts腳本。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成Shorts SEO。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成16:9縮圖Prompt。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16 Shorts封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成高質感旅遊宣傳海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "9:16" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成旅遊影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '生成IG、Facebook、Threads、小紅書旅遊貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ],
   pet: [
     { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '深入分析寵物問題成因、行為學、獸醫觀點與最新研究，建立可信基礎資料。', type: "text", dependsOn: ["theme"] },
     { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '產出8~12分鐘問題解決型YouTube影片。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '產生YouTube SEO。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '生成60秒爆款短影音。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成Shorts SEO。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成三組高CTR縮圖。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
     { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成9:16封面。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
     { id: 8, name: '風格化情境視覺', icon: 'FileText', category: 'Content', desc: '生成高質感寵物宣傳海報、請設計三組寵物品牌海報。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成三組寵物影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '生成IG、FB、Threads、小紅書完整貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
 };
