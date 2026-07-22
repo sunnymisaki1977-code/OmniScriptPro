@@ -228,7 +228,7 @@ export const POPULAR_STYLES: StyleOption[] = [
 ];
 
 export default function App() {
-  const isCanvasEnv = true; // Added explicitly for Gemini Canvas environment
+  const isCanvasEnv = false; // Changed to false for Vercel deployment
   const [audienceThemes, setAudienceThemes] = useState({});
   const [themeSteps, setThemeSteps] = useState({});
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
