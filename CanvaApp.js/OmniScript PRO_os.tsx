@@ -1828,30 +1828,30 @@ const handleLogin = async (e: React.FormEvent) => {
 {/* 接續生成 / 中斷生成 */}
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3 lg:gap-4 shrink-0"> 
-                          {isGenerating ? (
-                            <button 
-                              onClick={() => {
-                                setIsGenerating(false);
-                                addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                                setViewState('workspace');
-                              }}
-                              className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              <span>中斷生成</span>
-                            </button>
-                          ) : (
-                            <button 
-                              onClick={() => {
-                                isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
-                                handleStartAuto();
-                              }}
-                              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 transition-all duration-300 hover:-translate-y-[2px]"
-                            >
-                              <Zap className="w-3.5 h-3.5" />
-                              <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
-                            </button>
-                          )}
+                          <button 
+                            onClick={() => {
+                              setIsGenerating(false);
+                              addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                              setViewState('workspace');
+                            }}
+                            disabled={!isGenerating}
+                            className={`px-4 py-1.5 rounded-xl border font-bold text-xs flex items-center gap-1.5 shadow-md transition-all ${isGenerating ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 active:scale-95 animate-pulse' : 'bg-slate-800/50 text-slate-500 border-slate-700 cursor-not-allowed opacity-50'}`}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>中斷生成</span>
+                          </button>
+
+                          <button 
+                            onClick={() => {
+                              isResumeIntentRef.current = stepContents[1] && stepContents[1].trim() !== '' && !stepContents[1].includes('等待從 Vercel');
+                              handleStartAuto();
+                            }}
+                            disabled={isGenerating}
+                            className={`px-4 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all duration-300 ${!isGenerating ? 'bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 hover:-translate-y-[2px]' : 'bg-slate-800/50 text-slate-500 cursor-not-allowed opacity-50'}`}
+                          >
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>{(stepContents[1] && stepContents[1].trim() !== '' && !stepContents[1].includes('等待從 Vercel')) ? '接續自動生成' : '一鍵全自動模式'}</span>
+                          </button>
                         </div>
                         
                         <div className=" text-[14px] text-[#64748B] font-medium flex items-center">
