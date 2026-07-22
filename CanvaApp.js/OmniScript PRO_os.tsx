@@ -39,7 +39,8 @@ const IMAGE_ENGINES = [
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
-    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    const rawApiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    const apiKey = rawApiKey.trim();
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     // ==========================================
@@ -102,7 +103,14 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     });
 
     if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+        let errorDetails = "";
+        try {
+            const errorData = await aiResponse.json();
+            errorDetails = errorData.error?.message || JSON.stringify(errorData);
+        } catch(e) {
+            errorDetails = await aiResponse.text();
+        }
+        throw new Error(`Google API 錯誤 (${aiResponse.status}): ${errorDetails}`);
     }
     
     const data = await aiResponse.json();
@@ -843,7 +851,7 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
-        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+        const activeApiKey = (geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "")).trim();
 
         const context = {
             theme: startTheme,
@@ -2451,7 +2459,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsGeneratingGods(true);
                                             addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
                       try {
-                        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
+                        const activeApiKey = (geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "")).trim();
 
                         
                         if (!isCanvasEnv && !activeApiKey.trim()) {
