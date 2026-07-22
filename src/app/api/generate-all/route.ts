@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     // 彙整目前已有的上下文（真實從前端傳過來的上一步成果）
-    let verifiedContext = customDocText || existingData[1] || "";
+    let verifiedContext = customDocText || existingData.step1 || existingData['1'] || "";
 
     // 👇 攔截邏輯：排除前端載入中的佔位文字
     const invalidPlaceholders = ["等待從 Vercel 伺服器獲取資料", "Loading", "載入中"];
@@ -53,10 +53,10 @@ export async function POST(req: Request) {
     const stepContext = {
       theme: theme,
       step1: verifiedContext || "【缺乏 Step 1 背景資料】",
-      step2: existingData[2] || "【缺乏 Step 2 資料】",
-      step3: existingData[3] || "【缺乏 Step 3 資料】",
-      step4: existingData[4] || "【缺乏 Step 4 資料】",
-      step5: existingData[5] || "【缺乏 Step 5 資料】",
+      step2: existingData.step2 || existingData['2'] || "【缺乏 Step 2 資料】",
+      step3: existingData.step3 || existingData['3'] || "【缺乏 Step 3 資料】",
+      step4: existingData.step4 || existingData['4'] || "【缺乏 Step 4 資料】",
+      step5: existingData.step5 || existingData['5'] || "【缺乏 Step 5 資料】",
     };
 
     // 組合當前步驟的專屬 Prompt
