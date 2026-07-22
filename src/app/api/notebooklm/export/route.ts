@@ -28,7 +28,7 @@ import re  # 💡 就是這裡！必須載入這個模組才能處理數字排�
 # 剪映自動化草稿注入腳本 (純文字輸出修正版)
 # ==========================================
 
-DRAFT_PATH = r"C:\Users\sunny\AppData\Local\JianyingPro\User Data\Projects\com.lveditor.draft\Omniscript\draft_content.json"
+DRAFT_PATH = "C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/Omniscript/draft_content.json"
 
 # 💡 新增：定義自然排序的判斷規則
 def natural_sort_key(s):
