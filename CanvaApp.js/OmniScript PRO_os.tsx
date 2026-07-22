@@ -49,7 +49,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
