@@ -1326,7 +1326,7 @@ ${ctx.step4}
       description: "生成16:9縮圖Prompt。",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme", "step3"],
+      dependsOn: ["theme", "step2"],
       prompt: (ctx: any) => `請針對「${ctx.theme}」生成三組YouTube縮圖。
 
 格式：
@@ -1358,7 +1358,7 @@ ultra detailed,,大而醒目藝術文字設計
       description: "生成9:16 Shorts封面。",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme", "step5"],
+      dependsOn: ["theme", "step4"],
       prompt: (ctx: any) => `請生成三組 Shorts封面。
 
 格式：
@@ -1386,7 +1386,7 @@ ultra detailed,大而醒目藝術文字設計
       description: "生成高質感旅遊宣傳海報。",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme"],
+      dependsOn: ["theme", "step1"],
       prompt: (ctx: any) => `請設計三組旅遊品牌海報。
 
 格式：
