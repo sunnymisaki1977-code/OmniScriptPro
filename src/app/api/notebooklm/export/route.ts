@@ -33,7 +33,7 @@ DRAFT_PATH = "C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lv
 # 💡 新增：定義自然排序的判斷規則
 def natural_sort_key(s):
     """將字串拆分為文字與數字，讓數字以整數型態進行大小比較"""
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\\d+)', s)]
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 image_files = sorted(
