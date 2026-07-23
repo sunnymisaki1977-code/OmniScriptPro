@@ -10,7 +10,8 @@ const ACCESS_CODES: Record<string, string> = {
   'RUBY2026': 'food',       // 美食料理・風味探索
   'PET2026': 'pet',         // 寵物照護・幸福陪伴
   'SKY2026': 'pet',         // 相容舊碼
-  'MASTER': 'heritage'      // 管理員
+  'MASTER': 'heritage',     // 管理員
+  'FLEIX': 'heritage'       // 全主題管理者 (新增)
 };
 
 // ============================================================================
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     const code = passcode.trim().toUpperCase();
     
     if (ACCESS_CODES[code]) {
-      const isMaster = code === 'MASTER';
+      const isMaster = code === 'MASTER' || code === 'FLEIX';
       const theme = ACCESS_CODES[code];
       
       return setCorsHeaders(NextResponse.json({
