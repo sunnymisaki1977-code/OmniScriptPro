@@ -11,7 +11,7 @@ const ACCESS_CODES: Record<string, string> = {
   'PET2026': 'pet',         // 寵物照護・幸福陪伴
   'SKY2026': 'pet',         // 相容舊碼
   'MASTER': 'heritage',     // 管理員
-  'FLEIX': 'heritage'       // 全主題管理者 (新增)
+  'FLEIX': 'heritage'       // 全主題通用 (非管理員)
 };
 
 // ============================================================================
@@ -40,13 +40,15 @@ export async function POST(req: Request) {
     const code = passcode.trim().toUpperCase();
     
     if (ACCESS_CODES[code]) {
-      const isMaster = code === 'MASTER' || code === 'FLEIX';
+      const isMaster = code === 'MASTER';
       const theme = ACCESS_CODES[code];
+      const allThemes = isMaster || code === 'FLEIX';
       
       return setCorsHeaders(NextResponse.json({
         success: true,
         theme: theme,
-        isMaster: isMaster
+        isMaster: isMaster,
+        allThemes: allThemes
       }));
     } else {
       return setCorsHeaders(NextResponse.json({ error: "通行碼無效或已過期" }, { status: 401 }));

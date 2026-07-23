@@ -260,6 +260,7 @@ export default function App() {
 
   // --- 狀態管理保持不變 ---
   const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
+  const [isAllThemes, setIsAllThemes] = useState(true); // 是否可使用所有主題
    const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [passcode, setPasscode] = useState('');
@@ -312,6 +313,7 @@ export default function App() {
         setShowLoginPrompt(true);
       } else {
         setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
+        setIsAllThemes(sessionStorage.getItem('os_pro_all_themes') === 'true' || sessionStorage.getItem('os_pro_master') === 'true');
         setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
       }
     }, []);
@@ -1209,10 +1211,14 @@ const handleLogin = async (e: React.FormEvent) => {
         setAuthError('');
         setAudienceTheme(data.theme);
         setIsGlobalMaster(data.isMaster);
+        setIsAllThemes(data.allThemes || data.isMaster);
         sessionStorage.setItem('os_pro_auth', 'true');
         sessionStorage.setItem('os_pro_theme', data.theme);
         if (data.isMaster) {
           sessionStorage.setItem('os_pro_master', 'true');
+        }
+        if (data.allThemes || data.isMaster) {
+          sessionStorage.setItem('os_pro_all_themes', 'true');
         }
         
         addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
@@ -1542,11 +1548,11 @@ const handleLogin = async (e: React.FormEvent) => {
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel && !isGlobalMaster}
+                            disabled={!isSel && !isAllThemes}
                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : isGlobalMaster 
+                                : isAllThemes 
                                   ? 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500 cursor-pointer'
                                   : 'border-slate-200 text-[#64748B] opacity-50 cursor-not-allowed'
                             }`}
