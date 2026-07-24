@@ -1,5 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
+import { put } from "@vercel/blob";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const DEFAULT_DATABASE_ID = "3a483ac4203780c89a41d8f53601c864";
@@ -16,6 +17,26 @@ export async function POST(req: Request) {
     const savedPages = [];
 
     for (const card of cards) {
+      let finalImageUrl = card.imageUrl;
+
+      // 如果是 Base64 格式的圖片，先轉存到 Vercel Blob
+      if (finalImageUrl && finalImageUrl.startsWith("data:image/")) {
+        try {
+          const base64Data = finalImageUrl.split(",")[1];
+          const buffer = Buffer.from(base64Data, "base64");
+          const filename = `gods-cards/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+          
+          const blob = await put(filename, buffer, {
+            access: "public",
+            contentType: "image/jpeg",
+          });
+          
+          finalImageUrl = blob.url;
+        } catch (uploadError) {
+          console.error("Vercel Blob Upload Error:", uploadError);
+        }
+      }
+
       const children: any[] = [
         {
           object: "block",
@@ -61,13 +82,13 @@ export async function POST(req: Request) {
         },
       ];
 
-      if (card.imageUrl) {
+      if (finalImageUrl) {
         children.push({
           object: "block",
           type: "image",
           image: {
             type: "external",
-            external: { url: card.imageUrl }
+            external: { url: finalImageUrl }
           }
         });
       }
