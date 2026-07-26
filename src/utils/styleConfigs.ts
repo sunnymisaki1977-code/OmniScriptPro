@@ -8,7 +8,7 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
   heritage: {
     id: "style-heritage",
     name: "東方古典美學 (水墨工筆)",
-    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, art calligraphy text style"
+    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
   },
   beauty: {
     id: "style-beauty",
@@ -39,6 +39,12 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
 
 export const POPULAR_STYLES: StyleOption[] = [
   {
+    id: "style-heritage",
+    name: "東方古典美學 (水墨工筆)",
+    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
+  },
+
+ {
     id: "style-cyber",
     name: "3D 賽博龐克 (霓虹電競)",
     promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
