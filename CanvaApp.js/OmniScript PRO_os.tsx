@@ -716,7 +716,12 @@ export default function App() {
       const data = await res.json();
       if (data.success && data.analysis) {
         setTheme(data.analysis.theme);
-        addLog(`🚨 [AI 雷達偵測完成] ${data.analysis.trigger ? '重大市場警報！' : '市場常規趨勢'}，已自動匯入爆款標題：${data.analysis.theme}`, 'success');
+        if (data.news && Array.isArray(data.news)) {
+          const newsBgText = `【📡 AI 財經快訊雷達 - 最新 5 則即時快訊摘要】\n` + 
+            data.news.map((n: any, idx: number) => `[${idx + 1}] ${n.title}\n摘要：${n.summary || '無摘要'}\n時間：${n.pubDate || '即時'}`).join('\n\n');
+          setCustomContext(newsBgText);
+        }
+        addLog(`🚨 [AI 雷達偵測完成] ${data.analysis.trigger ? '重大市場警報！' : '市場常規趨勢'}，已自動匯入爆款標題與 5 則最新快訊背景參考！`, 'success');
       } else {
         addLog(`⚠️ 抓取快訊失敗: ${data.message || '無新聞'}`, 'error');
       }
