@@ -707,6 +707,26 @@ export default function App() {
     addLog(selectedTheme?.themeLogMessage || `[Theme] 已切換至 ${newThemeId}`, 'info');  
   };
 
+  const [isFetchingRadar, setIsFetchingRadar] = useState(false);
+  const handleFetchRadar = async () => {
+    setIsFetchingRadar(true);
+    addLog('📡 正在啟動 AI 財經雷達，連接 Yahoo Finance RSS 訊號源...', 'info');
+    try {
+      const res = await fetch('/api/radar');
+      const data = await res.json();
+      if (data.success && data.analysis) {
+        setTheme(data.analysis.theme);
+        addLog(`🚨 [AI 雷達偵測完成] ${data.analysis.trigger ? '重大市場警報！' : '市場常規趨勢'}，已自動匯入爆款標題：${data.analysis.theme}`, 'success');
+      } else {
+        addLog(`⚠️ 抓取快訊失敗: ${data.message || '無新聞'}`, 'error');
+      }
+    } catch (err: any) {
+      addLog(`❌ AI 財經雷達連線發生異常: ${err.message}`, 'error');
+    } finally {
+      setIsFetchingRadar(false);
+    }
+  };
+
   // ============================================================================
   // 4. 改寫全自動生成引擎 (打 Vercel API)
   // ============================================================================
@@ -1503,6 +1523,26 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* Main Creative Input Container */}
                   <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-500">🎬 輸入創作核心企劃主題</span>
+                      <button
+                        onClick={handleFetchRadar}
+                        disabled={isFetchingRadar}
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold text-xs shadow hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
+                      >
+                        {isFetchingRadar ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>正在抓取 Yahoo 財經 RSS...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                            <span>⚡ AI 財經快訊雷達 (一鍵抓取)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                       <input 
