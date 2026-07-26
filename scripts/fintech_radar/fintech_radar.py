@@ -25,7 +25,7 @@ except ImportError:
     sys.exit(1)
 
 # ==================== 配置設定 ====================
-RSS_URL = "https://finance.yahoo.com/news/rssindex"
+RSS_URL = "https://tw.news.yahoo.com/rss/finance" # 改用 Yahoo 奇摩股市中文 RSS
 # 備用 RSS 來源 (若 Yahoo 發生 User-Agent 阻擋時可切換測試)：
 # RSS_URL = "https://feeds.a.dj.com/rss/RSSMarketsMain.xml"  # Wall Street Journal Markets
 MODEL_NAME = "gemini-2.5-flash"
@@ -100,15 +100,15 @@ def analyze_news_with_gemini(news_list):
         news_text_payload = "\n".join([f"{i+1}. 標題：{n['title']}\n   簡介：{n['summary']}" for i, n in enumerate(news_list)])
         
         # 系統與任務 Prompt
-        prompt = f"""你是一個專業的華爾街財經警報器。請閱讀以下 5 則最新財經新聞標題與簡介。
-判斷其中是否包含『可能造成全球股市劇烈震盪或大跌』的突發重大事件（如：央行意外升息、戰爭爆發、重量級科技股財報暴雷、通膨數據大超預期、地緣政治危機等）。
+        prompt = f"""你是一個專業的華爾街與台灣股市財經警報器。請閱讀以下 5 則最新財經新聞標題與簡介。
+判斷其中是否包含『可能造成全球或台灣股市劇烈震盪或大跌』的突發重大事件（如：央行意外升息/降息、戰爭爆發、重量級科技股/半導體財報暴雷、台積電動態、通膨數據大超預期、地緣政治危機等）。
 
 【最新快訊清單】：
 {news_text_payload}
 
-請嚴格依照以下 JSON 格式回傳，不要包含任何其他文字：
-如果有重大事件，回傳：{{"trigger": true, "theme": "將該新聞濃縮為一句極具吸引力的財經標題"}}
-如果皆為一般日常新聞，回傳：{{"trigger": false, "theme": null}}"""
+請嚴格依照以下 JSON 格式回傳，且務必全數使用「繁體中文（台灣習慣用語）」輸出，不要包含任何其他文字：
+如果有重大事件，回傳：{{"trigger": true, "theme": "將該新聞濃縮為一句極具吸引力與社群擴散力的繁體中文爆款財經短片標題"}}
+如果皆為一般日常新聞，回傳：{{"trigger": false, "theme": "將最熱門的一則新聞濃縮為一句吸睛的繁體中文財經短片標題"}}"""
 
         response = model.generate_content(prompt)
         raw_json = response.text.strip()
