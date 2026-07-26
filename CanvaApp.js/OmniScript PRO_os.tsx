@@ -272,8 +272,8 @@ export default function App() {
    const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
 
   const [visualStep, setVisualStep] = useState(6);
-  const [currentImageStyle, setCurrentImageStyle] = useState(AUDIENCE_STYLES['heritage']);
-  useEffect(() => { if (AUDIENCE_STYLES[audienceTheme]) { setCurrentImageStyle(AUDIENCE_STYLES[audienceTheme]); } }, [audienceTheme]);
+  const [currentImageStyle, setCurrentImageStyle] = useState<any>({ id: "style-heritage", name: "東方古典美學 (水墨工筆)", promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed," });
+  useEffect(() => { if (audienceStyles && audienceStyles[audienceTheme]) { setCurrentImageStyle(audienceStyles[audienceTheme]); } }, [audienceTheme, audienceStyles]);
   const iconMap: any = { Database, FileText, Search, Video, ImageIcon, Music, Facebook };
 
   const curTheme = audienceThemes[audienceTheme] || {};
@@ -1291,25 +1291,25 @@ const handleLogin = async (e: React.FormEvent) => {
                             value={currentImageStyle.id}
                             onChange={(e) => {
                               const selectedId = e.target.value;
-                              const recommendedStyle = AUDIENCE_STYLES[audienceTheme];
+                              const recommendedStyle = audienceStyles && audienceStyles[audienceTheme];
                               if (recommendedStyle && recommendedStyle.id === selectedId) {
                                 setCurrentImageStyle(recommendedStyle);
                                 return;
                               }
-                              const foundPopular = POPULAR_STYLES.find(s => s.id === selectedId);
+                              const foundPopular = popularStyles && popularStyles.find((s: any) => s.id === selectedId);
                               if (foundPopular) setCurrentImageStyle(foundPopular);
                             }}
                             className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-[#1E293B] focus:outline-none mb-3 backdrop-blur-sm"
                           >
-                            {AUDIENCE_STYLES[audienceTheme] && (
+                            {audienceStyles && audienceStyles[audienceTheme] && (
                               <optgroup label="💡 受眾專屬推薦風格">
-                                <option value={AUDIENCE_STYLES[audienceTheme].id}>
-                                  ✨ {AUDIENCE_STYLES[audienceTheme].name} (預設推薦)
+                                <option value={audienceStyles[audienceTheme].id}>
+                                  ✨ {audienceStyles[audienceTheme].name} (預設推薦)
                                 </option>
                               </optgroup>
                             )}
                             <optgroup label="🔥 流行與其他風格">
-                              {POPULAR_STYLES.map((style) => (
+                              {popularStyles && popularStyles.map((style: any) => (
                                 <option key={style.id} value={style.id}>
                                   {style.name}
                                 </option>
