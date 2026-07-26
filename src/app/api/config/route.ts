@@ -3,13 +3,16 @@ import { AUDIENCE_THEMES, THEME_STEPS } from '@/utils/themeConfig';
 import { FEEDBACK_CONFIG } from '@/utils/feedbackConfig';
 import { APPLICATION_CONFIG } from '@/utils/applicationConfig';
 import { getWorkflowSteps } from "@/utils/promptConfigs";
+import { AUDIENCE_STYLES, POPULAR_STYLES } from "@/utils/styleConfigs";
 
 export async function GET() {
   return NextResponse.json({
     AUDIENCE_THEMES,
     THEME_STEPS,
     FEEDBACK_CONFIG,
-    APPLICATION_CONFIG
+    APPLICATION_CONFIG,
+    AUDIENCE_STYLES,
+    POPULAR_STYLES
   });
 }
 
