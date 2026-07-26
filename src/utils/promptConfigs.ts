@@ -1956,15 +1956,15 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 2. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
 3. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
 
-請先判斷主題「\${ctx.theme}」屬於哪一種類型：
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
 1. 總經指標與數據發布 (如：CPI、非農就業、PMI)
 2. 重大財經事件與央行政策 (如：FOMC 會議、降息/升息循環、地緣政治影響)
-
+3. 市場籌碼與交易結構 (如：融資融券增減、三大法人動向、選擇權未平倉) // 💡 增加這個選項
 請先輸出：
 主題分類：
 判斷原因：
 
-接著依照對應模板撰寫。請針對主題「\${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
 
 ## 🗂️ 總經深度解析報告架構
 
@@ -1991,7 +1991,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
       - 原物料 (金、銅、油等)
 
 ### 五、 財經數據圖表建議 (實作視覺化必備)
-【⚠️ 強制圖像查證指令】：請搜尋與『\${ctx.theme}』最相關的財經官方圖表名稱，或全球權威機構發布的圖表。
+【⚠️ 強制圖像查證指令】：請搜尋與『${ctx.theme}』最相關的財經官方圖表名稱，或全球權威機構發布的圖表。
 請列出 3-5 組可以用來佐證上述觀點的圖表名稱與重點描述，作為後續影片 B-roll 或社群圖卡的墊圖參考。
 - 📊 建議圖表 1：[圖表名稱，例如：美國-消費者物價指數(CPI)] - [描述該圖表應凸顯哪一段時間的趨勢]
 - 📊 建議圖表 2：...
@@ -2010,17 +2010,17 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     description: "根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「\${ctx.theme}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
+    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「${ctx.theme}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
 
 背景資料：
 ====================
-\${ctx.step1}
+${ctx.step1}
 ====================
 
 【輸出模板 1：Markdown 腳本】
 請精準輸出以下格式，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
 
-## 🎬 YouTube 財經深度解析：\${ctx.theme}
+## 🎬 YouTube 財經深度解析：${ctx.theme}
 
 ### ⏱️ 開場 (Hook)：直擊市場痛點
  (時間規劃：00:00 - 01:00，共 2 個節點)
@@ -2057,9 +2057,9 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     description: "生成高點擊財經標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「\${ctx.theme}」產出能極大化點擊率的財經類 SEO 內容。
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.theme}」產出能極大化點擊率的財經類 SEO 內容。
 
-《長影音腳本》：\${ctx.step2}
+《長影音腳本》：${ctx.step2}
 
 【輸出模板】請直接複製填寫：
 ### 🎯 爆款財經標題 (5 個切角)
@@ -2070,7 +2070,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 5. [趨勢/前瞻型標題，如：下半年資產配置必看...]
 
 ### 🏷️ 熱門 Hashtags (10 個)
-#[總體經濟] #[財經M平方] ...
+#[總體經濟] #[財經] ...
 
 ### 📝 影片說明欄
 [150字財經簡介，自然融入關鍵字]`
@@ -2083,9 +2083,9 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     type: "text",
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `根據《基礎背景資料》，撰寫一份 60 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
-資料：\${ctx.step1}
+資料：${ctx.step1}
 
-## 📱 財經短影音腳本：\${ctx.theme}
+## 📱 財經短影音腳本：${ctx.theme}
 ### 💥 前 3 秒：黃金 Hook
 - 畫面指示：[極具衝擊力的暴跌/暴漲圖表或新聞頭條]
 - 旁白 (VO)：[一句話點出市場最關心的痛點]
@@ -2095,7 +2095,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 - 旁白 (VO)：[精練挑出 1-2 個最核心的數據變化與市場影響]
 
 ### 📢 45秒 - 60秒：行動呼籲 (CTA)
-- 畫面指示：[搜尋財經Ｍ平方介面]
+- 畫面指示：[搜尋財經]
 - 旁白 (VO)：[行動呼籲 (CTA)]`
   },
 
@@ -2105,7 +2105,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     description: "生成短影片標題與標籤。",
     type: "text",
     dependsOn: ["theme", "step4"],
-    prompt: (ctx: any) => `根據《短影音腳本》：\${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
 
 ### 🎯 衝擊力財經標題 (3 個，適合放封面)
 1. [如：通膨爆表！下殺警訊？]
@@ -2123,7 +2123,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step3"],
-    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：\${ctx.step3}
+    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請【完全且嚴格】拷貝下方模板。AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography.
 
@@ -2141,7 +2141,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step5"],
-    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組財經短影音縮圖設計 (9:16)。參考：\${ctx.step5}
+    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography, extreme vertical composition.
@@ -2159,7 +2159,7 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
     type: "code",
     language: "markdown",
     dependsOn: ["theme"],
-    prompt: (ctx: any) => `針對「\${ctx.theme}」生成 3 組 16:9 財經行銷海報。
+    prompt: (ctx: any) => `針對「${ctx.theme}」生成 3 組 16:9 財經行銷海報。
 視覺設計包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, cyberpunk finance。需充滿市場博弈與專業數據感。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
@@ -2176,7 +2176,7 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請直接輸出以下格式：
@@ -2201,7 +2201,7 @@ Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic 
     type: "social",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「\${ctx.theme}」打造一組 IG 財經圖卡懶人包。
+    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.theme}」打造一組 IG 財經圖卡懶人包。
 史料：\${ctx.step1}
 
 ### 任務一：生成財經資訊圖卡 Prompt (1:1 或 4:5 構圖)
@@ -2209,7 +2209,7 @@ Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic 
 
 請直接輸出：
 AI Prompt (中文):
-以「\${ctx.theme}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 4 個資訊區塊的財經圖表排版。
+以「${ctx.theme}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 4 個資訊區塊的財經圖表排版。
 區塊 1 數據：[填寫亮點1]
 區塊 2 數據：[填寫亮點2]
 區塊 3 數據：[填寫亮點3]
@@ -2220,7 +2220,7 @@ AI Prompt (中文):
 [條列 3-4 點核心數據解析，用白話文解釋對投資人的影響]
 [互動提問：詢問粉絲對後市的看法]
 掌握全球總經趨勢，為自己的投資負責 
-#財經M平方 #總體經濟 #\${ctx.theme} [補充3個標籤]`
+#財經M平方 #總體經濟 #${ctx.theme} [補充3個標籤]`
   }
 ]
 };
