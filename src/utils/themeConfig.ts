@@ -171,6 +171,35 @@ export const AUDIENCE_THEMES = {
     actionBtn: 'bg-sky-600 hover:bg-sky-500 text-white',
     actionBtnOutline: 'bg-sky-500/10 text-sky-600 hover:text-sky-700 border border-sky-500/20 hover:border-sky-500/50 hover:bg-sky-500/20',
     themeLogMessage: '[Theme] 已切換至「寵物照護・幸福陪伴 (Nurturing Sky)」模式。降低視覺刺激，啟動安定、知性與信任感佈局 🟢'
+  },
+  fintech: {
+    id: 'fintech',
+    ambientGlow: 'bg-blue-600',
+    title: 'FinTech 財經知識・AI 解析',
+    subtitle: 'Bloomberg Blue 彭博終端藍',
+    desc: '專業客觀、科技感的深藍與金色高光。專為全球總經、金融市場與量化分析視覺設計。',
+    gradient: 'from-[#1E3A8A] to-[#0D9488]',
+    primaryColor: 'blue-500',
+    borderActive: 'border-[#1E3A8A]/50',
+    textActive: 'text-[#1E3A8A]',
+    bgActive: 'bg-[#1E3A8A]/10',
+    bgBadge: 'bg-[#D4AF37]/10 border-[#D4AF37]/20 text-[#D4AF37]',
+    primaryBtn: 'bg-gradient-to-r from-[#1E3A8A] to-[#0D9488] hover:opacity-90 text-white rounded-full shadow-lg hover:-translate-y-[2px] transition-all duration-300',
+    secondaryBtn: 'bg-[#F8FAFC] text-[#1E293B] border-slate-200 hover:bg-slate-100 rounded-full',
+    textMuted: 'text-[#64748B]',
+    accentText: 'text-[#D4AF37]',
+    accentBg: 'bg-[#D4AF37]/10',
+    ringColor: 'focus:ring-[#1E3A8A] focus:border-[#1E3A8A]',
+    pipelineCurrent: 'bg-white border-[#1E3A8A]/50 shadow-[0_4px_20px_rgba(30,58,138,0.05)]',
+    pipelineCurrentIcon: 'bg-[#1E3A8A] text-white animate-pulse',
+    tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-blue-900/50 text-[#38BDF8] border border-blue-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-blue-600 text-white shadow-md hover:bg-blue-700',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-blue-50',
+    focusRing: 'focus:border-blue-500/50',
+    actionBtn: 'bg-blue-600 hover:bg-blue-500 text-white',
+    actionBtnOutline: 'bg-blue-500/10 text-blue-600 hover:text-blue-700 border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/20',
+    themeLogMessage: '[Theme] 已切換至「FinTech 財經知識 (Bloomberg Blue)」模式。啟動量化金融圖表渲染，調適金藍彭博終端視覺 🟢'
   }
 };
 
@@ -241,5 +270,17 @@ export const THEME_STEPS = {
     { id: 8, name: '風格化情境視覺', icon: 'FileText', category: 'Content', desc: '生成高質感寵物宣傳海報、請設計三組寵物品牌海報。', type: "text", dependsOn: ["theme", "step1"] },
     { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成三組寵物影片背景音樂。', type: "code", language: "markdown", dependsOn: ["theme"] },
     { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '生成IG、FB、Threads、小紅書完整貼文。', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+  ],
+  fintech: [
+    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對財經主題進行定義釐清、歷史數據比對與市場影響評估', type: "text", dependsOn: ["theme"] },
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '生成高點擊財經標題、標籤與說明欄內容。', type: "text", dependsOn: ["theme", "step2"] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '產出 60 秒內的精簡財經爆款短影片文案。', type: "text", dependsOn: ["theme", "step1"] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成短影片標題與標籤。', type: "text", dependsOn: ["theme", "step4"] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 YouTube 縮圖文案與 FinTech 風格繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step3"], aspectRatio: "16:9" },
+    { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 9:16 短影音縮圖文案與 FinTech 風格繪圖指令。', type: "code", language: "markdown", dependsOn: ["theme", "step5"], aspectRatio: "9:16" },
+    { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 財經意象行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成符合市場氛圍的音樂指令。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成數據圖卡提示詞與財經社群正文', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
   ]
 };

@@ -18,23 +18,14 @@ const IMAGE_ENGINES = [
     name: 'Nano Banana',
     desc: 'Nano Banana 系列的先驅模型。雖然 Nano Banana 2 Lite 一直是可靠的工具，但我們強烈建議客戶改用這項模型，享受更優質的體驗、更快的生成速度，以及更低的 API 價格。'
   },
+  
   {
-    id: 'gemini-3.1-flash-lite-image',
-    name: 'Nano Banana 2 Lite',
-    desc: '這是速度最快、成本最低的 Gemini 圖像模型，專為速度和規模而設計，適用於速度和成本是主要營運限制的情況。不適合多個參考輸入內容或多輪連續編輯。'
-  },
-  {
-    id: 'gemini-3.1-flash-image',
+    id: 'gemini-3.1-flash-image-preview',
     name: 'Nano Banana 2',
     desc: '用途最廣泛的模型，適用於所有工作。可兼顧速度與最先進的 4K 生成技術、世界知識和可靠的文字轉譯功能。擅長處理多張參考圖像，並確保一致性。'
-  },
-  {
-    id: 'gemini-3-pro-image',
-    name: 'Nano Banana Pro',
-    desc: '最適合處理複雜的視覺化工作，提供最高程度的世界知識、進階本地化、準確的品牌一致性，以及精確的創意控制。'
   }
+  
 ];
-
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
@@ -174,71 +165,16 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 };
 
 
-
 // ============================================================================
 // 3. React 元件主體與狀態
 // ============================================================================
-export interface StyleOption {
-  id: string;
-  name: string;
-  promptSuffix: string;
-}
-
-export const AUDIENCE_STYLES: Record<string, StyleOption> = {
-  heritage: {
-    id: "style-heritage",
-    name: "東方古典美學 (水墨工筆)",
-    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, art calligraphy text style"
-  },
-  beauty: {
-    id: "style-beauty",
-    name: "高訂雜誌寫實 (微距極簡)",
-    promptSuffix: ", premium editorial beauty photography, macro shot, flawless skin texture, elegant studio softbox lighting, soft neutral background, minimalist makeup aesthetic, commercial cosmetics lighting, 8k resolution"
-  },
-  travelpreneur: {
-    id: "style-travel",
-    name: "電影級廣角紀實 (探索感)",
-    promptSuffix: ", cinematic travel photography, shot on 35mm lens, golden hour natural light, dynamic wide-angle landscape, national geographic style, high-contrast storytelling depth"
-  },
-  food: {
-    id: "style-food",
-    name: "頂級私廚攝影 (食慾感)",
-    promptSuffix: ", professional commercial food photography, macro shot, glistening texture, delicate steam, shallow depth of field, warm cozy bokeh background, dark moody table setting, hyper-realistic food styling"
-  },
-  historyMeme: {
-    id: "style-history",
-    name: "復古漫畫排版 (浮世迷因)",
-    promptSuffix: ", retro manga pop-art illustration style, bold ink outline, halftones patterns, dynamic movement lines, high-contrast vintage colors, graphic novel aesthetics, expressive and funny"
-  },
-  pet: {
-    id: "style-pet",
-    name: "溫暖居家療癒 (毛髮蓬鬆)",
-    promptSuffix: ", heartwarming interior pet photography, soft cozy lighting, high-key pastel color palette, fluffy dog fur details, joyful companion emotion, warm family atmosphere, 50mm lens f/1.8"
-  }
-};
-
-export const POPULAR_STYLES: StyleOption[] = [
-  {
-    id: "style-cyber",
-    name: "3D 賽博龐克 (霓虹電競)",
-    promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
-  },
-  {
-    id: "style-anime",
-    name: "日系手繪動漫 (新海誠風)",
-    promptSuffix: ", makoto shinkai style, anime illustration, vivid colors, beautiful sky, cinematic lighting, highly detailed"
-  },
-  {
-    id: "style-minimal",
-    name: "北歐寫實極簡 (生活感)",
-    promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
-  }
-];
 
 export default function App() {
-  const isCanvasEnv = false; // Changed to false for Vercel deployment
+  const isCanvasEnv = true; // Added explicitly for Gemini Canvas environment
   const [audienceThemes, setAudienceThemes] = useState({});
   const [themeSteps, setThemeSteps] = useState({});
+  const [audienceStyles, setAudienceStyles] = useState<any>({});
+  const [popularStyles, setPopularStyles] = useState<any[]>([]);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [parsedVisualGroups, setParsedVisualGroups] = useState([]);
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
@@ -248,8 +184,10 @@ export default function App() {
     fetch(`https://omni-script-pro.vercel.app/api/config`)
       .then(res => res.json())
       .then(data => {
-        setAudienceThemes(data.AUDIENCE_THEMES);
-        setThemeSteps(data.THEME_STEPS);
+        setAudienceThemes(data.AUDIENCE_THEMES || {});
+        setThemeSteps(data.THEME_STEPS || {});
+        if (data.AUDIENCE_STYLES) setAudienceStyles(data.AUDIENCE_STYLES);
+        if (data.POPULAR_STYLES) setPopularStyles(data.POPULAR_STYLES);
         if (data.FEEDBACK_CONFIG) setFormConfigs({ feedback: data.FEEDBACK_CONFIG, application: data.APPLICATION_CONFIG });
         setIsConfigLoaded(true);
       })
@@ -257,7 +195,6 @@ export default function App() {
         console.error('Failed to load config:', err);
       });
   }, []);
-
   // --- 狀態管理保持不變 ---
   const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
   const [isAllThemes, setIsAllThemes] = useState(true); // 是否可使用所有主題

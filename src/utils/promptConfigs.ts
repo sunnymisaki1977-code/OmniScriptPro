@@ -1940,7 +1940,289 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
 Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 
   }
-  ]
+  ],
+  fintech: [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對財經主題進行定義釐清、歷史數據比對與市場影響評估",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
+請務必優先使用 Google 搜尋查證最新的官方數據（如 FRED、各國央行、主計處等）再回答。
+
+【⚠️ 最高合規與真實性指令】：
+1. 嚴禁任何 AI 腦補數據。若無最新數據，請明言「尚未公布」。
+2. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+3. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
+請先判斷主題「\${ctx.theme}」屬於哪一種類型：
+1. 總經指標與數據發布 (如：CPI、非農就業、PMI)
+2. 重大財經事件與央行政策 (如：FOMC 會議、降息/升息循環、地緣政治影響)
+
+請先輸出：
+主題分類：
+判斷原因：
+
+接著依照對應模板撰寫。請針對主題「\${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 總經深度解析報告架構
+
+### 一、 執行摘要 (TL;DR)
+   市場痛點破題： 用一句話總結這個主題為何現在最受全球市場關注（例如：「通膨數據再次超乎預期，聯準會降息之路添變數...」）。
+   當前數據/政策現況： 簡述最新的數值、公布日期或政策決議結果。
+
+### 二、 指標定義與底層邏輯
+   白話文解釋： 這個財經名詞/事件到底是什麼？（請用一般大眾能聽懂的比喻）。
+   計算方式或決策機制： 它是怎麼算出來的？或是央行是看哪些因素來做這個決策？
+   在經濟循環中的定位： 它屬於領先、同時，還是落後指標？它反映了景氣循環的哪一個階段？
+
+### 三、 歷史回測與相似週期 (History Doesn't Repeat, But It Rhymes)
+   過去相似情境盤點： 尋找歷史上發生過類似數據或政策的 1-2 個關鍵時期（例如：對比 1970 年代大通膨、2000 年達康泡沫、2008 年金融海嘯）。
+   當時的市場反應： 在那些歷史節點，股、債、匯市或原物料出現了什麼樣的趨勢性變化？
+   本次的異同比較： 這次的宏觀環境與歷史情境有何根本上的不同？
+
+### 四、 跨資產市場影響力評估
+   對貨幣政策的推力： 這個事件將如何影響各國央行（特別是 FED）接下來的動作？
+   資產板塊連動分析： 
+      - 股市 (成長股 vs 價值股、特定板塊)
+      - 債市 (長短天期殖利率變化)
+      - 匯市 (美元指數及主要非美貨幣)
+      - 原物料 (金、銅、油等)
+
+### 五、 財經數據圖表建議 (實作視覺化必備)
+【⚠️ 強制圖像查證指令】：請搜尋與『\${ctx.theme}』最相關的財經官方圖表名稱，或全球權威機構發布的圖表。
+請列出 3-5 組可以用來佐證上述觀點的圖表名稱與重點描述，作為後續影片 B-roll 或社群圖卡的墊圖參考。
+- 📊 建議圖表 1：[圖表名稱，例如：美國-消費者物價指數(CPI)] - [描述該圖表應凸顯哪一段時間的趨勢]
+- 📊 建議圖表 2：...
+- 📊 建議圖表 3：...
+
+### 六、 事實查核與免責聲明
+請列出：
+✔ 引用數據來源機構 (如 BLS, BEA, FED)
+✔ 數據截至日期
+✔ 免責聲明：本文所載之資訊僅供參考，不代表任何形式之投資建議。`
+  },
+
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「\${ctx.theme}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
+
+背景資料：
+====================
+\${ctx.step1}
+====================
+
+【輸出模板 1：Markdown 腳本】
+請精準輸出以下格式，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+
+## 🎬 YouTube 財經深度解析：\${ctx.theme}
+
+### ⏱️ 開場 (Hook)：直擊市場痛點
+ (時間規劃：00:00 - 01:00，共 2 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述開場畫面，需具備專業財經感]
+- 畫面字卡: [10字以內的震撼財經標題]
+- 旁白配音 (VO)：[用強烈市場懸念或驚人數據開場，勾起投資人好奇心]
+
+### ⏱️ 深度解析：數據背後的真相
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]、[03:00 - 03:30]、[03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面，帶入 Step 1 的建議圖表]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[將生硬的總經資料轉化為流暢的邏輯推演，口吻需專業且具說服力]
+
+### ⏱️ 歷史回測與跨資產影響
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出[04:00 - 04:30]、 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00] 、[06:00 - 06:30]、[06:30 - 07:00]：
+- 視覺畫面建議：[走勢圖對比、歷史新聞畫面、資產板塊示意圖]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[解析其對股、債、匯市的潛在影響，並強調歷史不一定重演]
+
+### ⏱️ 總結與互動引導 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 2 個節點)
+請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[財經網站 Dashboard 畫面]
+- 畫面字卡: [為自己的投資負責，看見數據背後的趨勢]
+- 旁白配音 (VO)：[總結核心觀點。引導觀眾：「投資不是靠感覺，而是靠數據。點擊下方入群，看懂最新總經趨勢！記得按讚訂閱，我們下次見。」]`
+  },
+
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊財經標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「\${ctx.theme}」產出能極大化點擊率的財經類 SEO 內容。
+
+《長影音腳本》：\${ctx.step2}
+
+【輸出模板】請直接複製填寫：
+### 🎯 爆款財經標題 (5 個切角)
+1. [痛點/恐慌型標題，如：崩盤前兆？...]
+2. [知識/解密型標題，如：看懂 FED 決策背後的...]
+3. [歷史/回測型標題，如：歷史重演！回顧 2008...]
+4. [數據/震撼型標題，如：驚人數據公布！...]
+5. [趨勢/前瞻型標題，如：下半年資產配置必看...]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[總體經濟] #[財經M平方] ...
+
+### 📝 影片說明欄
+[150字財經簡介，自然融入關鍵字]`
+  },
+
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 60 秒內的精簡財經爆款短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《基礎背景資料》，撰寫一份 60 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
+資料：\${ctx.step1}
+
+## 📱 財經短影音腳本：\${ctx.theme}
+### 💥 前 3 秒：黃金 Hook
+- 畫面指示：[極具衝擊力的暴跌/暴漲圖表或新聞頭條]
+- 旁白 (VO)：[一句話點出市場最關心的痛點]
+
+### 📖 03秒 - 45秒：高能數據解析
+- 畫面指示：[快節奏切換的數據字卡與重點標示]
+- 旁白 (VO)：[精練挑出 1-2 個最核心的數據變化與市場影響]
+
+### 📢 45秒 - 60秒：行動呼籲 (CTA)
+- 畫面指示：[搜尋財經Ｍ平方介面]
+- 旁白 (VO)：[行動呼籲 (CTA)]`
+  },
+
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：\${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
+
+### 🎯 衝擊力財經標題 (3 個，適合放封面)
+1. [如：通膨爆表！下殺警訊？]
+2. [如：一分鐘看懂非農！]
+3. [如：FED 態度大轉彎？]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 縮圖文案與 FinTech 風格繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step3"],
+    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：\${ctx.step3}
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請【完全且嚴格】拷貝下方模板。AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography.
+
+### 第一組：[縮圖名稱]
+主標：[震撼財經主標]
+副標：[補充痛點副標]
+中文：[中文 Prompt 畫面描述，如：一隻發光的機械牛衝破紅色下降趨勢線...]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音縮圖文案與 FinTech 風格繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step5"],
+    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組財經短影音縮圖設計 (9:16)。參考：\${ctx.step5}
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography, extreme vertical composition.
+
+### 第一組：[縮圖名稱]
+高點擊文案：[痛點主標]
+中文：[中文 Prompt 畫面描述]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 財經意象行銷海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `針對「\${ctx.theme}」生成 3 組 16:9 財經行銷海報。
+視覺設計包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, cyberpunk finance。需充滿市場博弈與專業數據感。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+### 第一組：[行銷海報名稱]
+華爾街名言：[與該主題相關的投資大師名言，如巴菲特、索羅斯語錄]
+中文：[中文 Prompt 畫面描述，例如：虛擬全息投影的地球，被密集的交易數據流環繞]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成符合市場氛圍的音樂指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對主題「\${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請直接輸出以下格式：
+
+### 第一組：危機感 (市場恐慌/衰退)
+適用場景：解析暴跌數據或經濟危機
+Suno AI Prompt：[包含 Music Style, Instruments, Tempo。例如：Tense electronic thriller, deep bass pulses, ticking clock tempo, dark synth, suspenseful]
+
+### 第二組：專業感 (深度數據分析)
+適用場景：冷靜客觀的歷史回測
+Suno AI Prompt：[例如：Corporate lo-fi chill, crisp tech beats, ambient synth, steady tempo, professional]
+
+### 第三組：活力感 (牛市/經濟復甦)
+適用場景：利多消息公布或經濟強勁
+Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic tech pop, fast tempo, optimistic]`
+  },
+
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成數據圖卡提示詞與財經社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「\${ctx.theme}」打造一組 IG 財經圖卡懶人包。
+史料：\${ctx.step1}
+
+### 任務一：生成財經資訊圖卡 Prompt (1:1 或 4:5 構圖)
+請萃取四個【數據亮點】。視覺風格必須是：professional corporate infographic, Bloomberg terminal aesthetic, clean layout, dark blue and neon gold accents, high contrast data visualization。
+
+請直接輸出：
+AI Prompt (中文):
+以「\${ctx.theme}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 4 個資訊區塊的財經圖表排版。
+區塊 1 數據：[填寫亮點1]
+區塊 2 數據：[填寫亮點2]
+區塊 3 數據：[填寫亮點3]
+區塊 4 數據：[填寫亮點4]
+
+### 任務二：社群發布正文
+[帶有 Emoji 的時事痛點開場白]
+[條列 3-4 點核心數據解析，用白話文解釋對投資人的影響]
+[互動提問：詢問粉絲對後市的看法]
+掌握全球總經趨勢，為自己的投資負責 
+#財經M平方 #總體經濟 #\${ctx.theme} [補充3個標籤]`
+  }
+]
 };
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {

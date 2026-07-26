@@ -34,10 +34,20 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
     id: "style-pet",
     name: "溫暖居家療癒 (毛髮蓬鬆)",
     promptSuffix: ", heartwarming interior pet photography, soft cozy lighting, high-key pastel color palette, fluffy dog fur details, joyful companion emotion, warm family atmosphere, 50mm lens f/1.8"
+  },
+  fintech: {
+    id: "style-fintech",
+    name: "FinTech 財經量化 (彭博全息)",
+    promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"
   }
 };
 
 export const POPULAR_STYLES: StyleOption[] = [
+  {
+    id: "style-fintech",
+    name: "FinTech 財經量化 (彭博全息)",
+    promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"
+  },
   {
     id: "style-heritage",
     name: "東方古典美學 (水墨工筆)",

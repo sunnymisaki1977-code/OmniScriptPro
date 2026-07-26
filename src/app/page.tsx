@@ -201,8 +201,29 @@ export default function LandingPage() {
         backInput: "幫我寫一篇關於「諸葛孔明」的歷史迷因腳本，用現代投資客的角度來寫。",
         systemTasks: ["✓ 啟動極速矩陣", "✓ 轉換為毒雞湯語氣", "✓ 注入洗腦梗圖指令"]
       }
+    },
+    { 
+      id: "fintech",
+      title: "FinTech 財經", 
+      desc: "專業客觀、科技感的深藍與金色高光。專為全球總經、金融市場與量化分析打造的高含金量腳本。", 
+      color: "from-blue-600 to-teal-500",
+      glowColor: "bg-blue-600",
+      bgClass: "bg-blue-100",
+      textClass: "text-blue-700",
+      features: ["總經分析", "彭博全息視覺"],
+      playlistId: "PLC-IrJAPGBww",
+      previewVideoId: "X2zk7iQPGd8",
+      isShorts: false,
+      flipData: {
+        frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
+        frontText: "全球總經深度解析！聯準會最新政策與市場流動性推演，帶你用客觀數據看懂未來投資趨勢...",
+        frontTags: "#總體經濟 #財經分析 #聯準會",
+        backInput: "聯準會最新利率決策與跨資產影響",
+        systemTasks: ["✓ 啟動彭博量化矩陣", "✓ 官方數據真實性查核", "✓ 生成全息圖表 AI 視覺指令"]
+      }
     }
   ];
+
 
   if (!mounted) return null;
 
