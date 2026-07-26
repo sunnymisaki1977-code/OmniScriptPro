@@ -1,0 +1,5 @@
+# OmniScript PRO: Step 0 - AI 財經雷達 POC 依賴清單
+feedparser>=6.0.10
+google-generativeai>=0.7.2
+python-dotenv>=1.0.1
+requests>=2.31.0
