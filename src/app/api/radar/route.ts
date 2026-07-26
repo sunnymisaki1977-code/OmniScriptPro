@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const RSS_URL = "https://tw.news.yahoo.com/rss/finance"; // 改用 Yahoo 奇摩股市中文 RSS
+const RSS_URL = "https://tw.stock.yahoo.com/rss?category=news"; // 改用 Yahoo 奇摩股市最新綜合快訊 RSS
 
 // 簡易零依賴 RSS 解析函數
 function parseRssItems(xml: string, limit = 5) {
@@ -20,8 +20,17 @@ function parseRssItems(xml: string, limit = 5) {
     const summary = getTag('description') || getTag('summary');
     const pubDate = getTag('pubDate');
     const link = getTag('link');
-    if (title) {
-      items.push({ title, summary: summary.slice(0, 200), pubDate, link });
+    if (title && title !== "Yahoo股市") {
+      let formattedDate = pubDate;
+      try {
+        if (pubDate) {
+          const d = new Date(pubDate);
+          if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
+          }
+        }
+      } catch (e) {}
+      items.push({ title, summary: summary.slice(0, 200), pubDate: formattedDate, link });
     }
   }
   return items;

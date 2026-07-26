@@ -25,7 +25,7 @@ except ImportError:
     sys.exit(1)
 
 # ==================== 配置設定 ====================
-RSS_URL = "https://tw.news.yahoo.com/rss/finance" # 改用 Yahoo 奇摩股市中文 RSS
+RSS_URL = "https://tw.stock.yahoo.com/rss?category=news" # 改用 Yahoo 奇摩股市最新綜合快訊 RSS
 # 備用 RSS 來源 (若 Yahoo 發生 User-Agent 阻擋時可切換測試)：
 # RSS_URL = "https://feeds.a.dj.com/rss/RSSMarketsMain.xml"  # Wall Street Journal Markets
 MODEL_NAME = "gemini-2.5-flash"
@@ -55,15 +55,18 @@ def fetch_latest_news(rss_url, limit=5):
             return []
             
         news_list = []
-        print(f"📥 成功取得前 {len(entries)} 則最新快訊：")
-        for idx, entry in enumerate(entries, 1):
+        for entry in entries:
+            if len(news_list) >= 5:
+                break
             title = entry.get("title", "無標題").strip()
+            if title == "Yahoo股市" or not title:
+                continue
             summary = entry.get("summary", "") or entry.get("description", "")
-            # 清除 summary 中的 HTML 標籤或過長文字
             summary_clean = summary[:150].strip() + ("..." if len(summary) > 150 else "")
-            print(f"   [{idx}] {title}")
+            print(f"   [{len(news_list)+1}] {title}")
             news_list.append({"title": title, "summary": summary_clean})
             
+        print(f"📥 成功取得前 {len(news_list)} 則最新即時快訊：")
         return news_list
     except Exception as e:
         print(f"❌ 抓取 RSS 時發生錯誤: {str(e)}")
