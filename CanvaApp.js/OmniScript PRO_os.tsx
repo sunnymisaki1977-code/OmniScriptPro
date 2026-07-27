@@ -68,7 +68,14 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
 
+    // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
+    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+
     const geminiPayload = {
+        // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
+        systemInstruction: {
+            parts: [{ text: `你是一位專業的資料分析師與企劃。請注意，現在的真實時間是 ${currentDate}。處理任何新聞或數據時，請嚴格以這個時間點作為「現在」的基準，絕對不要宣稱這是未來時間或說現在是 2024 年。` }]
+        },
         contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
             maxOutputTokens: 8192
@@ -94,14 +101,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     });
 
     if (!aiResponse.ok) {
-        let errorDetails = "";
-        try {
-            const errorData = await aiResponse.json();
-            errorDetails = errorData.error?.message || JSON.stringify(errorData);
-        } catch(e) {
-            errorDetails = await aiResponse.text();
-        }
-        throw new Error(`Google API 錯誤 (${aiResponse.status}): ${errorDetails}`);
+        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
     }
     
     const data = await aiResponse.json();
@@ -338,10 +338,10 @@ export default function App() {
   const [generatingGroups, setGeneratingGroups] = useState({});
   const [imageEngine, setImageEngine] = useState('flash');
 
-  const [notebookParsedGroups, setNotebookParsedGroups] = useState<any[]>([]);
-  const [notebookImages, setNotebookImages] = useState<any[]>([]);
-  const [isGeneratingNotebook, setIsGeneratingNotebook] = useState(false);
-  const [isNotebookSidebarHidden, setIsNotebookSidebarHidden] = useState(false);
+  const [ExtremeParsedGroups, setExtremeParsedGroups] = useState<any[]>([]);
+  const [ExtremeImages, setExtremeImages] = useState<any[]>([]);
+  const [isGeneratingExtreme, setIsGeneratingExtreme] = useState(false);
+  const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
 
   
 
@@ -369,21 +369,21 @@ export default function App() {
   const visualGroups = parsedVisualGroups;
 
   useEffect(() => {
-    if (activeTab === 'notebook' && stepContents[2]) {
-      setIsGeneratingNotebook(true);
-      fetch('https://omni-script-pro.vercel.app/api/notebooklm', {
+    if (activeTab === 'Extreme' && stepContents[2]) {
+      setIsGeneratingExtreme(true);
+      fetch('https://omni-script-pro.vercel.app/api/Extreme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: stepContents[2] })
       })
         .then(res => res.json())
         .then(data => {
-          setNotebookParsedGroups(data.parsedScenes || []);
-          setIsGeneratingNotebook(false);
+          setExtremeParsedGroups(data.parsedScenes || []);
+          setIsGeneratingExtreme(false);
         })
         .catch(err => {
-          console.error('Parse notebookLM error:', err);
-          setIsGeneratingNotebook(false);
+          console.error('Parse Extreme error:', err);
+          setIsGeneratingExtreme(false);
         });
     }
   }, [stepContents, activeTab]);
@@ -396,30 +396,30 @@ export default function App() {
 
 
 
-  const handleGenerateNotebookImages = async () => {
-    if (notebookParsedGroups.length === 0) {
+  const handleGenerateExtremeImages = async () => {
+    if (ExtremeParsedGroups.length === 0) {
       safeAlert("請先確認腳本中包含有效的視覺畫面建議！");
       return;
     }
     
-    setIsGeneratingNotebook(true);
-    addLog(`[NotebookLM] 開始批次發送 ${notebookParsedGroups.length} 組 Prompt 進行動態組裝...`, 'info');
+    setIsGeneratingExtreme(true);
+    addLog(`[Extreme] 開始批次發送 ${ExtremeParsedGroups.length} 組 Prompt 進行動態組裝...`, 'info');
     
-    await Promise.all(notebookParsedGroups.map(group => generateGroupImage(group)));
+    await Promise.all(ExtremeParsedGroups.map(group => generateGroupImage(group)));
     
-    setIsGeneratingNotebook(false);
-    addLog(`[NotebookLM] 🎨 所有影像生成完畢！`, 'success');
+    setIsGeneratingExtreme(false);
+    addLog(`[Extreme] 🎨 所有影像生成完畢！`, 'success');
   };
 
-  const handleDownloadNotebookPython = async () => {
-    if (notebookParsedGroups.length === 0) {
+  const handleDownloadExtremePython = async () => {
+    if (ExtremeParsedGroups.length === 0) {
       safeAlert("請先產生分鏡卡片！");
       return;
     }
     
     addLog(`[System] 正在向後端請求產生 Python 自動化草稿...`, 'info');
     
-    const scenesToExport = notebookParsedGroups.map(g => {
+    const scenesToExport = ExtremeParsedGroups.map(g => {
         return {
             title: g.title,
             caption: g.subTitle || "",
@@ -429,7 +429,7 @@ export default function App() {
     });
 
     try {
-        const response = await fetch('https://omni-script-pro.vercel.app/api/notebooklm/export', {
+        const response = await fetch('https://omni-script-pro.vercel.app/api/Extreme/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ scenes: scenesToExport })
@@ -1274,7 +1274,7 @@ const handleLogin = async (e: React.FormEvent) => {
               { id: 'creation', icon: FileText, label: '內容創作中心' },
               { id: 'visual', icon: ImageIcon, label: '視覺發控中心' },
               { id: 'suno', icon: Music, label: 'Suno 配樂中心' },
-              { id: 'notebook', icon: BookOpen, label: 'NotebookLM 影片中心' },
+              { id: 'Extreme', icon: BookOpen, label: 'Extreme 影片中心' },
               { id: 'gods_data', icon: Star, label: '諸神文化解碼中心' }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
@@ -1302,7 +1302,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </button>
                   
                   {/* 視覺裂變 (在左側選單視覺發控中心下) */}
-                  {isActive && (tab.id === 'visual' || tab.id === 'notebook' || tab.id === 'gods_data') && (
+                  {isActive && (tab.id === 'visual' || tab.id === 'Extreme' || tab.id === 'gods_data') && (
                     <div className="mx-2 p-4 bg-white border border-slate-200 rounded-xl space-y-4 backdrop-blur-lg">
                       <h4 className=" text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
                         <Sliders className="w-3.5 h-3.5 text-[#10B981]" />
@@ -2194,9 +2194,9 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
           )}
 
-          {/* TAB 4: NotebookLM Video Center */}
-          {activeTab === 'notebook' && (
-            /* --- STREAMING_CHUNK:Rendering NotebookLM Summarizer Panel --- */
+          {/* TAB 4: Extreme Video Center */}
+          {activeTab === 'Extreme' && (
+            /* --- STREAMING_CHUNK:Rendering Extreme Summarizer Panel --- */
             <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 
@@ -2204,7 +2204,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   <div>
                     <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
                       <BookOpen className="w-5 h-5 text-emerald-400" />
-                      NotebookLM 影片整合中心
+                      Extreme 影片整合中心
                     </h3>
                     <p className="text-xs text-[#64748B] mt-1">匯入長影片、外部文檔或錄音檔，自動生成主題關係圖並轉譯為結構化對談與學習指南。</p>
                   </div>
@@ -2213,19 +2213,19 @@ const handleLogin = async (e: React.FormEvent) => {
                 <div className="flex flex-col lg:flex-row gap-6 items-start relative w-full h-full">
                   
                   {isGlobalMaster && (
-                    <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isNotebookSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
+                    <div className={`hidden lg:flex absolute top-4 z-20 transition-all duration-300 ${isExtremeSidebarHidden ? '-left-3' : 'left-[305px]'}`}>
                       <button
-                        onClick={() => setIsNotebookSidebarHidden(!isNotebookSidebarHidden)}
+                        onClick={() => setIsExtremeSidebarHidden(!isExtremeSidebarHidden)}
                         className="flex items-center justify-center w-6 h-6 bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] rounded-full border-2 border-[#0a0f1d] shadow-lg transition-transform hover:scale-110"
-                        title={isNotebookSidebarHidden ? "展開腳本" : "收合腳本"}
+                        title={isExtremeSidebarHidden ? "展開腳本" : "收合腳本"}
                       >
-                        {isNotebookSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
+                        {isExtremeSidebarHidden ? <ChevronRight className="w-3 h-3 ml-0.5" /> : <ChevronLeft className="w-3 h-3 pr-0.5" />}
                       </button>
                     </div>
                   )}
 
                   {/* Left Column: STEP 2 content */}
-                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-white border border-slate-200 rounded-2xl backdrop-blur-lg flex flex-col relative ${isNotebookSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-0 opacity-100'}`}>
+                  <div className={`transition-all duration-300 ease-in-out shrink-0 bg-white border border-slate-200 rounded-2xl backdrop-blur-lg flex flex-col relative ${isExtremeSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-0 opacity-100'}`}>
                      <div className="p-4 bg-slate-100 rounded-t-2xl border-b border-slate-200 flex items-center justify-between">
                        <h4 className="text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
                          STEP 2 主軸腳本文案
@@ -2242,11 +2242,11 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className="flex flex-col md:flex-row items-center justify-end w-full mb-2 gap-3">
                       <div className="flex items-center gap-3 w-full md:w-auto">
                         <button 
-                          onClick={handleGenerateNotebookImages}
-                          disabled={isGeneratingNotebook}
+                          onClick={handleGenerateExtremeImages}
+                          disabled={isGeneratingExtreme}
                           className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                          {isGeneratingNotebook ? (
+                          {isGeneratingExtreme ? (
                             <>
                               <Loader2 className="w-4 h-4 animate-spin" />
                               生成中...
@@ -2260,7 +2260,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         </button>
 
                         <button 
-                          onClick={handleDownloadNotebookPython}
+                          onClick={handleDownloadExtremePython}
                           className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                         >
                           <Download className="w-4 h-4" />
@@ -2269,18 +2269,18 @@ const handleLogin = async (e: React.FormEvent) => {
                         
                         <button 
                           onClick={async () => {
-                            if (!notebookParsedGroups || notebookParsedGroups.length === 0) return;
-                            addLog(`[NotebookLM] 開始批次下載 ${notebookParsedGroups.length} 張分鏡圖...`, 'info');
+                            if (!ExtremeParsedGroups || ExtremeParsedGroups.length === 0) return;
+                            addLog(`[Extreme] 開始批次下載 ${ExtremeParsedGroups.length} 張分鏡圖...`, 'info');
                             let downloaded = 0;
-                            for (let i = 0; i < notebookParsedGroups.length; i++) {
-                              const g = notebookParsedGroups[i];
+                            for (let i = 0; i < ExtremeParsedGroups.length; i++) {
+                              const g = ExtremeParsedGroups[i];
                               if (groupImages[g.id]) {
-                                handleDownloadImage(groupImages[g.id], `notebooklm-scene-${i+1}`);
+                                handleDownloadImage(groupImages[g.id], `Extreme-scene-${i+1}`);
                                 downloaded++;
                                 await new Promise(r => setTimeout(r, 400));
                               }
                             }
-                            addLog(`[NotebookLM] 批次下載完畢！共下載 ${downloaded} 張圖片。`, 'success');
+                            addLog(`[Extreme] 批次下載完畢！共下載 ${downloaded} 張圖片。`, 'success');
                           }}
                           className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                         >
@@ -2291,7 +2291,7 @@ const handleLogin = async (e: React.FormEvent) => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {notebookParsedGroups.length === 0 ? (
+                      {ExtremeParsedGroups.length === 0 ? (
                         <div className="col-span-full h-64 flex flex-col items-center justify-center text-center space-y-4">
                           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
                             <Palette className="w-6 h-6 text-slate-300" />
@@ -2300,7 +2300,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           <p className="text-slate-500 text-xs max-w-sm">請確認主軸腳本文案已載入，再「開始生成 16 張分鏡」</p>
                         </div>
                       ) : (
-                        notebookParsedGroups.map((g: any, i: number) => {
+                        ExtremeParsedGroups.map((g: any, i: number) => {
                           const isGenerating = generatingGroups[g.id];
                           const imageBase64 = groupImages[g.id];
                           
