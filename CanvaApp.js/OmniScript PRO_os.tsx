@@ -365,6 +365,7 @@ export default function App() {
   const [ExtremeImages, setExtremeImages] = useState<any[]>([]);
   const [isGeneratingExtreme, setIsGeneratingExtreme] = useState(false);
   const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
+  const [extremeSource, setExtremeSource] = useState<'step2' | 'step4'>('step2');
 
   
 
@@ -392,12 +393,13 @@ export default function App() {
   const visualGroups = parsedVisualGroups;
 
   useEffect(() => {
-    if (activeTab === 'Extreme' && stepContents[2]) {
+    const targetContent = extremeSource === 'step4' ? stepContents[4] : stepContents[2];
+    if (activeTab === 'Extreme' && targetContent) {
       setIsGeneratingExtreme(true);
       fetch('https://omni-script-pro.vercel.app/api/Extreme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: stepContents[2] })
+        body: JSON.stringify({ content: targetContent })
       })
         .then(res => res.json())
         .then(data => {
@@ -409,7 +411,7 @@ export default function App() {
           setIsGeneratingExtreme(false);
         });
     }
-  }, [stepContents, activeTab]);
+  }, [stepContents, activeTab, extremeSource]);
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -2247,13 +2249,29 @@ const handleLogin = async (e: React.FormEvent) => {
             <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-4xl mx-auto space-y-6">
                 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 shadow-sm">
                   <div>
                     <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
                       <BookOpen className="w-5 h-5 text-emerald-400" />
                       Extreme 影片整合中心
                     </h3>
                     <p className="text-xs text-[#64748B] mt-1">匯入長影片、外部文檔或錄音檔，自動生成主題關係圖並轉譯為結構化對談與學習指南。</p>
+                  </div>
+
+                  {/* 腳本來源切換選項 (Dual-Track Switcher) */}
+                  <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button
+                      onClick={() => setExtremeSource('step2')}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${extremeSource === 'step2' ? 'bg-indigo-600 text-white shadow-md' : 'text-[#64748B] hover:text-[#1E293B]'}`}
+                    >
+                      <span>🎬 深度長片模式 (Step 2)</span>
+                    </button>
+                    <button
+                      onClick={() => setExtremeSource('step4')}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${extremeSource === 'step4' ? 'bg-indigo-600 text-white shadow-md' : 'text-[#64748B] hover:text-[#1E293B]'}`}
+                    >
+                      <span>📱 爆款短片模式 (Step 4)</span>
+                    </button>
                   </div>
                 </div>
 
@@ -2271,15 +2289,15 @@ const handleLogin = async (e: React.FormEvent) => {
                     </div>
                   )}
 
-                  {/* Left Column: STEP 2 content */}
+                  {/* Left Column: STEP 2 / STEP 4 content */}
                   <div className={`transition-all duration-300 ease-in-out shrink-0 bg-white border border-slate-200 rounded-2xl backdrop-blur-lg flex flex-col relative ${isExtremeSidebarHidden ? 'w-0 h-0 p-0 overflow-hidden border-transparent opacity-0 m-0' : 'w-full lg:w-[320px] p-0 opacity-100'}`}>
                      <div className="p-4 bg-slate-100 rounded-t-2xl border-b border-slate-200 flex items-center justify-between">
                        <h4 className="text-[14px] font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-1.5">
-                         STEP 2 主軸腳本文案
+                         {extremeSource === 'step4' ? 'STEP 4 擴散式影音文案 (9:16)' : 'STEP 2 主軸腳本文案 (16:9)'}
                        </h4>
                      </div>
                      <div className="p-4 bg-slate-500 text-white font-mono text-sm leading-relaxed overflow-y-auto custom-scrollbar whitespace-pre-wrap" style={{ height: 'calc(100vh - 250px)' }}>
-                       {stepContents[2] || "尚無內容"}
+                       {stepContents[extremeSource === 'step4' ? 4 : 2] || "尚無內容"}
                      </div>
                   </div>
 
@@ -2301,7 +2319,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           ) : (
                             <>
                               <Palette className="w-4 h-4" />
-                              開始生成 16 張分鏡
+                              開始生成 {ExtremeParsedGroups.length || 0} 張分鏡
                             </>
                           )}
                         </button>
