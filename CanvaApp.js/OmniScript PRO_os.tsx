@@ -40,7 +40,30 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
+    const VERCEL_API_URL = `${API_BASE_URL}/api/generate-all`;
+
+    if (!apiKey) {
+        console.log(`[Vercel API] 偵測為 Master 或無前端金鑰，改由後台伺服器環境 (process.env.GEMINI_API_KEY) 執行生成...`);
+        const genResponse = await fetch(VERCEL_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                currentStepId: stepId, 
+                theme: context.theme, 
+                existingData: context,
+                audienceTheme,
+                returnPromptOnly: false
+            })
+        });
+        if (!genResponse.ok) {
+            throw new Error(`伺服器生成失敗：HTTP ${genResponse.status}`);
+        }
+        const genData = await genResponse.json();
+        if (!genData.success && genData.error) {
+            throw new Error(genData.error);
+        }
+        return genData.output || "";
+    }
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -478,8 +501,6 @@ export default function App() {
       const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
 
       if (imageEngine === 'flash') {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
-
         let flashPrompt = finalPromptWithStyle;
         if (mainTitle || subTitle || poetry) {
           flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
@@ -487,36 +508,62 @@ export default function App() {
           if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
           if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
         }
-        
         const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: finalPrompt }]
-              }
-            ],
-            generationConfig: {
-              responseModalities: ['TEXT', 'IMAGE']
-            }
-          })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-        
-        const parts = data.candidates?.[0]?.content?.parts || [];
-        const imagePart = parts.find((p: any) => p.inlineData);
-        if (imagePart) {
-          base64 = imagePart.inlineData.data;
+        if (!activeApiKey) {
+          addLog(`[${engineName}] 未偵測到前端金鑰，改由後台伺服器環境 API Key 渲染...`, 'info');
+          const res = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              promptText: finalPrompt,
+              aspectRatio,
+              mainTitle,
+              subTitle,
+              poetry
+            })
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) throw new Error(data.error || `API Error: ${res.status}`);
+          if (data.image) {
+            base64 = data.image.replace(/^data:image\/[a-z]+;base64,/, '');
+          } else if (data.imageUrl || data.url) {
+            setGroupImages(prev => ({ ...prev, [groupId]: data.imageUrl || data.url }));
+            addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
+            setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
+            return;
+          } else {
+            throw new Error("後台伺服器未回傳圖像資料");
+          }
         } else {
-          throw new Error("模型未回傳圖像資料");
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: finalPrompt }]
+                }
+              ],
+              generationConfig: {
+                responseModalities: ['TEXT', 'IMAGE']
+              }
+            })
+          });
+
+          const data = await response.json();
+          if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+          
+          const parts = data.candidates?.[0]?.content?.parts || [];
+          const imagePart = parts.find((p: any) => p.inlineData);
+          if (imagePart) {
+            base64 = imagePart.inlineData.data;
+          } else {
+            throw new Error("模型未回傳圖像資料");
+          }
         }
-      
       }
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
@@ -834,7 +881,7 @@ export default function App() {
         // 💡 依據環境決定生成方式
         let outputText = "";
 
-        if (isCanvasEnv && localPromptFunctions) {
+        if (isCanvasEnv && localPromptFunctions && activeApiKey) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
             const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
@@ -968,7 +1015,7 @@ export default function App() {
   
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
-  if (!isCanvasEnv && !geminiApiKey.trim()) {
+  if (!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) {
     setPendingImageTask(() => () => runAutoGeneration(finalTheme, isResume));
     setShowApiKeyModal(true);
     return;
@@ -1975,7 +2022,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{isGeneratingImage ? '正在批次渲染中...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
+                      <span>{isGeneratingImage ? '正在批次渲染中...' : ((!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
                     </button>
                   </div>
 
@@ -2031,7 +2078,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B]  text-[14px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
+                              <span>{generatingGroups[group.id] ? '正在渲染...' : ((!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
                             </button>
                             
                             <div className="flex gap-2 mt-2">
@@ -2450,38 +2497,52 @@ const handleLogin = async (e: React.FormEvent) => {
                         const activeApiKey = (geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "")).trim();
 
                         
-                        if (!isCanvasEnv && !activeApiKey.trim()) {
+                        if (!isGlobalMaster && !activeApiKey.trim()) {
                             setShowApiKeyModal(true);
                             setIsGeneratingGods(false);
                             return;
                         }
 
-                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
-                        let data = { results: [] };
-                        
-                        for (const name of names) {
-                            addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
-                            const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
-                            const response = await fetch(apiUrl, {
+                        let data: { results: any[], error?: string } = { results: [] };
+                        if (!activeApiKey.trim()) {
+                            addLog(`[諸神解碼] 未偵測到前端金鑰，改由後台伺服器環境 API Key 考證...`, 'info');
+                            const res = await fetch('/api/gods-generate', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
-                                    generationConfig: { temperature: 0.7 }
-                                })
+                                body: JSON.stringify({ names })
                             });
-                            const resultRaw = await response.json();
-                            if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
-                            const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                            const jsonMatch = text.match(/\{[\s\S]*\}/);
-                            if (jsonMatch) {
-                                const parsed = JSON.parse(jsonMatch[0]);
-                                data.results.push({
-                                    id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                                    ...parsed,
-                                    imageUrl: ""
+                            const serverData = await res.json();
+                            if (!res.ok || serverData.error) throw new Error(serverData.error || `API Error: ${res.status}`);
+                            if (serverData.results) {
+                                data.results = serverData.results;
+                                addLog(`[諸神解碼] ✅ ${names.join(', ')} 考證完成！`, 'success');
+                            }
+                        } else {
+                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            for (const name of names) {
+                                addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
+                                const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
+                                const response = await fetch(apiUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                        generationConfig: { temperature: 0.7 }
+                                    })
                                 });
-                                addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
+                                const resultRaw = await response.json();
+                                if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
+                                const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                                if (jsonMatch) {
+                                    const parsed = JSON.parse(jsonMatch[0]);
+                                    data.results.push({
+                                        id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                        ...parsed,
+                                        imageUrl: ""
+                                    });
+                                    addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
+                                }
                             }
                         }
                         if (data.error) throw new Error(data.error);
