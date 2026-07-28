@@ -211,7 +211,7 @@ export default function LandingPage() {
       bgClass: "bg-blue-100",
       textClass: "text-blue-700",
       features: ["總經分析", "彭博全息視覺"],
-      playlistId: "PLC-IrJAPGBww",
+      playlistId: "PLDDnUDat-MmI",
       previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
       flipData: {
