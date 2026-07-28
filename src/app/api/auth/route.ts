@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 // --- 授權金鑰對應表 (5 個受眾群 + 1 個管理員) ---
 // ============================================================================
 const ACCESS_CODES: Record<string, string> = {
-  'TECH2026': 'heritage',   // 民俗信仰・文化傳承
-  'GLAM2026': 'beauty',     // 美妝保養・悅己美學
-  'INDIE2026': 'travelpreneur',// 旅遊生活・世界漫遊
-  'RUBY2026': 'food',       // 美食料理・風味探索
-  'PET2026': 'pet',         // 寵物照護・幸福陪伴
-  'SKY2026': 'pet',         // 相容舊碼
+  'culture2026': 'heritage',   // 民俗信仰・文化傳承
+  'beauty2026': 'beauty',     // 美妝保養・悅己美學
+  'travel2026': 'travelpreneur',// 旅遊生活・世界漫遊
+  'food2026': 'food',       // 美食料理・風味探索
+  'pet2026': 'pet',         // 寵物照護・幸福陪伴
+  'fintech2026': 'fintech',     // FinTech 財經知識・AI 解析
   'MASTER': 'heritage',     // 管理員
   'FLEIX': 'heritage'       // 全主題通用 (非管理員)
 };
