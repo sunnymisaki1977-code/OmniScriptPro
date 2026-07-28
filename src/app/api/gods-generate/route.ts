@@ -21,13 +21,14 @@ export async function POST(req: Request) {
       
       請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：
       {
-        "name": "神明聖號（如：天上聖母）",
+        "name": "神明聖號（由上到下由右到左不要標點符號）",
         "organization": "組織，只能填入 佛、道、儒 其中一個",
-        "title": "10-15 字的精煉副標題，需點出其神格或象徵",
-        "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入",
-        "poem": "一句符合主題詩詞",
+        "title": "10-15 字的精煉副標題，需點出其神格或象徵（由上到下由右到左不要標點符號）",
+        "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下由右到左不要標點符號）",
+        "poem": "一句符合主題詩詞（由上到下由右到左不要標點符號）",
         "tags": ["標籤1", "標籤2", "標籤3"],
-        "imagePrompt": "生成圖像的Prompt：請結合『神明的形象描述』與這句『Poem』，寫出一段適合交給 AI 繪圖工具（如 Midjourney）生成水墨風格(ink wash painting)神像的英文提示詞"
+        "imagePrompt": "生成圖像的Prompt：請結合『神明的形象描述』與『Poem』，視覺設計必須包含風格標籤 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，充滿禪意或史詩感的氛圍。
+"
       }`;
 
       const result = await model.generateContent(prompt);
