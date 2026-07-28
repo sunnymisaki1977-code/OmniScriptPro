@@ -83,23 +83,24 @@ export default function LandingPage() {
   // 定義六大受眾模組資料 (加深文字色彩提升在淺色背景的對比)
   const audiences = [
     { 
-      id: "food",
-      title: "美食料理", 
-      desc: "溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌行銷、食譜教學與美食探店視覺設計。", 
-      color: "from-orange-400 to-yellow-500",
-      glowColor: "bg-orange-400", 
-      bgClass: "bg-orange-100",
-      textClass: "text-orange-600",
-      features: ["勾引食慾視覺", "強烈 CTA"],
-      playlistId: "PLF3eQyAQueV4",
-      previewVideoId: "E1Oc1Eo_LcE",
+      id: "fintech",
+      title: "FinTech 財經", 
+      desc: "專業客觀、科技感的深藍與金色高光。專為全球總經、金融市場與量化分析打造的高含金量腳本。", 
+      color: "from-blue-600 to-teal-500",
+      glowColor: "bg-blue-600",
+      bgClass: "bg-blue-100",
+      textClass: "text-blue-700",
+      features: ["總經分析", "彭博全息視覺"],
+      playlistId: "PLDDnUDat-MmI",
+      previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
       flipData: {
-        frontImage: ["/Golden_Mango_Summer_p1.jpg", "/Golden_Mango_Summer_p2.jpg", "/Golden_Mango_Summer_p3.jpg", "/Golden_Mango_Summer_p4.jpg", "/Golden_Mango_Summer_p5.jpg"],
-        frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
-        frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
-        backInput: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇",
-        systemTasks: ["✓ 啟動食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
+        frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
+        frontText: "全球總經深度解析！聯準會最新政策與市場流動性推演，帶你用客觀數據看懂未來投資趨勢...",
+        frontTags: "#總體經濟 #財經分析 #聯準會",
+        backInput: "聯準會最新利率決策與跨資產影響",
+        systemTasks: ["✓ 啟動彭博量化矩陣", "✓ 官方數據真實性查核", "✓ 生成全息圖表 AI 視覺指令"]
+      
       }
     },
     { 
@@ -203,23 +204,26 @@ export default function LandingPage() {
       }
     },
     { 
-      id: "fintech",
-      title: "FinTech 財經", 
-      desc: "專業客觀、科技感的深藍與金色高光。專為全球總經、金融市場與量化分析打造的高含金量腳本。", 
-      color: "from-blue-600 to-teal-500",
-      glowColor: "bg-blue-600",
-      bgClass: "bg-blue-100",
-      textClass: "text-blue-700",
-      features: ["總經分析", "彭博全息視覺"],
-      playlistId: "PLDDnUDat-MmI",
-      previewVideoId: "X2zk7iQPGd8",
+      id: "food",
+      title: "美食料理", 
+      desc: "溫暖、勾引食慾的漸層橘與焦糖色。專為餐飲品牌行銷、食譜教學與美食探店視覺設計。", 
+      color: "from-orange-400 to-yellow-500",
+      glowColor: "bg-orange-400", 
+      bgClass: "bg-orange-100",
+      textClass: "text-orange-600",
+      features: ["勾引食慾視覺", "強烈 CTA"],
+      playlistId: "PLF3eQyAQueV4",
+      previewVideoId: "E1Oc1Eo_LcE",
       isShorts: false,
       flipData: {
-        frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
-        frontText: "全球總經深度解析！聯準會最新政策與市場流動性推演，帶你用客觀數據看懂未來投資趨勢...",
-        frontTags: "#總體經濟 #財經分析 #聯準會",
-        backInput: "聯準會最新利率決策與跨資產影響",
-        systemTasks: ["✓ 啟動彭博量化矩陣", "✓ 官方數據真實性查核", "✓ 生成全息圖表 AI 視覺指令"]
+        frontImage: ["/Golden_Mango_Summer_p1.jpg", "/Golden_Mango_Summer_p2.jpg", "/Golden_Mango_Summer_p3.jpg", "/Golden_Mango_Summer_p4.jpg", "/Golden_Mango_Summer_p5.jpg"],
+        frontText: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇！教您如何完美運用當季芒果，打造絕美夏日甜點...",
+        frontTags: "#創意芒果季 #台灣水果 #懶人食譜",
+        backInput: "台灣夏日創意芒果季：熱帶果實的飲食文化詩篇",
+        systemTasks: ["✓ 啟動食慾誘發矩陣", "✓ 步驟簡化與動態運鏡", "✓ 生成焦糖暖色調視覺指令"]
+
+      
+      
       }
     }
   ];
