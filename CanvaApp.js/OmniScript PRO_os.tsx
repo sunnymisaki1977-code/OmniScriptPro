@@ -1553,11 +1553,19 @@ const handleLogin = async (e: React.FormEvent) => {
                           </div>
                           <div 
                             onClick={() => { setPasscode('pet2026'); setAuthError(''); }}
-                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint sm:col-span-2"
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
                             title="點擊帶入 pet2026"
                           >
                             <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🐾 寵物照護・幸福陪伴</span>
                             <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">pet2026</code>
+                          </div>
+                          <div 
+                            onClick={() => { setPasscode('fintech2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 fintech2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">📈 FinTech 財經知識・AI 解析</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">fintech2026</code>
                           </div>
                         </div>
                       </div>
