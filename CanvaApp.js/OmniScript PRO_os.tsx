@@ -1508,11 +1508,61 @@ const handleLogin = async (e: React.FormEvent) => {
                           系統已鎖定
                         </h2>
                         <p className="text-[11px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
-                          請輸入您的專屬受眾授權碼以進入 OmniScript Pro 核心系統。
+                          請輸入您有興趣的主題授權碼以進入 OmniScript Pro 核心系統。
                         </p>
                       </div>
 
-                      <form onSubmit={handleLogin} className="space-y-4 mt-8">
+                      {/* 提示密碼與快速填寫區塊 */}
+                      <div className="mt-6 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 md:p-5 text-left space-y-3 shadow-inner">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-2">
+                          <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <span>可依興趣的主題輸入密碼（點擊可快速帶入）：</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-600">
+                          <div 
+                            onClick={() => { setPasscode('culture2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 culture2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🏛️ 民俗信仰・文化傳承</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">culture2026</code>
+                          </div>
+                          <div 
+                            onClick={() => { setPasscode('beauty2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 beauty2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">💄 美妝保養・悅己美學</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">beauty2026</code>
+                          </div>
+                          <div 
+                            onClick={() => { setPasscode('travel2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 travel2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">✈️ 旅遊生活・世界漫遊</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">travel2026</code>
+                          </div>
+                          <div 
+                            onClick={() => { setPasscode('food2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 food2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🍳 美食料理・風味探索</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">food2026</code>
+                          </div>
+                          <div 
+                            onClick={() => { setPasscode('pet2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint sm:col-span-2"
+                            title="點擊帶入 pet2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🐾 寵物照護・幸福陪伴</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">pet2026</code>
+                          </div>
+                        </div>
+                      </div>
+
+                      <form onSubmit={handleLogin} className="space-y-4 mt-6">
                         <div className="relative group">
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                           <input 
