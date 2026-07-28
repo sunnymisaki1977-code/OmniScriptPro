@@ -95,7 +95,17 @@ export default function LandingPage() {
       previewVideoId: "X2zk7iQPGd8",
       isShorts: false,
       flipData: {
-        frontImage: ["/Kongming_p1.jpg", "/Kongming_p2.jpg", "/Kongming_p3.jpg", "/Kongming_p4.jpg", "/Kongming_p5.jpg"],
+        frontImage: [
+          "/FinTech【崩盤警示篇】.png",
+          "/FinTech【恐慌警示版】亞股血洗極限視覺.png",
+          "/FinTech【恐懼與大師】極致數據衝突感.png",
+          "/FinTech【技術救命訊號】精準抄底視角.png",
+          "/FinTech【政策殺招篇】.png",
+          "/FinTech【結構重組版】專業權威拆解.png",
+          "/FinTech【背離與貪婪】數據對抗美學.png",
+          "/FinTech【資金流向版】AI 引擎過熱解構.png",
+          "/FinTech【逆勢奇蹟篇】.png"
+        ],
         frontText: "全球總經深度解析！聯準會最新政策與市場流動性推演，帶你用客觀數據看懂未來投資趨勢...",
         frontTags: "#總體經濟 #財經分析 #聯準會",
         backInput: "聯準會最新利率決策與跨資產影響",

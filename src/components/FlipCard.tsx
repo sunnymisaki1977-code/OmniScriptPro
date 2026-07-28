@@ -20,16 +20,23 @@ export default function FlipCard({
   backInput,
   systemTasks
 }: FlipCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   const images = Array.isArray(frontImage) ? frontImage : [frontImage];
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(() => 
+    images.length > 0 ? Math.floor(Math.random() * images.length) : 0
+  );
 
   useEffect(() => {
     if (images.length > 1) {
       const interval = setInterval(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-      }, 3500); // 3.5秒切換一次
+        setCurrentImageIndex((prevIndex) => {
+          let nextIndex = prevIndex;
+          while (nextIndex === prevIndex && images.length > 1) {
+            nextIndex = Math.floor(Math.random() * images.length);
+          }
+          return nextIndex;
+        });
+      }, 2500); // 2.5秒亂數切換一次
       return () => clearInterval(interval);
     }
   }, [images.length]);
@@ -48,7 +55,7 @@ export default function FlipCard({
             卡片正面 (The Wow) 
             ==================== */}
         <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(10,46,92,0.3)] bg-[#0A2E5C] border border-[#10B981]/30">
-          {/* 背景圖片 (支援單張、漸層或自動輪播) */}
+          {/* 背景圖片 (支援單張、漸層或亂數輪播) */}
           {images.map((imgSrc, idx) => (
             <div 
               key={`${imgSrc}-${idx}`}
@@ -58,7 +65,7 @@ export default function FlipCard({
             >
               {imgSrc.startsWith('/') || imgSrc.startsWith('http') ? (
                 <img 
-                  src={imgSrc} 
+                  src={encodeURI(imgSrc)} 
                   alt={`${theme} preview ${idx + 1}`} 
                   className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700"
                 />
