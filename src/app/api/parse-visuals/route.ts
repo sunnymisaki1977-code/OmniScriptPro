@@ -20,7 +20,11 @@ export async function POST(req: Request) {
         let titleMatch = null;
         let shouldIncludeLine = false;
 
-        if (line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)) {
+        const timeMatch = line.match(/(?:時間規劃[：:]\s*)?\*?\*?(\d{1,2}:\d{2}\s*(?:-|~)\s*\d{1,2}:\d{2})\*?\*?/);
+        if (String(visualStep) === '2' && timeMatch) {
+            titleMatch = `分鏡時間：${timeMatch[1].replace('~', '-')}`;
+            shouldIncludeLine = true;
+        } else if (line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)) {
             titleMatch = line.match(/###\s*(第[一二三四五六七八九十\d]+組.*)/)![1].trim();
         } else if (line.match(/\d+\.\s*(畫格\s*\d+.*)/)) {
             titleMatch = line.match(/\d+\.\s*(畫格\s*\d+.*)/)![1].trim();
