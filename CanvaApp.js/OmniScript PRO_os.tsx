@@ -770,7 +770,7 @@ export default function App() {
     setIsFetchingRadar(true);
     addLog(`📡 正在啟動 AI ${label}快訊雷達，連接動態 RSS 訊號源...`, 'info');
     try {
-      const res = await fetch(`/api/radar?theme=${audienceTheme}`);
+      const res = await fetch(`https://omni-script-pro.vercel.app/api/radar?theme=${audienceTheme}`);
       const data = await res.json();
       if (data.success && data.analysis) {
         setTheme(data.analysis.theme);
