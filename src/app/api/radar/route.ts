@@ -2,9 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const RSS_URL = "https://tw.stock.yahoo.com/rss?category=news"; // 改用 Yahoo 奇摩股市最新綜合快訊 RSS
 
-// 簡易零依賴 RSS 解析函數
+// 簡易零依賴 RSS 解析函數 (支援 Yahoo 與 Google News RSS)
 function parseRssItems(xml: string, limit = 5) {
   const items: { title: string; summary: string; pubDate: string; link: string }[] = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
@@ -16,11 +15,14 @@ function parseRssItems(xml: string, limit = 5) {
       const res = regex.exec(content);
       return res ? res[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, '$1').replace(/<[^>]+>/g, '').trim() : '';
     };
-    const title = getTag('title');
+    
+    // Google News 會將發布源放在標題最後 (e.g. "... - 自由時報")
+    let title = getTag('title');
     const summary = getTag('description') || getTag('summary');
     const pubDate = getTag('pubDate');
     const link = getTag('link');
-    if (title && title !== "Yahoo股市") {
+    
+    if (title && title !== "Yahoo股市" && title !== "Google 新聞") {
       let formattedDate = pubDate;
       try {
         if (pubDate) {
@@ -36,9 +38,26 @@ function parseRssItems(xml: string, limit = 5) {
   return items;
 }
 
-export async function GET() {
+const THEME_RSS_MAP: Record<string, { keyword: string; isYahooFinance: boolean }> = {
+  heritage: { keyword: "民俗信仰 OR 台灣宗教 OR 宮廟", isYahooFinance: false },
+  beauty: { keyword: "美妝保養 OR 保養品 OR 醫美", isYahooFinance: false },
+  travelpreneur: { keyword: "旅遊景點 OR 出國旅遊 OR 自由行", isYahooFinance: false },
+  food: { keyword: "美食推薦 OR 餐廳評鑑 OR 料理食譜", isYahooFinance: false },
+  pet: { keyword: "寵物照護 OR 毛小孩 OR 獸醫", isYahooFinance: false },
+  fintech: { keyword: "", isYahooFinance: true },
+};
+
+export async function GET(req: Request) {
   try {
-    console.log(`📡 [AI 雷達] 正在抓取財經 RSS: ${RSS_URL}`);
+    const url = new URL(req.url);
+    const theme = url.searchParams.get('theme') || 'fintech';
+    const config = THEME_RSS_MAP[theme] || THEME_RSS_MAP['fintech'];
+    
+    const RSS_URL = config.isYahooFinance
+      ? "https://tw.stock.yahoo.com/rss?category=news"
+      : `https://news.google.com/rss/search?q=${encodeURIComponent(config.keyword)}&hl=zh-TW&gl=TW&ceid=TW:zh-Hant`;
+
+    console.log(`📡 [AI 雷達] 正在抓取主題 [${theme}] 的 RSS: ${RSS_URL}`);
     const rssRes = await fetch(RSS_URL, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -47,7 +66,7 @@ export async function GET() {
     });
 
     if (!rssRes.ok) {
-      throw new Error(`Yahoo RSS 回應失敗 (HTTP ${rssRes.status})`);
+      throw new Error(`RSS 回應失敗 (HTTP ${rssRes.status})`);
     }
 
     const xmlText = await rssRes.text();
@@ -61,8 +80,8 @@ export async function GET() {
       }, { status: 404 });
     }
 
-    // 呼叫 Gemini 2.5 Flash 進行華爾街警報器分析
-    let analysisResult = { trigger: false, theme: newsList[0]?.title || "最新財經趨勢解析" };
+    // 呼叫 Gemini 2.5 Flash 進行智能分析
+    let analysisResult = { trigger: false, theme: newsList[0]?.title || "最新趨勢解析" };
     try {
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
@@ -76,15 +95,20 @@ export async function GET() {
         .map((n, i) => `${i + 1}. 標題：${n.title}\n   簡介：${n.summary}`)
         .join("\n");
 
-      const prompt = `你是一個專業的華爾街與台灣股市財經警報器。請閱讀以下 5 則最新財經新聞標題與簡介。
-判斷其中是否包含『可能造成全球或台灣股市劇烈震盪或大跌』的突發重大事件（如：央行意外升息/降息、戰爭爆發、重量級科技股/半導體財報暴雷、台積電動態、通膨數據大超預期、地緣政治危機等）。
+      const roleStr = theme === 'fintech' ? "專業的華爾街與台灣股市財經警報器" : "專業的社群趨勢分析師與話題發掘器";
+      const criteriaStr = theme === 'fintech' 
+        ? "判斷其中是否包含『可能造成全球或台灣股市劇烈震盪或大跌』的突發重大事件" 
+        : "判斷其中是否包含『能引發大量社群共鳴、具備病毒式傳播潛力』的重大趨勢或突發話題";
+
+      const prompt = `你是一個${roleStr}。請閱讀以下 5 則最新快訊標題與簡介。
+${criteriaStr}。
 
 【最新快訊清單】：
 ${newsTextPayload}
 
 請嚴格依照以下 JSON 格式回傳，且務必全數使用「繁體中文（台灣習慣用語）」輸出，不要包含任何其他文字：
-如果有重大事件，回傳：{"trigger": true, "theme": "將該新聞濃縮為一句極具吸引力與社群擴散力的繁體中文爆款財經短片標題"}
-如果皆為一般日常新聞，回傳：{"trigger": false, "theme": "將最熱門的一則新聞濃縮為一句吸睛的繁體中文財經短片標題"}`;
+如果有重大事件或超級爆款話題，回傳：{"trigger": true, "theme": "將該新聞濃縮為一句極具吸引力與社群擴散力的繁體中文爆款短片標題"}
+如果皆為一般日常新聞，回傳：{"trigger": false, "theme": "將最熱門的一則新聞濃縮為一句吸睛的繁體中文短片標題"}`;
 
       const aiRes = await model.generateContent(prompt);
       const rawJson = aiRes.response.text().trim();

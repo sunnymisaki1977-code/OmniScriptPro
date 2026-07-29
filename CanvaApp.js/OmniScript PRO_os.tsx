@@ -756,26 +756,35 @@ export default function App() {
     addLog(selectedTheme?.themeLogMessage || `[Theme] 已切換至 ${newThemeId}`, 'info');  
   };
 
+  const getThemeLabel = (themeId: string) => {
+    const map: Record<string, string> = {
+      heritage: '民俗信仰', beauty: '美妝保養', travelpreneur: '旅遊生活',
+      food: '美食料理', pet: '寵物照護', fintech: '財經'
+    };
+    return map[themeId] || '財經';
+  };
+
   const [isFetchingRadar, setIsFetchingRadar] = useState(false);
   const handleFetchRadar = async () => {
+    const label = getThemeLabel(audienceTheme);
     setIsFetchingRadar(true);
-    addLog('📡 正在啟動 AI 財經雷達，連接 Yahoo Finance RSS 訊號源...', 'info');
+    addLog(`📡 正在啟動 AI ${label}快訊雷達，連接動態 RSS 訊號源...`, 'info');
     try {
-      const res = await fetch('/api/radar');
+      const res = await fetch(`/api/radar?theme=${audienceTheme}`);
       const data = await res.json();
       if (data.success && data.analysis) {
         setTheme(data.analysis.theme);
         if (data.news && Array.isArray(data.news)) {
-          const newsBgText = `【📡 AI 財經快訊雷達 - 最新 5 則即時快訊摘要】\n` + 
+          const newsBgText = `【📡 AI ${label}快訊雷達 - 最新 5 則即時快訊摘要】\n` + 
             data.news.map((n: any, idx: number) => `[${idx + 1}] ${n.title}\n摘要：${n.summary || '無摘要'}\n時間：${n.pubDate || '即時'}`).join('\n\n');
           setCustomContext(newsBgText);
         }
-        addLog(`🚨 [AI 雷達偵測完成] ${data.analysis.trigger ? '重大市場警報！' : '市場常規趨勢'}，已自動匯入爆款標題與 5 則最新快訊背景參考！`, 'success');
+        addLog(`🚨 [AI 雷達偵測完成] ${data.analysis.trigger ? '爆款超級趨勢！' : '領域常規趨勢'}，已自動匯入爆款標題與 5 則最新快訊背景參考！`, 'success');
       } else {
         addLog(`⚠️ 抓取快訊失敗: ${data.message || '無新聞'}`, 'error');
       }
     } catch (err: any) {
-      addLog(`❌ AI 財經雷達連線發生異常: ${err.message}`, 'error');
+      addLog(`❌ AI ${label}雷達連線發生異常: ${err.message}`, 'error');
     } finally {
       setIsFetchingRadar(false);
     }
@@ -1645,12 +1654,12 @@ const handleLogin = async (e: React.FormEvent) => {
                         {isFetchingRadar ? (
                           <>
                             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            <span>正在抓取 Yahoo 財經 RSS...</span>
+                            <span>正在抓取即時 RSS...</span>
                           </>
                         ) : (
                           <>
                             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                            <span>⚡ AI 財經快訊雷達 (一鍵抓取)</span>
+                            <span>⚡ AI {getThemeLabel(audienceTheme)}快訊雷達 (一鍵抓取)</span>
                           </>
                         )}
                       </button>
