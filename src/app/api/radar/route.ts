@@ -13,7 +13,11 @@ function parseRssItems(xml: string, limit = 5) {
     const getTag = (tag: string) => {
       const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
       const res = regex.exec(content);
-      return res ? res[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, '$1').replace(/<[^>]+>/g, '').trim() : '';
+      if (!res) return '';
+      let text = res[1];
+      text = text.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, '$1'); // 移除 CDATA
+      text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' '); // 轉換 HTML 實體
+      return text.replace(/<[^>]+>/g, '').trim(); // 移除所有 HTML 標籤
     };
     
     // Google News 會將發布源放在標題最後 (e.g. "... - 自由時報")
