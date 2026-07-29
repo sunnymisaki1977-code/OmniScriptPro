@@ -20,7 +20,8 @@ export async function POST(req: Request) {
 
     // Parse content for Extreme scenes
     const parsedScenes: any[] = [];
-    const timecodeRegex = /\[(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})\]/g;
+    // 支援 [00:00 - 00:30] 或 **00:00 - 00:30** 或純文字 00:00 - 00:30
+    const timecodeRegex = /(?:\[|\*\*|^|\s)(\d{1,2}:\d{2}\s*(?:-|~)\s*\d{1,2}:\d{2})(?:\]|\*\*|$|\s)/gm;
     
     let matches = [];
     let match;
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
             }
             
             if (!visualPrompt) {
-               const cleaned = blockRaw.replace(/\[\d{2}:\d{2}\s*-\s*\d{2}:\d{2}\]/, '').replace(/#+/g, '').trim();
+               const cleaned = blockRaw.replace(/(?:\[|\*\*|^|\s)\d{1,2}:\d{2}\s*(?:-|~)\s*\d{1,2}:\d{2}(?:\]|\*\*|$|\s)/g, '').replace(/#+/g, '').trim();
                visualPrompt = cleaned.split('\n')[0].trim();
             }
 
