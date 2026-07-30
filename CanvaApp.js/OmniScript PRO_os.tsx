@@ -1524,8 +1524,8 @@ const handleLogin = async (e: React.FormEvent) => {
                       {/* 提示密碼與快速填寫區塊 */}
                       <div className="mt-6 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 md:p-5 text-left space-y-3 shadow-inner">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-2">
-                          <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>可依興趣的主題輸入密碼（點擊可快速帶入）：</span>
+                          <Sparkles className="w-6 h-6 text-emerald-500 shrink-0" />
+                          <span>總會有您喜歡的主題（點擊可快速帶入）：</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-600">
                           <div 
