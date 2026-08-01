@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下由右到左不要標點符號）",
         "poem": "一句符合主題詩詞（由上到下由右到左不要標點符號）",
         "tags": ["標籤1", "標籤2", "標籤3"],
-        "imagePrompt": "生成圖像的Prompt：請結合colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,『神明的形象描述』與『Poem』，充滿禪意或史詩感的氛圍。
+        "imagePrompt": "colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,『神明的形象描述』與『Poem』，充滿禪意或史詩感的氛圍。
 "
       }`;
 
