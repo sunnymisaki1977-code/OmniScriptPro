@@ -212,7 +212,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 若與宗教有關：
 介紹：
 - 代表宮廟
-🌟 視覺特徵與建築藝術（實地取景必備）
+🌟 視覺特徵與建築藝術（實地取景、人物、角色）
 【⚠️ 強制圖像查證指令】：請透過 Google 搜尋『${ctx.theme}』的相關報導與圖庫資料（強烈建議優先搜尋維基共享資源 Wikimedia Commons 或廟方官網）。
 除了整理具體視覺特徵，請務必「提供 3-5 組真實且有效的圖片網址（Image URL）」，作為後續 AI 圖像生成的墊圖參考。
 
