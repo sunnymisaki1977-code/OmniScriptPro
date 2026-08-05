@@ -1576,6 +1576,14 @@ const handleLogin = async (e: React.FormEvent) => {
                             <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">📈 FinTech 財經知識・AI 解析</span>
                             <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">fintech2026</code>
                           </div>
+                          <div 
+                            onClick={() => { setPasscode('story2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 story2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">📖 文化轉譯・銘印說書</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">story2026</code>
+                          </div>
                         </div>
                       </div>
 
