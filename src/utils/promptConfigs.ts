@@ -2258,7 +2258,315 @@ AI Prompt (中文):
 掌握全球總經趨勢，為自己的投資負責 
 #財經M平方 #總體經濟 #${ctx.theme} [補充3個標籤]`
   }
-]
+]  ,
+  story: [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "基於知名著作，撰寫 1500 字具備起承轉合的沉浸式故事",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位深諳東方古典文學、神話史詩與民間傳說的「首席說書人」。請優先使用 Google 搜尋查證主題「\${ctx.theme}」相關的【知名古典著作、正史或權威文獻】。
+
+【檢索與取材指令】：
+請自行找出最契合該主題的經典著作（包含但不限於《西遊記》、《封神演義》、《北遊記》、《山海經》、《三教搜神大全》或地方鄉野文獻）。
+
+請先判斷主題「\${ctx.theme}」屬於哪一種類型：
+1. 神佛/歷史人物
+2. 民俗/節氣/宮廟
+
+
+請先輸出：
+主題分類：
+判斷原因：
+故事取材經典著作：(請明確列出你參照了哪一本書或文獻)
+
+【撰寫指令】：
+請打破生硬的條列式與幕次框架，為主題「\${ctx.theme}」撰寫一篇約 1500 字的沉浸式傳奇故事。
+- 語氣必須是引人入勝、極具畫面感的「說書人」口吻。
+- 故事需自然包含：令人震撼的出場或降生、凡塵的考驗或人性的掙扎、驚天動地的降妖伏魔或高潮事件、以及最終成神/流傳後世的昇華。
+- 結語請巧妙連結至現代信仰與文化傳承，說明這份精神如何延續至今。
+
+請開始結構化輸出，撰寫你的說書表演：`
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據故事文本，產出 8 分鐘的 YouTube 沉浸式說書腳本",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【傳奇故事文本】，為「\${ctx.theme}」撰寫一份 8 分鐘的 YouTube 長影片說書腳本。
+
+背景故事文本：
+\${ctx.step1}
+
+【輸出模板】請嚴格遵守以下腳本架構，將純文本轉化為極具張力的視聽分鏡：
+## 🎬 YouTube 說書腳本：\${ctx.theme}
+
+### ⏱️ 開場懸念 (Hook)
+ (時間規劃：00:00 - 01:00，共 2 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述開場畫面]
+- 畫面字卡: [10字以內的震撼標題]
+- 旁白配音 (VO)：[用故事中最不可思議的轉折或懸念破題，緊抓眼球]
+
+### ⏱️ 傳奇展開：宿命與風暴
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]、[03:00 - 03:30]、[03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[用跌宕起伏的語氣，轉化為流暢的故事敘述]
+
+### ⏱️ 史詩高潮：神魔交鋒與昇華
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出[04:00 - 04:30]、 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00] 、[06:00 - 06:30]、[06:30 - 07:00]：
+- 視覺畫面建議：[請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[生動還原經典著作中的核心戰役或奇蹟]
+
+### ⏱️ 歲月迴響與結尾 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 2 個節點)
+請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[請描述結尾畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[總結核心精神，並帶上宣言【解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承】引導觀眾訂閱、按讚【開啟傳奇好運小鈴鐺】與留言分享經驗]`
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成吸引故事愛好者與信仰群眾的標題與說明",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「\${ctx.theme}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
+
+《說書腳本》
+====================
+\${ctx.step2}
+====================
+
+### 🎯 爆款 Hook 標題 (請提供 5 個不同切角)
+1. [懸疑解密型：強調不為人知的原典秘密]
+2. [神話史詩型：強調戰鬥、收妖或神威]
+3. [民間共鳴型：連結現代人最常求的願望與傳說]
+4. [奇幻獵奇型：強調不可思議的神異現象]
+5. [經典翻轉型：打破一般人的既定印象]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ... (需包含神明名稱、著作名稱、台灣信仰等)
+
+### 📝 影片說明欄 (150字內，需包含關鍵字)
+[撰寫一段充滿神秘感與故事張力的簡介，吸引點擊]
+
+### ⏳ 故事時間軸 (Timestamps)
+00:00 [懸念標題]
+... (依據腳本邏輯抓取 3-5 個時間軸)`
+  },
+  {
+    id: 4,
+    title: "擴散式短影音文案",
+    description: "產出 180 秒內的極快節奏爆款短片腳本",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下故事文本，為「\${ctx.theme}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
+
+《故事文本》
+====================
+\${ctx.step1}
+====================
+
+## 📱 短影片腳本：\${ctx.theme}
+### 💥 黃金前 3 秒：視覺與認知衝擊
+- [00:00 - 00:05] 畫面：[極具衝擊力的視覺，帶入提示詞 Image URL 參考] / 字卡: [打破認知的標題] / 旁白 (VO)：[拋出一個關於該主題最驚人的冷知識或神話反轉，例如「你以為祂是...其實在原著裡祂...」]
+
+### 📖 高能說書：核心傳奇
+- [00:05 - 01:30] 畫面：[配合語音快速切換動態分鏡] / 字卡：[短小精悍的關鍵字] / 旁白 (VO)：[濃縮原著中最精彩的鬥法、收妖或得道瞬間。語速快，情緒高昂]
+
+### 📢 信仰印記與互動 (CTA)
+- [01:30 - 03:00] 畫面：[現代廟宇或信眾祈福畫面] / 字卡：[引導留言] / 旁白 (VO)：[點出祂現在保佑什麼，並提問「你有去拜過嗎？留言告訴我！」呼籲追蹤]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片封面的衝擊力文案與標籤",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據以下短影音腳本，產出適合的 SEO 內容。
+
+《短影音腳本》
+====================
+\${ctx.step4}
+====================
+
+### 🎯 短影片封面暴力字卡 (3 個，字數極少，懸念極大)
+1. [例如：真身竟然是它？！]
+2. [例如：原著這段太狠了！]
+3. [例如：拜錯了？真正的守護神]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 縮圖文案與 AI 繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step3"],
+    prompt: (ctx: any) => `請針對主題「\${ctx.theme}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
+
+### 第一組：[縮圖名稱]
+主標：[主標內容]
+副標：[副標內容]
+中文：[中文 Prompt，需描述具體的故事動作或法相特寫]`
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音縮圖文案與 AI 繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step5"],
+    prompt: (ctx: any) => `請針對主題「\${ctx.theme}」生成 3 組短影音縮圖設計 (9:16)。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
+
+### 第一組：[短影音縮圖名稱]
+高點擊文案：[封面暴力字卡]
+中文：[中文 Prompt，需視覺張力極大、主體置中]`
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 意象圖指令與搭配詩詞",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `請針對主題「\${ctx.theme}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。無人物、充滿禪意或史詩感的氛圍。
+
+### 第一組：[意象圖名稱]
+詩詞（由上到下由右到左不要標點符號）：[七言四句詩詞]
+中文：[中文畫面描述，例如深山古廟、雲海法器等]`
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成 3 組符合主題氛圍的音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「\${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo 。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：史詩感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第二組：敘事感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第三組：活力感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => \`你現在是首席視覺藝術總監與頂級社群文案主編。
+你的任務是根據下方的【基礎背景史料】，為主題「\${ctx.theme}」打造一組「新國風彩墨」社群圖文懶人包。
+
+【⚠️ 絕對真實性指令】：
+所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，禁止腦補。
+
+【基礎背景史料】：
+\${ctx.step1}
+
+請嚴格遵循以下二大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從\${ctx.step1}萃取五個【蒙太奇資訊】。
+  視覺公式（必須包含）  ：
+畫面必須融合【動態分割構圖（Dynamic Segmented Layout）】、【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】與【蒙太奇資訊圖表（Montage Infographic）】三種視覺語言。
+整體風格採用 colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。	
+
+### 任務二：撰寫社群發布正文
+使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
+
+---
+
+### 🎨 視覺 Prompt
+  16:9 動態分割構圖提示詞：  
+以「\${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+  主標題：  [請填入主標題]
+1.   畫格 1：   [蒙太奇資訊名稱 1]
+   視覺描述：  [請填入視覺描述]
+2.   畫格 2：   [蒙太奇資訊名稱 2]
+   視覺描述：  [請填入視覺描述]
+3.   畫格 3：   [蒙太奇資訊名稱 3]
+   視覺描述：  [請填入視覺描述]
+4.   畫格 4：   [蒙太奇資訊名稱 4]
+   視覺描述：  [請填入視覺描述]
+5.   畫格 5：   [蒙太奇資訊名稱 5]
+   視覺描述：  [請填入視覺描述]
+
+
+現在，請直接輸出以下格式：
+AI Prompt (中文):[開始撰寫16:9 動態分割構圖提示詞]
+
+
+  9:16 動態分割構圖提示詞：  
+以「\${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+
+  主標題：  [請填入主標題]
+1.   畫格 1：   [蒙太奇資訊名稱 1]
+   視覺描述：  [請填入視覺描述中文 ]
+2.   畫格 2：   [蒙太奇資訊名稱 2]
+   視覺描述：  [請填入視覺描述中文 ]
+3.   畫格 3：   [蒙太奇資訊名稱 3]
+   視覺描述：  [請填入視覺描述中文 ]
+4.   畫格 4：   [蒙太奇資訊名稱 4]
+   視覺描述：  [請填入視覺描述中文 ]
+5.   畫格 5：   [蒙太奇資訊名稱 5]
+   視覺描述：  [請填入視覺描述中文 ]
+
+
+現在，請直接輸出以下格式：
+AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
+
+
+
+### 📱 社群發布正文
+[請填入帶有 Emoji 的 Hook 開場白，製造懸念或情感共鳴]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，必須基於史料]
+
+[互動提問：請邀請粉絲留言分享經驗]
+祈福點燈、消災延壽，讓神明的靈光持續護佑您的日常 ➔ [此處自動帶入廟方數位功德箱/點燈連結]
+
+#世代銘印 #\${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
+\`
+  }
+  ]
+
 };
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
