@@ -68,5 +68,20 @@ export const POPULAR_STYLES: StyleOption[] = [
     id: "style-minimal",
     name: "北歐寫實極簡 (生活感)",
     promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
+  },
+  {
+    id: "style-vibrant-ink",
+    name: "現代高飽和彩墨",
+    promptSuffix: ", vibrant jewel-toned ink wash, deep dark background for high contrast, glowing golden particles, neon-like spiritual energy flow, eastern fantasy, gold flowing accents, dynamic composition, extreme color saturation, cinematic volumetric lighting, 8k resolution, ultra detailed"
+  },
+  {
+    id: "style-highly-saturated-ink",
+    name: "現代高彩度彩墨",
+    promptSuffix: ", highly saturated color ink wash, vivid and bold color palette, brilliant pigment diffusion, glowing golden particles, dynamic energy flow, eastern fantasy, luminous gold accents, eastern mythology, intense spiritual energy, vibrant cinematic volumetric lighting, high contrast, ultra detailed, masterpiece"
+  },
+  {
+    id: "style-seasonal-aesthetic",
+    name: "現代季節美學",
+    promptSuffix: ", highly saturated seasonal color palette, luminous lighting, vibrant dynamic ink wash, nature energy flow, rich environmental contrast, ethereal beauty, cinematic depth of field, 8k"
   }
 ];
