@@ -40,7 +40,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = `${API_BASE_URL}/api/generate-all`;
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -2523,7 +2523,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-              {/* Input Area */}
+       {/* Input Area */}
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
     <input
       value={godsInput}
@@ -2544,7 +2544,7 @@ const handleLogin = async (e: React.FormEvent) => {
         
         try {
           // 1. 呼叫後端 god-generate API
-          const response = await fetch('https://omni-script-pro.vercel.app/api/god-generate', {
+          const response = await fetch('https://omni-script-pro.vercel.app/api/gods-generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ names })
