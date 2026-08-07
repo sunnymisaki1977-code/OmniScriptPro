@@ -72,7 +72,7 @@ export const POPULAR_STYLES: StyleOption[] = [
   {
     id: "style-vibrant-ink",
     name: "現代高飽和彩墨",
-    promptSuffix: ", vibrant jewel-toned ink wash, deep dark background for high contrast, glowing golden particles, neon-like spiritual energy flow, eastern fantasy, gold flowing accents, dynamic composition, extreme color saturation, cinematic volumetric lighting, 8k resolution, ultra detailed"
+    promptSuffix: ", vibrant jewel-toned ink wash, background for high contrast, glowing golden particles, neon-like spiritual energy flow, eastern fantasy, gold flowing accents, dynamic composition, extreme color saturation, cinematic volumetric lighting, 8k resolution, ultra detailed"
   },
   {
     id: "style-highly-saturated-ink",
