@@ -8,8 +8,8 @@ import {
   Database, Video, Search, Music, Facebook, MousePointerClick,
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
-  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe
-, PenLine, Loader2, Star, Gift } from 'lucide-react';
+  Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe,
+  PenLine, Loader2, Star, Gift } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -26,13 +26,13 @@ const IMAGE_ENGINES = [
   }
   
 ];
+
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
-    const rawApiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiKey = rawApiKey.trim();
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -41,29 +41,6 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
     const VERCEL_API_URL = `${API_BASE_URL}/api/generate-all`;
-
-    if (!apiKey) {
-        console.log(`[Vercel API] 偵測為 Master 或無前端金鑰，改由後台伺服器環境 (process.env.GEMINI_API_KEY) 執行生成...`);
-        const genResponse = await fetch(VERCEL_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                currentStepId: stepId, 
-                theme: context.theme, 
-                existingData: context,
-                audienceTheme,
-                returnPromptOnly: false
-            })
-        });
-        if (!genResponse.ok) {
-            throw new Error(`伺服器生成失敗：HTTP ${genResponse.status}`);
-        }
-        const genData = await genResponse.json();
-        if (!genData.success && genData.error) {
-            throw new Error(genData.error);
-        }
-        return genData.output || "";
-    }
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -188,6 +165,7 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 };
 
 
+
 // ============================================================================
 // 3. React 元件主體與狀態
 // ============================================================================
@@ -218,9 +196,9 @@ export default function App() {
         console.error('Failed to load config:', err);
       });
   }, []);
+
   // --- 狀態管理保持不變 ---
   const [isGlobalMaster, setIsGlobalMaster] = useState(true); // 預設為管理員權限
-  const [isAllThemes, setIsAllThemes] = useState(true); // 是否可使用所有主題
    const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [passcode, setPasscode] = useState('');
@@ -273,7 +251,6 @@ export default function App() {
         setShowLoginPrompt(true);
       } else {
         setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
-        setIsAllThemes(sessionStorage.getItem('os_pro_all_themes') === 'true' || sessionStorage.getItem('os_pro_master') === 'true');
         setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
       }
     }, []);
@@ -367,6 +344,7 @@ export default function App() {
   const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
   const [extremeSource, setExtremeSource] = useState<'step2' | 'step4'>('step2');
 
+
   
 
   useEffect(() => {
@@ -421,7 +399,8 @@ export default function App() {
 
 
 
-  const handleGenerateExtremeImages = async () => {
+
+ const handleGenerateExtremeImages = async () => {
     if (ExtremeParsedGroups.length === 0) {
       safeAlert("請先確認腳本中包含有效的視覺畫面建議！");
       return;
@@ -482,11 +461,13 @@ export default function App() {
     }
   };
 
+
   const generateGroupImage = async (group: any) => {
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
     
+    // 取得當前選擇的模型設定檔 (包含 id, name)
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
     const engineName = engineConfig.name;
     addLog(`[${engineName}] 啟動 ${groupId} 繪製進程...`, 'info');
@@ -502,71 +483,46 @@ export default function App() {
       let base64 = "";
       const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
 
-      if (imageEngine === 'flash') {
-        let flashPrompt = finalPromptWithStyle;
-        if (mainTitle || subTitle || poetry) {
-          flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
-          if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
-          if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
-          if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
-        }
-        const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
+      // 🌟 修改 2：移除寫死的 if (imageEngine === 'flash')，改為動態插入 engineConfig.id
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${engineConfig.id}:generateContent?key=${activeApiKey}`;
 
-        if (!activeApiKey) {
-          addLog(`[${engineName}] 未偵測到前端金鑰，改由後台伺服器環境 API Key 渲染...`, 'info');
-          const res = await fetch('/api/generate-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              promptText: finalPrompt,
-              aspectRatio,
-              mainTitle,
-              subTitle,
-              poetry
-            })
-          });
-          const data = await res.json();
-          if (!res.ok || data.error) throw new Error(data.error || `API Error: ${res.status}`);
-          if (data.image) {
-            base64 = data.image.replace(/^data:image\/[a-z]+;base64,/, '');
-          } else if (data.imageUrl || data.url) {
-            setGroupImages(prev => ({ ...prev, [groupId]: data.imageUrl || data.url }));
-            addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
-            setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
-            return;
-          } else {
-            throw new Error("後台伺服器未回傳圖像資料");
-          }
-        } else {
-          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${activeApiKey}`;
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: "user",
-                  parts: [{ text: finalPrompt }]
-                }
-              ],
-              generationConfig: {
-                responseModalities: ['TEXT', 'IMAGE']
-              }
-            })
-          });
-
-          const data = await response.json();
-          if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
-          
-          const parts = data.candidates?.[0]?.content?.parts || [];
-          const imagePart = parts.find((p: any) => p.inlineData);
-          if (imagePart) {
-            base64 = imagePart.inlineData.data;
-          } else {
-            throw new Error("模型未回傳圖像資料");
-          }
-        }
+      let flashPrompt = finalPromptWithStyle;        
+      if (mainTitle || subTitle || poetry) {
+        flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
+        if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
+        if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
+        if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
       }
+      
+      const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: finalPrompt }]
+            }
+          ],
+          generationConfig: {
+            responseModalities: ['TEXT', 'IMAGE']
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(`API Error: ${data.error?.message || response.status}`);
+      
+      const parts = data.candidates?.[0]?.content?.parts || [];
+      const imagePart = parts.find((p: any) => p.inlineData);
+      if (imagePart) {
+        base64 = imagePart.inlineData.data;
+      } else {
+        throw new Error("模型未回傳圖像資料");
+      }
+      
       if (base64) {
         const originalImage = `data:image/png;base64,${base64}`;
         let finalImage = originalImage;
@@ -575,7 +531,7 @@ export default function App() {
         addLog(`[${engineName}] ✨ ${groupId} 渲染完成！`, 'success');
       }
     } catch (err: any) {
-      const engineName = imageEngine === 'flash' ? 'Gemini 2.5 Flash' : 'Gemini 2.5 Flash';
+      // 🌟 修改 3：統一錯誤訊息的引擎名稱
       addLog(`[${engineName}] 繪製失敗: ${err.message}`, 'error');
     } finally {
       setGeneratingGroups(prev => ({ ...prev, [groupId]: false }));
@@ -592,6 +548,7 @@ export default function App() {
     setIsGeneratingBatch(false);
     addLog(`[Visual Hub] 🎨 所有影像生成完畢！`, 'success');
   };
+
 
 
 
@@ -873,7 +830,7 @@ export default function App() {
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
 
-        const activeApiKey = (geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "")).trim();
+        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
 
         const context = {
             theme: startTheme,
@@ -892,7 +849,7 @@ export default function App() {
         // 💡 依據環境決定生成方式
         let outputText = "";
 
-        if (isCanvasEnv && localPromptFunctions && activeApiKey) {
+        if (isCanvasEnv && localPromptFunctions) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
             const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
@@ -909,13 +866,21 @@ export default function App() {
             };
             const masterPrompt = promptFunc(stepContext);
             
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+            // 🌟 新增：本地端呼叫也需要注入時間錨點
+            const localCurrentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    // 🌟 注入系統提示詞
+                    systemInstruction: {
+                        parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
+                    },
                     contents: [{ parts: [{ text: masterPrompt }] }],
-                    tools: (i === 1 && !safeStep1) ? [{ googleSearch: {} }] : []
+                    // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
+                    tools: (i === 1 && !safeStep1) ? [{ google_search: {} }] : []
                 })
             });
             if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
@@ -1026,7 +991,7 @@ export default function App() {
   
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
-  if (!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) {
+  if (!isCanvasEnv && !geminiApiKey.trim()) {
     setPendingImageTask(() => () => runAutoGeneration(finalTheme, isResume));
     setShowApiKeyModal(true);
     return;
@@ -1231,14 +1196,10 @@ const handleLogin = async (e: React.FormEvent) => {
         setAuthError('');
         setAudienceTheme(data.theme);
         setIsGlobalMaster(data.isMaster);
-        setIsAllThemes(data.allThemes || data.isMaster);
         sessionStorage.setItem('os_pro_auth', 'true');
         sessionStorage.setItem('os_pro_theme', data.theme);
         if (data.isMaster) {
           sessionStorage.setItem('os_pro_master', 'true');
-        }
-        if (data.allThemes || data.isMaster) {
-          sessionStorage.setItem('os_pro_all_themes', 'true');
         }
         
         addLog(`[System] 成功驗證授權，載入 ${data.theme} 工作區。`, 'success');
@@ -1332,7 +1293,7 @@ const handleLogin = async (e: React.FormEvent) => {
               { id: 'creation', icon: FileText, label: '內容創作中心' },
               { id: 'visual', icon: ImageIcon, label: '視覺發控中心' },
               { id: 'suno', icon: Music, label: 'Suno 配樂中心' },
-              { id: 'Extreme', icon: BookOpen, label: 'Extreme 影片中心' },
+              { id: 'Extreme', icon: BookOpen, label: '極速影片中心' },
               { id: 'gods_data', icon: Star, label: '諸神文化解碼中心' }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
@@ -1445,16 +1406,6 @@ const handleLogin = async (e: React.FormEvent) => {
         {/* Bottom Sidebar Controls */}
         <div className="p-4 border-t border-slate-200 space-y-3">
 
-          {/* API Key Settings Button */}
-          <button 
-            onClick={() => setShowApiKeyModal(true)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[#1E293B] hover:text-[#10B981] hover:bg-[#10B981]/5 text-xs transition-all border border-transparent hover:border-[#10B981]/20 font-bold"
-          >
-            <div className="flex items-center gap-2.5">
-              <Key className="w-4 h-4" />
-              <span>設定 Gemini API 金鑰</span>
-            </div>
-          </button>
 
           {/* Light Mode Switcher */}
           <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[#64748B] hover:text-[#1E293B] text-xs hover:bg-white transition-all">
@@ -1513,7 +1464,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         <div className="w-16 h-16 bg-gradient-to-br from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
                           <Lock className="w-8 h-8 text-[#1E293B]" />
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#1E293B]">
+<h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#1E293B]">
                           系統已鎖定
                         </h2>
                         <p className="text-[11px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
@@ -1524,8 +1475,8 @@ const handleLogin = async (e: React.FormEvent) => {
                       {/* 提示密碼與快速填寫區塊 */}
                       <div className="mt-6 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 md:p-5 text-left space-y-3 shadow-inner">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-2">
-                          <Sparkles className="w-6 h-6 text-emerald-500 shrink-0" />
-                          <span>總會有您喜歡的主題（點擊可快速帶入）：</span>
+                          <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <span>可依興趣的主題輸入密碼（點擊可快速帶入）：</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-600">
                           <div 
@@ -1574,8 +1525,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             title="點擊帶入 fintech2026"
                           >
                             <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">📈 FinTech 財經知識・AI 解析</span>
-                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">fintech2026</code>
-                          </div>
+                       </div>
                           <div 
                             onClick={() => { setPasscode('story2026'); setAuthError(''); }}
                             className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
@@ -1612,6 +1562,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       </form>
                     </>
                   ) : (
+
                     // --- 原有的 Hub 內容 ---
                     <>
                       {/* Hub Header */}
@@ -1634,11 +1585,11 @@ const handleLogin = async (e: React.FormEvent) => {
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel && !isAllThemes}
+                            disabled={!isSel && !isGlobalMaster}
                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : isAllThemes 
+                                : isGlobalMaster 
                                   ? 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500 cursor-pointer'
                                   : 'border-slate-200 text-[#64748B] opacity-50 cursor-not-allowed'
                             }`}
@@ -1940,30 +1891,30 @@ const handleLogin = async (e: React.FormEvent) => {
 {/* 接續生成 / 中斷生成 */}
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3 lg:gap-4 shrink-0"> 
-                          <button 
-                            onClick={() => {
-                              setIsGenerating(false);
-                              addLog("[System] 生成作業已由使用者手動中斷。", "info");
-                              setViewState('workspace');
-                            }}
-                            disabled={!isGenerating}
-                            className={`px-4 py-1.5 rounded-xl border font-bold text-xs flex items-center gap-1.5 shadow-md transition-all ${isGenerating ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 active:scale-95 animate-pulse' : 'bg-slate-800/50 text-slate-500 border-slate-700 cursor-not-allowed opacity-50'}`}
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            <span>中斷生成</span>
-                          </button>
-
-                          <button 
-                            onClick={() => {
-                              isResumeIntentRef.current = stepContents[1] && stepContents[1].trim() !== '' && !stepContents[1].includes('等待從 Vercel');
-                              handleStartAuto();
-                            }}
-                            disabled={isGenerating}
-                            className={`px-4 py-1.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all duration-300 ${!isGenerating ? 'bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 hover:-translate-y-[2px]' : 'bg-slate-800/50 text-slate-500 cursor-not-allowed opacity-50'}`}
-                          >
-                            <Zap className="w-3.5 h-3.5" />
-                            <span>{(stepContents[1] && stepContents[1].trim() !== '' && !stepContents[1].includes('等待從 Vercel')) ? '接續自動生成' : '一鍵全自動模式'}</span>
-                          </button>
+                          {isGenerating ? (
+                            <button 
+                              onClick={() => {
+                                setIsGenerating(false);
+                                addLog("[System] 生成作業已由使用者手動中斷。", "info");
+                                setViewState('workspace');
+                              }}
+                              className="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all animate-pulse"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>中斷生成</span>
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => {
+                                isResumeIntentRef.current = completedSteps.length > 1 && completedSteps.length < STEPS.length;
+                                handleStartAuto();
+                              }}
+                              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#10B981] to-[#0A2E5C] hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.5)] active:scale-95 transition-all duration-300 hover:-translate-y-[2px]"
+                            >
+                              <Zap className="w-3.5 h-3.5" />
+                              <span>{completedSteps.length > 1 && completedSteps.length < STEPS.length ? '接續生成' : '一鍵全自動模式'}</span>
+                            </button>
+                          )}
                         </div>
                         
                         <div className=" text-[14px] text-[#64748B] font-medium flex items-center">
@@ -2099,7 +2050,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{isGeneratingImage ? '正在批次渲染中...' : ((!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
+                      <span>{isGeneratingImage ? '正在批次渲染中...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 批次繪製全部影像')}</span>
                     </button>
                   </div>
 
@@ -2155,7 +2106,7 @@ const handleLogin = async (e: React.FormEvent) => {
                               className="w-full mt-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B]  text-[14px] font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all disabled:opacity-50"
                             >
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>{generatingGroups[group.id] ? '正在渲染...' : ((!isGlobalMaster && !geminiApiKey.trim() && !(window as any).__GEMINI_API_KEY__) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
+                              <span>{generatingGroups[group.id] ? '正在渲染...' : ((!geminiApiKey.trim() && !isCanvasEnv) ? '輸入Gemini API 繪製圖像' : '✨ AI 繪製影像 (-5 點)')}</span>
                             </button>
                             
                             <div className="flex gap-2 mt-2">
@@ -2318,7 +2269,7 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
           )}
 
-          {/* TAB 4: Extreme Video Center */}
+ {/* TAB 4: Extreme Video Center */}
           {activeTab === 'Extreme' && (
             /* --- STREAMING_CHUNK:Rendering Extreme Summarizer Panel --- */
             <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
@@ -2376,7 +2327,8 @@ const handleLogin = async (e: React.FormEvent) => {
                      </div>
                   </div>
 
-                  {/* Right Column: 16 Grid images & Buttons */}
+
+ {/* Right Column: 16 Grid images & Buttons */}
                   <div className="flex-1 w-full min-h-[600px] flex flex-col gap-4">
                     {/* Action Buttons */}
                     <div className="flex flex-col md:flex-row items-center justify-end w-full mb-2 gap-3">
@@ -2506,6 +2458,7 @@ const handleLogin = async (e: React.FormEvent) => {
             </div>
           )}
 
+
           {/* TAB 5: Gods Data Center */}
           {activeTab === 'gods_data' && (
             <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
@@ -2570,106 +2523,76 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Input Area */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
-                  <input
-                    value={godsInput}
-                    onChange={(e) => setGodsInput(e.target.value)}
-                    placeholder="輸入神明尊號，支援多筆以逗號分隔 (例: 天上聖母, 關聖帝君)"
-                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                  />
-                  <button
-                    onClick={async () => {
-                      if (!godsInput.trim()) return;
-                      const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
-                      if (names.length === 0) return;
+              {/* Input Area */}
+  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
+    <input
+      value={godsInput}
+      onChange={(e) => setGodsInput(e.target.value)}
+      placeholder="輸入主題，支援多筆以逗號分隔 (例: 天上聖母, 驚蟄, 大甲媽祖遶境)"
+      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+    />
+    <button
+      onClick={async () => {
+        if (!godsInput.trim()) return;
+        
+        // 將輸入字串分割成陣列 (過濾掉空白)
+        const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
+        if (names.length === 0) return;
 
-                      setIsGeneratingGods(true);
-                                            addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
-                      try {
-                        const activeApiKey = (geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "")).trim();
+        setIsGeneratingGods(true);
+        addLog(`[文化解碼] 開始批次考證 ${names.length} 筆資料...`, 'info');
+        
+        try {
+          // 1. 呼叫後端 god-generate API
+          const response = await fetch('https://omni-script-pro.vercel.app/api/god-generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ names })
+          });
 
-                        
-                        if (!isGlobalMaster && !activeApiKey.trim()) {
-                            setShowApiKeyModal(true);
-                            setIsGeneratingGods(false);
-                            return;
-                        }
+          const data = await response.json();
 
-                        let data: { results: any[], error?: string } = { results: [] };
-                        if (!activeApiKey.trim()) {
-                            addLog(`[諸神解碼] 未偵測到前端金鑰，改由後台伺服器環境 API Key 考證...`, 'info');
-                            const res = await fetch('/api/gods-generate', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ names })
-                            });
-                            const serverData = await res.json();
-                            if (!res.ok || serverData.error) throw new Error(serverData.error || `API Error: ${res.status}`);
-                            if (serverData.results) {
-                                data.results = serverData.results;
-                                addLog(`[諸神解碼] ✅ ${names.join(', ')} 考證完成！`, 'success');
-                            }
-                        } else {
-                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
-                            for (const name of names) {
-                                addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
-                                const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
-                                const response = await fetch(apiUrl, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        contents: [{ role: "user", parts: [{ text: prompt }] }],
-                                        generationConfig: { temperature: 0.7 }
-                                    })
-                                });
-                                const resultRaw = await response.json();
-                                if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
-                                const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                                const jsonMatch = text.match(/\{[\s\S]*\}/);
-                                if (jsonMatch) {
-                                    const parsed = JSON.parse(jsonMatch[0]);
-                                    data.results.push({
-                                        id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                                        ...parsed,
-                                        imageUrl: ""
-                                    });
-                                    addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
-                                }
-                            }
-                        }
-                        if (data.error) throw new Error(data.error);
-                        setGodsCards(prev => [...prev, ...data.results]);
-                        addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
-                        setGodsInput('');
-                        
-                        // 自動儲存至 Notion
-                        addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
-                        try {
-                          const res = await fetch('https://omni-script-pro.vercel.app//api/gods-notion', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ cards: data.results, databaseId: "3a483ac4203780c89a41d8f53601c864" })
-                          });
-                          const notionData = await res.json();
-                          if (notionData.error) throw new Error(notionData.error);
-                          addLog(`[Notion] 自動寫入資料庫成功！`, 'success');
-                        } catch (e: any) {
-                          addLog(`[Notion] 自動寫入失敗: ${e.message}`, 'error');
-                        }
+          if (!response.ok) {
+            throw new Error(data.error || "後端 API 請求失敗");
+          }
 
-                      } catch (e: any) {
-                        addLog(`[諸神解碼] 生成失敗: ${e.message}`, 'error');
-                      }
-                      setIsGeneratingGods(false);
-                    }}
-                    disabled={isGeneratingGods}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow transition-all font-medium whitespace-nowrap disabled:opacity-50"
-                  >
-                    {isGeneratingGods ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    開始考證
-                  </button>
-                </div>
+          if (data.results && data.results.length > 0) {
+            // 更新前端畫面狀態
+            setGodsCards(prev => [...prev, ...data.results]);
+            addLog(`[文化解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
+            setGodsInput('');
+            
+            // 2. 自動儲存至 Notion
+            addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆資料...`, 'info');
+            try {
+              const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cards: data.results })
+              });
+              const notionData = await res.json();
+              if (!res.ok || notionData.error) throw new Error(notionData.error || "Notion 寫入失敗");
+              addLog(`[Notion] 自動寫入資料庫成功！`, 'success');
+            } catch (e: any) {
+              addLog(`[Notion] 自動寫入失敗: ${e.message}`, 'error');
+            }
+          } else {
+             addLog(`[文化解碼] 後端未回傳任何有效資料`, 'warning');
+          }
+
+        } catch (e: any) {
+          addLog(`[文化解碼] 生成失敗: ${e.message}`, 'error');
+        } finally {
+          setIsGeneratingGods(false);
+        }
+      }}
+      disabled={isGeneratingGods}
+      className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow transition-all font-medium whitespace-nowrap disabled:opacity-50"
+    >
+      {isGeneratingGods ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+      開始考證
+    </button>
+  </div>
 
                 {/* Cards Area */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -2887,18 +2810,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
               <div className="flex flex-col gap-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowApiKeyModal(false);
-                    if (geminiApiKey.trim()) {
-                      if (typeof window !== 'undefined') {
-                        (window as any).__GEMINI_API_KEY__ = geminiApiKey.trim();
-                      }
-                      if (pendingImageTask) {
-                        pendingImageTask();
-                        setPendingImageTask(null);
-                      }
-                    }
-                  }}
+                  onClick={() => setShowApiKeyModal(false)}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
