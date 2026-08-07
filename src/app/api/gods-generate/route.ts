@@ -5,24 +5,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
-    const { names, apiKey } = await req.json();
+    const { names } = await req.json();
 
     if (!names || !Array.isArray(names) || names.length === 0) {
       return NextResponse.json({ error: "Missing names array" }, { status: 400 });
     }
-    
-    const finalApiKey = apiKey || process.env.GEMINI_API_KEY || "";
-    if (!finalApiKey) {
-      return NextResponse.json({ error: "API Key is missing or invalid" }, { status: 401 });
-    }
 
-    const genAI = new GoogleGenerativeAI(finalApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const results = [];
-
-    for (const name of names) {
-     // 重新設計 Prompt：將判斷結果與原因直接整合進 JSON 中，要求 AI 只能回傳 JSON
-      const prompt = `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
+    const prompts = names.map(name => {
+      return `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
 請針對主題「${name}」進行分析，判斷它屬於哪一種類型：
 1. 神佛/歷史人物
@@ -55,26 +45,9 @@ export async function POST(req: Request) {
   "tags": ["標籤1", "標籤2", "標籤3"],
   "imagePrompt": "請針對主題「${name}」以色彩鮮艷視覺描述意境，充滿在地人文或節令氛圍。"
 }`;
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      
-      try {
-        // 提取 JSON 字串，避免 AI 偶爾還是加上了 markdown 或其他文字
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          results.push({
-            id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            ...parsed,
-            imageUrl: "" // Placeholder for future image generation
-          });
-        }
-      } catch (e) {
-        console.error("Failed to parse JSON for", name, text, e);
-      }
-    }
+    });
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ prompts });
   } catch (error: any) {
     console.error("Generate API Error:", error);
     return NextResponse.json({ error: error.message || "生成失敗" }, { status: 500 });
