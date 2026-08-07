@@ -40,7 +40,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -2523,76 +2523,92 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-       {/* Input Area */}
-  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
-    <input
-      value={godsInput}
-      onChange={(e) => setGodsInput(e.target.value)}
-      placeholder="輸入主題，支援多筆以逗號分隔 (例: 天上聖母, 驚蟄, 大甲媽祖遶境)"
-      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-    />
-    <button
-      onClick={async () => {
-        if (!godsInput.trim()) return;
-        
-        // 將輸入字串分割成陣列 (過濾掉空白)
-        const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
-        if (names.length === 0) return;
+                {/* Input Area */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
+                  <input
+                    value={godsInput}
+                    onChange={(e) => setGodsInput(e.target.value)}
+                    placeholder="輸入神明尊號，支援多筆以逗號分隔 (例: 天上聖母, 關聖帝君)"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!godsInput.trim()) return;
+                      const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
+                      if (names.length === 0) return;
 
-        setIsGeneratingGods(true);
-        addLog(`[文化解碼] 開始批次考證 ${names.length} 筆資料...`, 'info');
-        
-        try {
-          // 1. 呼叫後端 god-generate API
-          const response = await fetch('https://omni-script-pro.vercel.app/api/gods-generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ names })
-          });
+                      setIsGeneratingGods(true);
+                                            addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
+                      try {
+                        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
 
-          const data = await response.json();
+                        
+                        if (!isCanvasEnv && !activeApiKey.trim()) {
+                            setShowApiKeyModal(true);
+                            setIsGeneratingGods(false);
+                            return;
+                        }
 
-          if (!response.ok) {
-            throw new Error(data.error || "後端 API 請求失敗");
-          }
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+                        let data = { results: [] };
+                        
+                        for (const name of names) {
+                            addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
+                            const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                    generationConfig: { temperature: 0.7 }
+                                })
+                            });
+                            const resultRaw = await response.json();
+                            if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
+                            const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                            const jsonMatch = text.match(/\{[\s\S]*\}/);
+                            if (jsonMatch) {
+                                const parsed = JSON.parse(jsonMatch[0]);
+                                data.results.push({
+                                    id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                    ...parsed,
+                                    imageUrl: ""
+                                });
+                                addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
+                            }
+                        }
+                        if (data.error) throw new Error(data.error);
+                        setGodsCards(prev => [...prev, ...data.results]);
+                        addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
+                        setGodsInput('');
+                        
+                        // 自動儲存至 Notion
+                        addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
+                        try {
+                          const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ cards: data.results })
+                          });
+                          const notionData = await res.json();
+                          if (notionData.error) throw new Error(notionData.error);
+                          addLog(`[Notion] 自動寫入資料庫成功！`, 'success');
+                        } catch (e: any) {
+                          addLog(`[Notion] 自動寫入失敗: ${e.message}`, 'error');
+                        }
 
-          if (data.results && data.results.length > 0) {
-            // 更新前端畫面狀態
-            setGodsCards(prev => [...prev, ...data.results]);
-            addLog(`[文化解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
-            setGodsInput('');
-            
-            // 2. 自動儲存至 Notion
-            addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆資料...`, 'info');
-            try {
-              const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cards: data.results })
-              });
-              const notionData = await res.json();
-              if (!res.ok || notionData.error) throw new Error(notionData.error || "Notion 寫入失敗");
-              addLog(`[Notion] 自動寫入資料庫成功！`, 'success');
-            } catch (e: any) {
-              addLog(`[Notion] 自動寫入失敗: ${e.message}`, 'error');
-            }
-          } else {
-             addLog(`[文化解碼] 後端未回傳任何有效資料`, 'warning');
-          }
-
-        } catch (e: any) {
-          addLog(`[文化解碼] 生成失敗: ${e.message}`, 'error');
-        } finally {
-          setIsGeneratingGods(false);
-        }
-      }}
-      disabled={isGeneratingGods}
-      className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow transition-all font-medium whitespace-nowrap disabled:opacity-50"
-    >
-      {isGeneratingGods ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-      開始考證
-    </button>
-  </div>
+                      } catch (e: any) {
+                        addLog(`[諸神解碼] 生成失敗: ${e.message}`, 'error');
+                      }
+                      setIsGeneratingGods(false);
+                    }}
+                    disabled={isGeneratingGods}
+                    className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow transition-all font-medium whitespace-nowrap disabled:opacity-50"
+                  >
+                    {isGeneratingGods ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    開始考證
+                  </button>
+                </div>
 
                 {/* Cards Area */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
