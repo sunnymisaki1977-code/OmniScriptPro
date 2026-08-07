@@ -38,8 +38,8 @@ export async function POST(req: Request) {
   "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下由右到左不要標點符號）",
   "poem": "一句符合主題詩詞（由上到下由右到左不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "請針對主題「${name}」生成彩墨風格圖中文 Prompt。視覺設計必須包含風格標籤 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，背景為彩墨山水富有充滿禪意或史詩感的氛圍。"
-}
+  "imagePrompt": "請針對主題「${name}」描述特徵形象、背景、特效、充滿意境史詩感的氛圍。"
+}、
 
 如果判斷為【第二類：民俗/節氣/宮廟】，請輸出以下 JSON 格式：
 {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   "desc": "35-50 字的簡介。需以『歷史起源、儀式特徵、社會意義』的角度切入（由上到下由右到左不要標點符號）",
   "poem": "一句符合主題的相關俗諺或詩詞（由上到下由右到左不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "請針對主題「${name}」生成彩墨風格圖中文 Prompt。視覺設計必須包含風格標籤 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，充滿在地人文或節令氛圍。"
+  "imagePrompt": "請針對主題「${name}」描述意境，充滿在地人文或節令氛圍。"
 }`;
 
       const result = await model.generateContent(prompt);
