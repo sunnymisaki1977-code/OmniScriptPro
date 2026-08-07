@@ -5,12 +5,18 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
-    const { names } = await req.json();
+    const { names, apiKey } = await req.json();
 
     if (!names || !Array.isArray(names) || names.length === 0) {
       return NextResponse.json({ error: "Missing names array" }, { status: 400 });
     }
+    
+    const finalApiKey = apiKey || process.env.GEMINI_API_KEY || "";
+    if (!finalApiKey) {
+      return NextResponse.json({ error: "API Key is missing or invalid" }, { status: 401 });
+    }
 
+    const genAI = new GoogleGenerativeAI(finalApiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const results = [];
 
