@@ -229,6 +229,35 @@ export const AUDIENCE_THEMES = {
     actionBtn: 'bg-blue-600 hover:bg-blue-500 text-white',
     actionBtnOutline: 'bg-blue-500/10 text-blue-600 hover:text-blue-700 border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/20',
     themeLogMessage: '[Theme] 已切換至「FinTech 財經知識 (Bloomberg Blue)」模式。啟動量化金融圖表渲染，調適金藍彭博終端視覺 🟢'
+  },
+  "fairy tales": {
+    id: 'fairy tales',
+    ambientGlow: 'bg-purple-500',
+    title: '文化轉譯・銘印童話',
+    subtitle: 'Magical Purple 奇幻紫',
+    desc: '充滿魔法與想像力的柔和紫粉色調。專為兒童奇幻故事與經典童話改編設計。',
+    gradient: 'from-[#8B5CF6] to-[#D946EF]',
+    primaryColor: 'purple-500',
+    borderActive: 'border-[#8B5CF6]/50',
+    textActive: 'text-[#8B5CF6]',
+    bgActive: 'bg-[#8B5CF6]/10',
+    bgBadge: 'bg-[#F472B6]/10 border-[#F472B6]/20 text-[#F472B6]',
+    primaryBtn: 'bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] hover:opacity-90 text-white rounded-full shadow-lg hover:-translate-y-[2px] transition-all duration-300',
+    secondaryBtn: 'bg-[#FDF4FF] text-[#4A044E] border-purple-200 hover:bg-purple-50 rounded-full',
+    textMuted: 'text-[#94A3B8]',
+    accentText: 'text-[#F472B6]',
+    accentBg: 'bg-[#F472B6]/10',
+    ringColor: 'focus:ring-[#8B5CF6] focus:border-[#8B5CF6]',
+    pipelineCurrent: 'bg-white border-[#8B5CF6]/50 shadow-[0_4px_20px_rgba(139,92,246,0.1)]',
+    pipelineCurrentIcon: 'bg-[#8B5CF6] text-white animate-pulse',
+    tagBg: 'bg-[#FDF4FF] border-purple-200 text-[#8B5CF6]',
+    matrixRequired: 'bg-purple-900/50 text-[#F472B6] border border-purple-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-purple-600 text-white shadow-md hover:bg-purple-700',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#94A3B8] hover:bg-purple-50',
+    focusRing: 'focus:border-purple-500/50',
+    actionBtn: 'bg-purple-600 hover:bg-purple-500 text-white',
+    actionBtnOutline: 'bg-purple-500/10 text-purple-600 hover:text-purple-700 border border-purple-500/20 hover:border-purple-500/50 hover:bg-purple-500/20',
+    themeLogMessage: '[Theme] 已切換至「文化轉譯・銘印童話 (Magical Purple)」模式。啟動奇幻童話引擎，魔法色彩加載中 🟢'
   }
 };
 
@@ -323,5 +352,17 @@ export const THEME_STEPS = {
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 財經意象行銷海報。', type: "code", language: "markdown", dependsOn: ["theme"], aspectRatio: "16:9" },
     { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成符合市場氛圍的音樂指令。', type: "code", language: "markdown", dependsOn: ["theme", "step1"] },
     { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成數據圖卡提示詞與財經社群正文', type: "social", language: "markdown", dependsOn: ["theme", "step1"] }
+  ],
+  "fairy tales": [
+    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '基於知名著作，撰寫適合兒童聆聽的 1500 字奇幻童話故事', type: 'text', dependsOn: ['theme'] },
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據故事文本，產出兒童繪本風格的動畫配音腳本', type: 'text', dependsOn: ['theme', 'step1'] },
+    { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '生成吸引家長與小朋友點擊的親子童話題與說明', type: 'text', dependsOn: ['theme', 'step2'] },
+    { id: 4, name: '擴散式短影音文案', icon: 'Video', category: 'Content', desc: '產出 60-90 秒節奏輕快、充滿童趣的短片腳本', type: 'text', dependsOn: ['theme', 'step1'] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成短影片封面的可愛吸睛文案與標籤', type: 'text', dependsOn: ['theme', 'step4'] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 YouTube 縮圖文案與 3D 動畫風格 AI 繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step3'], aspectRatio: '16:9' },
+    { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 9:16 短影音縮圖文案與 3D 動畫風格 AI 繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step5'], aspectRatio: '9:16' },
+    { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 兒童繪本插畫指令與搭配童謠', type: 'code', language: 'markdown', dependsOn: ['theme'], aspectRatio: '16:9' },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成 3 組符合兒童故事氛圍的音樂生成指令。', type: 'code', language: 'markdown', dependsOn: ['theme', 'step1'] },
+    { id: 10, name: '親子社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成可愛視覺提示詞、知識圖卡排版字卡與社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
   ]
 };

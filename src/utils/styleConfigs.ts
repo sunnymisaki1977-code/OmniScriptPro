@@ -39,6 +39,11 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
     id: "style-fintech",
     name: "FinTech 財經量化 (彭博全息)",
     promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"
+  },
+  "fairy tales": {
+    id: "style-fairytales",
+    name: "奇幻童話繪本 (皮克斯 3D)",
+    promptSuffix: ", cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration"
   }
 };
 
