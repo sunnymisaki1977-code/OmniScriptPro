@@ -10,6 +10,9 @@ const ACCESS_CODES: Record<string, string> = {
   'FOOD2026': 'food',       // 美食料理・風味探索
   'PET2026': 'pet',         // 寵物照護・幸福陪伴
   'FINTECH2026': 'fintech',     // FinTech 財經知識・AI 解析
+  'STORY2026': 'story',     // 文化轉譯・銘印說書
+  'FAIRYTALES2026': 'fairy tales', // 文化轉譯・銘印童話
+  'FAIRY TALES2026': 'fairy tales', // 允許空白防呆
   'MASTER': 'heritage',     // 管理員
   'FLEIX': 'heritage'       // 全主題通用 (非管理員)
 };
