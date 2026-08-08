@@ -54,21 +54,6 @@ export const POPULAR_STYLES: StyleOption[] = [
     promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
   },
 
- {
-    id: "style-cyber",
-    name: "3D 賽博龐克 (霓虹電競)",
-    promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
-  },
-  {
-    id: "style-anime",
-    name: "日系手繪動漫 (新海誠風)",
-    promptSuffix: ", makoto shinkai style, anime illustration, vivid colors, beautiful sky, cinematic lighting, highly detailed"
-  },
-  {
-    id: "style-minimal",
-    name: "北歐寫實極簡 (生活感)",
-    promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
-  },
 {
     id: "style-golden-dawn-ink",
     name: "Golden Dawn (晨曦金墨)",
@@ -94,5 +79,47 @@ export const POPULAR_STYLES: StyleOption[] = [
     name: "萬物生機彩墨",
     // 加入了 warm sunlight，並將對比改為柔和過渡
     promptSuffix: ", highly saturated warm seasonal color palette, warm sunlight luminous lighting, vibrant dynamic ink wash, uplifting nature energy flow, soft environmental transition, ethereal beauty, cinematic depth of field, hopeful atmosphere, 8k"
+  },
+ {
+    id: "style-cyber",
+    name: "3D 賽博龐克 (霓虹電競)",
+    promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
+  },
+  {
+    id: "style-anime",
+    name: "日系手繪動漫 (新海誠風)",
+    promptSuffix: ", makoto shinkai style, dramatic breathtaking sky, volumetric cumulonimbus clouds, vibrant saturated color palette, cinematic lens flare, crepuscular rays, crystal clear water reflections, highly detailed anime illustration, romantic and ethereal atmosphere, 8k resolution, masterpiece"
+  },
+ {
+    id: "style-jianlai-3d",
+    name: "3D仙俠國漫 (劍來風)",
+    promptSuffix: ", 3D Donghua style, Chinese Xianxia animation, Unreal Engine 5 render, octane render, intricate traditional Chinese clothing, epic eastern fantasy, flying swords and magical energy, dramatic cinematic lighting, ray tracing, 8k resolution, ultra-detailed CGI"
+  },
+{
+    id: "style-xianxia-2d",
+    name: "2D唯美仙俠 (國風插畫)",
+    promptSuffix: ", gorgeous Chinese style illustration, wuxia anime style, flowing traditional clothes, epic eastern fantasy landscape, delicate facial features, vivid colors, ethereal lighting, masterpiece, high quality"
+  },
+{
+    id: "style-wushan-ink",
+    name: "狂草水墨武俠 (霧山風)",
+    promptSuffix: ", fierce Chinese ink wash painting style, bold brushstrokes, dynamic wuxia action, vivid splashes of color, traditional pigments, high contrast ink, epic battle atmosphere, masterpiece, 8k"
+  },
+{
+    id: "style-baimiao-lineart",
+    name: "國風白描線條 (純粹質感)",
+    promptSuffix: ", traditional Chinese Bai Miao style, delicate line-art background composition, elegant black ink lines, minimalist coloring, ethereal and clean atmosphere, focused on line weight and fluidity, serene mood, highly detailed line work"
+  }, 
+{
+    id: "style-dunhuang-mural",
+    name: "敦煌壁畫志怪 (奇譚風)",
+    promptSuffix: ", Dunhuang mural art style, traditional Chinese folk art, flat colors, ancient folklore atmosphere, textured paper background, oxidized mineral pigments, mysterious and mythical mood, 2D flat illustration"
+  },
+
+{
+    id: "style-minimal",
+    name: "北歐寫實極簡 (生活感)",
+    promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
   }
+
 ];
