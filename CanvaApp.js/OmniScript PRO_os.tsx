@@ -761,8 +761,14 @@ export default function App() {
 
  // --- 新增：偵測主題變更並自動提示清空 ---
     const savedLastTheme = localStorage.getItem('os_pro_lastGeneratedTheme') || '';
-    const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "");
-    if (startTheme !== savedLastTheme && !isCanvasEmpty) {
+    const isCanvasEmpty = currentContextContents[1] === getInitialStepContent(1, "") || currentContextContents[1] === "";
+    
+    // 如果是一次全新生成，清空 UI 的步驟內容
+    if (!isResume) {
+      addLog(`[System] 清空上一次的企劃快取，準備全新生成...`, 'info');
+      currentContextContents = { 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: "" };
+      setStepContents(currentContextContents);
+    } else if (startTheme !== savedLastTheme && !isCanvasEmpty) {
         setCompletedSteps([1]);
         setCustomContext('');
       }
@@ -773,11 +779,13 @@ export default function App() {
       return !content || content.trim() === '' || content === getInitialStepContent(stepId, "");
     };
 
+    let usedCustomContextForStep1 = false;
     // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
     if (customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
+      usedCustomContextForStep1 = true;
     }
 
 
@@ -824,6 +832,15 @@ export default function App() {
         }
         if (isResume && completedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (接續生成：已完成)...`, 'success');
+          continue;
+        }
+
+        // 新增：如果這一次全新生成使用了自訂背景作為 Step 1，自動跳過 API 生成 Step 1
+        if (i === 1 && usedCustomContextForStep1) {
+          addLog(`⏭️ [Process] 跳過 Step 1: ${STEPS[0].name} (已使用自訂背景資料取代)...`, 'success');
+          if (!completedSteps.includes(1)) {
+            setCompletedSteps(prev => [...prev, 1]);
+          }
           continue;
         }
         currentRunningStep = i;
@@ -979,14 +996,6 @@ export default function App() {
   const isResume = isResumeIntentRef.current;
   const finalTheme = theme.trim() || '自訂企劃 (未命名)';
 
-  // 如果是一次全新生成，清空 UI 的步驟內容
-  if (!isResume) {
-    addLog(`[System] 清空上一次的企劃快取，準備全新生成...`, 'info');
-    setStepContents({
-      1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: ""
-    });
-  }
-
   addLog(`[System] 🚀 啟動 ${STEPS.length}-Step 雲端引擎！目標企劃：『${finalTheme}』`, 'info');
   
   // 啟動流水線
@@ -1009,6 +1018,19 @@ export default function App() {
       return;
     }
     const finalTheme = theme.trim() || '自訂企劃 (未命名)';
+    
+    // --- 新增：如果手動模式有提供自訂背景，直接載入到 Step 1 ---
+    if (customContext.trim()) {
+      setStepContents(prev => {
+        const isStep1Empty = !prev[1] || prev[1].trim() === '' || prev[1] === getInitialStepContent(1, "");
+        if (isStep1Empty) {
+          addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻！`, 'success');
+          return { ...prev, 1: customContext };
+        }
+        return prev;
+      });
+    }
+
     setMode('manual');
     setViewState('workspace');
     addLog(`[System] 進入手動編輯模式。目標企劃：『${finalTheme}』`, 'info');
