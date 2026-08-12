@@ -2821,8 +2821,8 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
       type: "code",
       language: "markdown",
       dependsOn: ["theme"],
-      prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事意境，生成 3 組 16:9 兒童繪本風格意象圖。
-
+      prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 兒童繪本風格意象圖。
+參考背景：${ctx.step1}
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 2D children's book illustration, watercolor style, pastel colors, magical atmosphere, soft lighting, whimsical, highly detailed, peaceful and warm。充滿溫馨與童話史詩感的氛圍。
 
@@ -2838,6 +2838,7 @@ AI Prompt (中文) 必須包含：cute 2D children's book illustration, watercol
       language: "markdown",
       dependsOn: ["theme", "step1"],
       prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+參考背景：${ctx.step1}
 場景設計分別為：1. 歡樂奇幻（探險開場）、2. 溫馨平靜（睡前說書）、3. 活潑跳躍（機智過關）。
 
 【格式絕對鎖定指令】：
