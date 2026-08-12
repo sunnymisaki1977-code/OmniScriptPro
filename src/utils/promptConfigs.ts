@@ -2520,7 +2520,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     description: "生成 16:9 意象圖指令與搭配詩詞",
     type: "code",
     language: "markdown",
-    dependsOn: [""theme", "step1"],
+    dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
