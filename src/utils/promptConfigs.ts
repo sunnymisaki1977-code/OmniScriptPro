@@ -518,7 +518,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
 
 【格式絕對鎖定指令】：
@@ -2787,9 +2787,9 @@ ${ctx.step4}
       description: "生成 16:9 YouTube 縮圖文案與 3D 動畫風格 AI 繪圖指令",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme", "step3"],
-      prompt: (ctx: any) => `請針對主題「${ctx.step3}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
-
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `請針對主題「${ctx.step2}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+參考背景：${ctx.step2}
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
 
@@ -2804,9 +2804,9 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
       description: "生成 9:16 短影音縮圖文案與 3D 動畫風格 AI 繪圖指令",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme", "step5"],
-      prompt: (ctx: any) => `請針對主題「${ctx.step5}」生成 3 組短影音縮圖設計 (9:16)。
-
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音縮圖設計 (9:16)。
+參考背景：${ctx.step4}
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
 
@@ -2867,7 +2867,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
       language: "markdown",
       dependsOn: ["theme", "step1"],
       prompt: (ctx: any) => `你現在是首席兒童讀物編輯與親子社群小編。
-你的任務是根據下方的【基礎童話文本】，為主題「${ctx.theme}」打造一組「奇幻童話繪本」社群圖文懶人包，適合家長滑給小朋友看。
+你的任務是根據下方的【基礎童話文本】，為主題「${ctx.step1}」打造一組「奇幻童話繪本」社群圖文懶人包，適合家長滑給小朋友看。
 
 【⚠️ 絕對真實性指令】：
 所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，但請轉化為兒童能理解的趣味冷知識，禁止腦補。
