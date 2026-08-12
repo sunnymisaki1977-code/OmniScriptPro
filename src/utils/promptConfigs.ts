@@ -2431,12 +2431,12 @@ ${ctx.step2}
     title: "擴散式短影音文案",
     description: "產出 180 秒內的極快節奏爆款短片腳本",
     type: "text",
-    dependsOn: ["theme", "step1"],
+    dependsOn: ["theme", "step2"],
     prompt: (ctx: any) => `請根據以下故事文本，為「${ctx.theme}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
 
 《故事文本》
 ====================
-${ctx.step1}
+${ctx.step2}
 ====================
 
 ## 📱 短影片腳本：${ctx.theme}
@@ -2476,8 +2476,13 @@ ${ctx.step4}
     description: "生成 16:9 YouTube 縮圖文案與 AI 繪圖指令",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step3"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+
+《故事文本》
+====================
+${ctx.step2}
+====================
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
@@ -2493,8 +2498,14 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     description: "生成 9:16 短影音縮圖文案與 AI 繪圖指令",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step5"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音縮圖設計 (9:16)。
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音縮圖設計 (9:16)。
+
+《故事文本》
+====================
+${ctx.step4}
+====================
+
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
@@ -2509,8 +2520,8 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     description: "生成 16:9 意象圖指令與搭配詩詞",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
+    dependsOn: [""theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。無人物、充滿禪意或史詩感的氛圍。
@@ -2526,7 +2537,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
 
 【格式絕對鎖定指令】：
@@ -2556,7 +2567,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     language: "markdown",
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
-你的任務是根據下方的【基礎背景史料】，為主題「${ctx.theme}」打造一組「新國風彩墨」社群圖文懶人包。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
 
 【⚠️ 絕對真實性指令】：
 所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，禁止腦補。
@@ -2580,7 +2591,7 @@ ${ctx.step1}
 
 ### 🎨 視覺 Prompt
   16:9 動態分割構圖提示詞：  
-以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+以「${ctx.step1}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
   主標題：  [請填入主標題]
 1.   畫格 1：   [蒙太奇資訊名稱 1]
    視覺描述：  [請填入視覺描述]
@@ -2599,7 +2610,7 @@ AI Prompt (中文):[開始撰寫16:9 動態分割構圖提示詞]
 
 
   9:16 動態分割構圖提示詞：  
-以「${ctx.theme}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+以「${ctx.step1}」為核心主角，必須包含風格：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，以主標題，核心主角五個【蒙太奇資訊】【視覺描述】，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
 
   主標題：  [請填入主標題]
 1.   畫格 1：   [蒙太奇資訊名稱 1]
@@ -2627,7 +2638,7 @@ AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
 [互動提問：請邀請粉絲留言分享經驗]
 祈福點燈、消災延壽，讓神明的靈光持續護佑您的日常 ➔ [此處自動帶入廟方數位功德箱/點燈連結]
 
-#世代銘印 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
+#世代銘印 #${ctx.step1} [請再補充 3-5 個相關的 Hashtags]
 `
     }
   ],
