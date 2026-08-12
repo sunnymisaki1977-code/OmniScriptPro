@@ -327,7 +327,7 @@ ${ctx.step1}
 請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
 - 視覺畫面建議：[請描述結尾畫面]
 - 畫面字卡: [必須精煉為 10 個字以內的核心金句]
-- 旁白配音 (VO)：[總結核心精神，並帶上宣言【解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承，本集考據若有不周延之處，煩請各位先進在留言區補充指正！】引導觀眾訂閱、按讚【開啟傳奇好運小鈴鐺】與留言分享經驗]`
+- 旁白配音 (VO)：[總結核心精神，並帶上宣言【神佛民俗博大精深，流傳版本眾多，若本集考據有不周延之處，非常歡迎各位先進在留言區補充指正！】【解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承】引導觀眾訂閱、按讚【開啟傳奇好運小鈴鐺】與留言分享經驗]`
   },
   {
     id: 3,
@@ -2648,6 +2648,7 @@ AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
 2. 節慶/民俗活動
 3. 動漫
 
+
 請先輸出：
 主題分類：
 判斷原因：
@@ -2787,7 +2788,7 @@ ${ctx.step4}
       type: "code",
       language: "markdown",
       dependsOn: ["theme", "step3"],
-      prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+      prompt: (ctx: any) => `請針對主題「${ctx.step3}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
@@ -2804,7 +2805,7 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
       type: "code",
       language: "markdown",
       dependsOn: ["theme", "step5"],
-      prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音縮圖設計 (9:16)。
+      prompt: (ctx: any) => `請針對主題「${ctx.step5}」生成 3 組短影音縮圖設計 (9:16)。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
@@ -2836,7 +2837,7 @@ AI Prompt (中文) 必須包含：cute 2D children's book illustration, watercol
       type: "code",
       language: "markdown",
       dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+      prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 場景設計分別為：1. 歡樂奇幻（探險開場）、2. 溫馨平靜（睡前說書）、3. 活潑跳躍（機智過關）。
 
 【格式絕對鎖定指令】：
@@ -2890,7 +2891,7 @@ ${ctx.step1}
 
 ### 🎨 視覺 Prompt
  16:9 動態分割構圖提示詞：  
-以「${ctx.theme}」為核心主角，必須包含風格：cute 3D Pixar style, vibrant colors, magical glowing effects, adorable characters, soft lighting, whimsical, highly detailed，以主標題，核心主角五個【趣味圖卡資訊】【視覺描述】，運用【動態分割構圖】以及【兒童繪本跨頁插圖】組合併接成一張【趣味知識圖表】。
+以「${ctx.step1}」為核心主角，必須包含風格：cute 3D Pixar style, vibrant colors, magical glowing effects, adorable characters, soft lighting, whimsical, highly detailed，以主標題，核心主角五個【趣味圖卡資訊】【視覺描述】，運用【動態分割構圖】以及【兒童繪本跨頁插圖】組合併接成一張【趣味知識圖表】。
  主標題：  [請填入充滿童趣的主標題]
 1.   畫格 1：   [趣味資訊名稱 1]
    視覺描述：  [請填入視覺描述]
