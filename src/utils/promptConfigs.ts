@@ -2402,7 +2402,7 @@ ${ctx.step1}
     description: "生成吸引故事愛好者與信仰群眾的標題與說明",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「${ctx.theme}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
+    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「${ctx.step2}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
 
 《說書腳本》
 ====================
@@ -2432,7 +2432,7 @@ ${ctx.step2}
     description: "產出 180 秒內的極快節奏爆款短片腳本",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請根據以下故事文本，為「${ctx.theme}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
+    prompt: (ctx: any) => `請根據以下故事文本，為「${ctx.step2}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
 
 《故事文本》
 ====================
