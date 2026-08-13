@@ -120,6 +120,31 @@ export const POPULAR_STYLES: StyleOption[] = [
     name: "敦煌壁畫志怪 (奇譚風)",
     promptSuffix: ", Dunhuang mural art style, traditional Chinese folk art, flat colors, ancient folklore atmosphere, textured paper background, oxidized mineral pigments, mysterious and mythical mood, 2D flat illustration"
   },
+{
+
+    id: "style-eastern-cyberpunk",
+
+    name: "東方神話龐克 (賽博風)",
+
+    promptSuffix: ", Eastern cyberpunk style, mythology meets sci-fi, neon lighting, futuristic traditional clothing, glowing mechanical parts, rich and dark cinematic atmosphere, intricate mechanical details, Unreal Engine 5 render, 8k"
+
+  }, 
+{
+    id: "style-chinese-ink-fairytale",
+    name: "新國風彩墨童話 (靈動唯美)",
+    promptSuffix: ", traditional Chinese color ink wash style, stylized folklore illustration, ethereal and magical atmosphere, flowing silk and clouds, rice paper texture, soft cinematic lighting, elegant linework, breathtaking eastern fantasy, masterpiece, 8k"
+  },
+  {
+    id: "style-donghua-3d-fantasy",
+    name: "國漫 3D 奇幻 (大片視覺)",
+    promptSuffix: ", modern Chinese 3D animation style, mythological high fantasy, vibrant and rich colors, glowing magical particles, elaborate traditional costumes, epic cinematic lighting, dynamic angle, Unreal Engine 5 render, highly detailed, 8k"
+  },
+  {
+    id: "style-chinese-storybook-lineart",
+    name: "東方繪本線稿 (圖文排版)",
+    promptSuffix: ", traditional Chinese stylized illustration, clean line-art background configuration, elegant decorative patterns, flat but vibrant color palette, whimsical fairy tale storytelling, warm ambient lighting, elegant composition, 8k"
+  },
+
 
 {
     id: "style-minimal",
