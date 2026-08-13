@@ -2821,7 +2821,7 @@ ${ctx.step4}
 請務必從上方的《參考腳本》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文 Prompt]」的最開頭，然後才接著描述動作與場景。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
+AI Prompt (中文) 必須包含：溫馨且大而醒目的藝術文字設計。
 
 ### 第一組：[縮圖名稱]
 主標：[主標內容，需充滿童趣]
@@ -2843,7 +2843,7 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
 請務必從上方的《參考角色設定》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文 Prompt]」的最開頭，然後才接著描述動作與場景。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
+AI Prompt (中文) 必須包含：溫馨且大而醒目的藝術文字設計。
 
 ### 第一組：[短影音縮圖名稱]
 高點擊文案：[封面趣味字卡]
@@ -2864,7 +2864,7 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
 請務必從上方的《參考角色設定》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文畫面描述]」的最開頭。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：cute 2D children's book illustration, watercolor style, pastel colors, magical atmosphere, soft lighting, whimsical, highly detailed, peaceful and warm。充滿溫馨與童話史詩感的氛圍。
+AI Prompt (中文) 必須包含：充滿溫馨與童話史詩感的氛圍。
 
 ### 第一組：[意象圖名稱]
 童謠順口溜（四句簡單好記的兒歌歌詞，適合幼兒）：[請填寫童謠]
@@ -2936,7 +2936,7 @@ ${ctx.step1}
 
 ### 🎨 視覺 Prompt
  16:9 動態分割構圖提示詞：  
-以「${ctx.step1}」為核心主角，必須包含風格：cute 3D Pixar style, vibrant colors, magical glowing effects, adorable characters, soft lighting, whimsical, highly detailed，以主標題，核心主角五個【趣味圖卡資訊】【視覺描述】，運用【動態分割構圖】以及【兒童繪本跨頁插圖】組合併接成一張【趣味知識圖表】。
+以「${ctx.step1}」為核心主角，必須包含風格：以主標題，核心主角五個【趣味圖卡資訊】【視覺描述】，運用【動態分割構圖】以及【兒童繪本跨頁插圖】組合併接成一張【趣味知識圖表】。
  主標題：  [請填入充滿童趣的主標題]
 1.   畫格 1：   [趣味資訊名稱 1]
    視覺描述：  [請填入視覺描述]
@@ -2972,7 +2972,7 @@ AI Prompt (中文):[開始撰寫9:16 動態分割構圖提示詞]
 [請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，用詞需適合 5-10 歲兒童理解]
 
 [互動提問：請邀請家長在留言區寫下孩子的反應]
-把這份溫暖與勇氣分享出去，讓更多小朋友一起聽故事 ➔ [此處自動帶入 YouTube/Podcast 收聽連結]
+把這份溫暖與勇氣分享出去，讓更多小朋友一起聽故事 
 
 #親子共讀 #床邊故事 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
 `
