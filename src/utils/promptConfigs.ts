@@ -2760,13 +2760,21 @@ ${ctx.step2}
       title: "擴散式短影音文案",
       description: "產出 60-90 秒節奏輕快、充滿童趣的短片腳本",
       type: "text",
-      dependsOn: ["theme", "step1"],
+      dependsOn: ["theme", "step1", "step2"],
       prompt: (ctx: any) => `請根據以下故事文本，為「${ctx.theme}」提取最有趣、最魔幻的情節，撰寫 90 秒內的 Shorts/TikTok 短影片腳本。節奏需輕快，適合小朋友與家長一起觀看。
 
 《故事文本》
 ====================
 ${ctx.step1}
 ====================
+
+《主軸腳本 (Step2)》
+====================
+${ctx.step2}
+====================
+
+【⚠️ 角色一致性強力指令】：
+請先從上方的《主軸腳本 (Step2)》中找出【🧑 主角固定外觀設定】的全英文特徵字串。在下方的「每一個」畫面描述中，你必須「強制」將這串全英文特徵字串放在開頭。
 
 ## 📱 兒童短影片腳本：${ctx.theme}
 ### 💥 黃金前 3 秒：視覺與好奇心衝擊
@@ -2806,8 +2814,12 @@ ${ctx.step4}
       type: "code",
       language: "markdown",
       dependsOn: ["theme", "step2"],
-      prompt: (ctx: any) => `請針對主題「${ctx.step2}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
-參考背景：${ctx.step2}
+      prompt: (ctx: any) => `請針對主題故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+參考腳本：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考腳本》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文 Prompt]」的最開頭，然後才接著描述動作與場景。
+
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
 
@@ -2822,9 +2834,14 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
       description: "生成 9:16 短影音縮圖文案與 3D 動畫風格 AI 繪圖指令",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme", "step4"],
-      prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音縮圖設計 (9:16)。
-參考背景：${ctx.step4}
+      dependsOn: ["theme", "step4", "step2"],
+      prompt: (ctx: any) => `請針對短影音腳本生成 3 組短影音縮圖設計 (9:16)。
+參考短影音腳本：${ctx.step4}
+參考角色設定 (來自Step2)：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考角色設定》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文 Prompt]」的最開頭，然後才接著描述動作與場景。
+
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration, 溫馨且大而醒目的藝術文字設計。
 
@@ -2838,9 +2855,14 @@ AI Prompt (中文) 必須包含：cute 3D animation style, Pixar and Disney styl
       description: "生成 16:9 兒童繪本插畫指令與搭配童謠",
       type: "code",
       language: "markdown",
-      dependsOn: ["theme"],
+      dependsOn: ["theme", "step1", "step2"],
       prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 兒童繪本風格意象圖。
-參考背景：${ctx.step1}
+參考故事：${ctx.step1}
+參考角色設定 (來自Step2)：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考角色設定》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文畫面描述]」的最開頭。
+
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：cute 2D children's book illustration, watercolor style, pastel colors, magical atmosphere, soft lighting, whimsical, highly detailed, peaceful and warm。充滿溫馨與童話史詩感的氛圍。
 
@@ -2884,7 +2906,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
       description: "一鍵生成可愛視覺提示詞、知識圖卡排版字卡與社群正文",
       type: "social",
       language: "markdown",
-      dependsOn: ["theme", "step1"],
+      dependsOn: ["theme", "step1", "step2"],
       prompt: (ctx: any) => `你現在是首席兒童讀物編輯與親子社群小編。
 你的任務是根據下方的【基礎童話文本】，為主題「${ctx.step1}」打造一組「奇幻童話繪本」社群圖文懶人包，適合家長滑給小朋友看。
 
@@ -2893,6 +2915,10 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
 
 【基礎童話文本】：
 ${ctx.step1}
+
+【⚠️ 角色一致性指令】：
+參考角色設定 (來自Step2)：${ctx.step2}
+請務必從上方的《參考角色設定》中找出【🧑 主角固定外觀設定】的全英文特徵字串，並且「強制」將它放在每一組「視覺描述」或「AI Prompt (中文)」的最開頭。
 
 請嚴格遵循以下二大任務與格式要求：
 
