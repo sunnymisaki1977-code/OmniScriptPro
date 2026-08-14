@@ -2,11 +2,25 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { scenes } = await req.json();
+    const { scenes, theme } = await req.json();
 
     if (!scenes || !Array.isArray(scenes)) {
       return NextResponse.json({ error: 'Missing or invalid scenes data' }, { status: 400 });
     }
+
+    const themeToFolderMap: Record<string, string> = {
+      'fairy tales': '銘印童話',
+      'heritage': '文化傳承',
+      'beauty': '悅己美學',
+      'travelpreneur': '世界漫遊',
+      'food': '風味探索',
+      'pet': '寵物照護',
+      'story': '銘印說書',
+      'fintech': '財經知識'
+    };
+
+    const folderName = themeToFolderMap[theme || ''] || 'Omniscript';
+    const draftPath = `C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/${folderName}/draft_content.json`;
 
     // 這裡的 scenes 會包含每個畫格的時間軸與旁白資訊
     // 我們將其寫死在 Python 腳本內，作為字典，與使用者資料夾中的圖檔配對
@@ -28,7 +42,8 @@ import re  # 💡 就是這裡！必須載入這個模組才能處理數字排�
 # 剪映自動化草稿注入腳本 (純文字輸出修正版)
 # ==========================================
 
-DRAFT_PATH = "C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/Omniscript/draft_content.json"
+DRAFT_PATH = "${draftPath}"
+
 
 # 💡 新增：定義自然排序的判斷規則
 def natural_sort_key(s):

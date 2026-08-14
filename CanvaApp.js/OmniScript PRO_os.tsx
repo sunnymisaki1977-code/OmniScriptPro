@@ -433,10 +433,10 @@ export default function App() {
     });
 
     try {
-        const response = await fetch('https://omni-script-pro.vercel.app/api/Extreme/export', {
+        const response = await fetch('/api/Extreme/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scenes: scenesToExport })
+            body: JSON.stringify({ scenes: scenesToExport, theme: theme })
         });
         
         if (!response.ok) {
