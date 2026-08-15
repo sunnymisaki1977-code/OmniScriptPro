@@ -3,12 +3,10 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DEFAULT_DATABASE_ID = "3a483ac4203780c89a41d8f53601c864";
 
 export async function POST(req: Request) {
   try {
-    const { cards, databaseId } = await req.json();
-    const targetDatabaseId = databaseId || DEFAULT_DATABASE_ID;
+    const { cards } = await req.json();
 
     if (!cards || !Array.isArray(cards) || cards.length === 0) {
       return NextResponse.json({ error: "Missing cards array" }, { status: 400 });
@@ -17,6 +15,18 @@ export async function POST(req: Request) {
     const savedPages = [];
 
     for (const card of cards) {
+      let targetDatabaseId = "";
+      if (card.category === "神佛/歷史人物" || card.category === "神佛") {
+        targetDatabaseId = process.env.NOTION_GOD_ID || "";
+      } else if (card.category === "節氣") {
+        targetDatabaseId = process.env.NOTION_Solar_ID || "";
+      }
+
+      if (!targetDatabaseId) {
+        console.warn(`未知的分類或缺少對應的環境變數 ID，跳過寫入：${card.name} (${card.category})`);
+        continue;
+      }
+
       let finalImageUrl = card.imageUrl;
 
       // 如果是 Base64 格式的圖片，先轉存到 Vercel Blob
