@@ -3,9 +3,13 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
+const DEFAULT_DATABASE_ID = process.env.NOTION_GOD_ID || "3a483ac4203780c89a41d8f53601c864";
+
+
 export async function POST(req: Request) {
   try {
     const { cards, databaseId } = await req.json();
+    const targetDatabaseId = databaseId || DEFAULT_DATABASE_ID;
 
     if (!cards || !Array.isArray(cards) || cards.length === 0) {
       return NextResponse.json({ error: "Missing cards array" }, { status: 400 });
@@ -14,15 +18,6 @@ export async function POST(req: Request) {
     const savedPages = [];
 
     for (const card of cards) {
-      let currentDatabaseId = databaseId || process.env.NOTION_GOD_ID;
-      if (!databaseId) {
-        if (card.category === "節氣" && process.env.NOTION_Solar_ID) {
-          currentDatabaseId = process.env.NOTION_Solar_ID;
-        } else if (process.env.NOTION_GOD_ID) {
-          currentDatabaseId = process.env.NOTION_GOD_ID;
-        }
-      }
-      
       let finalImageUrl = card.imageUrl;
 
       // 如果是 Base64 格式的圖片，先轉存到 Vercel Blob
@@ -100,7 +95,7 @@ export async function POST(req: Request) {
       }
 
       const response = await notion.pages.create({
-        parent: { database_id: currentDatabaseId || "" },
+        parent: { database_id: targetDatabaseId },
         properties: {
           Name: { // Note: Assuming the default Title property is named 'Name'
             title: [
