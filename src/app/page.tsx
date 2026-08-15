@@ -258,7 +258,7 @@ export default function LandingPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/40 bg-white/40 backdrop-blur-xl transition-colors duration-500 shadow-sm">
           <div className="w-full px-4 md:px-8 h-[80px] relative flex items-center justify-between">
             <div className="flex items-center gap-2 shrink-0 relative z-10">
-             <img src="https://omni-script-pro.vercel.app/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
+             <img src="/OmniScript%20logo.png" alt="OmniScript" className="h-10 md:h-12 object-contain drop-shadow-sm hover:scale-105 transition-transform" />
             </div>
 
             <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap w-full text-center pointer-events-none">

@@ -40,7 +40,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
+    const VERCEL_API_URL = '/api/gemini';
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -182,7 +182,7 @@ export default function App() {
   const [formConfigs, setFormConfigs] = useState(null);
 
   useEffect(() => {
-    fetch(`https://omni-script-pro.vercel.app/api/config`)
+    fetch(`/api/config`)
       .then(res => res.json())
       .then(data => {
         setAudienceThemes(data.AUDIENCE_THEMES || {});
@@ -293,7 +293,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const response = await fetch('/api/notion/history');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -352,7 +352,7 @@ export default function App() {
     if (!content) return;
     
     setIsParsingVisuals(true);
-    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
+    fetch('/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -374,7 +374,7 @@ export default function App() {
     const targetContent = extremeSource === 'step4' ? stepContents[4] : stepContents[2];
     if (activeTab === 'Extreme' && targetContent) {
       setIsGeneratingExtreme(true);
-      fetch('https://omni-script-pro.vercel.app/api/Extreme', {
+      fetch('/api/Extreme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: targetContent })
@@ -727,7 +727,7 @@ export default function App() {
     setIsFetchingRadar(true);
     addLog(`📡 正在啟動 AI ${label}快訊雷達，連接動態 RSS 訊號源...`, 'info');
     try {
-      const res = await fetch(`https://omni-script-pro.vercel.app/api/radar?theme=${audienceTheme}`);
+      const res = await fetch(`/api/radar?theme=${audienceTheme}`);
       const data = await res.json();
       if (data.success && data.analysis) {
         setTheme(data.analysis.theme);
@@ -802,7 +802,7 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`https://omni-script-pro.vercel.app/api/config`, {
+            const configRes = await fetch(`/api/config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
@@ -953,7 +953,7 @@ export default function App() {
     addLog(`[Notion] 正在從資料庫讀取專案內容...`, 'info');
 
     try {
-      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
+      const response = await fetch(`/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
@@ -1130,7 +1130,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
+    const VERCEL_NOTION_URL = '/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -1204,7 +1204,7 @@ const handleLogin = async (e: React.FormEvent) => {
     if (!code) return;
 
     try {
-      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/auth';
+      const VERCEL_API_URL = '/api/auth';
       const res = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2531,7 +2531,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsSavingGods(true);
                       addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
                       try {
-                        const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
+                        const res = await fetch('/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
@@ -2615,7 +2615,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         // 自動儲存至 Notion
                         addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
                         try {
-                          const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
+                          const res = await fetch('/api/gods-notion', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ cards: data.results })

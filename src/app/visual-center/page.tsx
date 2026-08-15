@@ -46,7 +46,7 @@ export default function VisualCenterApp() {
   useEffect(() => {
     const fetchArchives = async () => {
       try {
-        const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+        const response = await fetch('/api/notion/history');
         const data = await response.json();
         if (data.history) {
           setArchiveList(data.history);
@@ -64,7 +64,7 @@ export default function VisualCenterApp() {
     if (!content) return;
     
     setIsParsingVisuals(true);
-    fetch('https://omni-script-pro.vercel.app/api/parse-visuals', {
+    fetch('/api/parse-visuals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, visualStep })
@@ -105,7 +105,7 @@ export default function VisualCenterApp() {
     addLog(`[Notion] 正在從資料庫讀取專案內容...`, 'info');
 
     try {
-      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
+      const response = await fetch(`/api/notion/history?id=${pageId}`);
       const data = await response.json();
 
       if (data.stepsData) {
