@@ -94,7 +94,7 @@ export async function POST(req: Request) {
     const pageResponse = await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
-        Name: {
+        title: {
           title: [{ text: { content: `【世代銘印】${theme} - ${new Date().toLocaleDateString()}` } }],
         },
       },

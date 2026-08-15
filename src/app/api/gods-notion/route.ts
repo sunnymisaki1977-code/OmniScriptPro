@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DEFAULT_DATABASE_ID = process.env.NOTION_GOD_ID || "3a483ac4203780c89a41d8f53601c864";
-
+const DEFAULT_DATABASE_ID = "3a483ac4203780c89a41d8f53601c864";
 
 export async function POST(req: Request) {
   try {
@@ -97,7 +96,7 @@ export async function POST(req: Request) {
       const response = await notion.pages.create({
         parent: { database_id: targetDatabaseId },
         properties: {
-          Name: { // Note: Assuming the default Title property is named 'Name'
+          title: { // Note: Use built-in title ID instead of property name to prevent localization issues
             title: [
               {
                 text: { content: card.name },
