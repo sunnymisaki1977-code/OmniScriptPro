@@ -2534,7 +2534,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })), databaseId: "3a483ac4203780c89a41d8f53601c864" })
+                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
                         });
                         const data = await res.json();
                         if (data.error) throw new Error(data.error);
