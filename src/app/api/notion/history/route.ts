@@ -103,15 +103,20 @@ export async function GET(req: Request) {
     });
 
     const history = response.results.map((page: any) => {
-      const titleProp = page.properties.Name || page.properties.title;
+      // 動態找出 type 為 title 的屬性，不受使用者自訂名稱影響
+      const titleProp = Object.values(page.properties).find((prop: any) => prop.type === 'title') as any;
+      
       let title = "未命名";
       if (titleProp && titleProp.title && titleProp.title.length > 0) {
         title = titleProp.title[0].plain_text;
       }
+      
       return {
         id: page.id,
         title: title,
-        createdAt: page.created_time,
+        createdTime: new Date(page.created_time).toLocaleString('zh-TW', {
+          month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        }),
       };
     });
 

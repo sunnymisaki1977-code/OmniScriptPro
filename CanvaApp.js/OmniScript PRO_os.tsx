@@ -293,7 +293,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const response = await fetch('/api/notion/history');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -1130,7 +1130,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 
   try {
     // 呼叫我們自己的 Vercel 後端 Notion API
-    const VERCEL_NOTION_URL = '/api/notion';
+    const VERCEL_NOTION_URL = 'https://omni-script-pro.vercel.app/api/notion';
     
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
@@ -2531,10 +2531,10 @@ const handleLogin = async (e: React.FormEvent) => {
                       setIsSavingGods(true);
                       addLog(`[Notion] 準備寫入 ${godsCards.length} 筆神明資料...`, 'info');
                       try {
-                        const res = await fetch('/api/gods-notion', {
+                        const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })) })
+                          body: JSON.stringify({ cards: godsCards.map(c => ({ ...c, imageUrl: groupImages[c.id] || "" })), databaseId: "3a483ac4203780c89a41d8f53601c864" })
                         });
                         const data = await res.json();
                         if (data.error) throw new Error(data.error);
@@ -2615,7 +2615,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         // 自動儲存至 Notion
                         addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
                         try {
-                          const res = await fetch('/api/gods-notion', {
+                          const res = await fetch('https://omni-script-pro.vercel.app/api/gods-notion', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ cards: data.results })
