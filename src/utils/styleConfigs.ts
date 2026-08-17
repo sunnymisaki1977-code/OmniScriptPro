@@ -56,13 +56,13 @@ export const POPULAR_STYLES: StyleOption[] = [
   {
     id: "style-heritage",
     name: "東方古典美學 (水墨工筆)",
-    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
+    promptSuffix: ", colorful ink wash, vivid diffusion, translucent crystal texture, sheer silk, refraction, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
   },
 
 {
     id: "style-golden-dawn-ink",
     name: "Golden Dawn (晨曦金墨)",
-    promptSuffix: ", light and warm color ink wash, delicate line-art background composition, ethereal bright atmosphere, radiant morning glow, divine warm golden sunlight, glowing amber and peach energy flow, eastern fantasy, luminous gold accents, uplifting and hopeful mood, soft cinematic volumetric lighting, 8k resolution, ultra detailed"
+    promptSuffix: ", light and warm color ink wash, delicate line-art background composition, ethereal bright atmosphere, radiant morning glow, divine warm golden sunlight, glowing amber and peach energy flow, eastern fantasy, luminous gold accents, uplifting and hopeful mood, sheer silk, soft cinematic volumetric lighting, 8k resolution, ultra detailed"
   },
 
 
@@ -71,19 +71,19 @@ export const POPULAR_STYLES: StyleOption[] = [
     id: "style-vivid-divine-ink",
     name: "絢麗神輝彩墨",
     // 移除了 high contrast 和 intense，加入 soft warm glow
-    promptSuffix: ", highly saturated color ink wash, vivid and bold warm color palette, brilliant pigment diffusion, glowing golden particles, gentle dynamic energy flow, eastern fantasy, luminous gold accents, eastern mythology, uplifting spiritual energy, vibrant cinematic volumetric lighting, soft warm glow, ultra detailed, masterpiece"
+    promptSuffix: ", highly saturated color ink wash, vivid and bold warm color palette, brilliant pigment diffusion, glowing golden particles, gentle dynamic energy flow, eastern fantasy, luminous gold accents, eastern mythology, uplifting spiritual energy, vibrant cinematic volumetric lighting, soft warm glow, translucent crystal texture, ultra detailed, masterpiece"
   },
 {
     id: "style-radiant-dawn-ink", // 改個名字比較符合修改後的感覺
     name: "晨曦流光水墨",
     // 移除了 jewel-toned 和 neon-like，改為 warm pastel 和 divine light
-    promptSuffix: ", warm pastel-toned ink wash, delicate line-art background composition, glowing golden particles, divine light spiritual energy flow, eastern fantasy, gold flowing accents, dynamic composition, vibrant but soft color saturation, cinematic volumetric lighting, radiant morning glow, 8k resolution, ultra detailed"
+    promptSuffix: ", warm pastel-toned ink wash, layered transparency, delicate line-art background composition, ethereal translucent elements, glowing golden particles, divine light spiritual energy flow, eastern fantasy, crystal clear gold flowing accents, dynamic composition, vibrant but soft color saturation, cinematic volumetric lighting, radiant morning glow, 8k resolution, ultra detailed"
   }, 
   {
     id: "style-luminous-nature-ink",
     name: "萬物生機彩墨",
     // 加入了 warm sunlight，並將對比改為柔和過渡
-    promptSuffix: ", highly saturated warm seasonal color palette, warm sunlight luminous lighting, vibrant dynamic ink wash, uplifting nature energy flow, soft environmental transition, ethereal beauty, cinematic depth of field, hopeful atmosphere, 8k"
+    promptSuffix: ", highly saturated warm seasonal color palette, clear water-like ink, translucent dew, warm sunlight luminous lighting, vibrant dynamic ink wash, liquid flow, uplifting nature energy flow, soft environmental transition, ethereal beauty, cinematic depth of field, hopeful atmosphere, 8k"
   },
  {
     id: "style-cyber",
