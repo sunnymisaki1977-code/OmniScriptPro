@@ -2381,6 +2381,13 @@ ${ctx.step1}
 故事文本：
 ${ctx.step1}
 
+【⚠️ 角色一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持主角長相一致，請你先為這個故事發想一位具體的主角，並將其外觀定義為一串「全英文的固定外觀特徵字串」。
+在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串全英文特徵字串放在開頭，再接著描述該場景的動作與背景。
+
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
 【輸出模板】請嚴格遵守以下腳本架構撰寫：
 請精準輸出以下格式，請將第一段語法生成的說書故事，直接轉化為具體的視覺畫面描述、畫面字卡與旁白配音 (VO)（每個30秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
 ## 🎬 沉浸式說書腳本：${ctx.theme}
@@ -2459,6 +2466,13 @@ ${ctx.step2}
 ${ctx.step2}
 ====================
 
+【⚠️ 角色一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持主角長相一致，請你先為這個故事發想一位具體的主角，並將其外觀定義為一串「全英文的固定外觀特徵字串」。
+在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串全英文特徵字串放在開頭，再接著描述該場景的動作與背景。
+
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
 ## 📱 短影片腳本：${ctx.theme}
 ### 💥 黃金前 3 秒：視覺與認知衝擊
 - [00:00 - 00:05] 畫面：[極具衝擊力的視覺，帶入提示詞 Image URL 參考] / 字卡: [打破認知的標題] / 旁白 (VO)：[拋出一個關於該主題最驚人的冷知識或神話反轉，例如「你以為祂是...其實在原著裡祂...」]
@@ -2503,14 +2517,18 @@ ${ctx.step4}
 ====================
 ${ctx.step2}
 ====================
+【⚠️ 角色一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持主角長相一致，請你先為這個故事發想一位具體的主角，並將其外觀定義為一串「全英文的固定外觀特徵字串」。
+在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串全英文特徵字串放在開頭，再接著描述該場景的動作與背景。
 
-【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
 
 ### 第一組：[縮圖名稱]
 主標：[主標內容]
 副標：[副標內容]
-中文：[中文 Prompt，需描述具體的故事動作或法相特寫]`
+中文：[中文 Prompt，需描述具體的故事，大而醒目藝術文字設計]`
   },
   {
     id: 7,
@@ -2526,13 +2544,17 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
 ${ctx.step4}
 ====================
 
+【⚠️ 角色一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持主角長相一致，請你先為這個故事發想一位具體的主角，並將其外觀定義為一串「全英文的固定外觀特徵字串」。
+在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串全英文特徵字串放在開頭，再接著描述該場景的動作與背景。
 
-【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, Shinkai Makoto animation style lighting, 大而醒目藝術文字設計。
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+ 
 
 ### 第一組：[短影音縮圖名稱]
 高點擊文案：[封面暴力字卡]
-中文：[中文 Prompt，需視覺張力極大、主體置中]`
+中文：[中文 Prompt，需視覺張力極大、主體置中、大而醒目藝術文字設計]`
   },
   {
     id: 8,
@@ -2544,7 +2566,7 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。無人物、充滿禪意或史詩感的氛圍。
+AI Prompt (中文) 必須包含：無人物、充滿禪意或史詩感的氛圍。
 
 ### 第一組：[意象圖名稱]
 詩詞（由上到下由右到左不要標點符號）：[七言四句詩詞]
@@ -2589,11 +2611,17 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
 你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
 
-【⚠️ 絕對真實性指令】：
-所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，禁止腦補。
+
 
 【基礎背景史料】：
 ${ctx.step1}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持主角長相一致，請你先為這個故事發想一位具體的主角，並將其外觀定義為一串「全英文的固定外觀特徵字串」。
+在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串全英文特徵字串放在開頭，再接著描述該場景的動作與背景。
+
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
 
 請嚴格遵循以下二大任務與格式要求：
 
