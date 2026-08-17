@@ -2664,10 +2664,7 @@ const handleLogin = async (e: React.FormEvent) => {
                            <button
                              onClick={() => generateGroupImage({
                                id: card.id,
-                               prompt: "Traditional East Asian ink wash painting (水墨畫) of the deity. Majestic, divine aura, ethereal, expressive brushstrokes, xieyi style. Minimalist abstract background. NO TEXT, NO LETTERS, NO SIGNATURES, NO STAMPS. High quality masterpiece. " + card.imagePrompt,
-                               mainTitle: card.name,
-                               subTitle: card.title,
-                               poetry: card.poem
+                               prompt: card.imagePrompt
                              })}
                              disabled={generatingGroups[card.id]}
                              className="flex-1 py-2 rounded-lg bg-indigo-500/90 hover:bg-indigo-600 text-white text-xs font-medium backdrop-blur-sm transition flex justify-center items-center gap-1.5 disabled:opacity-50"
