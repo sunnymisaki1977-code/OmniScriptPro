@@ -44,6 +44,11 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
     id: "style-fairytales",
     name: "奇幻童話繪本 (皮克斯 3D)",
     promptSuffix: ", cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration"
+  },
+  proposal: {
+    id: "style-proposal",
+    name: "商業提案風格 (極簡專業)",
+    promptSuffix: ", sleek modern corporate presentation style, minimalist infographic, clean typography, soft emerald green and white palette, professional corporate branding, highly detailed, high-end commercial aesthetic"
   }
 };
 

@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       'food': '風味探索',
       'pet': '寵物照護',
       'story': '銘印說書',
-      'fintech': '財經知識'
+      'fintech': '財經知識',
+      'proposal': '企劃文案'
     };
 
     const folderName = themeToFolderMap[theme || ''] || 'Omniscript';

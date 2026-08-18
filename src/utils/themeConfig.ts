@@ -258,6 +258,35 @@ export const AUDIENCE_THEMES = {
     actionBtn: 'bg-purple-600 hover:bg-purple-500 text-white',
     actionBtnOutline: 'bg-purple-500/10 text-purple-600 hover:text-purple-700 border border-purple-500/20 hover:border-purple-500/50 hover:bg-purple-500/20',
     themeLogMessage: '[Theme] 已切換至「文化轉譯・銘印童話 (Magical Purple)」模式。啟動奇幻童話引擎，魔法色彩加載中 🟢'
+  },
+  proposal: {
+    id: 'proposal',
+    ambientGlow: 'bg-emerald-500',
+    title: 'Proposal 企劃文案。AI 解析',
+    subtitle: 'Emerald Green 翡翠綠',
+    desc: '清晰專業的翡翠綠色調。專為全領域知識萃取與提案文案設計。',
+    gradient: 'from-[#10B981] to-[#059669]',
+    primaryColor: 'emerald-500',
+    borderActive: 'border-[#10B981]/50',
+    textActive: 'text-[#10B981]',
+    bgActive: 'bg-[#10B981]/10',
+    bgBadge: 'bg-[#34D399]/10 border-[#34D399]/20 text-[#34D399]',
+    primaryBtn: 'bg-gradient-to-r from-[#10B981] to-[#059669] hover:opacity-90 text-white rounded-full shadow-lg hover:-translate-y-[2px] transition-all duration-300',
+    secondaryBtn: 'bg-[#ECFDF5] text-[#064E3B] border-emerald-200 hover:bg-emerald-50 rounded-full',
+    textMuted: 'text-[#94A3B8]',
+    accentText: 'text-[#34D399]',
+    accentBg: 'bg-[#34D399]/10',
+    ringColor: 'focus:ring-[#10B981] focus:border-[#10B981]',
+    pipelineCurrent: 'bg-white border-[#10B981]/50 shadow-[0_4px_20px_rgba(16,185,129,0.05)]',
+    pipelineCurrentIcon: 'bg-[#10B981] text-white animate-pulse',
+    tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#94A3B8]',
+    matrixRequired: 'bg-emerald-900/50 text-[#34D399] border border-emerald-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-emerald-500 text-white shadow-md hover:bg-emerald-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#94A3B8] hover:bg-emerald-50',
+    focusRing: 'focus:border-emerald-500/50',
+    actionBtn: 'bg-emerald-500 hover:bg-emerald-400 text-white',
+    actionBtnOutline: 'bg-emerald-500/10 text-emerald-600 hover:text-emerald-700 border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/20',
+    themeLogMessage: '[Theme] 已切換至「Proposal 企劃文案 (Emerald Green)」模式。啟動專業解析引擎，翡翠綠色彩加載中 🟢'
   }
 };
 
@@ -364,5 +393,17 @@ export const THEME_STEPS = {
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 兒童繪本插畫指令與搭配童謠', type: 'code', language: 'markdown', dependsOn: ['theme'], aspectRatio: '16:9' },
     { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成 3 組符合兒童故事氛圍的音樂生成指令。', type: 'code', language: 'markdown', dependsOn: ['theme', 'step1'] },
     { id: 10, name: '親子社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成可愛視覺提示詞、知識圖卡排版字卡與社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
+  ],
+  proposal: [
+    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '接收使用者輸入的文章，自動判斷領域並萃取結構化知識底稿', type: 'text', dependsOn: ['theme'] },
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據文章內容動態判斷敘事風格，產出 8 分鐘長影片腳本', type: 'text', dependsOn: ['theme', 'step1'] },
+    { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '動態適應各類文章，生成高點擊標題與說明', type: 'text', dependsOn: ['theme', 'step2'] },
+    { id: 4, name: '擴散式短影音文案', icon: 'Video', category: 'Content', desc: '萃取文章最精華片段，產出 180 秒極快節奏爆款短片腳本', type: 'text', dependsOn: ['theme', 'step2'] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成短影片封面字卡與標籤', type: 'text', dependsOn: ['theme', 'step4'] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '自動判斷文章視覺，生成 16:9 YouTube 縮圖繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'], aspectRatio: '16:9' },
+    { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '自動判斷文章視覺風格，生成 9:16 短影音縮圖繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step4'], aspectRatio: '9:16' },
+    { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '自動判斷文章視覺，生成 16:9 情境視覺海報', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'], aspectRatio: '16:9' },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '動態分析文章情緒起伏，生成 3 組 Suno AI 音樂指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成多風格圖卡提示詞與社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
   ]
 };

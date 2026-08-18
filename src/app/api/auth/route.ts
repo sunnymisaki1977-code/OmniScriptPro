@@ -13,6 +13,7 @@ const ACCESS_CODES: Record<string, string> = {
   'STORY2026': 'story',     // 文化轉譯・銘印說書
   'FAIRYTALES2026': 'fairy tales', // 文化轉譯・銘印童話
   'FAIRY TALES2026': 'fairy tales', // 允許空白防呆
+  'PROPOSAL2026': 'proposal', // 企劃文案・AI 解析
   'MASTER': 'heritage',     // 管理員
   'FLEIX': 'heritage'       // 全主題通用 (非管理員)
 };
