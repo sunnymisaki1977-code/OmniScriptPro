@@ -59,21 +59,27 @@ export async function POST(req: Request) {
             const is169 = g.title.includes("16:9");
             
             // 將整包原始內容依據 16:9 或 9:16 進行切塊，確保抓取所有畫格與主標題
-            const blocks = content.split(/(?=AI Prompt \(中文\):|16:9\s*動態分割構圖|9:16\s*動態分割構圖)/i);
+            const blocks = content.split(/(?=####\s*16:9\s*動態分割構圖|####\s*9:16\s*動態分割構圖)/i);
             let matchBlock = "";
             for (let i = 0; i < blocks.length; i++) {
                 const b = blocks[i];
-                if (is169 && (b.includes("16:9 動態分割") || (b.match(/AI Prompt/i) && b.includes("16:9")))) {
+                if (is169 && b.includes("16:9 動態分割")) {
                     matchBlock = b;
                     break;
                 }
-                if (!is169 && (b.includes("9:16 動態分割") || (b.match(/AI Prompt/i) && b.includes("9:16")))) {
+                if (!is169 && b.includes("9:16 動態分割")) {
                     matchBlock = b;
                     break;
                 }
             }
             if (matchBlock) {
-                promptText = matchBlock.trim();
+                // 從 **AI Prompt (中文):** 開始擷取到區塊結尾 (容許沒有星號)
+                const match = matchBlock.match(/(?:\*\*)?AI Prompt\s*\(中文\):\s*(?:\*\*)?([\s\S]*)/i);
+                if (match && match[1]) {
+                    promptText = match[1].trim();
+                } else {
+                    promptText = matchBlock.trim();
+                }
             }
         } else {
             // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
