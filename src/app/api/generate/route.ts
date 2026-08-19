@@ -23,6 +23,10 @@ export async function POST(req: Request) {
     // 取得原始 prompt
     let prompt = step.prompt(context);
 
+    // 加入當前台灣時間，讓財經/時事主題可以正確判斷當下時空
+    const nowTw = new Date().toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false });
+    prompt += `\n\n【系統即時資訊】：當前台灣時間為 ${nowTw}。若是財經、科技或時事相關主題，請以此時間點作為當下基準，並提供最新、符合該時段的資訊與數據。`;
+
     // ✅ 修正 1：移除全域強制 JSON 的指令。
     // 改為提醒模型直接輸出結果，不要有廢話，以符合各步驟的格式要求（純文字或 Markdown）。
     prompt += `\n\n【系統最終指令】：請直接輸出生成的內容，嚴禁任何開場白、問候語或自我介紹。`;

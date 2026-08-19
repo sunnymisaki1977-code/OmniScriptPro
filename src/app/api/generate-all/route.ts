@@ -66,6 +66,8 @@ export async function POST(req: Request) {
       finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}\n\n請直接輸出 Markdown 文本內容，不要將結果包裝在任何 JSON 結構中。`;
     }
 
+    const nowTw = new Date().toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false });
+    finalPrompt += `\n\n【系統即時資訊】：當前台灣時間為 ${nowTw}。若是財經、科技或時事相關主題，請以此時間點作為當下基準，並提供最新、符合該時段的資訊與數據。`;
     if (returnPromptOnly) {
       return NextResponse.json({
         success: true,
