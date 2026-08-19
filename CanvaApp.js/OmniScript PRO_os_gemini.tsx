@@ -72,7 +72,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     const currentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
     
     // 強制將時間寫入到主提示詞最後，防止 AI 忽略 systemInstruction
-    const timeInjectedPrompt = finalPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${currentDate}。若是財經、科技或時事相關主題，請以此時間點作為當下基準，並提供最新、符合該時段的資訊與數據。`;
+    const timeInjectedPrompt = finalPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${currentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
     const geminiPayload = {
         // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
@@ -891,7 +891,7 @@ export default function App() {
             const localCurrentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
             
             // 強制將時間寫入到主提示詞最後
-            const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。若是財經、科技或時事相關主題，請以此時間點作為當下基準，並提供最新、符合該時段的資訊與數據。`;
+            const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {

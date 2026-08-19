@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     const nowTw = new Date().toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false });
-    finalPrompt += `\n\n【系統即時資訊】：當前台灣時間為 ${nowTw}。若是財經、科技或時事相關主題，請以此時間點作為當下基準，並提供最新、符合該時段的資訊與數據。`;
+    finalPrompt += `\n\n【系統即時資訊】：當前台灣時間為 ${nowTw}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
     if (returnPromptOnly) {
       return NextResponse.json({
         success: true,
