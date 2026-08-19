@@ -296,7 +296,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('/api/notion/history');
+      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -436,10 +436,10 @@ export default function App() {
     });
 
     try {
-        const response = await fetch('/api/Extreme/export', {
+        const response = await fetch('https://omni-script-pro.vercel.app/api/Extreme/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scenes: scenesToExport, theme: theme })
+            body: JSON.stringify({ scenes: scenesToExport })
         });
         
         if (!response.ok) {
@@ -2568,7 +2568,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Input Area */}
+                  {/* Input Area */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
                   <input
                     value={godsInput}
@@ -2581,26 +2581,43 @@ const handleLogin = async (e: React.FormEvent) => {
                       if (!godsInput.trim()) return;
                       const names = godsInput.split(/[,，\s]+/).map(n => n.trim()).filter(n => n);
                       if (names.length === 0) return;
-
                       setIsGeneratingGods(true);
                                             addLog(`[諸神解碼] 開始批次考證 ${names.length} 尊神明...`, 'info');
                       try {
-                        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && window.__GEMINI_API_KEY__ ? window.__GEMINI_API_KEY__ : "");
 
+                        const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+
+                        addLog(`[諸神解碼] 正在透過後端取得 Prompt 結構...`, 'info');
                         
-                        if (!isCanvasEnv && !activeApiKey.trim()) {
-                            setShowApiKeyModal(true);
-                            setIsGeneratingGods(false);
-                            return;
+                        const apiUrl = process.env.NODE_ENV === 'production' 
+                          ? 'https://omni-script-pro.vercel.app/api/gods-generate' 
+                          : '/api/gods-generate';
+
+                        const backendRes = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ names })
+                        });
+                        
+                        const backendData = await backendRes.json();
+                        if (!backendRes.ok) {
+                            throw new Error(backendData.error || `Backend API Error: ${backendRes.status}`);
                         }
-
-                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
-                        let data = { results: [] };
                         
-                        for (const name of names) {
-                            addLog(`[諸神解碼] 正在考證: ${name}...`, 'info');
-                            const prompt = `請以客觀的台灣民間信仰與文化人類學角度，考證神明「${name}」。絕不可使用迷信或降乩語氣。語氣需完全客觀、學術。請嚴格按照以下 JSON 格式回傳，不可有其他多餘文字：{ "name": "神明聖號", "organization": "組織，只能填入 佛、道、儒", "title": "10-15 字副標題", "desc": "35-50 字簡介", "poem": "一句符合主題詩詞", "tags": ["標籤1", "標籤2", "標籤3"], "imagePrompt": "生成圖像的Prompt：結合形象描述與Poem，產生一段水墨風格英文提示詞" }`;
-                            const response = await fetch(apiUrl, {
+                        const prompts = backendData.prompts || [];
+                        let data: { results: any[], error?: string } = { results: [] };
+                        
+                        addLog(`[諸神解碼] 取得 Prompt 成功，開始透過前端 Gemini Canvas 注入 API 生成...`, 'info');
+                        
+                        for (let i = 0; i < names.length; i++) {
+                            const prompt = prompts[i];
+                            const name = names[i];
+                            
+                            addLog(`[諸神解碼] 正在考證: ${name} (${i + 1}/${names.length})...`, 'info');
+                            
+                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            
+                            const res = await fetch(geminiUrl, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -2608,25 +2625,37 @@ const handleLogin = async (e: React.FormEvent) => {
                                     generationConfig: { temperature: 0.7 }
                                 })
                             });
-                            const resultRaw = await response.json();
-                            if (!response.ok) throw new Error(resultRaw.error?.message || "API Error");
-                            const text = resultRaw.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                            const jsonMatch = text.match(/\{[\s\S]*\}/);
-                            if (jsonMatch) {
-                                const parsed = JSON.parse(jsonMatch[0]);
-                                data.results.push({
-                                    id: `god-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                                    ...parsed,
-                                    imageUrl: ""
-                                });
-                                addLog(`[諸神解碼] ✅ ${name} 考證完成！`, 'success');
+                            
+                            const apiData = await res.json();
+                            if (!res.ok) throw new Error(apiData.error?.message || `API Error: ${res.status}`);
+                            
+                            const text = apiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                            try {
+                                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                                if (jsonMatch) {
+                                    const parsed = JSON.parse(jsonMatch[0]);
+                                    const newCard = {
+                                        id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                                        ...parsed,
+                                        imageUrl: ""
+                                    };
+                                    data.results.push(newCard);
+                                    
+                                    // 逐步顯示卡片進度
+                                    setGodsCards(prev => [...prev, newCard]);
+                                    addLog(`[諸神解碼] ✅ ${name} 考證完成！ (${i + 1}/${names.length})`, 'success');
+                                }
+                            } catch (e) {
+                                console.error("Failed to parse JSON for", name, text, e);
+                                addLog(`[諸神解碼] ❌ ${name} 考證失敗，資料解析錯誤`, 'error');
                             }
                         }
-                        if (data.error) throw new Error(data.error);
-                        setGodsCards(prev => [...prev, ...data.results]);
+                        if (data.results.length > 0) {
+                            addLog(`[諸神解碼] 🎉 ${names.length} 尊神明批次考證結束！`, 'success');
+                        }
                         addLog(`[諸神解碼] 成功生成 ${data.results.length} 張圖文卡片！`, 'success');
                         setGodsInput('');
-                        
+           
                         // 自動儲存至 Notion
                         addLog(`[Notion] 準備自動寫入 ${data.results.length} 筆神明資料...`, 'info');
                         try {
