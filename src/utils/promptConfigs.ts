@@ -335,11 +335,11 @@ ${ctx.step1}
     description: "生成標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請根據以下長影音腳本，為主題「${ctx.theme}」生成 SEO 優化內容。
+    prompt: (ctx: any) => `請根據以下長影音腳本，為主題「${ctx.step2}」生成 SEO 優化內容。
 你是一位頂尖的 YouTube SEO 優化專家。
 
 【核心任務】
-根據下方的《長影音腳本》，為主題「${ctx.theme}」產出能極大化點擊率（CTR）與搜尋排名的 SEO 內容。
+根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率（CTR）與搜尋排名的 SEO 內容。
 
 《長影音腳本》
 ====================
@@ -371,11 +371,11 @@ ${ctx.step2}
     description: "產出 180 秒內的精簡爆款短影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.theme}」撰寫一份 180 秒內的 YouTube Shorts/TikTok 短影片腳本。
+    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.step1}」撰寫一份 180 秒內的 YouTube Shorts/TikTok 短影片腳本。
 你是一位專精於 TikTok / YouTube Shorts 的千萬流量短影音爆款編劇。
 
 【核心任務】
-根據下方的《基礎背景資料》，為主題「${ctx.theme}」撰寫一份 180 秒內的短影片腳本。節奏必須明快。
+根據下方的《基礎背景資料》，為主題「${ctx.step2}」撰寫一份 180 秒內的短影片腳本。節奏必須明快。
 
 《基礎背景資料》
 ====================
@@ -450,14 +450,14 @@ ${ctx.step4}
     description: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step3"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
 參考背景：${ctx.step2}
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計。
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計。
 
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
@@ -473,14 +473,14 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step5"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音 YouTube 縮圖設計 。
 參考背景：${ctx.step5}
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,大而醒目藝術文字設計
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計
 
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
@@ -496,13 +496,12 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     type: "code",
     language: "markdown",
     dependsOn: ["theme"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 16:9 彩墨風格意象圖。
-視覺設計必須包含風格標籤 (colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed)，無人物、充滿禪意或史詩感的氛圍。
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組 16:9 彩墨風格意象圖。
+視覺設計必須包含風格標籤 ，無人物、充滿禪意或史詩感的氛圍。
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。 
 
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
@@ -517,8 +516,8 @@ AI Prompt (中文) 必須包含：colorful ink wash, vivid diffusion, golden par
     description: "生成 3 組符合主題氛圍的音樂生成指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組 Suno AI 音樂生成 Prompt。
 場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
 
 【格式絕對鎖定指令】：
@@ -548,7 +547,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     language: "markdown",
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
-你的任務是根據下方的【基礎背景史料】，為主題「${ctx.theme}」打造一組「新國風彩墨」社群圖文懶人包。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
 
 【⚠️ 絕對真實性指令】：
 所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，禁止腦補。
@@ -618,7 +617,7 @@ ${ctx.step1}
 
 [互動提問：請邀請粉絲留言分享經驗]
 
-#世代銘印 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
+#世代銘印 #${ctx.step2} [請再補充 3-5 個相關的 Hashtags]
 `,  },
   ],
   beauty: [
@@ -3262,7 +3261,7 @@ AI Prompt (中文) 必須包含：大而醒目藝術文字設計。
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `針對主題「${ctx.theme}」與腳本內容：${ctx.step2}，生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `針對腳本內容：${ctx.step2}，生成 3 組 Suno AI 音樂生成 Prompt。
 
 【動態音樂流派選擇】：請根據文章類型自行調配 Music Style (如：Epic orchestral, Cyberpunk synthwave, Lofi chill, Tense thriller 等)。
 
@@ -3286,7 +3285,7 @@ Suno AI Prompt：[包含 Music Style, Instruments, Tempo 的純英文指令]`
     description: "一鍵生成多風格圖卡提示詞與社群正文",
     type: "social",
     language: "markdown",
-    dependsOn: ["theme", "step1"],
+    dependsOn: ["theme", "step2"],
     prompt: (ctx: any) => `你現在是首席資訊設計總監與社群主編。根據下方的【基礎文章資料】，為主題「${ctx.theme}」打造一組跨領域適應的社群圖卡懶人包。
 參考背景：${ctx.step2}
 
