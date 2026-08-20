@@ -2401,7 +2401,7 @@ AI Prompt (中文):
     description: "根據故事文本，產出沉浸式說書腳本",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請根據以下【故事文本】，為「${ctx.theme}」撰寫一份純粹的沉浸式視覺展演腳本。
+    prompt: (ctx: any) => `請根據以下【故事文本】，為「${ctx.step1}」撰寫一份純粹的沉浸式視覺展演腳本。
 
 《故事文本》：
 ${ctx.step1}
@@ -2412,7 +2412,7 @@ ${ctx.step1}
 
 【輸出模板】請嚴格遵守以下腳本架構撰寫，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
 
-## 🎬 銘印說書：${ctx.theme}
+## 🎬 銘印說書：${ctx.step1}
 ### ⏱️ 開場懸念 (Hook)
  (時間規劃：00:00 - 01:00，共 2 個節點)
 請依序產出 [00:00 - 00:30]、[00:30 - 01:00]：
@@ -2447,7 +2447,7 @@ ${ctx.step1}
     description: "生成吸引故事愛好者與信仰群眾的標題與說明",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「${ctx.theme}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
+    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「${ctx.step2}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
 
 《說書腳本》
 ====================
@@ -2476,8 +2476,8 @@ ${ctx.step2}
     title: "擴散式短影音文案",
     description: "產出 180 秒內的極快節奏爆款短片腳本",
     type: "text",
-    dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請根據以下腳本，為主題「${ctx.theme}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下腳本，為主題「${ctx.step1}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
 
 《說書腳本》
 ====================
@@ -2525,7 +2525,7 @@ ${ctx.step4}
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
 
 《說書腳本》
 ====================
@@ -2547,7 +2547,7 @@ ${ctx.step2}
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step4"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音縮圖設計 (9:16)。
+    prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音縮圖設計 (9:16)。
 
 《短影音腳本》
 ====================
@@ -2568,7 +2568,7 @@ ${ctx.step4}
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
 
 【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
 AI Prompt (中文) 必須包含：無人物、充滿禪意或史詩感的氛圍。
@@ -2584,7 +2584,7 @@ AI Prompt (中文) 必須包含：無人物、充滿禪意或史詩感的氛圍�
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
 
 【格式絕對鎖定指令】：
@@ -2614,7 +2614,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
     language: "markdown",
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
-你的任務是根據下方的【基礎背景史料】，為主題「${ctx.theme}」打造一組「新國風彩墨」社群圖文懶人包。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
 
 【基礎背景史料】：
 ${ctx.step1}
@@ -2627,7 +2627,7 @@ ${ctx.step1}
 ---
 ### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
 請從史料中萃取五個【蒙太奇資訊】。
-整體風格採用 colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。	
+	
 
 ### 任務二：撰寫社群發布正文
 使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
@@ -2638,7 +2638,7 @@ ${ctx.step1}
 
 #### 16:9 動態分割構圖提示詞
 **AI Prompt (中文):**
-[在此填入主角的全英文外觀特徵描述字串]，以這名主角為核心主角。風格採用 colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+[在此填入主角的全英文外觀特徵描述字串]，以這名主角為核心主角。運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
 
 **主標題：** 《[請填入主標題]》
 
@@ -2678,7 +2678,7 @@ ${ctx.step1}
 
 [互動提問：請邀請粉絲留言分享經驗]
 
-#世代銘印 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]`
+#世代銘印 #${ctx.step1} [請再補充 3-5 個相關的 Hashtags]`
   }
   ],
   "fairy tales": [
