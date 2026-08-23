@@ -467,6 +467,7 @@ export default function App() {
 
   const generateGroupImage = async (group: any) => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setPendingImageTask(() => () => generateGroupImage(group));
       addLog('⚠️ 需要 Gemini API Key 才能繪製圖像。請輸入 API Key。', 'error');
       setShowApiKeyModal(true);
       return;
@@ -1108,6 +1109,7 @@ export default function App() {
   // ============================================================================
   const triggerSingleStepAi = async () => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setPendingImageTask(() => triggerSingleStepAi);
       addLog('⚠️ 需要 Gemini API Key。請點擊上方鑰匙圖示輸入', 'error');
       setShowApiKeyModal(true);
       return;
@@ -1195,6 +1197,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
   const generateNewImage = async () => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
+      setPendingImageTask(() => generateNewImage);
       addLog('⚠️ 需要 Gemini API Key 才能批次繪製圖像。', 'error');
       setShowApiKeyModal(true);
       return;
@@ -2912,7 +2915,13 @@ const handleLogin = async (e: React.FormEvent) => {
 
               <div className="flex flex-col gap-3 pt-4">
                 <button
-                  onClick={() => setShowApiKeyModal(false)}
+                  onClick={() => {
+                    setShowApiKeyModal(false);
+                    if (pendingImageTask) {
+                      pendingImageTask();
+                      setPendingImageTask(null);
+                    }
+                  }}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
