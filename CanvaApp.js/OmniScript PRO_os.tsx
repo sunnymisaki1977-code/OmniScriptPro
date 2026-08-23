@@ -95,8 +95,8 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-pro
-    const targetModel = isSearchEnabled ? 'gemini-2.5-pro' : 'gemini-2.5-flash-preview-09-2025';
+    // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
+    const targetModel = isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
     const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
     let aiResponse = await fetch(finalApiUrl, {
@@ -295,7 +295,7 @@ export default function App() {
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-   const [pendingImageTask, setPendingImageTask] = useState<Function | null>(null);
+   const [pendingAction, setPendingAction] = useState<any>(null);
 
   const [visualStep, setVisualStep] = useState(6);
   const [currentImageStyle, setCurrentImageStyle] = useState<any>({ id: "style-heritage", name: "東方古典美學 (水墨工筆)", promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed," });
@@ -490,7 +490,7 @@ export default function App() {
 
   const generateGroupImage = async (group: any) => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => () => generateGroupImage(group));
+      setPendingAction({ type: 'group', group });
       addLog('⚠️ 需要 Gemini API Key 才能繪製圖像。請輸入 API Key。', 'error');
       setShowApiKeyModal(true);
       return;
@@ -1066,7 +1066,7 @@ export default function App() {
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
   if (!isCanvasEnv && !geminiApiKey.trim()) {
-    setPendingImageTask(() => () => runAutoGeneration(finalTheme, isResume));
+    setPendingAction({ type: 'auto', finalTheme, isResume });
     setShowApiKeyModal(true);
     return;
   }
@@ -1161,7 +1161,7 @@ export default function App() {
   // ============================================================================
   const triggerSingleStepAi = async () => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => triggerSingleStepAi);
+      setPendingAction({ type: 'single' });
       addLog('⚠️ 需要 Gemini API Key。請點擊上方鑰匙圖示輸入', 'error');
       setShowApiKeyModal(true);
       return;
@@ -1249,7 +1249,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
 };
   const generateNewImage = async () => {
     if (!isCanvasEnv && !geminiApiKey.trim()) {
-      setPendingImageTask(() => generateNewImage);
+      setPendingAction({ type: 'new' });
       addLog('⚠️ 需要 Gemini API Key 才能批次繪製圖像。', 'error');
       setShowApiKeyModal(true);
       return;
@@ -2969,9 +2969,17 @@ const handleLogin = async (e: React.FormEvent) => {
                 <button
                   onClick={() => {
                     setShowApiKeyModal(false);
-                    if (pendingImageTask) {
-                      pendingImageTask();
-                      setPendingImageTask(null);
+                    if (pendingAction) {
+                      if (pendingAction.type === 'auto') {
+                        runAutoGeneration(pendingAction.finalTheme, pendingAction.isResume);
+                      } else if (pendingAction.type === 'single') {
+                        triggerSingleStepAi();
+                      } else if (pendingAction.type === 'group') {
+                        generateGroupImage(pendingAction.group);
+                      } else if (pendingAction.type === 'new') {
+                        generateNewImage();
+                      }
+                      setPendingAction(null);
                     }
                   }}
                   className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
