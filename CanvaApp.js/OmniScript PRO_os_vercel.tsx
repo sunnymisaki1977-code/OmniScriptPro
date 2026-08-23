@@ -755,7 +755,14 @@ export default function App() {
   // 4. 改寫全自動生成引擎 (打 Vercel API)
   // ============================================================================
   const runAutoGeneration = async (startTheme: string, isResume = false) => {
-      
+    // 檢查 API Key，若無則跳出輸入視窗並暫存任務
+    const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    if (!activeApiKey.trim()) {
+      setPendingImageTask(() => () => runAutoGeneration(startTheme, isResume));
+      setShowApiKeyModal(true);
+      return;
+    }
+
     setIsGenerating(true);
         setMode('auto');
     setViewState('workspace');
