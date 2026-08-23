@@ -97,11 +97,14 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-pro
     const targetModel = isSearchEnabled ? 'gemini-2.5-pro' : 'gemini-2.5-flash-preview-09-2025';
-    const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+    const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
     let aiResponse = await fetch(finalApiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+        },
         body: JSON.stringify(geminiPayload)
     });
 
@@ -110,7 +113,10 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         delete geminiPayload.tools; // 移除 tools 再次重試
         aiResponse = await fetch(finalApiUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
+            },
             body: JSON.stringify(geminiPayload)
         });
     }
@@ -918,10 +924,13 @@ export default function App() {
 
             // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-pro
             const targetModel = (i === 1 && !safeStep1) ? 'gemini-2.5-pro' : 'gemini-2.5-flash-preview-09-2025';
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': activeApiKey
+                },
                 body: JSON.stringify({
                     systemInstruction: {
                         parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
@@ -936,7 +945,10 @@ export default function App() {
                 console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
                 aiResponse = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': activeApiKey
+                    },
                     body: JSON.stringify({
                         systemInstruction: {
                             parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
