@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     prompt += `\n\n【系統最終指令】：請直接輸出生成的內容，嚴禁任何開場白、問候語或自我介紹。`;
 
     const MAX_RETRIES = 5;
+    let disableSearch = false;
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelName = MODELS[attempt - 1] || MODELS[0];
       
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
       // 🛠️ 2. 動態判斷是否為步驟 1 (資料搜集員) 
       const isStep1 = stepId === "step1" || stepId === 1 || String(stepId).toLowerCase().includes("step1");
       
-      if (isStep1) {
+      if (isStep1 && !disableSearch) {
         modelParams.tools = [{ googleSearch: {} }];
         // Step 1 使用 Pro 模型確保查核品質
         modelParams.model = "gemini-2.5-pro"; 
@@ -61,8 +62,16 @@ export async function POST(req: Request) {
         return NextResponse.json({ text, modelUsed: modelParams.model });
       } catch (err: any) {
         const errorMsg = err.message || "";
-        const shouldRetry = errorMsg.includes("503") || errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("not found");
+        const isSearchError = isStep1 && !disableSearch && (errorMsg.includes("403") || errorMsg.includes("400") || errorMsg.includes("Tool"));
+        const shouldRetry = errorMsg.includes("503") || errorMsg.includes("429") || errorMsg.includes("quota") || errorMsg.includes("not found") || isSearchError;
         
+        console.warn(`[Generate API] 嘗試 ${attempt} (${modelName}) 失敗: ${errorMsg}`);
+        
+        if (isSearchError) {
+          console.warn("[Generate API] 偵測到搜尋權限錯誤，下次重試將關閉 Google Search 工具");
+          disableSearch = true;
+        }
+
         if (shouldRetry && attempt < MAX_RETRIES) {
           console.warn(`[Gemini API] Error (${errorMsg}) on single generate with model ${modelName}. Retrying attempt ${attempt + 1}...`);
           const delay = Math.pow(2, attempt) * 1500;

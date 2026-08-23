@@ -79,6 +79,7 @@ export async function POST(req: Request) {
 
     const MAX_RETRIES = 3;
     let lastError: any = null;
+    let disableSearch = false;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
@@ -89,7 +90,7 @@ export async function POST(req: Request) {
           // 💡 優化 4：移除 responseMimeType 與 responseSchema，讓模型自由發揮長文
         };
 
-        if (step.id === 1 && !verifiedContext && attempt < 3) {
+        if (step.id === 1 && !verifiedContext && attempt < 3 && !disableSearch) {
           config.tools = [{ googleSearch: {} }];
         }
 
@@ -128,9 +129,14 @@ export async function POST(req: Request) {
 
       } catch (err) {
         lastError = err;
-        const errorMessage = (err as any).message || err;
+        const errorMessage = (err as any).message || String(err);
         console.warn(`[API 警告] 步驟 ${step.id} 使用 ${modelUsed} 失敗。進行重試... 錯誤: ${errorMessage}`);
         
+        if (errorMessage.includes("403") || errorMessage.includes("400") || errorMessage.includes("Tool")) {
+            console.warn(`[API 警告] 偵測到搜尋權限錯誤，下次重試將關閉 Google Search 工具`);
+            disableSearch = true;
+        }
+
         if (apiKeys.length > 1) {
           currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
           ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });

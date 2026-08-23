@@ -88,23 +88,36 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 🌟 核心分流邏輯：正確的 Google Search 語法實作
     if (isSearchEnabled) {
         console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
-        // 啟用 Google Search Tool
-        geminiPayload.tools = [{ "google_search": {} }];
-        // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
+        geminiPayload.tools = [{ "googleSearch": {} }];
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
         geminiPayload.generationConfig.responseMimeType = "application/json";
         geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    const aiResponse = await fetch(apiUrl, {
+    let aiResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(geminiPayload)
     });
 
+    if (!aiResponse.ok && isSearchEnabled && (aiResponse.status === 403 || aiResponse.status === 400)) {
+        console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
+        delete geminiPayload.tools; // 移除 tools 再次重試
+        aiResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(geminiPayload)
+        });
+    }
+
     if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+        let errorDetails = "";
+        try {
+            const errData = await aiResponse.json();
+            errorDetails = errData.error?.message || JSON.stringify(errData);
+        } catch(e) {}
+        throw new Error(`Google API 錯誤: ${aiResponse.status} - ${errorDetails}`);
     }
     
     const data = await aiResponse.json();
@@ -900,20 +913,41 @@ export default function App() {
             const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
-            const aiResponse = await fetch(apiUrl, {
+            let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    // 🌟 注入系統提示詞
                     systemInstruction: {
                         parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
                     },
                     contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }],
-                    // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
-                    tools: (i === 1 && !safeStep1) ? [{ google_search: {} }] : []
+                    tools: (i === 1 && !safeStep1) ? [{ googleSearch: {} }] : []
                 })
             });
-            if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+
+            // ⚠️ 如果 Step 1 因為 Google Search (403/400) 權限不足失敗，自動拔除 tools 並重試
+            if (!aiResponse.ok && i === 1 && !safeStep1 && (aiResponse.status === 403 || aiResponse.status === 400)) {
+                console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
+                aiResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        systemInstruction: {
+                            parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
+                        },
+                        contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }]
+                    })
+                });
+            }
+
+            if (!aiResponse.ok) {
+                let errDetail = "";
+                try {
+                    const errData = await aiResponse.json();
+                    errDetail = errData.error?.message || "";
+                } catch(e) {}
+                throw new Error(`Google API 錯誤: ${aiResponse.status} ${errDetail}`);
+            }
             const data = await aiResponse.json();
             outputText = data.candidates[0].content.parts[0].text;
             
