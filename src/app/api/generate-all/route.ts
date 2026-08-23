@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     let ai = new GoogleGenAI({ apiKey: apiKeys[currentKeyIndex] });
 
     // 💡 優化 2：將速度最快的 flash-lite 放在首位，或確保長文案優先使用 2.5-flash
-    const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"];
+    const MODELS = ["gemini-2.5-flash",  "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     
     const step = WORKFLOW_STEPS.find(s => s.id === Number(currentStepId));
