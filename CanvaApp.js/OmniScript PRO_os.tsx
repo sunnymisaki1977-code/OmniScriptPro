@@ -174,7 +174,7 @@ const getInitialStepContent = (stepId, themeText, previousContents = {}) => {
 // ============================================================================
 
 export default function App() {
-  const isCanvasEnv = true; // Added explicitly for Gemini Canvas environment
+  const isCanvasEnv = typeof window !== 'undefined' ? (!window.location.hostname.includes('vercel.app') && !window.location.hostname.includes('localhost')) : true; // Dynamically detect Canva vs Vercel/Local
   const [audienceThemes, setAudienceThemes] = useState({});
   const [themeSteps, setThemeSteps] = useState({});
   const [audienceStyles, setAudienceStyles] = useState<any>({});
@@ -466,6 +466,11 @@ export default function App() {
 
 
   const generateGroupImage = async (group: any) => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      addLog('⚠️ 需要 Gemini API Key 才能繪製圖像。請輸入 API Key。', 'error');
+      setShowApiKeyModal(true);
+      return;
+    }
     const { id: groupId, prompt, mainTitle, subTitle, poetry } = group;
     if (!prompt) return;
     setGeneratingGroups(prev => ({ ...prev, [groupId]: true }));
@@ -1102,6 +1107,12 @@ export default function App() {
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      addLog('⚠️ 需要 Gemini API Key。請點擊上方鑰匙圖示輸入', 'error');
+      setShowApiKeyModal(true);
+      return;
+    }
+    
     addLog(`[AI] 正在雲端請求... 重新撰寫 Step ${activeStep}`, 'info');
         setIsGenerating(true);
     
@@ -1183,8 +1194,12 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   }
 };
   const generateNewImage = async () => {
+    if (!isCanvasEnv && !geminiApiKey.trim()) {
+      addLog('⚠️ 需要 Gemini API Key 才能批次繪製圖像。', 'error');
+      setShowApiKeyModal(true);
+      return;
+    }
     
-   
     if (visualGroups.length === 0) return;
     setIsGeneratingImage(true);
     const engineConfig = IMAGE_ENGINES.find(e => e.id === imageEngine) || IMAGE_ENGINES[0];
@@ -2888,7 +2903,7 @@ const handleLogin = async (e: React.FormEvent) => {
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
                 <input
                   type="password"
-                  placeholder="輸入 API Key..."
+                  placeholder="請輸入 Gemini API Key..."
                   value={geminiApiKey}
                   onChange={(e) => setGeminiApiKey(e.target.value)}
                   className="w-full bg-white border-transparent border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-sm text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner backdrop-blur-sm"
@@ -2898,11 +2913,19 @@ const handleLogin = async (e: React.FormEvent) => {
               <div className="flex flex-col gap-3 pt-4">
                 <button
                   onClick={() => setShowApiKeyModal(false)}
-                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-[#1E293B] font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-colors shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   確認並儲存
                 </button>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors flex items-center justify-center gap-2"
+                >
+                  前往申請 Gemini API
+                </a>
               </div>
             </div>
           </div>
