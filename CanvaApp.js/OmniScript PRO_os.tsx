@@ -95,7 +95,11 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    let aiResponse = await fetch(apiUrl, {
+    // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-pro
+    const targetModel = isSearchEnabled ? 'gemini-2.5-pro' : 'gemini-2.5-flash-preview-09-2025';
+    const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+
+    let aiResponse = await fetch(finalApiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(geminiPayload)
@@ -104,7 +108,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     if (!aiResponse.ok && isSearchEnabled && (aiResponse.status === 403 || aiResponse.status === 400)) {
         console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
         delete geminiPayload.tools; // 移除 tools 再次重試
-        aiResponse = await fetch(apiUrl, {
+        aiResponse = await fetch(finalApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(geminiPayload)
@@ -912,7 +916,9 @@ export default function App() {
             // 強制將時間寫入到主提示詞最後
             const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+            // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-pro
+            const targetModel = (i === 1 && !safeStep1) ? 'gemini-2.5-pro' : 'gemini-2.5-flash-preview-09-2025';
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
