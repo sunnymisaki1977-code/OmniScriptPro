@@ -82,27 +82,47 @@ export async function POST(req: Request) {
     let disableSearch = false;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      const modelUsed = MODELS[attempt - 1] || MODELS[MODELS.length - 1];
+      const isSearchEnabled = (step.id === 1 && !verifiedContext && attempt < 3 && !disableSearch);
+      
+      const currentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
+      
+      const geminiPayload: any = {
+          systemInstruction: {
+              parts: [{ text: `你是一位專業的資料分析師與企劃。現在真實台灣時間是 ${currentDate}。請嚴格以這個時間點作為基準。` }]
+          },
+          contents: [{ parts: [{ text: finalPrompt }] }], // finalPrompt 已經在前面加過 timeInjected 邏輯
+          generationConfig: {
+              maxOutputTokens: 8192
+          }
+      };
+
+      if (isSearchEnabled) {
+          console.log(`[Google Search] 🌐 Step ${step.id} 已強制啟動 Google 搜尋功能！`);
+          geminiPayload.tools = [{ "googleSearch": {} }];
+      }
+      
+      const targetModel = isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
+      const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
       try {
-        const config: any = {
-          maxOutputTokens: 8192,
-          // 💡 優化 4：移除 responseMimeType 與 responseSchema，讓模型自由發揮長文
-        };
-
-        if (step.id === 1 && !verifiedContext && attempt < 3 && !disableSearch) {
-          config.tools = [{ googleSearch: {} }];
-        }
-
-        console.log(`[後端日誌] 正在使用 ${modelUsed} 生成步驟 ${step.id}...`);
+        console.log(`[後端日誌] 正在使用 ${targetModel} 生成步驟 ${step.id}...`);
         
-        const response = await ai.models.generateContent({
-          model: modelUsed,
-          contents: finalPrompt,
-          config: config
+        const aiResponse = await fetch(finalApiUrl, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKeys[currentKeyIndex]
+            },
+            body: JSON.stringify(geminiPayload)
         });
 
-        let outputText = (response.text || "").trim();
+        if (!aiResponse.ok) {
+            const errData = await aiResponse.json().catch(() => ({}));
+            throw new Error(`Google API 錯誤: ${aiResponse.status} - ${errData.error?.message || JSON.stringify(errData)}`);
+        }
+        
+        const data = await aiResponse.json();
+        let outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
         // 💡 優化 5：防呆機制，若模型還是手癢輸出了 JSON (Markdown 程式碼區塊)，則將其剝除
         outputText = outputText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
@@ -124,13 +144,13 @@ export async function POST(req: Request) {
           success: true,
           stepId: step.id,
           output: outputText, // 這裡已經是乾淨的 Markdown 換行字串，不會再有滿坑滿谷的 \n
-          modelUsed: modelUsed
+          modelUsed: targetModel
         });
 
       } catch (err) {
         lastError = err;
         const errorMessage = (err as any).message || String(err);
-        console.warn(`[API 警告] 步驟 ${step.id} 使用 ${modelUsed} 失敗。進行重試... 錯誤: ${errorMessage}`);
+        console.warn(`[API 警告] 步驟 ${step.id} 使用 ${targetModel} 失敗。進行重試... 錯誤: ${errorMessage}`);
         
         if (errorMessage.includes("403") || errorMessage.includes("400") || errorMessage.includes("Tool")) {
             console.warn(`[API 警告] 偵測到搜尋權限錯誤，下次重試將關閉 Google Search 工具`);
