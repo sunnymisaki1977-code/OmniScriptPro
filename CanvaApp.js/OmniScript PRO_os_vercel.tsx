@@ -1007,7 +1007,7 @@ export default function App() {
   
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
-  if (!isCanvasEnv && !geminiApiKey.trim()) {
+  if (!geminiApiKey.trim() && !(typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__)) {
     setPendingImageTask(() => () => runAutoGeneration(finalTheme, isResume));
     setShowApiKeyModal(true);
     return;
@@ -1102,7 +1102,12 @@ export default function App() {
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
-    addLog(`[AI] 正在雲端請求... 重新撰寫 Step ${activeStep}`, 'info');
+    if (!geminiApiKey.trim() && !(typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__)) {
+      setShowApiKeyModal(true);
+      return;
+    }
+    
+    addLog(`[AI] 發起前端請求... 重新撰寫 Step ${activeStep}`, 'info');
         setIsGenerating(true);
     
     try {
