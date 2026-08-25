@@ -295,6 +295,9 @@ export default function App() {
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+   const [showTopicSelectorModal, setShowTopicSelectorModal] = useState(false);
+   const [generatingTopic, setGeneratingTopic] = useState(false);
+   const [generatedTopics, setGeneratedTopics] = useState<string[]>([]);
    const [pendingAction, setPendingAction] = useState<any>(null);
 
   const [visualStep, setVisualStep] = useState(6);
@@ -1047,6 +1050,30 @@ export default function App() {
   };
 
 
+  const handleGenerateTopic = async (stepId: string) => {
+    setGeneratingTopic(true);
+    setGeneratedTopics([]);
+    try {
+      const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+      if (!isCanvasEnv && !activeApiKey.trim()) {
+        setPendingAction({ type: 'topic', stepId });
+        setShowApiKeyModal(true);
+        setGeneratingTopic(false);
+        setShowTopicSelectorModal(false);
+        return;
+      }
+      const context = { theme: '自動產生主題' };
+      const result = await callVercelApi(stepId, context, audienceTheme, activeApiKey);
+      const topics = result.split('\n').filter((line: string) => line.trim().length > 5);
+      setGeneratedTopics(topics);
+    } catch (error: any) {
+      addLog(`[Error] 選題失敗: ${error.message}`, 'error');
+      safeAlert(`選題發生錯誤: ${error.message}`);
+    } finally {
+      setGeneratingTopic(false);
+    }
+  };
+
   const handleStartAuto = () => {
  
   if (customContext.length > 5000) {
@@ -1737,6 +1764,14 @@ const handleLogin = async (e: React.FormEvent) => {
                           </>
                         )}
                       </button>
+                      {audienceTheme === 'fintech' && (
+                        <button
+                          onClick={() => setShowTopicSelectorModal(true)}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer ml-2"
+                        >
+                          🤖 智慧選題
+                        </button>
+                      )}
                     </div>
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
@@ -2997,6 +3032,94 @@ const handleLogin = async (e: React.FormEvent) => {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showTopicSelectorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <h3 className="text-2xl font-black text-[#1E293B] mb-2 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-indigo-500" />
+              AI 智慧選題器
+            </h3>
+            <p className="text-slate-500 mb-6 font-medium">請選擇您想探索的財經領域，AI 將為您抓取最新時事並推薦爆款主題。</p>
+
+            {generatingTopic ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <RefreshCw className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                <p className="text-[#1E293B] font-bold text-lg">正在檢索最新全球財經新聞...</p>
+                <p className="text-slate-500 text-sm">請稍候，AI 正在分析流量密碼</p>
+              </div>
+            ) : generatedTopics.length > 0 ? (
+              <div className="space-y-4">
+                <h4 className="font-bold text-[#1E293B] mb-4">✨ AI 為您推薦的爆款主題 (點擊套用)</h4>
+                {generatedTopics.map((topic, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setTheme(topic.replace(/^[0-9\.\-\*\s]+/, ''));
+                      setShowTopicSelectorModal(false);
+                      setGeneratedTopics([]);
+                    }}
+                    className="p-4 rounded-xl border-2 border-indigo-100 hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer transition-all group"
+                  >
+                    <p className="text-[#1E293B] font-bold group-hover:text-indigo-700">{topic.replace(/^[0-9\.\-\*\s]+/, '')}</p>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setGeneratedTopics([])}
+                  className="w-full mt-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
+                >
+                  重新選擇領域
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleGenerateTopic("0_1")}
+                  className="flex flex-col items-start p-5 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 text-left transition-all"
+                >
+                  <span className="text-2xl mb-2">💻</span>
+                  <span className="font-bold text-[#1E293B]">晶片半導體與 AI 科技股</span>
+                  <span className="text-xs text-slate-500 mt-1">台積電、輝達、台股供應鏈與股價影響</span>
+                </button>
+                <button
+                  onClick={() => handleGenerateTopic("0_2")}
+                  className="flex flex-col items-start p-5 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 text-left transition-all"
+                >
+                  <span className="text-2xl mb-2">🏦</span>
+                  <span className="font-bold text-[#1E293B]">總經變數與降息預期</span>
+                  <span className="text-xs text-slate-500 mt-1">Fed 決策、CPI 數據與股債匯資產配置</span>
+                </button>
+                <button
+                  onClick={() => handleGenerateTopic("0_3")}
+                  className="flex flex-col items-start p-5 rounded-2xl border-2 border-slate-100 hover:border-rose-500 hover:bg-rose-50 text-left transition-all"
+                >
+                  <span className="text-2xl mb-2">📊</span>
+                  <span className="font-bold text-[#1E293B]">市場籌碼與資金流向</span>
+                  <span className="text-xs text-slate-500 mt-1">三大法人、外資期貨與融資券關鍵點位</span>
+                </button>
+                <button
+                  onClick={() => handleGenerateTopic("0_4")}
+                  className="flex flex-col items-start p-5 rounded-2xl border-2 border-slate-100 hover:border-purple-500 hover:bg-purple-50 text-left transition-all"
+                >
+                  <span className="text-2xl mb-2">💡</span>
+                  <span className="font-bold text-[#1E293B]">商業模式與產業拆解</span>
+                  <span className="text-xs text-slate-500 mt-1">反常識的企業財報與獲利邏輯洞察</span>
+                </button>
+              </div>
+            )}
+            
+            <button
+              onClick={() => {
+                setShowTopicSelectorModal(false);
+                setGeneratedTopics([]);
+              }}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
