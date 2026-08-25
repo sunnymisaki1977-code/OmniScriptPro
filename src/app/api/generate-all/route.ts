@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         success: true,
         stepId: step.id,
         prompt: finalPrompt,
-        isSearchEnabled: (step.id === 1 || (typeof step.id === 'string' && step.id.startsWith('0_'))) && !verifiedContext
+        isSearchEnabled: (step.id === 1 || (typeof (step.id as any) === 'string' && (step.id as any).startsWith('0_'))) && !verifiedContext
       });
     }
 
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     let disableSearch = false;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      const wantsSearch = (step.id === 1 || (typeof step.id === 'string' && step.id.startsWith('0_'))) && !verifiedContext;
+      const wantsSearch = (step.id === 1 || (typeof (step.id as any) === 'string' && (step.id as any).startsWith('0_'))) && !verifiedContext;
       const isSearchEnabled = (wantsSearch && attempt < 3 && !disableSearch);
       
       const currentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });

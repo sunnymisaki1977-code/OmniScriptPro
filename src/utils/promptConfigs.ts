@@ -1,5 +1,5 @@
 export interface WorkflowStep {
-  id: number | string;
+  id: number;
   title: string;
   description: string;
   prompt: (context: any) => string;
@@ -2116,7 +2116,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
   ],
   fintech: [
   {
-    id: "0_1",
+    id: "0_1" as any as number,
     title: "Step 0: 主題選題器 (半導體與 AI 科技股)",
     description: "自動搜尋熱門新聞，提煉 3 個具備高流量潛力的科技股影音主題。",
     type: "text",
@@ -2137,7 +2137,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_2",
+    id: "0_2" as any as number,
     title: "Step 0: 主題選題器 (總經變數與降息預期)",
     description: "自動搜尋全球央行與總經數據，提煉 3 個針對進階投資客的資產配置主題。",
     type: "text",
@@ -2158,7 +2158,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_3",
+    id: "0_3" as any as number,
     title: "Step 0: 主題選題器 (市場籌碼與資金流向)",
     description: "自動搜尋三大法人與融資券數據，提煉 3 個符合短線實戰交易派的主題。",
     type: "text",
@@ -2179,7 +2179,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_4",
+    id: "0_4" as any as number,
     title: "Step 0: 主題選題器 (商業模式與產業拆解)",
     description: "自動提煉具備『反常識』與『商業洞察』的企業獲利拆解主題。",
     type: "text",
