@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     for (const card of cards) {
       let targetDatabaseId = "";
-      if (card.category === "神佛/歷史人物" || card.category === "神佛") {
+      if (card.category === "神佛/歷史人物" || card.category === "神佛" || card.category === "宮廟") {
         targetDatabaseId = process.env.NOTION_GOD_ID || "";
       } else if (card.category === "節氣") {
         targetDatabaseId = process.env.NOTION_Solar_ID || "";
@@ -62,6 +62,13 @@ export async function POST(req: Request) {
             rich_text: [{ type: "text", text: { content: card.desc } }],
           },
         },
+        ...(card.solar_term ? [{
+          object: "block",
+          type: "paragraph",
+          paragraph: {
+            rich_text: [{ type: "text", text: { content: `主要祭典節氣: ${card.solar_term}` } }],
+          },
+        }] : []),
         {
           object: "block",
           type: "quote",
