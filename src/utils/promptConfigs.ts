@@ -2266,7 +2266,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     description: "根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「${ctx.theme}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
+    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「${ctx.step1}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
 
 背景資料：
 ====================
@@ -2280,11 +2280,11 @@ ${ctx.step1}
 
 【輸出模板】請嚴格遵守以下腳本架構撰寫：
 請精準輸出以下格式，將括號與說明文字替換為實際生成的內容（每個30秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
-## 🎬 YouTube 長影片腳本：${ctx.theme}
+## 🎬 YouTube 長影片腳本：${ctx.step1}
 
 請精準輸出以下格式，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
 
-## 🎬 YouTube 財經深度解析：${ctx.theme}
+## 🎬 YouTube 財經深度解析：${ctx.step1}
 
 ### ⏱️ 開場 (Hook)：直擊市場痛點
  (時間規劃：00:00 - 01:00，共 2 個節點)
@@ -2321,7 +2321,7 @@ ${ctx.step1}
     description: "生成高點擊財經標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.theme}」產出能極大化點擊率的財經類 SEO 內容。
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率的財經類 SEO 內容。
 
 《長影音腳本》：${ctx.step2}
 
@@ -2349,7 +2349,7 @@ ${ctx.step1}
     prompt: (ctx: any) => `根據《基礎背景資料》，撰寫一份 180 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
 資料：${ctx.step1}
 
-## 📱 財經短影音腳本：${ctx.theme}
+## 📱 財經短影音腳本：${ctx.step1}
 ### 💥 前 3 秒：黃金 Hook
  (時間規劃：00:00 - 01:00，共 4 個節點)
 請依序產出 [00:00 - 00:15]、[00:15 - 00:30]、[00:30 - 00:45]、[00:45 - 01:00]：
@@ -2395,8 +2395,8 @@ ${ctx.step1}
     description: "生成 16:9 YouTube 縮圖文案與 FinTech 風格繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step3"],
-    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對主題「${ctx.step2}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請【完全且嚴格】拷貝下方模板。AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography.
 
@@ -2413,8 +2413,8 @@ ${ctx.step1}
     description: "生成 9:16 短影音縮圖文案與 FinTech 風格繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step5"],
-    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對主題「${ctx.step4}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography, extreme vertical composition.
@@ -2431,8 +2431,8 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
     description: "生成 16:9 財經意象行銷海報。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme"],
-    prompt: (ctx: any) => `針對「${ctx.theme}」生成 3 組 16:9 財經行銷海報。
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對「${ctx.step2}」生成 3 組 16:9 財經行銷海報。
 視覺設計包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, cyberpunk finance。需充滿市場博弈與專業數據感。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
@@ -2449,7 +2449,7 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請直接輸出以下格式：
@@ -2474,7 +2474,7 @@ Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic 
     type: "social",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.theme}」打造一組 IG 財經圖卡懶人包。
+    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.step1}」打造一組 IG 財經圖卡懶人包。
 史料：${ctx.step1}
 
 ### 任務一：生成財經資訊圖卡 Prompt (1:1 或 4:5 構圖)
@@ -2482,7 +2482,7 @@ Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic 
 
 請直接輸出：
 AI Prompt (中文):
-以「${ctx.theme}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 4 個資訊區塊的財經圖表排版。
+以「${ctx.step1}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 5 個資訊區塊的財經圖表排版。
 區塊 1 數據：[填寫亮點1]
 區塊 2 數據：[填寫亮點2]
 區塊 3 數據：[填寫亮點3]
@@ -2490,10 +2490,10 @@ AI Prompt (中文):
 
 ### 任務二：社群發布正文
 [帶有 Emoji 的時事痛點開場白]
-[條列 3-4 點核心數據解析，用白話文解釋對投資人的影響]
+[條列 4 點核心數據解析，用白話文解釋對投資人的影響]
 [互動提問：詢問粉絲對後市的看法]
 掌握全球總經趨勢，為自己的投資負責 
-#財經M平方 #總體經濟 #${ctx.theme} [補充3個標籤]`
+#財經M平方 #總體經濟 #${ctx.step1} [補充3個標籤]`
   }
 ]  ,
   story: [
@@ -2574,7 +2574,7 @@ ${ctx.step1}
 ### ⏱️ 歲月迴響與結尾 (Outro/CTA)
  (時間規劃：07:00 - 08:00，共 2 個節點)
 請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
-- 視覺畫面建議：[(必須強制帶入主角英文外觀（不能省略）) + 請描述結尾畫面]
+- 視覺畫面建議：[(必須強制帶入主角英文外觀（不能省略）)+ 請描述結尾畫面]
 - 畫面字卡: [必須精煉為 10 個字以內的核心金句]
 - 旁白配音 (VO)：[總結核心精神，並帶上宣言【剛才的故事揉合了民間傳說與些許改編，畢竟這世間信仰千百種，但「心存善念」的真理永遠不變。解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承】【訂閱、按讚、開啟傳奇好運小鈴鐺】【掃碼加入 Line 社群】與留言分享經驗]`
   },
