@@ -2593,7 +2593,31 @@ const handleLogin = async (e: React.FormEvent) => {
                 </div>
 
                   {/* Input Area */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-4">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
+                  <select
+                    className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 w-full md:w-auto shrink-0"
+                    onChange={async (e) => {
+                      if (!e.target.value) return;
+                      try {
+                        addLog(`[Notion] 正在從資料庫載入清單...`, 'info');
+                        const res = await fetch(`/api/notion-list?db=${e.target.value}`);
+                        const data = await res.json();
+                        if (data.success) {
+                          setGodsInput(data.titles.join(', '));
+                          addLog(`[Notion] 成功載入 ${data.titles.length} 筆資料`, 'success');
+                        } else {
+                          addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
+                        }
+                      } catch (err: any) {
+                        addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
+                      }
+                      e.target.value = "";
+                    }}
+                  >
+                    <option value="">從 Notion 匯入清單...</option>
+                    <option value="god">📥 神佛 / 宮廟資料庫</option>
+                    <option value="solar">📥 節氣資料庫</option>
+                  </select>
                   <input
                     value={godsInput}
                     onChange={(e) => setGodsInput(e.target.value)}
