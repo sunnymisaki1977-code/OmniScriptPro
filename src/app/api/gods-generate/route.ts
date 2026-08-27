@@ -71,7 +71,7 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下由右到左不要標點符號）",
   "poem": "${poemInstruction}（由上到下由右到左不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」以視覺描述特徵形象,壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下由右到左不要標點符號）]
+  "imagePrompt": "「${name}」無人物、充滿禪意或史詩感的氛圍,壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下由右到左不要標點符號）]
 ${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由上到下由右到左不要標點符號）]。"
 }
 
@@ -89,9 +89,6 @@ ${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由
 }
 
 如果判斷為【第三類：宮廟】，
-【⚠️ 強制圖像查證指令】：
-🌟 視覺特徵與建築藝術（實地取景必備）
-視覺畫面建議畫面描述加入「圖片網址（Image URL）作為 AI 圖像生成墊圖參考」。
 請輸出：
 {
   "category": "宮廟",
@@ -103,7 +100,7 @@ ${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由
   "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左不要標點符號）'}",
   "poem": "${poemInstruction}（由上到下，由右到左不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」的視覺描述，以莊嚴宏偉的傳統宮廟建築、飛簷翹角、裊裊香煙或精緻剪黏雕刻為焦點，充滿神聖與歷史沉澱的氛圍，${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）]。"
+  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）]。"
 }`;
     });
 
