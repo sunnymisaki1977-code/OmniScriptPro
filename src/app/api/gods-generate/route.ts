@@ -18,11 +18,13 @@ export async function POST(req: Request) {
       let localSecondVariable = globalSecondVariable ? globalSecondVariable.trim() : "";
 
       // 如果輸入的字串中包含「+」，就自動將其拆分為「主體」與「情境變數」
+      let extraVariables: string[] = [];
       if (name.includes('+')) {
         const parts = name.split('+');
         name = parts[0].trim(); // 取得 "+" 前面的字 (例：湄洲臺北北后宮)
         // 支援 A+B+C+... 將後方所有變數組合起來
-        localSecondVariable = parts.slice(1).map((p: string) => p.trim()).filter((p: string) => p).join('與');
+        extraVariables = parts.slice(1).map((p: string) => p.trim()).filter((p: string) => p);
+        localSecondVariable = extraVariables.join('與'); // 用於文案理解
       }
 
       // 2. 動態判斷：套用解析出來的變數
@@ -38,13 +40,15 @@ export async function POST(req: Request) {
         ? `一句完美結合『${name}』與『${localSecondVariable}』的祝福詩詞或對聯`
         : `一句符合主題的祝福詩詞或對聯`;
 
-      // 視覺圖層文字：動態疊加第二變數的藝術字
-      const imageTextInstruction1 = localSecondVariable
-        ? `[藝術書法文字：神明聖號（由上到下由右到左不要標點符號）][藝術書法文字：${localSecondVariable}（由上到下由右到左不要標點符號）]`
+      // 視覺圖層文字：動態疊加第二變數的藝術字，多個變數以換行分隔，直行書寫
+      const visualVariablesText = extraVariables.length > 0 ? extraVariables.join('\\n') : localSecondVariable;
+      
+      const imageTextInstruction1 = visualVariablesText
+        ? `[藝術書法文字：神明聖號（由上到下由右到左不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下由右到左不要標點符號）]`
         : `[藝術書法文字：神明聖號（由上到下由右到左不要標點符號）]`;
 
-      const imageTextInstruction3 = localSecondVariable
-        ? `[藝術書法文字：宮廟名稱（由上到下，由右到左不要標點符號）][藝術書法文字：${localSecondVariable}（由上到下由右到左不要標點符號）]`
+      const imageTextInstruction3 = visualVariablesText
+        ? `[藝術書法文字：宮廟名稱（由上到下，由右到左不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下由右到左不要標點符號）]`
         : `[藝術書法文字：宮廟名稱（由上到下，由右到左不要標點符號）]`;
 
       return `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
