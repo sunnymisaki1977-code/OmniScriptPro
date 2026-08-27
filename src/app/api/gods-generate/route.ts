@@ -65,27 +65,27 @@ ${combineInstruction}
 {
   "category": "神佛/歷史人物",
   "reason": "請簡述判斷為此類的原因",
-  "name": "神明聖號（由上到下由右到左不要標點符號）",
+  "name": "神明聖號（由上到下，由右到左，不要標點符號）",
   "organization": "組織，只能填入 佛、道、儒 其中一個",
-  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下由右到左不要標點符號）",
-  "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下由右到左不要標點符號）",
-  "poem": "${poemInstruction}（由上到下由右到左不要標點符號）",
+  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）",
+  "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下，由右到左，不要標點符號）",
+  "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」無人物、充滿禪意或史詩感的氛圍,壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下由右到左不要標點符號）]
-${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由上到下由右到左不要標點符號）]。"
+  "imagePrompt": "「${name}」無人物、充滿禪意或史詩感的氛圍,壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下，由右到左，不要標點符號）]
+${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
 }
 
 如果判斷為【第二類：節氣】，請輸出：
 {
   "category": "節氣",
   "reason": "請簡述判斷為此類的原因",
-  "name": "節氣名稱（由上到下，由右到左不要標點符號）",
+  "name": "節氣名稱（由上到下，由右到左，不要標點符號）",
   "organization": "特性",
-  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）",
-  "desc": "35-50 字的簡介。（由上到下由，右到左不要標點符號）",
-  "poem": "${poemInstruction}（由上到下，由右到左不要標點符號）",
+  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）",
+  "desc": "35-50 字的簡介。（由上到下，由右到左，不要標點符號）",
+  "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "請針對此節氣生成『純無人風景與靜物微距特寫』的視覺描述，[藝術書法文字：節氣名稱（由上到下，由右到左不要標點符號）]${localSecondVariable ? `[藝術書法文字：${localSecondVariable}（由上到下，由右到左不要標點符號）]` : ''}[${poemInstruction}（由上到下由右到左不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）]。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或人造物。請將畫面視覺焦點 100% 集中於『特定植物、天候光影變化、自然地貌或空景』，並可加上 --no humans, people, person 參數。"
+  "imagePrompt": "請針對此節氣生成『純無人風景與靜物微距特寫』的視覺描述，[藝術書法文字：節氣名稱（由上到下，由右到左，不要標點符號）]${localSecondVariable ? `[藝術書法文字：${localSecondVariable}（由上到下，由右到左，不要標點符號）]` : ''}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或人造物。請將畫面視覺焦點 100% 集中於『特定植物、天候光影變化、自然地貌或空景』，並可加上 --no humans, people, person 參數。"
 }
 
 如果判斷為【第三類：宮廟】，
@@ -93,14 +93,14 @@ ${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由
 {
   "category": "宮廟",
   "reason": "請簡述判斷為此類的原因",
-  "name": "宮廟名稱（由上到下，由右到左不要標點符號）",
+  "name": "宮廟名稱（由上到下，由右到左，不要標點符號）",
   "organization": "主祀神尊或信仰流派",
-  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）",
-  "desc": "35-50 字的簡介。需以『建廟歷史、建築特色、在地信仰意義』的角度切入（由上到下，由右到左不要標點符號）",
-  "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左不要標點符號）'}",
-  "poem": "${poemInstruction}（由上到下，由右到左不要標點符號）",
+  "title": "10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）",
+  "desc": "35-50 字的簡介。需以『建廟歷史、建築特色、在地信仰意義』的角度切入（由上到下，由右到左，不要標點符號）",
+  "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左，不要標點符號）'}",
+  "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左不要標點符號）]。"
+  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
 }`;
     });
 
