@@ -1,4 +1,4 @@
-﻿import { Client } from "@notionhq/client";
+import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -24,15 +24,16 @@ export async function GET(req: Request) {
       page_size: 100,
     });
 
-    const titles = response.results.map((page: any) => {
+    const items = response.results.map((page: any) => {
       const titleProp = Object.values(page.properties).find((prop: any) => prop.type === 'title');
+      let title = "未命名";
       if (titleProp && (titleProp as any).title.length > 0) {
-        return (titleProp as any).title[0].plain_text;
+        title = (titleProp as any).title[0].plain_text;
       }
-      return "未命名";
-    }).filter(t => t !== "未命名");
+      return { id: page.id, title };
+    }).filter(item => item.title !== "未命名");
 
-    return NextResponse.json({ success: true, titles });
+    return NextResponse.json({ success: true, items });
   } catch (error: any) {
     console.error("Notion List API Error:", error);
     return NextResponse.json({ error: error.message || "Failed to fetch Notion list" }, { status: 500 });

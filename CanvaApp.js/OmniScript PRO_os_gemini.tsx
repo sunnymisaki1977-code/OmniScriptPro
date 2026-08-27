@@ -210,7 +210,7 @@ export default function App() {
   const [godsCards, setGodsCards] = useState<any[]>([]);
   const [isSavingGods, setIsSavingGods] = useState(false);
   const [selectedNotionDb, setSelectedNotionDb] = useState("");
-  const [notionDbFiles, setNotionDbFiles] = useState<string[]>([]);
+  const [notionDbFiles, setNotionDbFiles] = useState<any[]>([]);
   const [isLoadingNotionDb, setIsLoadingNotionDb] = useState(false);
  
 
@@ -2612,9 +2612,10 @@ const handleLogin = async (e: React.FormEvent) => {
                           const res = await fetch(`/api/notion-list?db=${val}`);
                           const data = await res.json();
                           if (data.success) {
-                            const uniqueTitles = Array.from(new Set(data.titles)) as string[];
-                            setNotionDbFiles(uniqueTitles);
-                            addLog(`[Notion] 成功載入 ${uniqueTitles.length} 筆資料`, 'success');
+                            // Filter unique by title
+                            const uniqueItems = Array.from(new Map(data.items.map((item: any) => [item.title, item])).values());
+                            setNotionDbFiles(uniqueItems as any[]);
+                            addLog(`[Notion] 成功載入 ${uniqueItems.length} 筆資料`, 'success');
                           } else {
                             addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
                           }
@@ -2634,21 +2635,44 @@ const handleLogin = async (e: React.FormEvent) => {
                     {selectedNotionDb && (
                       <select
                         className="px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium focus:outline-none focus:border-indigo-500 w-full text-sm"
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (!val) return;
-                          setGodsInput(prev => {
-                            const trimmed = prev.trim();
-                            if (!trimmed) return val;
-                            if (trimmed.split(/[,，\s]+/).includes(val)) return prev;
-                            return `${trimmed}, ${val}`;
-                          });
+                        onChange={async (e) => {
+                          const id = e.target.value;
+                          if (!id) return;
+                          
+                          const selectedItem = notionDbFiles.find(item => item.id === id);
+                          if (selectedItem) {
+                            setGodsInput(prev => {
+                              const trimmed = prev.trim();
+                              if (!trimmed) return selectedItem.title;
+                              if (trimmed.split(/[,，\s]+/).includes(selectedItem.title)) return prev;
+                              return `${trimmed}, ${selectedItem.title}`;
+                            });
+                            
+                            // 載入卡片
+                            try {
+                              addLog(`[Notion] 正在反解析卡片資料: ${selectedItem.title}...`, 'info');
+                              const res = await fetch(`/api/notion-page?id=${id}`);
+                              const data = await res.json();
+                              if (data.success && data.card) {
+                                setGodsCards(prev => {
+                                  // Avoid duplicates
+                                  if (prev.some(c => c.name === data.card.name)) return prev;
+                                  return [...prev, data.card];
+                                });
+                                addLog(`[Notion] 成功反解析並載入卡片！`, 'success');
+                              } else {
+                                addLog(`[Notion] 反解析失敗: ${data.error}`, 'error');
+                              }
+                            } catch (err: any) {
+                              addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
+                            }
+                          }
                           e.target.value = "";
                         }}
                       >
-                        <option value="">{isLoadingNotionDb ? '載入中...' : '選擇檔案加入列表...'}</option>
-                        {notionDbFiles.map((title, idx) => (
-                          <option key={idx} value={title}>{title}</option>
+                        <option value="">{isLoadingNotionDb ? '載入中...' : '選擇檔案加入列表並載入卡片...'}</option>
+                        {notionDbFiles.map((item, idx) => (
+                          <option key={idx} value={item.id}>{item.title}</option>
                         ))}
                       </select>
                     )}
