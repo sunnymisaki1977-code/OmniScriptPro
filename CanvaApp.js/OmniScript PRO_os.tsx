@@ -235,6 +235,9 @@ export default function App() {
   const [isGeneratingGods, setIsGeneratingGods] = useState(false);
   const [godsCards, setGodsCards] = useState<any[]>([]);
   const [isSavingGods, setIsSavingGods] = useState(false);
+  const [selectedNotionDb, setSelectedNotionDb] = useState("");
+  const [notionDbFiles, setNotionDbFiles] = useState<string[]>([]);
+  const [isLoadingNotionDb, setIsLoadingNotionDb] = useState(false);
  
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======
@@ -2674,31 +2677,63 @@ const handleLogin = async (e: React.FormEvent) => {
                 </div>
 
                   {/* Input Area */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
-                  <select
-                    className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 w-full md:w-auto shrink-0"
-                    onChange={async (e) => {
-                      if (!e.target.value) return;
-                      try {
-                        addLog(`[Notion] 正在從資料庫載入清單...`, 'info');
-                        const res = await fetch(`/api/notion-list?db=${e.target.value}`);
-                        const data = await res.json();
-                        if (data.success) {
-                          setGodsInput(data.titles.join(', '));
-                          addLog(`[Notion] 成功載入 ${data.titles.length} 筆資料`, 'success');
-                        } else {
-                          addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 relative">
+                  <div className="flex flex-col gap-2 shrink-0 relative z-10 w-full md:w-auto">
+                    <select
+                      className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 w-full"
+                      value={selectedNotionDb}
+                      onChange={async (e) => {
+                        const val = e.target.value;
+                        setSelectedNotionDb(val);
+                        setNotionDbFiles([]);
+                        if (!val) return;
+                        try {
+                          setIsLoadingNotionDb(true);
+                          addLog(`[Notion] 正在從資料庫載入清單...`, 'info');
+                          const res = await fetch(`/api/notion-list?db=${val}`);
+                          const data = await res.json();
+                          if (data.success) {
+                            const uniqueTitles = Array.from(new Set(data.titles)) as string[];
+                            setNotionDbFiles(uniqueTitles);
+                            addLog(`[Notion] 成功載入 ${uniqueTitles.length} 筆資料`, 'success');
+                          } else {
+                            addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
+                          }
+                        } catch (err: any) {
+                          addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
+                        } finally {
+                          setIsLoadingNotionDb(false);
                         }
-                      } catch (err: any) {
-                        addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
-                      }
-                      e.target.value = "";
-                    }}
-                  >
-                    <option value="">從 Notion 匯入清單...</option>
-                    <option value="god">📥 神佛 / 宮廟資料庫</option>
-                    <option value="solar">📥 節氣資料庫</option>
-                  </select>
+                      }}
+                    >
+                      <option value="">從 Notion 匯入清單...</option>
+                      <option value="god">📥 神佛 / 宮廟資料庫</option>
+                      <option value="solar">📥 節氣資料庫</option>
+                    </select>
+                    
+                    {/* 第二層下拉選單：檔案清單 */}
+                    {selectedNotionDb && (
+                      <select
+                        className="px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium focus:outline-none focus:border-indigo-500 w-full text-sm"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (!val) return;
+                          setGodsInput(prev => {
+                            const trimmed = prev.trim();
+                            if (!trimmed) return val;
+                            if (trimmed.split(/[,，\s]+/).includes(val)) return prev;
+                            return `${trimmed}, ${val}`;
+                          });
+                          e.target.value = "";
+                        }}
+                      >
+                        <option value="">{isLoadingNotionDb ? '載入中...' : '選擇檔案加入列表...'}</option>
+                        {notionDbFiles.map((title, idx) => (
+                          <option key={idx} value={title}>{title}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                   <input
                     value={godsInput}
                     onChange={(e) => setGodsInput(e.target.value)}
