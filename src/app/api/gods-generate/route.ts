@@ -44,12 +44,12 @@ export async function POST(req: Request) {
       const visualVariablesText = extraVariables.length > 0 ? extraVariables.join('\\n') : localSecondVariable;
       
       const imageTextInstruction1 = visualVariablesText
-        ? `[藝術書法文字：神明聖號（由上到下由右到左不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下由右到左不要標點符號）]`
-        : `[藝術書法文字：神明聖號（由上到下由右到左不要標點符號）]`;
+        ? `[藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下，由右到左，不要標點符號）]`
+        : `[藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）]`;
 
       const imageTextInstruction3 = visualVariablesText
-        ? `[藝術書法文字：宮廟名稱（由上到下，由右到左不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下由右到左不要標點符號）]`
-        : `[藝術書法文字：宮廟名稱（由上到下，由右到左不要標點符號）]`;
+        ? `[藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下，由右到左，不要標點符號）]`
+        : `[藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）]`;
 
       return `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
@@ -72,7 +72,7 @@ ${combineInstruction}
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
   "imagePrompt": "「${name}」無人物、充滿禪意或史詩感的氛圍,壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下，由右到左，不要標點符號）]
-${imageTextInstruction1}[10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
+${imageTextInstruction1}。"
 }
 
 如果判斷為【第二類：節氣】，請輸出：
