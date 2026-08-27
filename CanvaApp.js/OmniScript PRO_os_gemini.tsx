@@ -2535,17 +2535,99 @@ const handleLogin = async (e: React.FormEvent) => {
           {activeTab === 'gods_data' && (
             <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
               <div className="max-w-6xl mx-auto space-y-6">
-                
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
                       <Star className="w-5 h-5 text-indigo-500" />
                       諸神文化解碼中心
                     </h3>
-                    <p className="text-sm text-[#64748B] mt-1">
-                      批次輸入神佛尊號，考證文獻、文化脈絡並動態生成水墨圖卡。
-                    </p>
+                   
                   </div>
+                  
+   <div className="flex flex-col gap-2 shrink-0 relative z-10 w-full md:w-auto">
+                    <select
+                      className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 w-full"
+                      value={selectedNotionDb}
+                      onChange={async (e) => {
+                        const val = e.target.value;
+                        setSelectedNotionDb(val);
+                        setNotionDbFiles([]);
+                        if (!val) return;
+                        try {
+                          setIsLoadingNotionDb(true);
+                          addLog(`[Notion] 正在從資料庫載入清單...`, 'info');
+                          const res = await fetch(`https://omni-script-pro.vercel.app/api/notion-list?db=${val}`);
+                          const data = await res.json();
+                          if (data.success) {
+                            // Filter unique by title
+                            const uniqueItems = Array.from(new Map(data.items.map((item: any) => [item.title, item])).values());
+                            setNotionDbFiles(uniqueItems as any[]);
+                            addLog(`[Notion] 成功載入 ${uniqueItems.length} 筆資料`, 'success');
+                          } else {
+                            addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
+                          }
+                        } catch (err: any) {
+                          addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
+                        } finally {
+                          setIsLoadingNotionDb(false);
+                        }
+                      }}
+                    >
+                      <option value="">從 Notion 匯入清單...</option>
+                      <option value="god">📥 神佛 / 宮廟資料庫</option>
+                      <option value="solar">📥 節氣資料庫</option>
+                    </select>
+                    
+                    {/* 第二層下拉選單：檔案清單 */}
+                    {selectedNotionDb && (
+                      <select
+                        className="px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium focus:outline-none focus:border-indigo-500 w-full text-sm"
+                        onChange={async (e) => {
+                          const id = e.target.value;
+                          if (!id) return;
+                          
+                          const selectedItem = notionDbFiles.find(item => item.id === id);
+                          if (selectedItem) {
+                            setGodsInput(prev => {
+                              const trimmed = prev.trim();
+                              if (!trimmed) return selectedItem.title;
+                              if (trimmed.split(/[,，\s]+/).includes(selectedItem.title)) return prev;
+                              return `${trimmed}, ${selectedItem.title}`;
+                            });
+                            
+                            // 載入卡片
+                            try {
+                              addLog(`[Notion] 正在反解析卡片資料: ${selectedItem.title}...`, 'info');
+                              const res = await fetch(`https://omni-script-pro.vercel.app/api/notion-page?id=${id}`);
+                              const data = await res.json();
+                              if (data.success && data.card) {
+                                setGodsCards(prev => {
+                                  // Avoid duplicates
+                                  if (prev.some(c => c.name === data.card.name)) return prev;
+                                  return [...prev, data.card];
+                                });
+                                addLog(`[Notion] 成功反解析並載入卡片！`, 'success');
+                              } else {
+                                addLog(`[Notion] 反解析失敗: ${data.error}`, 'error');
+                              }
+                            } catch (err: any) {
+                              addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
+                            }
+                          }
+                          e.target.value = "";
+                        }}
+                      >
+                        <option value="">{isLoadingNotionDb ? '載入中...' : '選擇檔案加入列表並載入卡片...'}</option>
+                        {notionDbFiles.map((item, idx) => (
+                          <option key={idx} value={item.id}>{item.title}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>        
+                  
+                  
+                  
+                  
                   <div className="flex items-center gap-3">
                   <button 
                     onClick={async () => {
@@ -2597,86 +2679,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
                   {/* Input Area */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 relative">
-                  <div className="flex flex-col gap-2 shrink-0 relative z-10 w-full md:w-auto">
-                    <select
-                      className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 w-full"
-                      value={selectedNotionDb}
-                      onChange={async (e) => {
-                        const val = e.target.value;
-                        setSelectedNotionDb(val);
-                        setNotionDbFiles([]);
-                        if (!val) return;
-                        try {
-                          setIsLoadingNotionDb(true);
-                          addLog(`[Notion] 正在從資料庫載入清單...`, 'info');
-                          const res = await fetch(`/api/notion-list?db=${val}`);
-                          const data = await res.json();
-                          if (data.success) {
-                            // Filter unique by title
-                            const uniqueItems = Array.from(new Map(data.items.map((item: any) => [item.title, item])).values());
-                            setNotionDbFiles(uniqueItems as any[]);
-                            addLog(`[Notion] 成功載入 ${uniqueItems.length} 筆資料`, 'success');
-                          } else {
-                            addLog(`[Notion] 載入失敗: ${data.error}`, 'error');
-                          }
-                        } catch (err: any) {
-                          addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
-                        } finally {
-                          setIsLoadingNotionDb(false);
-                        }
-                      }}
-                    >
-                      <option value="">從 Notion 匯入清單...</option>
-                      <option value="god">📥 神佛 / 宮廟資料庫</option>
-                      <option value="solar">📥 節氣資料庫</option>
-                    </select>
-                    
-                    {/* 第二層下拉選單：檔案清單 */}
-                    {selectedNotionDb && (
-                      <select
-                        className="px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium focus:outline-none focus:border-indigo-500 w-full text-sm"
-                        onChange={async (e) => {
-                          const id = e.target.value;
-                          if (!id) return;
-                          
-                          const selectedItem = notionDbFiles.find(item => item.id === id);
-                          if (selectedItem) {
-                            setGodsInput(prev => {
-                              const trimmed = prev.trim();
-                              if (!trimmed) return selectedItem.title;
-                              if (trimmed.split(/[,，\s]+/).includes(selectedItem.title)) return prev;
-                              return `${trimmed}, ${selectedItem.title}`;
-                            });
-                            
-                            // 載入卡片
-                            try {
-                              addLog(`[Notion] 正在反解析卡片資料: ${selectedItem.title}...`, 'info');
-                              const res = await fetch(`/api/notion-page?id=${id}`);
-                              const data = await res.json();
-                              if (data.success && data.card) {
-                                setGodsCards(prev => {
-                                  // Avoid duplicates
-                                  if (prev.some(c => c.name === data.card.name)) return prev;
-                                  return [...prev, data.card];
-                                });
-                                addLog(`[Notion] 成功反解析並載入卡片！`, 'success');
-                              } else {
-                                addLog(`[Notion] 反解析失敗: ${data.error}`, 'error');
-                              }
-                            } catch (err: any) {
-                              addLog(`[Notion] 網路錯誤: ${err.message}`, 'error');
-                            }
-                          }
-                          e.target.value = "";
-                        }}
-                      >
-                        <option value="">{isLoadingNotionDb ? '載入中...' : '選擇檔案加入列表並載入卡片...'}</option>
-                        {notionDbFiles.map((item, idx) => (
-                          <option key={idx} value={item.id}>{item.title}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
+                 
                   <input
                     value={godsInput}
                     onChange={(e) => setGodsInput(e.target.value)}

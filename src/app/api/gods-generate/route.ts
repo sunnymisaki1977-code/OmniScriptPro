@@ -21,7 +21,8 @@ export async function POST(req: Request) {
       if (name.includes('+')) {
         const parts = name.split('+');
         name = parts[0].trim(); // 取得 "+" 前面的字 (例：湄洲臺北北后宮)
-        localSecondVariable = parts[1].trim(); // 取得 "+" 後面的字 (例：處暑)
+        // 支援 A+B+C+... 將後方所有變數組合起來
+        localSecondVariable = parts.slice(1).map(p => p.trim()).filter(p => p).join('與');
       }
 
       // 2. 動態判斷：套用解析出來的變數
