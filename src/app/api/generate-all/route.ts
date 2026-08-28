@@ -102,7 +102,7 @@ export async function POST(req: Request) {
           geminiPayload.tools = [{ "googleSearch": {} }];
       }
       
-      const targetModel = isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
+      const targetModel = isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite';
       const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
       try {
