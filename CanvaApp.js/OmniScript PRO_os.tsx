@@ -51,7 +51,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             existingData: context,
             audienceTheme,
             apiKey: apiKey,
-            returnPromptOnly: true
+            returnPromptOnly: !!apiKey // 動態判斷：若無 API Key，請 Vercel 直接生成並回傳結果
         })
     });
 
@@ -60,6 +60,15 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     }
 
     const vercelData = await promptResponse.json();
+    
+    // 如果使用者沒有提供 API Key，代表已經由 Vercel 後端（使用其環境變數）代為完成生成
+    if (!apiKey) {
+        if (!vercelData.success || !vercelData.output) {
+            throw new Error(vercelData.error || "Vercel 伺服器生成失敗 (可能未設定伺服器端 GEMINI_API_KEY)");
+        }
+        return vercelData.output;
+    }
+
     const finalPrompt = vercelData.prompt; 
     const responseSchema = vercelData.schema;
     const isSearchEnabled = vercelData.isSearchEnabled;
@@ -298,6 +307,7 @@ export default function App() {
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+   const [bypassApiKey, setBypassApiKey] = useState(false);
    const [showTopicSelectorModal, setShowTopicSelectorModal] = useState(false);
    const [generatingTopic, setGeneratingTopic] = useState(false);
    const [generatedTopics, setGeneratedTopics] = useState<string[]>([]);
@@ -495,7 +505,7 @@ export default function App() {
 
 
   const generateGroupImage = async (group: any) => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    if (!isCanvasEnv && !geminiApiKey.trim() && !bypassApiKey) {
       setPendingAction({ type: 'group', group });
       addLog('⚠️ 需要 Gemini API Key 才能繪製圖像。請輸入 API Key。', 'error');
       setShowApiKeyModal(true);
@@ -1058,7 +1068,7 @@ export default function App() {
     setGeneratedTopics([]);
     try {
       const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-      if (!isCanvasEnv && !activeApiKey.trim()) {
+      if (!isCanvasEnv && !activeApiKey.trim() && !bypassApiKey) {
         setPendingAction({ type: 'topic', stepId });
         setShowApiKeyModal(true);
         setGeneratingTopic(false);
@@ -1095,7 +1105,7 @@ export default function App() {
   
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
-  if (!isCanvasEnv && !geminiApiKey.trim()) {
+  if (!isCanvasEnv && !geminiApiKey.trim() && !bypassApiKey) {
     setPendingAction({ type: 'auto', finalTheme, isResume });
     setShowApiKeyModal(true);
     return;
@@ -1190,7 +1200,7 @@ export default function App() {
   // 5. 改寫手動單步生成 (打 Vercel API)
   // ============================================================================
   const triggerSingleStepAi = async () => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    if (!isCanvasEnv && !geminiApiKey.trim() && !bypassApiKey) {
       setPendingAction({ type: 'single' });
       addLog('⚠️ 需要 Gemini API Key。請點擊上方鑰匙圖示輸入', 'error');
       setShowApiKeyModal(true);
@@ -1278,7 +1288,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
   }
 };
   const generateNewImage = async () => {
-    if (!isCanvasEnv && !geminiApiKey.trim()) {
+    if (!isCanvasEnv && !geminiApiKey.trim() && !bypassApiKey) {
       setPendingAction({ type: 'new' });
       addLog('⚠️ 需要 Gemini API Key 才能批次繪製圖像。', 'error');
       setShowApiKeyModal(true);
@@ -1713,7 +1723,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       {/* Hub Header */}
                       <div className="text-center space-y-2">
                         <h2 className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981] transition-all duration-700" 
-                  style={{ fontFamily: "'Noto Serif TC', serif">
+                  style={{ fontFamily: "'Noto Serif TC', serif" }}>
                           你的影響力，無所不在
                         </h2>
                         <p className="text-[14px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
@@ -2804,15 +2814,22 @@ const handleLogin = async (e: React.FormEvent) => {
                             
                             addLog(`[諸神解碼] 正在考證: ${name} (${i + 1}/${names.length})...`, 'info');
                             
-                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            const useProxy = !activeApiKey;
+                            const geminiUrl = useProxy 
+                              ? (process.env.NODE_ENV === 'production' ? 'https://omni-script-pro.vercel.app/api/proxy-generate' : '/api/proxy-generate')
+                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
                             
+                            const payload = useProxy
+                              ? { prompt: prompt }
+                              : {
+                                  contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                  generationConfig: { temperature: 0.7 }
+                                };
+
                             const res = await fetch(geminiUrl, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
-                                    generationConfig: { temperature: 0.7 }
-                                })
+                                body: JSON.stringify(payload)
                             });
                             
                             const apiData = await res.json();
@@ -3114,6 +3131,28 @@ const handleLogin = async (e: React.FormEvent) => {
                 >
                   前往申請 Gemini API
                 </a>
+                <button
+                  onClick={() => {
+                    setBypassApiKey(true);
+                    setShowApiKeyModal(false);
+                    if (pendingAction) {
+                      if (pendingAction.type === 'auto') {
+                        runAutoGeneration(pendingAction.finalTheme, pendingAction.isResume);
+                      } else if (pendingAction.type === 'single') {
+                        triggerSingleStepAi();
+                      } else if (pendingAction.type === 'group') {
+                        generateGroupImage(pendingAction.group);
+                      } else if (pendingAction.type === 'new') {
+                        generateNewImage();
+                      }
+                      setPendingAction(null);
+                    }
+                  }}
+                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold transition-colors shadow-lg flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  免 API 金鑰直接體驗 (由系統代為生成)
+                </button>
               </div>
             </div>
           </div>
