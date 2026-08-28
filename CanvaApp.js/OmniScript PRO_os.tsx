@@ -9,7 +9,7 @@ import {
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe,
-  PenLine, Loader2, Star, Gift } from 'lucide-react';
+  PenLine, Loader2, Star, Gift, LogOut } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -1741,13 +1741,10 @@ const handleLogin = async (e: React.FormEvent) => {
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            disabled={!isSel && !isGlobalMaster}
-                            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+                            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border cursor-pointer ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : isGlobalMaster 
-                                  ? 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500 cursor-pointer'
-                                  : 'border-slate-200 text-[#64748B] opacity-50 cursor-not-allowed'
+                                : 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500'
                             }`}
                           >
                             {themeObj.title}
@@ -1924,14 +1921,21 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                   )}
                   
-                  {/* 清空按鈕 */}
-                  <div className="pt-4 flex justify-center">
+                  {/* 清空與登出按鈕 */}
+                  <div className="pt-4 flex justify-center gap-4">
                     <button 
                       onClick={clearAllData}
                       className=" text-[14px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>清空企劃</span>
+                    </button>
+                    <button 
+                      onClick={() => { setIsAuthenticated(false); setPasscode(''); clearAllData(); }}
+                      className=" text-[14px] text-slate-500/70 hover:text-slate-600 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-slate-200"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>切換帳號</span>
                     </button>
                   </div>
                     </>
