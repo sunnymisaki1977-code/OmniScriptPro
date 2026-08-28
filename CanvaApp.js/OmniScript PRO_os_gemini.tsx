@@ -1658,10 +1658,13 @@ const handleLogin = async (e: React.FormEvent) => {
                           <button
                             key={themeObj.id}
                             onClick={() => handleThemeChange(themeObj.id)}
-                            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border cursor-pointer ${
+                            disabled={!isSel && !isGlobalMaster}
+                            className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
                               isSel
                                 ? `${themeObj.bgActive} ${themeObj.borderActive} ${themeObj.textActive}`
-                                : 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500'
+                                : isGlobalMaster 
+                                  ? 'border-slate-200 text-[#64748B] hover:text-[#1E293B] hover:border-slate-500 cursor-pointer'
+                                  : 'border-slate-200 text-[#64748B] opacity-50 cursor-not-allowed'
                             }`}
                           >
                             {themeObj.title}
