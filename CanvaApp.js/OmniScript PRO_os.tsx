@@ -1712,11 +1712,12 @@ const handleLogin = async (e: React.FormEvent) => {
                     <>
                       {/* Hub Header */}
                       <div className="text-center space-y-2">
-                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-[#1E293B]">
-                          今天想創作什麼？
+                        <h2 className="text-[24px] xl:text-[28px] tracking-[0.2em] font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] to-[#10B981] transition-all duration-700" 
+                  style={{ fontFamily: "'Noto Serif TC', serif">
+                          你的影響力，無所不在
                         </h2>
-                        <p className="text-[11px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
-                          輸入你想探討的主題，AI 將為你生成從研究、長短影音腳本到社群貼文的全域企劃。
+                        <p className="text-[14px] md:text-xs text-[#64748B] font-medium max-w-md mx-auto leading-relaxed">
+                          百萬字古籍文藻田調，濃縮於彈指之間。
                         </p>
                       </div>
 
