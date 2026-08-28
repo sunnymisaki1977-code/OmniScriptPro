@@ -1,6 +1,7 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
+import { AUDIENCE_THEMES } from "@/utils/themeConfig";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 const DATABASE_ID = process.env.NOTION_DATABASE_ID || "";
@@ -90,13 +91,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Notion Database ID is missing" }, { status: 500 });
     }
 
+    // 取得受眾名稱
+    const audienceThemeData = (AUDIENCE_THEMES as any)[audienceTheme];
+    const prefix = audienceThemeData ? audienceThemeData.title : "世代銘印";
+
     // 1. Create the page in the database
     const pageResponse = await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
         title: {
-          title: [{ text: { content: `【世代銘印】${theme} - ${new Date().toLocaleDateString()}` } }],
+          title: [{ text: { content: `【${prefix}】${theme} - ${new Date().toLocaleDateString()}` } }],
         },
+        "日期": {
+          date: { start: new Date().toISOString() }
+        }
       },
     });
 
