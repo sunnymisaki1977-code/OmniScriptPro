@@ -12,7 +12,7 @@ export interface WorkflowStep {
 export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
   heritage: [
     {
-    id: 1,F
+    id: 1,
     title: "核心企劃知識",
     description: "針對主題進行定義釐清與客觀史料彙整",
     type: "text",
