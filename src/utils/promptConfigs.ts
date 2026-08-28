@@ -2125,7 +2125,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     prompt: (ctx: any) => {
       const today = new Date().toISOString().split('T')[0];
       return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索最近 3~5 天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
+今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
 
 你是一位熟悉台灣科技股與台股供應鏈的財經主編。
 請搜尋關於「台積電、輝達（NVIDIA）、聯發科、伺服器組裝廠或 CoWoS 封裝」的最熱門即時新聞。
@@ -2146,7 +2146,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     prompt: (ctx: any) => {
       const today = new Date().toISOString().split('T')[0];
       return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索最近 3~5 天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
+今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
 
 你是一位專精全球總體經濟與資產配置的財經主編。
 請搜尋全球央行（Fed/台灣央行）、通膨數據（CPI/PCE）、就業報告（非農）或公債殖利率的最新動態。
@@ -2167,7 +2167,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     prompt: (ctx: any) => {
       const today = new Date().toISOString().split('T')[0];
       return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索本週台股最新盤後籌碼與資金動向（以 ${today} 基準）。
+今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向（以 ${today} 基準）。
 
 你是一位擅長台股籌碼分析與技術盤勢的財經主編。
 請搜尋台股最新的「三大法人買賣超、外資台指期未平倉空單、融資融券變化與大盤關鍵支撐壓力位」。
@@ -2188,7 +2188,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     prompt: (ctx: any) => {
       const today = new Date().toISOString().split('T')[0];
       return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索近期的熱門商業話題、企業財報或新興獲利模式（以 ${today} 基準）。
+今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索檢索今天（以 ${today} 基準）的熱門商業話題、企業財報或新興獲利模式（以 ${today} 基準）。
 
 你是一位專精於商業模式拆解與產業分析的財經主編。
 請幫我提煉出 3 個具備『反常識』與『深度商業洞察』的影音主題名稱（ctx.theme）。例如：「為什麼飛機滿載卻不賺錢？」或「好市多真正賺錢的不是賣商品？」。
