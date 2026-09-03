@@ -2120,7 +2120,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
       return `【時間定錨與強制搜尋指令】：
 今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
 
@@ -2140,7 +2140,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
       return `【時間定錨與強制搜尋指令】：
 今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
 
@@ -2160,7 +2160,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
       return `【時間定錨與強制搜尋指令】：
 今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向（以 ${today} 基準）。
 
@@ -2181,7 +2181,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
       return `【時間定錨與強制搜尋指令】：
 今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索檢索今天（以 ${today} 基準）的熱門商業話題、企業財報或新興獲利模式（以 ${today} 基準）。
 
@@ -2199,6 +2199,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     type: "text",
     dependsOn: ["theme"],
     prompt: (ctx: any) => `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
+const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
 請務必優先使用 Google 搜尋查證最新的官方數據（如 FRED、各國央行、主計處等）再回答。
 
 【⚠️ 最高合規與真實性指令】：
