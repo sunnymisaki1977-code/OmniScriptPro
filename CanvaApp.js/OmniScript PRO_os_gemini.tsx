@@ -79,11 +79,16 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
     const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-
+const isoTimestamp = new Date().toISOString();
     const geminiPayload = {
         // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
         systemInstruction: {
-            parts: [{ text: `你是一位專業的資料分析師與企劃。請注意，現在的真實時間是 ${currentDate}。處理任何新聞或數據時，請嚴格以這個時間點作為「現在」的基準，絕對不要宣稱這是未來時間或說現在是 2024 年。` }]
+            parts: [{ text: `
+[時間基準與事實嚴格約束]
+1. 現在的真實時間是 ${currentDate} (ISO時間戳: ${isoTimestamp}，時區: Asia/Taipei)。
+2. 你必須嚴格以該時間點作為「現在」的基準。
+3. 【數據防偽條款】涉及即時股市指數、個股價格、最新新聞或具體數據時，若沒有外部搜尋結果（Google Search Grounding）或上下文數據佐證，嚴禁憑空編造數字。請明確標註「需檢索最新即時數據」或僅進行趨勢分析。
+` }]
         },
         contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
@@ -93,9 +98,12 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     // 🌟 核心分流邏輯：正確的 Google Search 語法實作
     if (isSearchEnabled) {
-        console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
+        console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
+// 強制在 Prompt 中補充當前年份關鍵字
+    const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-09"
+    geminiPayload.contents[0].parts[0].text += `\n\n(重要檢索條件：請優先參考 ${yearMonth} 的最新真實新聞與官方數據資料)`;
         // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
