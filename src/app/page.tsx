@@ -115,7 +115,7 @@ export default function LandingPage() {
       bgClass: "bg-indigo-100",
       textClass: "text-indigo-700",
       features: ["商業模式", "SaaS產品解析", "科技前瞻"],
-      playlistId: "PLS7BJQ4awAeM", 
+      playlistId: "PLJiiiXnK3Xf0", 
       previewVideoId: "E-cMoaWOHnM",
       isShorts: false,
       flipData: {
