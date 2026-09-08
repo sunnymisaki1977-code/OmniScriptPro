@@ -116,7 +116,7 @@ export default function LandingPage() {
       textClass: "text-indigo-700",
       features: ["商業模式", "SaaS產品解析", "科技前瞻"],
       playlistId: "PLS7BJQ4awAeM", 
-      previewVideoId: "ofIAOaVW_hU",
+      previewVideoId: "E-cMoaWOHnM",
       isShorts: false,
       flipData: {
         frontImage: ["/Tech_SaaS_p1.jpg", "/Tech_SaaS_p2.jpg", "/Tech_SaaS_p3.jpg"],
