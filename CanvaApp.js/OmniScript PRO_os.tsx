@@ -258,6 +258,7 @@ export default function App() {
   const [isPreviewMode, setIsPreviewMode] = useState(true);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const isResumeIntentRef = useRef(false);
+  const isGeneratingRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
@@ -802,6 +803,7 @@ export default function App() {
   const runAutoGeneration = async (startTheme: string, isResume = false) => {
       
     setIsGenerating(true);
+    isGeneratingRef.current = true;
         setMode('auto');
     setViewState('workspace');
     
@@ -875,6 +877,11 @@ export default function App() {
     let currentRunningStep = startStep;
     try {
       for (let i = startStep; i <= STEPS.length; i++) {
+        if (!isGeneratingRef.current) {
+          addLog(`🛑 [Process] 流水線生成已手動中斷`, 'warning');
+          break;
+        }
+
         if (!selectedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
           continue;
@@ -2065,6 +2072,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           {isGenerating ? (
                             <button 
                               onClick={() => {
+                                isGeneratingRef.current = false;
                                 setIsGenerating(false);
                                 addLog("[System] 生成作業已由使用者手動中斷。", "info");
                                 setViewState('workspace');

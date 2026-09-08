@@ -9,7 +9,7 @@ import {
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe,
-  PenLine, Loader2, Star, Gift, LogOut } from 'lucide-react';
+  PenLine, Loader2, Star, Gift } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -51,7 +51,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             existingData: context,
             audienceTheme,
             apiKey: apiKey,
-            returnPromptOnly: !!apiKey // 動態判斷：若無 API Key，請 Vercel 直接生成並回傳結果
+            returnPromptOnly: true
         })
     });
 
@@ -60,15 +60,6 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     }
 
     const vercelData = await promptResponse.json();
-    
-    // 如果使用者沒有提供 API Key，代表已經由 Vercel 後端（使用其環境變數）代為完成生成
-    if (!apiKey) {
-        if (!vercelData.success || !vercelData.output) {
-            throw new Error(vercelData.error || "Vercel 伺服器生成失敗 (可能未設定伺服器端 GEMINI_API_KEY)");
-        }
-        return vercelData.output;
-    }
-
     const finalPrompt = vercelData.prompt; 
     const responseSchema = vercelData.schema;
     const isSearchEnabled = vercelData.isSearchEnabled;
@@ -101,9 +92,9 @@ const isoTimestamp = new Date().toISOString();
         console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
-// 強制在 Prompt 中補充當前年份關鍵字
-    const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-09"
-    geminiPayload.contents[0].parts[0].text += `\n\n(重要檢索條件：請優先參考 ${yearMonth} 的最新真實新聞與官方數據資料)`;
+        // 強制在 Prompt 中補充當前年份關鍵字
+        const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-09"
+        geminiPayload.contents[0].parts[0].text += `\n\n(特別檢索條件：請優先參考 ${yearMonth} 以後的真實新聞或官方資料)`;
         // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
@@ -240,6 +231,7 @@ export default function App() {
   const [isPreviewMode, setIsPreviewMode] = useState(true);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const isResumeIntentRef = useRef(false);
+  const isGeneratingRef = useRef(false);
   const [viewState, setViewState] = useState('hub');
   const [mode, setMode] = useState('manual');
   const [activeStep, setActiveStep] = useState(1);
@@ -284,7 +276,6 @@ export default function App() {
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-   const [bypassApiKey, setBypassApiKey] = useState(false);
    const [showTopicSelectorModal, setShowTopicSelectorModal] = useState(false);
    const [generatingTopic, setGeneratingTopic] = useState(false);
    const [generatedTopics, setGeneratedTopics] = useState<string[]>([]);
@@ -772,6 +763,7 @@ export default function App() {
   const runAutoGeneration = async (startTheme: string, isResume = false) => {
       
     setIsGenerating(true);
+    isGeneratingRef.current = true;
         setMode('auto');
     setViewState('workspace');
     
@@ -845,6 +837,11 @@ export default function App() {
     let currentRunningStep = startStep;
     try {
       for (let i = startStep; i <= STEPS.length; i++) {
+        if (!isGeneratingRef.current) {
+          addLog(`🛑 [Process] 流水線生成已手動中斷`, 'warning');
+          break;
+        }
+
         if (!selectedSteps.includes(i)) {
           addLog(`⏭️ [Process] 跳過 Step ${i}: ${STEPS[i-1].name} (使用者未勾選)...`, 'default');
           continue;
@@ -1006,7 +1003,7 @@ export default function App() {
     setGeneratedTopics([]);
     try {
       const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-      if (!isCanvasEnv && !activeApiKey.trim() && !bypassApiKey) {
+      if (!isCanvasEnv && !activeApiKey.trim()) {
         setPendingAction({ type: 'topic', stepId });
         setShowApiKeyModal(true);
         setGeneratingTopic(false);
@@ -1043,7 +1040,7 @@ export default function App() {
   
   // 啟動流水線
   // 封測/Gemini環境：跳出API視窗 (如果是 Vercel 環境且無金鑰)
-  if (!isCanvasEnv && !geminiApiKey.trim() && !bypassApiKey) {
+  if (!isCanvasEnv && !geminiApiKey.trim()) {
     setPendingAction({ type: 'auto', theme: finalTheme, isResume });
     setShowApiKeyModal(true);
     return;
@@ -1850,21 +1847,14 @@ const handleLogin = async (e: React.FormEvent) => {
                   </div>
                   )}
                   
-                  {/* 清空與登出按鈕 */}
-                  <div className="pt-4 flex justify-center gap-4">
+                  {/* 清空按鈕 */}
+                  <div className="pt-4 flex justify-center">
                     <button 
                       onClick={clearAllData}
                       className=" text-[14px] text-red-500/70 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>清空企劃</span>
-                    </button>
-                    <button 
-                      onClick={() => { setIsAuthenticated(false); setPasscode(''); clearAllData(); }}
-                      className=" text-[14px] text-slate-500/70 hover:text-slate-600 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-slate-200"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>切換帳號</span>
                     </button>
                   </div>
                     </>
@@ -1991,6 +1981,7 @@ const handleLogin = async (e: React.FormEvent) => {
                           {isGenerating ? (
                             <button 
                               onClick={() => {
+                                isGeneratingRef.current = false;
                                 setIsGenerating(false);
                                 addLog("[System] 生成作業已由使用者手動中斷。", "info");
                                 setViewState('workspace');
@@ -2750,22 +2741,15 @@ const handleLogin = async (e: React.FormEvent) => {
                             
                             addLog(`[諸神解碼] 正在考證: ${name} (${i + 1}/${names.length})...`, 'info');
                             
-                            const useProxy = !activeApiKey;
-                            const geminiUrl = useProxy 
-                              ? (process.env.NODE_ENV === 'production' ? 'https://omni-script-pro.vercel.app/api/proxy-generate' : '/api/proxy-generate')
-                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
                             
-                            const payload = useProxy
-                              ? { prompt: prompt }
-                              : {
-                                  contents: [{ role: "user", parts: [{ text: prompt }] }],
-                                  generationConfig: { temperature: 0.7 }
-                                };
-
                             const res = await fetch(geminiUrl, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
+                                body: JSON.stringify({
+                                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                                    generationConfig: { temperature: 0.7 }
+                                })
                             });
                             
                             const apiData = await res.json();
@@ -3053,23 +3037,6 @@ const handleLogin = async (e: React.FormEvent) => {
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   確認並儲存
-                </button>
-                <button
-                  onClick={() => {
-                    setBypassApiKey(true);
-                    setShowApiKeyModal(false);
-                    if (pendingAction) {
-                      if (pendingAction.type === 'auto') {
-                        runAutoGeneration(pendingAction.theme, pendingAction.isResume);
-                      } else if (pendingAction.type === 'topic') {
-                        handleGenerateTopic(pendingAction.stepId);
-                      }
-                    }
-                  }}
-                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#1E293B] font-bold transition-colors shadow-lg flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  免 API 金鑰直接體驗 (由系統代為生成)
                 </button>
               </div>
             </div>
