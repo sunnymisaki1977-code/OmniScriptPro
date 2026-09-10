@@ -545,6 +545,35 @@ export default function App() {
       
       const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
+      // 提取 prompt 中的網址並準備作為墊圖
+      const urlRegex = /https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s]*)?/gi;
+      const urls = finalPrompt.match(urlRegex) || [];
+      const partsArr: any[] = [{ text: finalPrompt }];
+      
+      for (const u of urls) {
+        try {
+          addLog(`[System] 偵測到圖片網址，嘗試下載作為墊圖: ${u}`, 'info');
+          const fetchRes = await fetch('/api/fetch-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: u })
+          });
+          if (fetchRes.ok) {
+            const imgData = await fetchRes.json();
+            partsArr.push({
+              inlineData: {
+                mimeType: imgData.mimeType,
+                data: imgData.data
+              }
+            });
+            addLog(`[System] 墊圖下載成功！已加入生成提示中。`, 'success');
+          }
+        } catch (e) {
+          console.warn("Failed to fetch image for prompting:", u, e);
+          addLog(`[System] 警告：無法下載墊圖 ${u}，將僅使用文字提示生成。`, 'warning');
+        }
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -552,7 +581,7 @@ export default function App() {
           contents: [
             {
               role: "user",
-              parts: [{ text: finalPrompt }]
+              parts: partsArr
             }
           ],
           generationConfig: {
