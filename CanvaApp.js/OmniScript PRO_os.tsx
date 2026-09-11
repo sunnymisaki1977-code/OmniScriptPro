@@ -443,19 +443,21 @@ export default function App() {
 
 
 
- const handleGenerateExtremeImages = async () => {
+  const handleGenerateExtremeImages = async () => {
     if (ExtremeParsedGroups.length === 0) {
-      safeAlert("請先確認腳本中包含有效的視覺畫面建議！");
+      safeAlert("請先確認腳本中已解析出「視覺畫面建議」。");
       return;
     }
     
     setIsGeneratingExtreme(true);
-    addLog(`[Extreme] 開始批次發送 ${ExtremeParsedGroups.length} 組 Prompt 進行動態組裝...`, 'info');
+    addLog(`[Extreme] 啟動批次 ${ExtremeParsedGroups.length} 組 Prompt 圖像生成 (為確保品質與避免連線限制，採循序生成)...`, 'info');
     
-    await Promise.all(ExtremeParsedGroups.map(group => generateGroupImage(group)));
+    for (const group of ExtremeParsedGroups) {
+      await generateGroupImage(group);
+    }
     
     setIsGeneratingExtreme(false);
-    addLog(`[Extreme] 🎨 所有影像生成完畢！`, 'success');
+    addLog(`[Extreme] 全部圖像生成完畢！`, 'success');
   };
 
   const handleDownloadExtremePython = async () => {
