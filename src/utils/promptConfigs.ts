@@ -2225,10 +2225,15 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     type: "text",
     dependsOn: ["theme"],
 tools: ["google_search"],    
-prompt: (ctx: any) => `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
-const today = new Date().toISOString().split('T')[0];
+prompt: (ctx: any) =>{
+      // 1. 真正的程式碼必須寫在 return 的「前面」，且在反引號的「外面」
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
+
+      // 2. 算好變數後，才用 return 把包含變數的字串吐出去
+      return `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
+
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
 請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
 
