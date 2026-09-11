@@ -507,7 +507,7 @@ export default function App() {
       const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
 
       // 提取 prompt 中的網址並準備作為墊圖
-      const urlRegex = /https?:\/\/[^\s"'<>\)\]]+?\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\)\]]*)?/gi;
+      const urlRegex = /https?:\/\/[^\s"'<>\)\]]+\.(?:png|jpg|jpeg|webp|gif)(?:\?[^\s"'<>\)\]]*)?/gi;
       const urls = finalPrompt.match(urlRegex) || [];
       const partsArr: any[] = [{ text: finalPrompt }];
       
