@@ -2130,11 +2130,13 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
-const today = new Date().toISOString().split('T')[0];      
-return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
 
 你是一位熟悉台灣科技股與台股供應鏈的財經主編。
 請幫我提煉出 3 個最具『流量爆發力』與『散戶關注度』的影音主題名稱（ctx.theme）。
@@ -2152,11 +2154,13 @@ return `【時間定錨與強制搜尋指令】：
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
-const today = new Date().toISOString().split('T')[0];
-      return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
 
 你是一位專精全球總體經濟與資產配置的財經主編。
 請幫我提煉出 3 個適合『進階投資人與美債ETF持有者』的影音主題名稱（ctx.theme）。
@@ -2174,11 +2178,13 @@ const today = new Date().toISOString().split('T')[0];
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
-const today = new Date().toISOString().split('T')[0];
-      return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向（以 ${today} 基準）。
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向。
 
 你是一位擅長台股籌碼分析與技術盤勢的財經主編。
 請搜尋台股最新的「三大法人買賣超、外資台指期未平倉空單、融資融券變化與大盤關鍵支撐壓力位」。
@@ -2197,11 +2203,13 @@ const today = new Date().toISOString().split('T')[0];
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
-const today = new Date().toISOString().split('T')[0];
-      return `【時間定錨與強制搜尋指令】：
-今天是 ${today}。請務必強制調用 Google 搜尋工具，檢索檢索今天（以 ${today} 基準）的熱門商業話題、企業財報或新興獲利模式（以 ${today} 基準）。
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的熱門商業話題、企業財報或新興獲利模式。
 
 你是一位專精於商業模式拆解與產業分析的財經主編。
 請幫我提煉出 3 個具備『反常識』與『深度商業洞察』的影音主題名稱（ctx.theme）。
@@ -2216,11 +2224,13 @@ const today = new Date().toISOString().split('T')[0];
     description: "針對財經主題進行定義釐清、歷史數據比對與市場影響評估",
     type: "text",
     dependsOn: ["theme"],
-    prompt: (ctx: any) => `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
+tools: ["google_search"],    
+prompt: (ctx: any) => `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
     const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 const isoTimestamp = new Date().toISOString();
 const today = new Date().toISOString().split('T')[0];
-請務必優先使用 Google 搜尋查證最新的官方數據（如 FRED、各國央行、主計處等）再回答。
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
 
 【⚠️ 最高合規與真實性指令】：
 1. 嚴禁任何 AI 腦補數據。若無最新數據，請明言「尚未公布」。
