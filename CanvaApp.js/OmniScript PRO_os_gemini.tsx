@@ -1153,7 +1153,8 @@ export default function App() {
       
       const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
       
-      if (!activeApiKey) {
+      // 在 Gemini Canvas 環境下，API 請求可能會被自動攔截並注入金鑰，因此如果沒填也不阻擋，直接發送請求
+      if (!isCanvasEnv && !activeApiKey) {
           addLog(`[Error] 尚未設定 Gemini API Key，無法進行文件 AI 萃取。`, 'error');
           safeAlert(`請先在畫面上設定您的 Gemini API Key`);
           e.target.value = null;
