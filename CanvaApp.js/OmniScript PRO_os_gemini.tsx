@@ -1112,26 +1112,45 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 新增：讀取本地文件內容 ---
-  const handleFileUpload = (e) => {
+  // --- 修改：支援 PDF/Word 且由 AI 智慧解析萃取 ---
+  const handleFileUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target.result;
+    
+    addLog(`[System] 正在上傳並交由 AI 智慧解析文件：${file.name}... (請稍候)`, 'info');
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+      const res = await fetch('/api/parse-document', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || '解析失敗');
+      }
+      
+      const text = data.text;
       setCustomContext(prev => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
-          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          safeAlert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
-          return prev; // 放棄匯入，維持原樣
+           addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
+           return newText.substring(0, 5000);
         }
-        addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
+        addLog(`[System] 📄 文件解析成功！已由 AI 萃取精華並匯入背景知識。`, 'success');
         return newText;
       });
-    };
-    reader.readAsText(file);
-    e.target.value = null; // 重置 input 讓同一個檔案可以重複上傳
+    } catch (err: any) {
+      console.error(err);
+      addLog(`[Error] 檔案解析發生錯誤：${err.message}`, 'error');
+      safeAlert(`檔案解析發生錯誤：${err.message}`);
+    } finally {
+      e.target.value = null; // 重置 input
+    }
   };
 
   // --- 新增：直接寫入 Step 1 ---
@@ -1756,11 +1775,11 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
                         <label className=" text-[14px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
-                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200">
-                          <UploadCloud className="w-3 h-3" />
-                          <span>上傳 TXT/MD/CSV</span>
-                          <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
-                        </label>
+                          <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200 shadow-sm" title="支援 txt, md, csv, pdf, docx，由 AI 幫您萃取重點">
+                            <UploadCloud className="w-3 h-3" />
+                            <span>上傳文件 (AI智能解析重點)</span>
+                            <input type="file" accept=".txt,.md,.csv,.pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+                          </label>
                       </div>
                       <div className="relative">
                         <textarea

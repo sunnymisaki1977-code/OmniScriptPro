@@ -1,0 +1,72 @@
+import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+// @ts-ignore
+import pdfParse from "pdf-parse";
+// @ts-ignore
+import mammoth from "mammoth";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: Request) {
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    if (!file) {
+      return NextResponse.json({ error: "Missing file" }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    let rawText = "";
+
+    if (file.name.toLowerCase().endsWith(".pdf")) {
+      const pdfData = await pdfParse(buffer);
+      rawText = pdfData.text;
+    } else if (file.name.toLowerCase().endsWith(".docx")) {
+      const docxData = await mammoth.extractRawText({ buffer });
+      rawText = docxData.value;
+    } else if (file.name.toLowerCase().endsWith(".txt") || file.name.toLowerCase().endsWith(".md") || file.name.toLowerCase().endsWith(".csv")) {
+      rawText = buffer.toString("utf8");
+    } else {
+      return NextResponse.json({ error: "Unsupported file format" }, { status: 400 });
+    }
+
+    if (!rawText || rawText.trim().length === 0) {
+      return NextResponse.json({ error: "無法從檔案中提取出文字。" }, { status: 400 });
+    }
+
+    // 將文字送給 Gemini 進行濃縮與核心萃取 (AI解析)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        temperature: 0.3,
+      },
+    });
+
+    const prompt = `你是一個專業的內容萃取與資料整理專家。
+使用者上傳了一份參考文件，請你對以下文本進行「AI解析與內容擷取」：
+1. 提取出文章中的【核心知識、關鍵數據、重要引言與背景資訊】。
+2. 刪除無意義的贅字、版權聲明、目錄或空白排版。
+3. 如果原文內容很長，請將其濃縮為結構化的重點摘要（使用條列式或小標題）。
+4. 最終輸出的字數請盡量控制在 3000 字以內，以確保後續能作為優質的背景知識庫。
+5. 若原文本身已非常精簡（少於500字），請直接優化排版後保留原意輸出即可。
+
+【原始文件內容】：
+${rawText.substring(0, 100000)} // 避免超過 token 限制，取前10萬字`;
+
+    const aiRes = await model.generateContent(prompt);
+    const extractedText = aiRes.response.text().trim();
+
+    return NextResponse.json({ 
+      success: true, 
+      text: extractedText,
+      originalLength: rawText.length,
+      extractedLength: extractedText.length
+    });
+
+  } catch (error: any) {
+    console.error("Parse Document API Error:", error);
+    return NextResponse.json({ error: error.message || "解析失敗" }, { status: 500 });
+  }
+}
