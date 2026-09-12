@@ -1112,78 +1112,144 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 修改：TXT/MD/CSV 維持前端讀取，PDF/Word 交由 AI 智慧解析萃取 ---
-  const handleFileUpload = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const fileName = file.name.toLowerCase();
-    const isAIParse = fileName.endsWith('.pdf') || fileName.endsWith('.doc') || fileName.endsWith('.docx');
-
-    if (!isAIParse) {
-      // 純文字檔：前端直接讀取 (還原原本設計)
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        const text = event.target.result;
-        setCustomContext((prev: string) => {
-          const newText = prev + (prev ? '\n\n' : '') + text;
-          if (newText.length > 5000) {
-            addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後總字數 ${newText.length} 字，超過 5000 字限制。請刪減避免 AI 崩潰！`, 'error');
-            safeAlert(`匯入失敗：字數總計(${newText.length} 字) 超過 5000 字限制\n建議直接截取精華段落即可。`);
-            return prev; // 拒絕匯入，維持原樣
-          }
-          addLog(`[System] 已匯入純文字文件：${file.name}`, 'success');
-          return newText;
-        });
-      };
-      reader.readAsText(file);
-      e.target.value = null;
-      return;
-    }
-
-    // PDF/Word 檔案：送交後端 AI 解析
-    addLog(`[System] 正在上傳並交由 AI 智慧解析文件：${file.name}... (請稍候)`, 'info');
-    
-    const formData = new FormData();
-    formData.append("file", file);
-    
-    // 取得當前使用的 API Key 並傳給後端
-    const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    if (activeApiKey) {
-      formData.append("apiKey", activeApiKey);
-    }
-    
-    try {
-      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/parse-document';
-      const res = await fetch(VERCEL_API_URL, {
-        method: 'POST',
-        body: formData
-      });
+    // --- 修改：完全在前端解析 (符合 Gemini Canvas 環境) ---
+    const handleFileUpload = async (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
       
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || '解析失敗');
+      const fileName = file.name.toLowerCase();
+      const isPDF = fileName.endsWith('.pdf');
+      const isWord = fileName.endsWith('.doc') || fileName.endsWith('.docx');
+      const isText = fileName.endsWith('.txt') || fileName.endsWith('.md') || fileName.endsWith('.csv');
+
+      if (!isPDF && !isWord && !isText) {
+         addLog(`[Error] 檔案格式不支援`, 'error');
+         return;
       }
+
+      if (isText) {
+        // 純文字檔：前端直接讀取
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          const text = event.target.result;
+          setCustomContext((prev: string) => {
+            const newText = prev + (prev ? '\n\n' : '') + text;
+            if (newText.length > 5000) {
+              addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後總字數 ${newText.length} 字，超過 5000 字限制。請刪減避免 AI 崩潰！`, 'error');
+              safeAlert(`匯入失敗：字數總計(${newText.length} 字) 超過 5000 字限制\n建議直接截取精華段落即可。`);
+              return prev; // 拒絕匯入，維持原樣
+            }
+            addLog(`[System] 已匯入純文字文件：${file.name}`, 'success');
+            return newText;
+          });
+        };
+        reader.readAsText(file);
+        e.target.value = null;
+        return;
+      }
+
+      // PDF/Word 檔案：前端解析 + 直接呼叫 Gemini API 進行萃取
+      addLog(`[System] 正在前端解析並交由 AI 智慧萃取文件：${file.name}... (請稍候)`, 'info');
       
-      const text = data.text;
-      setCustomContext((prev: string) => {
-        const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 5000) {
-           addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
-           return newText.substring(0, 5000);
-        }
-        addLog(`[System] 📄 文件解析成功！已由 AI 萃取精華並匯入背景知識。`, 'success');
-        return newText;
-      });
-    } catch (err: any) {
-      console.error(err);
-      addLog(`[Error] 檔案解析發生錯誤：${err.message}`, 'error');
-      safeAlert(`檔案解析發生錯誤：${err.message}`);
-    } finally {
-      e.target.value = null; // 重置 input
-    }
-  };
+      const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+      
+      if (!activeApiKey) {
+          addLog(`[Error] 尚未設定 Gemini API Key，無法進行文件 AI 萃取。`, 'error');
+          safeAlert(`請先在畫面上設定您的 Gemini API Key`);
+          e.target.value = null;
+          return;
+      }
+
+      try {
+         let extractedText = "";
+         let pdfBase64 = "";
+
+         if (isWord) {
+             const mammothPkg = await import('mammoth');
+             const mammoth = mammothPkg.default || mammothPkg;
+             const arrayBuffer = await file.arrayBuffer();
+             const result = await mammoth.extractRawText({ arrayBuffer });
+             extractedText = result.value;
+         } else if (isPDF) {
+             const arrayBuffer = await file.arrayBuffer();
+             const bytes = new Uint8Array(arrayBuffer);
+             let binary = '';
+             for (let i = 0; i < bytes.byteLength; i++) {
+                 binary += String.fromCharCode(bytes[i]);
+             }
+             pdfBase64 = btoa(binary);
+         }
+
+         if (isWord && (!extractedText || extractedText.trim().length === 0)) {
+            throw new Error("無法從 Word 檔案中提取出文字。");
+         }
+
+         const promptText = `你是一個專業的內容萃取與資料整理專家。
+使用者上傳了一份參考文件，請你對提供的內容進行「AI解析與內容擷取」：
+1. 提取出文章中的【核心知識、關鍵數據、重要引言與背景資訊】。
+2. 刪除無意義的贅字、版權聲明、目錄或空白排版。
+3. 如果原文內容很長，請將其濃縮為結構化的重點摘要（使用條列式或小標題）。
+4. 最終輸出的字數請盡量控制在 3000 字以內，以確保後續能作為優質的背景知識庫。
+5. 若原文本身已非常精簡（少於500字），請直接優化排版後保留原意輸出即可。
+
+請開始解析。`;
+
+         let payloadContent = [];
+         if (isPDF) {
+             payloadContent = [
+                 { text: promptText },
+                 {
+                     inlineData: {
+                         data: pdfBase64,
+                         mimeType: "application/pdf"
+                     }
+                 }
+             ];
+         } else {
+             const truncatedText = extractedText.substring(0, 100000);
+             payloadContent = [
+                 { text: promptText + `\n\n【原始文件內容】：\n${truncatedText}` }
+             ];
+         }
+
+         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+         
+         const res = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: payloadContent }],
+                generationConfig: { temperature: 0.3 }
+            })
+         });
+
+         const data = await res.json();
+         if (!res.ok) {
+            throw new Error(data.error?.message || 'Gemini API 發生錯誤');
+         }
+
+         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+         if (!aiText) {
+             throw new Error("AI 未回傳任何解析結果");
+         }
+
+         setCustomContext((prev: string) => {
+            const newText = prev + (prev ? '\n\n' : '') + aiText.trim();
+            if (newText.length > 5000) {
+               addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
+               return newText.substring(0, 5000);
+            }
+            addLog(`[System] 📄 文件解析成功！已由前端 AI 萃取精華並匯入背景知識。`, 'success');
+            return newText;
+         });
+      } catch (err: any) {
+        console.error(err);
+        addLog(`[Error] 檔案解析發生錯誤：${err.message}`, 'error');
+        safeAlert(`檔案解析發生錯誤：${err.message}`);
+      } finally {
+        e.target.value = null; // 重置 input
+      }
+    };
 
   // --- 新增：直接寫入 Step 1 ---
   const handleImportToStep1 = () => {
