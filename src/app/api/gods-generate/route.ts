@@ -89,7 +89,12 @@ ${imageTextInstruction1}。"
 }
 
 如果判斷為【第三類：宮廟】，
-請輸出：
+【最高原則】
+🌟 視覺特徵與建築藝術（實地取景必備）
+【⚠️ 強制圖像查證指令】：請透過 Google 搜尋『${name}』的相關報導與圖庫資料。
+請務必「提供 3 組真實且有效的圖片網址（Image URL）」。
+
+請輸出：3 組真實且有效的圖片網址（Image URL）
 {
   "category": "宮廟",
   "reason": "請簡述判斷為此類的原因",
@@ -99,8 +104,9 @@ ${imageTextInstruction1}。"
   "desc": "35-50 字的簡介。需以『建廟歷史、建築特色、在地信仰意義』的角度切入（由上到下，由右到左，不要標點符號）",
   "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左，不要標點符號）'}",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
-  "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
+  "tags": ["標籤1", "標籤2", "標籤3"]
+  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，【⚠️ 強制圖像查證指令】「隨機填入一個圖片網址（Image URL）」，
+${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
 }`;
     });
 
