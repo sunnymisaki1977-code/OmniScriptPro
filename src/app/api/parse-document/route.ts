@@ -7,12 +7,22 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export const dynamic = 'force-dynamic';
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS(req: Request) {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     if (!file) {
-      return NextResponse.json({ error: "Missing file" }, { status: 400 });
+      return NextResponse.json({ error: "Missing file" }, { status: 400, headers: corsHeaders });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -31,11 +41,11 @@ export async function POST(req: Request) {
     } else if (file.name.toLowerCase().endsWith(".txt") || file.name.toLowerCase().endsWith(".md") || file.name.toLowerCase().endsWith(".csv")) {
       rawText = buffer.toString("utf8");
     } else {
-      return NextResponse.json({ error: "Unsupported file format" }, { status: 400 });
+      return NextResponse.json({ error: "Unsupported file format" }, { status: 400, headers: corsHeaders });
     }
 
     if (!isPDF && (!rawText || rawText.trim().length === 0)) {
-      return NextResponse.json({ error: "無法從檔案中提取出文字。" }, { status: 400 });
+      return NextResponse.json({ error: "無法從檔案中提取出文字。" }, { status: 400, headers: corsHeaders });
     }
 
     // 將資料送給 Gemini 進行濃縮與核心萃取
@@ -85,10 +95,10 @@ export async function POST(req: Request) {
       text: extractedText,
       originalLength: isPDF ? 0 : rawText.length,
       extractedLength: extractedText.length
-    });
+    }, { headers: corsHeaders });
 
   } catch (error: any) {
     console.error("Parse Document API Error:", error);
-    return NextResponse.json({ error: error.message || "解析失敗" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "解析失敗" }, { status: 500, headers: corsHeaders });
   }
 }

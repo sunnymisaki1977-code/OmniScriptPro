@@ -1148,7 +1148,8 @@ export default function App() {
     formData.append("file", file);
     
     try {
-      const res = await fetch('/api/parse-document', {
+      const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/parse-document';
+      const res = await fetch(VERCEL_API_URL, {
         method: 'POST',
         body: formData
       });
