@@ -1184,46 +1184,71 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 修改：支援 PDF/Word 且由 AI 智慧解析萃取 ---
-  const handleFileUpload = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    addLog(`[System] 正在上傳並交由 AI 智慧解析文件：${file.name}... (請稍候)`, 'info');
-    
-    const formData = new FormData();
-    formData.append("file", file);
-    
-    try {
-      const res = await fetch('/api/parse-document', {
-        method: 'POST',
-        body: formData
-      });
+    // --- 修改：TXT/MD/CSV 維持前端讀取，PDF/Word 交由 AI 智慧解析萃取 ---
+    const handleFileUpload = async (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
       
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || '解析失敗');
+      const fileName = file.name.toLowerCase();
+      const isAIParse = fileName.endsWith('.pdf') || fileName.endsWith('.doc') || fileName.endsWith('.docx');
+
+      if (!isAIParse) {
+        // 純文字檔：前端直接讀取 (還原原本設計)
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          const text = event.target.result;
+          setCustomContext((prev: string) => {
+            const newText = prev + (prev ? '\n\n' : '') + text;
+            if (newText.length > 5000) {
+              addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後總字數 ${newText.length} 字，超過 5000 字限制。請刪減避免 AI 崩潰！`, 'error');
+              safeAlert(`匯入失敗：字數總計(${newText.length} 字) 超過 5000 字限制\n建議直接截取精華段落即可。`);
+              return prev; // 拒絕匯入，維持原樣
+            }
+            addLog(`[System] 已匯入純文字文件：${file.name}`, 'success');
+            return newText;
+          });
+        };
+        reader.readAsText(file);
+        e.target.value = null;
+        return;
       }
+
+      // PDF/Word 檔案：送交後端 AI 解析
+      addLog(`[System] 正在上傳並交由 AI 智慧解析文件：${file.name}... (請稍候)`, 'info');
       
-      const text = data.text;
-      setCustomContext(prev => {
-        const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 5000) {
-           addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
-           return newText.substring(0, 5000);
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      try {
+        const res = await fetch('/api/parse-document', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || '解析失敗');
         }
-        addLog(`[System] 📄 文件解析成功！已由 AI 萃取精華並匯入背景知識。`, 'success');
-        return newText;
-      });
-    } catch (err: any) {
-      console.error(err);
-      addLog(`[Error] 檔案解析發生錯誤：${err.message}`, 'error');
-      safeAlert(`檔案解析發生錯誤：${err.message}`);
-    } finally {
-      e.target.value = null; // 重置 input
-    }
-  };
+        
+        const text = data.text;
+        setCustomContext((prev: string) => {
+          const newText = prev + (prev ? '\n\n' : '') + text;
+          if (newText.length > 5000) {
+             addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
+             return newText.substring(0, 5000);
+          }
+          addLog(`[System] 📄 文件解析成功！已由 AI 萃取精華並匯入背景知識。`, 'success');
+          return newText;
+        });
+      } catch (err: any) {
+        console.error(err);
+        addLog(`[Error] 檔案解析發生錯誤：${err.message}`, 'error');
+        safeAlert(`檔案解析發生錯誤：${err.message}`);
+      } finally {
+        e.target.value = null; // 重置 input
+      }
+    };
 
   // --- 新增：直接寫入 Step 1 ---
   const handleImportToStep1 = () => {

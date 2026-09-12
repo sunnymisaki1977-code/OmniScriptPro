@@ -1112,11 +1112,36 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 修改：支援 PDF/Word 且由 AI 智慧解析萃取 ---
+  // --- 修改：TXT/MD/CSV 維持前端讀取，PDF/Word 交由 AI 智慧解析萃取 ---
   const handleFileUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
     
+    const fileName = file.name.toLowerCase();
+    const isAIParse = fileName.endsWith('.pdf') || fileName.endsWith('.doc') || fileName.endsWith('.docx');
+
+    if (!isAIParse) {
+      // 純文字檔：前端直接讀取 (還原原本設計)
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        const text = event.target.result;
+        setCustomContext((prev: string) => {
+          const newText = prev + (prev ? '\n\n' : '') + text;
+          if (newText.length > 5000) {
+            addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後總字數 ${newText.length} 字，超過 5000 字限制。請刪減避免 AI 崩潰！`, 'error');
+            safeAlert(`匯入失敗：字數總計(${newText.length} 字) 超過 5000 字限制\n建議直接截取精華段落即可。`);
+            return prev; // 拒絕匯入，維持原樣
+          }
+          addLog(`[System] 已匯入純文字文件：${file.name}`, 'success');
+          return newText;
+        });
+      };
+      reader.readAsText(file);
+      e.target.value = null;
+      return;
+    }
+
+    // PDF/Word 檔案：送交後端 AI 解析
     addLog(`[System] 正在上傳並交由 AI 智慧解析文件：${file.name}... (請稍候)`, 'info');
     
     const formData = new FormData();
@@ -1135,7 +1160,7 @@ export default function App() {
       }
       
       const text = data.text;
-      setCustomContext(prev => {
+      setCustomContext((prev: string) => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
            addLog(`[Warning] 解析成功但字數超標 (目前 ${newText.length} 字)，已為您截斷至 5000 字。`, 'warning');
