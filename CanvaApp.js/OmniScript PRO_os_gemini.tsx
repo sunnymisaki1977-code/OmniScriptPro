@@ -516,7 +516,7 @@ export default function App() {
       for (const u of urls) {
         try {
           addLog(`[System] 偵測到圖片網址，嘗試下載作為墊圖: ${u}`, 'info');
-          const fetchRes = await fetch('/api/fetch-image', {
+          const fetchRes = await fetch('https://omni-script-pro.vercel.app/api/fetch-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: u })
@@ -1146,6 +1146,12 @@ export default function App() {
     
     const formData = new FormData();
     formData.append("file", file);
+    
+    // 取得當前使用的 API Key 並傳給後端
+    const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+    if (activeApiKey) {
+      formData.append("apiKey", activeApiKey);
+    }
     
     try {
       const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/parse-document';

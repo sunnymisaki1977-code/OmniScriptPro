@@ -3,10 +3,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // @ts-ignore
 import mammoth from "mammoth";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
-export const dynamic = 'force-dynamic';
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -21,9 +17,18 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const clientApiKey = formData.get("apiKey") as string;
+    
     if (!file) {
       return NextResponse.json({ error: "Missing file" }, { status: 400, headers: corsHeaders });
     }
+
+    const apiKey = clientApiKey || process.env.GEMINI_API_KEY || "";
+    if (!apiKey) {
+      return NextResponse.json({ error: "Missing Gemini API Key" }, { status: 400, headers: corsHeaders });
+    }
+    
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     const buffer = Buffer.from(await file.arrayBuffer());
     let rawText = "";

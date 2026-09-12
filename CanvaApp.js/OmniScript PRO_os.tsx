@@ -1218,6 +1218,12 @@ export default function App() {
       
       const formData = new FormData();
       formData.append("file", file);
+
+      // 取得當前使用的 API Key 並傳給後端
+      const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
+      if (activeApiKey) {
+        formData.append("apiKey", activeApiKey);
+      }
       
       try {
         const res = await fetch('/api/parse-document', {
