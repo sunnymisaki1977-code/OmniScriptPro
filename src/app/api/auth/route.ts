@@ -12,10 +12,11 @@ const ACCESS_CODES: Record<string, string> = {
   'FINTECH2026': 'fintech',     // FinTech 財經知識・AI 解析
   'STORY2026': 'story',     // 文化轉譯・銘印說書
   'FAIRYTALES2026': 'fairy tales', // 文化轉譯・銘印童話
-  'FAIRY TALES2026': 'fairy tales', // 允許空白防呆
-  'PROPOSAL2026': 'proposal', // 企劃文案・AI 解析
+  'FAIRY TALES2026': 'fairy tales', // 允許空白鍵
+  'PROPOSAL2026': 'proposal', // 企劃文案・AI 提案
+  'EDTECH2026': 'edtech', // EdTech 知識賦能
   'MASTER': 'heritage',     // 管理員
-  'FLEIX': 'heritage'       // 全主題通用 (非管理員)
+  'FLEIX': 'heritage'       // 全主題通用 (同管理員)
 };
 
 // ============================================================================
