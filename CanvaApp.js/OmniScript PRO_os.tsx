@@ -1184,26 +1184,109 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 新增：讀取本地文件內容 ---
-  const handleFileUpload = (e) => {
+  // --- 新增：讀取本地文件內容 (支援 TXT, PDF, DOCX, 圖片OCR) ---
+  const handleFileUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target.result;
-      setCustomContext(prev => {
+
+    const appendText = (text: string) => {
+      setCustomContext((prev: string) => {
         const newText = prev + (prev ? '\n\n' : '') + text;
         if (newText.length > 5000) {
-          addLog(`[Error] 匯入失敗：加上 ${file.name} 內容後字數達 ${newText.length} 字，超過 5000 字上限，為避免超載請刪減文字！`, 'error');
-          safeAlert(`匯入失敗：字數總和 (${newText.length} 字) 超過 5000 字上限！\n建議直接擷取精華段落即可。`);
-          return prev; // 放棄匯入，維持原樣
+          addLog(`[Warning] 檔案 ${file.name} 內容已匯入並截斷至 5000 字上限。`, 'warning');
+          return newText.substring(0, 5000);
         }
-        addLog(`[System] 已成功讀取文件：${file.name}`, 'success');
+        addLog(`[System] 已成功解析並匯入文件：${file.name}`, 'success');
         return newText;
       });
     };
-    reader.readAsText(file);
-    e.target.value = null; // 重置 input 讓同一個檔案可以重複上傳
+
+    try {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        addLog(`[System] 正在前端解析 PDF 文件：${file.name}...`, 'info');
+        
+        if (!(window as any).pdfjsLib) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+            script.onload = () => {
+              (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+              resolve(true);
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDocument = await (window as any).pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdfDocument.numPages;
+        let fullTextResult = '';
+
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+          const page = await pdfDocument.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          let pageText = '';
+          let lastY = -1;
+          textContent.items.forEach((item: any) => {
+            if (lastY !== item.transform[5] && lastY !== -1) pageText += '\n';
+            pageText += item.str;
+            lastY = item.transform[5];
+          });
+          fullTextResult += pageText + '\n\n';
+        }
+        appendText(fullTextResult);
+
+      } else if (file.name.toLowerCase().endsWith('.docx')) {
+        addLog(`[System] 正在前端解析 Word 文件：${file.name}...`, 'info');
+        
+        if (!(window as any).mammoth) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+            script.onload = () => resolve(true);
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await (window as any).mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+        appendText(result.value);
+
+      } else if (file.type.startsWith('image/')) {
+        addLog(`[System] 正在使用 OCR 識別圖片文字：${file.name}... (可能需要幾秒鐘)`, 'info');
+        
+        if (!(window as any).Tesseract) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            script.onload = () => resolve(true);
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        const result = await (window as any).Tesseract.recognize(file, 'chi_tra+eng', {
+          logger: (m: any) => console.log(m)
+        });
+        appendText(result.data.text);
+
+      } else {
+        // TXT, CSV, MD
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          appendText(event.target.result);
+        };
+        reader.readAsText(file);
+      }
+    } catch (err: any) {
+      console.error("解析錯誤:", err);
+      addLog(`[Error] 檔案解析失敗：${err.message || '未知錯誤'}`, 'error');
+      safeAlert(`檔案解析失敗，可能檔案已損毀或包含不支援的格式。`);
+    } finally {
+      e.target.value = null;
+    }
   };
 
   // --- 新增：直接寫入 Step 1 ---
@@ -1840,11 +1923,11 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
                         <label className=" text-[14px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
-                        <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200">
-                          <UploadCloud className="w-3 h-3" />
-                          <span>上傳 TXT/MD/CSV</span>
-                          <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
-                        </label>
+                          <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200 shadow-sm" title="支援 txt, md, csv, pdf, docx, 圖片">
+                            <UploadCloud className="w-3 h-3" />
+                            <span>上傳文件/圖片擷取文字</span>
+                            <input type="file" accept=".txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" onChange={handleFileUpload} />
+                          </label>
                       </div>
                       <div className="relative">
                         <textarea
