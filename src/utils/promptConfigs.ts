@@ -3869,7 +3869,8 @@ AI Prompt (中文):
 💬 留言「+1」或特定關鍵字，小編私訊發給你本單元【完整課後心智圖與講義】！
 #學習日常 #線上課程 #${ctx.theme} [補充2個相關標籤]`
   }
-];
+  ]
+};
 
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
