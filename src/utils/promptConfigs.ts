@@ -3628,72 +3628,249 @@ AI Prompt (中文):
 ],
   "edtech": [
     {
-      id: 1,
-      title: "核心知識萃取",
-      description: "從資料中提取最核心的知識架構",
-      type: "text",
-      dependsOn: ["theme"],
-      prompt: (ctx: any) => `你是一位資深「EdTech 教育科技專家」與「知識架構師」。請針對主題「${ctx.theme}」進行結構化拆解，提取出最核心的知識點。
-參考資料：${ctx.customContext || "無"}
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對特定教學主題進行學習目標定義、核心概念拆解與學生常見盲點評估",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位擁有豐富教學經驗的課程總監。請針對教學主題「${ctx.theme}」撰寫一份 1500 字的課程規劃書。
 
-【要求】：
-請以條列方式輸出 3-5 個核心知識重點，並附上標題，語氣必須清晰、專業、易於理解。`
-    },
-    {
-      id: 2,
-      title: "教學圖解規劃",
-      description: "規劃對應的視覺圖解方案",
-      type: "text",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => `你是一位擅長將複雜知識降維解析的「視覺化圖解專家」。
-根據先前的核心知識點：
+【輸出模板】請嚴格遵循以下架構：
+### 一、 執行摘要 (TL;DR)
+[一句話破題：這堂課解決學生什麼痛點？]
+[課程核心目標]
+
+### 二、 核心知識點與底層邏輯
+[將艱澀概念轉化為白話文與生活化比喻]
+[知識點 1：...]
+[知識點 2：...]
+
+### 三、 常見迷思與學習盲點
+[列出 2-3 個過去學生在學這個章節時，最常卡關或誤解的地方，並給出正確觀念]
+
+### 四、 實戰應用與隨堂測驗
+[學完之後可以如何應用？]
+[請設計 2 題情境選擇題或思考題，並附上解答解析]`
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據課程企劃，產出教學文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【課程核心企劃】，撰寫一份教學長腳本。每 15 秒為一個節點。
+
+資料來源：
+====================
 ${ctx.step1}
+====================
 
-【要求】：
-請為這些知識點設計 3-4 個「視覺化圖解方案」（例如：流程圖、金字塔、對比圖等），幫助學員秒懂複雜概念。請詳述每個圖解的排版與視覺隱喻。`
-    },
-    {
-      id: 3,
-      title: "圖像生成提示詞",
-      description: "將視覺規劃轉換為 AI 算圖指令",
-      type: "text",
-      dependsOn: ["theme", "step2"],
-      prompt: (ctx: any) => `根據先前的圖解規劃：
+【⚠️ 旁白配音 (VO) 字數強制指令 (解決影片過短問題)】：
+請依序產出各時間節點的內容。注意：為了符合真實配音長度並撐起完整課程，『每一個 15 秒區塊的旁白配音 (VO)』必須至少包含 40 到 50 個中文字。
+請「直接沿用」原課程企劃，絕對不可為了排版精簡而過度濃縮。
+
+
+【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+## 🎬 YouTube 教學深度解析：${ctx.theme}
+
+### ⏱️ 開場 (Hook)：
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:45 - 01:00]：
+- 視覺畫面：[描述開場畫面，需具備現代教育感]
+- 畫面字卡：[10字以內的破題標題]
+- 旁白配音 (VO)：[至少 40-50 字，用一個常見的迷思或學生常犯錯誤開場]
+
+### ⏱️ 核心概念拆解 (01:00 - 04:00)
+ (時間規劃：01:00 - 04:00，共 12 個節點)
+請依序產出 [01:00 - 01:15] 到 [03:45 - 04:00]：
+- 視覺畫面：[描述搭配的圖表或動畫解說]
+- 畫面字卡：[10字以內的核心金句]
+- 旁白配音 (VO)：[至少 40-50 字，利用視覺化比喻拆解知識點]
+
+### ⏱️ 實戰推演與應用 (04:00 - 07:00)
+ (時間規劃：04:00 - 07:00，共 12 個節點)
+請依序產出 [04:00 - 04:15] 到 [06:45 - 07:00]：
+- 視覺畫面：[一步步帶領觀眾解題或實作的畫面指示]
+- 畫面字卡：[解題步驟或口訣]
+- 旁白配音 (VO)：[至少 40-50 字，流暢的邏輯推演解說]
+
+### ⏱️ 總結與互動引導 (07:00 - 08:00)
+ (時間規劃：07:00 - 08:00，共 4 個節點)
+請依序產出 [07:00 - 07:15]、[07:45 - 08:00]：
+- 視覺畫面：[課程重點條列字卡]
+- 畫面字卡：[本章重點複習，並引導留言]
+- 旁白配音 (VO)：[至少 40-50 字，總結核心觀點，指派一個小作業邀請觀眾在留言區回答。引導觀眾訂閱並索取完整講義]
+`
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊的教學影片標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《教學長影音腳本》，產出能極大化點擊率的教育類 SEO 內容。
+
+腳本內容：
+====================
 ${ctx.step2}
+====================
 
-請為每個圖解方案撰寫 1 段英文的 Midjourney/Stable Diffusion 圖像生成 Prompt。
-【要求】：
-- 專注於描述扁平化教育圖解、等距微縮立體風格或手帳線稿。
-- 只輸出英文 prompt 本身，不需要任何解釋。每個 prompt 以 --- 分隔。`
-    },
-    {
-      id: 4,
-      title: "微課程大綱與腳本",
-      description: "生成完整的教學大綱與旁白",
-      type: "text",
-      dependsOn: ["theme", "step1", "step2"],
-      prompt: (ctx: any) => `綜合以上知識點與視覺圖解，請為主題「${ctx.theme}」撰寫一份「微課程腳本」。
-包含：
-1. 課程痛點 (Hook)
-2. 核心解法 (Body)
-3. 重點圖解說明與口白旁白 (Voiceover)
-4. 課後行動 (Call to Action)
-語氣要具有啟發性、教育性與科技感。`
-    },
-    {
-      id: 5,
-      title: "社群賦能貼文",
-      description: "生成社群推廣文案",
-      type: "text",
-      dependsOn: ["theme", "step4"],
-      prompt: (ctx: any) => `根據微課程腳本：
-${ctx.step4}
+【輸出模板】：
+### 🎯 爆款教學標題 (5 個切角)
+1. [零基礎型標題]
+2. [痛點破解型標題]
+3. [生活應用型標題]
+4. [考試直擊型標題]
+5. [趨勢解密型標題]
 
-請撰寫一篇適合發佈在 LinkedIn 或 Facebook 上的「社群賦能貼文」，用以宣傳這個微課程知識點。
-附上 3-5 個相關的 Hashtags。`
-    }
-  ]
-};
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ...
+
+### 📝 影片說明欄
+[150字含有關鍵字的課程簡介，並呼籲觀眾留言特定字眼索取完整筆記]`
+  },
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的精簡微學習短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《課程核心企劃》：${ctx.step1}，撰寫一份 180 秒內的 YouTube Shorts / IG Reels 短影片腳本。節奏需極度明快。
+
+【輸出模板】：
+### 💥 前 3 秒：黃金 Hook (00:00 - 00:15)
+- 視覺畫面：[極具衝擊力的錯誤示範或迷思]
+- 畫面字卡：[精煉痛點字卡]
+- 旁白配音 (VO)：[一句話點出學生最常卡關的痛點]
+
+### 📖 高能知識濃縮 (00:15 - 02:00)
+- 視覺畫面：[快節奏切換的知識圖解]
+- 畫面字卡：[黃金解法或記憶口訣]
+- 旁白配音 (VO)：[給出最核心的觀念破解，語速明快]
+
+### 📢 總結與行動呼籲 (02:00 - 03:00)
+- 視覺畫面：[引導至資訊欄或主頁]
+- 畫面字卡：[點擊領取講義]
+- 旁白配音 (VO)：[引導觀眾點擊主頁連結或留言領取完整課程筆記]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成教學短影片封面標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出短影音專屬 SEO。
+
+【輸出模板】：
+### 🎯 衝擊力短影音標題 (3 個)
+1. [如：99%的人都搞錯的...]
+2. [如：1分鐘破解...]
+3. [如：考前必看！...]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 教學縮圖文案與高質感繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對腳本「${ctx.step2}」生成 3 組 YouTube 教學縮圖文案與 AI 繪圖指令 (16:9)。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須嚴格包含以下美學約束：clean sans-serif typography layout, line-art background configuration, highly detailed, stylized illustrations, educational aesthetic. 絕對禁止使用實體色塊背景與粗重的方形印章邊框 (strictly avoid thick square seal borders and solid block backgrounds)。
+
+### 第一組：[縮圖名稱]
+主標：[痛點/懸念主標]
+副標：[補充說明]
+中文繪圖提示詞：[畫面描述。背景必須明確指定為線條藝術配置，圖框設計請使用極細線條，呈現明亮專業的學術氛圍]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音封面文案與繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對腳本「${ctx.step4}」生成 3 組 9:16 短影音縮圖設計。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須包含：extreme vertical composition, clean sans-serif typography layout, minimal line-art background configuration.
+
+### 第一組：[縮圖名稱]
+高點擊文案：[極度精簡的痛點字卡，5字以內]
+中文繪圖提示詞：[視覺焦點必須集中在巨大且清晰的文字排版上，背景使用極簡的線條幾何配置，避免任何厚重的邊框]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 課程宣傳意象海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對「${ctx.step1}」生成 3 組 16:9 課程宣傳意象海報。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。視覺設計必須完美融合以下元素：color ink wash, line-art background composition, elegant serif or sans-serif typography layout。
+
+### 第一組：[海報名稱]
+教育名言：[與該堂課核心精神相關的名人語錄]
+中文繪圖提示詞：[畫面描述。場景應營造出知識啟發的人文氛圍，背景必須是線條藝術配置 (避免實體物件充斥)，搭配彩墨渲染的藝術風格。若需具象化「吸收知識」或「基礎」的意象，請在畫面適當處融入一個極簡的純白瓷碗 (plain white bowl) 作為視覺隱喻，並嚴格避免任何過粗的方形邊框設計。]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成適合學習與專注的音樂指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對課程內容「${ctx.step1}」，生成 3 組 Suno AI 音樂生成 Prompt。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請直接輸出以下格式：
+
+### 第一組：專注學習 (Lo-Fi Study)
+適用場景：解析複雜理論或概念
+Suno AI Prompt：[如：Lofi hip hop beats, chill ambient, soft piano, relaxing study tempo, clean production]
+
+### 第二組：深度思考 (Ambient Focus)
+適用場景：歷史回顧或底層邏輯探討
+Suno AI Prompt：[如：Deep ambient, binaural beats, minimal drone, atmospheric, concentration]
+
+### 第三組：激勵解惑 (Upbeat Motivation)
+適用場景：解題成功、實作應用或課程總結
+Suno AI Prompt：[如：Light acoustic pop, inspiring, cheerful, steady rhythm, optimistic]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成知識懶人包圖卡提示詞與教學社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據【課程核心企劃】：${ctx.step1}，打造一組社群知識懶人包（Carousel）與貼文。
+
+### 任務一：生成資訊圖卡 Prompt (4:5 構圖)
+請直接輸出：
+AI Prompt (中文):
+以「${ctx.theme}」為核心，採用 stylized educational infographic。生成一套包含 5 個資訊區塊的圖表排版。必須使用清晰的文字層級 (clean typography layout) 與線條藝術背景 (line-art background configuration)，避免沉重色塊。
+區塊 1 數據/觀念：[填寫亮點1]
+區塊 2 數據/觀念：[填寫亮點2]
+區塊 3 數據/觀念：[填寫亮點3]
+區塊 4 數據/觀念：[填寫亮點4]
+區塊 5 數據/觀念：[填寫亮點5]
+
+### 任務二：社群發布正文
+[帶有 Emoji 的痛點或迷思開場白]
+[條列 3-4 點課程核心觀念，用白話文解釋]
+[互動提問：針對隨堂測驗提出一個簡單問題]
+💬 留言「+1」或特定關鍵字，小編私訊發給你本單元【完整課後心智圖與講義】！
+#學習日常 #線上課程 #${ctx.theme} [補充2個相關標籤]`
+  }
+];
+
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
   return WORKFLOWS_REGISTRY[theme] || [];
