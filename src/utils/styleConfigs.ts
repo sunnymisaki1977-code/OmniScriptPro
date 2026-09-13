@@ -49,6 +49,21 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
     id: "style-proposal",
     name: "商業提案風格 (極簡專業)",
     promptSuffix: ", sleek modern corporate presentation style, minimalist infographic, clean typography, soft emerald green and white palette, professional corporate branding, highly detailed, high-end commercial aesthetic"
+  },
+  edtech_flat: {
+    id: "style-edtech-flat",
+    name: "現代幾何圖解 (扁平化教育)",
+    promptSuffix: ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
+  },
+  edtech_isometric: {
+    id: "style-edtech-isometric",
+    name: "3D 等距微縮 (系統拆解)",
+    promptSuffix: ", 3D isometric illustration, stylized miniature diorama, clean bright studio lighting, soft pastel and corporate blue colors, educational tech aesthetic, intricate mechanical or structural details, octane render, clean line-art background configuration, 8k"
+  },
+  edtech_sketch: {
+    id: "style-edtech-sketch",
+    name: "學術手帳線稿 (筆記圖解)",
+    promptSuffix: ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere"
   }
 };
 

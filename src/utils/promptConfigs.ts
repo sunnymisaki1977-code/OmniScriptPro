@@ -3625,7 +3625,74 @@ AI Prompt (中文):
 
 #深度解析 #${ctx.step2}[請再補充 3-5 個相關的 Hashtags]`
   }
-]
+],
+  "edtech": [
+    {
+      id: 1,
+      title: "核心知識萃取",
+      description: "從資料中提取最核心的知識架構",
+      type: "text",
+      dependsOn: ["theme"],
+      prompt: (ctx: any) => `你是一位資深「EdTech 教育科技專家」與「知識架構師」。請針對主題「${ctx.theme}」進行結構化拆解，提取出最核心的知識點。
+參考資料：${ctx.customContext || "無"}
+
+【要求】：
+請以條列方式輸出 3-5 個核心知識重點，並附上標題，語氣必須清晰、專業、易於理解。`
+    },
+    {
+      id: 2,
+      title: "教學圖解規劃",
+      description: "規劃對應的視覺圖解方案",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `你是一位擅長將複雜知識降維解析的「視覺化圖解專家」。
+根據先前的核心知識點：
+${ctx.step1}
+
+【要求】：
+請為這些知識點設計 3-4 個「視覺化圖解方案」（例如：流程圖、金字塔、對比圖等），幫助學員秒懂複雜概念。請詳述每個圖解的排版與視覺隱喻。`
+    },
+    {
+      id: 3,
+      title: "圖像生成提示詞",
+      description: "將視覺規劃轉換為 AI 算圖指令",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `根據先前的圖解規劃：
+${ctx.step2}
+
+請為每個圖解方案撰寫 1 段英文的 Midjourney/Stable Diffusion 圖像生成 Prompt。
+【要求】：
+- 專注於描述扁平化教育圖解、等距微縮立體風格或手帳線稿。
+- 只輸出英文 prompt 本身，不需要任何解釋。每個 prompt 以 --- 分隔。`
+    },
+    {
+      id: 4,
+      title: "微課程大綱與腳本",
+      description: "生成完整的教學大綱與旁白",
+      type: "text",
+      dependsOn: ["theme", "step1", "step2"],
+      prompt: (ctx: any) => `綜合以上知識點與視覺圖解，請為主題「${ctx.theme}」撰寫一份「微課程腳本」。
+包含：
+1. 課程痛點 (Hook)
+2. 核心解法 (Body)
+3. 重點圖解說明與口白旁白 (Voiceover)
+4. 課後行動 (Call to Action)
+語氣要具有啟發性、教育性與科技感。`
+    },
+    {
+      id: 5,
+      title: "社群賦能貼文",
+      description: "生成社群推廣文案",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `根據微課程腳本：
+${ctx.step4}
+
+請撰寫一篇適合發佈在 LinkedIn 或 Facebook 上的「社群賦能貼文」，用以宣傳這個微課程知識點。
+附上 3-5 個相關的 Hashtags。`
+    }
+  ]
 };
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {

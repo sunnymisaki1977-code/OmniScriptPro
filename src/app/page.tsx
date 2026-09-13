@@ -128,7 +128,7 @@ export default function LandingPage() {
     },
     { 
       id: "edtech",
-      title: "EdTech 教育培訓", 
+      title: "EdTech 知識賦能", 
       desc: "專為線上教育平台打造。注入「企業藍金配色」建立信任感，將專業知識系統化拆解為易於吸收的教學模組。", 
       color: "from-sky-400 to-blue-500",
       glowColor: "bg-sky-400",
