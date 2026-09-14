@@ -84,7 +84,7 @@ export default function LandingPage() {
   const audiences = [
     { 
       id: "fintech",
-      title: "FinTech 金融理財", 
+      title: "TechFin 科技金融", 
       desc: "專為券商與金融機構打造。結合 RSS 總經數據抓取與「彭博全息視覺」，將艱澀市場訊號轉譯為高點擊率影音。", 
       color: "from-blue-600 to-teal-500",
       glowColor: "bg-blue-600",
@@ -128,15 +128,15 @@ export default function LandingPage() {
     },
     { 
       id: "edtech",
-      title: "EdTech 知識賦能", 
+      title: "TechEd 知識賦能", 
       desc: "專為線上教育平台打造。注入「企業藍金配色」建立信任感，將專業知識系統化拆解為易於吸收的教學模組。", 
       color: "from-sky-400 to-blue-500",
       glowColor: "bg-sky-400",
       bgClass: "bg-sky-100",
       textClass: "text-sky-700",
       features: ["知識萃取", "企業藍金配色", "痛點洞察"],
-      playlistId: "PLC-IrJAPGBww",
-      previewVideoId: "5_4nrMvE4tg",
+      playlistId: "PLci_AF_ugqFA",
+      previewVideoId: "e5E1lGocIxY",
       isShorts: false,
       flipData: {
         frontImage: ["/Edu_Training_p1.jpg", "/Edu_Training_p2.jpg", "/Edu_Training_p3.jpg"],
@@ -214,7 +214,7 @@ export default function LandingPage() {
 
               <h1 className="text-4xl md:text-[4.5rem] lg:text-[5rem] font-black leading-[1.1] md:leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#0A2E5C] via-[#10B981] to-[#D4AF37] drop-shadow-sm pb-2">
                 自動化內容矩陣 <br className="hidden sm:block" />
-                與營運系統化 SOP
+                與知識轉譯
               </h1>
               
               <p className="text-base sm:text-lg md:text-xl text-slate-700 max-w-3xl mb-12 mt-6 leading-relaxed animate-fade-in-up delay-200 font-medium">
