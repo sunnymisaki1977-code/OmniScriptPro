@@ -20,9 +20,9 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
    tools: ["google_search"],
     prompt: (ctx: any) => {
   const today = new Date().toISOString().split('T')[0];
-      return`你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
-【絕對時間定錨與強制搜尋指令】：今天是 ${today}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+      return `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
+【當前系統即時時間】：${today}
+，檢索今天（以 ${today} 基準）的最新消息。
 
 <search_protocol>
 【⚠️ 強制事實查核指令】
