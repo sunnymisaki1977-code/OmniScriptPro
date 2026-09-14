@@ -19,14 +19,10 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
     dependsOn: ["theme"],
    tools: ["google_search"],
     prompt: (ctx: any) => {
-     const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-      const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];      
-      return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
-今天是 ${currentDate}（標準格式：${today}）。
+  const today = new Date().toISOString().split('T')[0];
+      return`你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
+【絕對時間定錨與強制搜尋指令】：今天是 ${today}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
-你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
 <search_protocol>
 【⚠️ 強制事實查核指令】
