@@ -17,7 +17,7 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
     description: "針對主題進行定義釐清與客觀史料彙整",
     type: "text",
     dependsOn: ["theme"],
-  tools: ["google_search"],
+    tools: ["google_search"],
     prompt: (ctx: any) => {
       const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
       const isoTimestamp = new Date().toISOString();
@@ -343,8 +343,8 @@ export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
 - 歷史方志（如：《臺灣府志》）
 - 宗教學與民俗學研究
 - 文化部或地方政府文化資產資料
-不得虛構引用來源。;
-`
+不得虛構引用來源。`;
+    }
   },
 
   {
