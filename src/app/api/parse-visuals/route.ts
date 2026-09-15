@@ -84,24 +84,24 @@ export async function POST(req: Request) {
         } else {
             // 1. 嘗試組合: 核心文案 + 促銷副標 + 中文 (使用者要求的進階整合)
             let promptTextParts = [];
-            const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
+            const coreCopyMatch = groupContent.match(/(?:核心文案|主標|高點擊文案|高轉化文案|主標題)\s*[：:]\s*(.*?)(?=\n|$)/);
             if (coreCopyMatch && coreCopyMatch[1].trim()) promptTextParts.push(`核心文案：${coreCopyMatch[1].trim()}`);
             
             const subPromoMatch = groupContent.match(/(?:促銷副標(?:（.*?）)?|副標|副標題)\s*[：:]\s*(.*?)(?=\n|$)/);
             if (subPromoMatch && subPromoMatch[1].trim()) promptTextParts.push(`促銷副標：${subPromoMatch[1].trim()}`);
             
-            const zhPromptMatch = groupContent.match(/(?:中文|中文\s*Prompt|中文Prompt)\s*[：:]\s*([\s\S]*?)(?=\n(?:主標|副標|核心文案|促銷副標|詩詞|###|$)|$)/);
+            const zhPromptMatch = groupContent.match(/(?:\*\*)?(?:中文|中文\s*Prompt|中文Prompt|AI\s*Prompt\s*(?:\(中文\)|（中文）)?)\s*(?:\*\*)?[：:]\s*([\s\S]*?)(?=\n(?:(?:\*\*)?(?:主標|副標|核心文案|高轉化文案|高點擊文案|促銷副標|詩詞)(?:\*\*)?|###|$)|$)/i);
             if (zhPromptMatch && zhPromptMatch[1].trim()) promptTextParts.push(`畫面細節與標籤：${zhPromptMatch[1].trim()}`);
 
             if (promptTextParts.length > 0) {
                 promptText = promptTextParts.join("\\n");
             } else {
                 // 2. Fallback: 尋找舊的標籤格式
-                const aiPromptMatch = groupContent.match(/AI\s*Prompt\s*(?:\(中文\)|（中文）)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:主標|副標|詩詞|###|$)|$)/i);
+                const aiPromptMatch = groupContent.match(/(?:\*\*)?AI\s*Prompt\s*(?:\(中文\)|（中文）)?(?:\*\*)?[：:\s]*(?:必須包含[：:\s]*)?([\s\S]*?)(?=\n(?:(?:\*\*)?(?:主標|副標|詩詞|高點擊文案|高轉化文案|核心文案)(?:\*\*)?|###|$)|$)/i);
                 if (aiPromptMatch && aiPromptMatch[1].trim().length > 0) {
                     promptText = aiPromptMatch[1].trim();
                 } else {
-                    const fallbackMatch = groupContent.match(/(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)\s*[：:]\s*(.*?)(?=\n|$)/);
+                    const fallbackMatch = groupContent.match(/(?:\*\*)?(?:中文|視覺描述|中文\s*Prompt|視覺Prompt)(?:\*\*)?[：:]\s*(.*?)(?=\n|$)/);
                     if (fallbackMatch && fallbackMatch[1].trim().length > 0) {
                         promptText = fallbackMatch[1].trim();
                     }
@@ -109,9 +109,9 @@ export async function POST(req: Request) {
             }
         }
         
-        const mainTitleMatch = groupContent.match(/(?:主標|高點擊文案|主標題|核心文案)\s*[：:]\s*(.*?)(?=\n|$)/);
-        const subTitleMatch = groupContent.match(/(?:副標|副標題|促銷副標(?:（.*?）)?)\s*[：:]\s*(.*?)(?=\n|$)/);
-        const poetryMatch = groupContent.match(/詩詞(?:（.*?）)?\s*[：:]\s*([\s\S]*?)(?=\n(?:中文|視覺|主標|副標|核心文案|促銷副標|高點擊文案|主標題|副標題|AI Prompt)\s*[：:]|$)/);
+        const mainTitleMatch = groupContent.match(/(?:\*\*)?(?:主標|高點擊文案|高轉化文案|主標題|核心文案)(?:\*\*)?\s*[：:]\s*(.*?)(?=\n|$)/);
+        const subTitleMatch = groupContent.match(/(?:\*\*)?(?:副標|副標題|促銷副標(?:（.*?）)?)(?:\*\*)?\s*[：:]\s*(.*?)(?=\n|$)/);
+        const poetryMatch = groupContent.match(/(?:\*\*)?詩詞(?:（.*?）)?(?:\*\*)?\s*[：:]\s*([\s\S]*?)(?=\n(?:(?:\*\*)?(?:中文|視覺|主標|副標|核心文案|促銷副標|高點擊文案|高轉化文案|主標題|副標題|AI Prompt)(?:\*\*)?\s*[：:]|###|$)|$)/);
         
         return {
             id: `group-${visualStep}-${index}`,
