@@ -214,6 +214,7 @@ export default function App() {
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [parsedVisualGroups, setParsedVisualGroups] = useState([]);
   const [isParsingVisuals, setIsParsingVisuals] = useState(false);
+  const [isSavingHeritage, setIsSavingHeritage] = useState(false);
   const [formConfigs, setFormConfigs] = useState(null);
 
   useEffect(() => {
@@ -2177,6 +2178,36 @@ const handleLogin = async (e: React.FormEvent) => {
                           <FileText className="w-3.5 h-3.5" />
                           📄 匯出完整企劃 (.PDF)
                         </button>
+                        
+                        {audienceTheme === 'heritage' && stepContents[1] && (
+                          <button
+                            onClick={async () => {
+                              setIsSavingHeritage(true);
+                              addLog(`[Notion] 準備儲存「${theme}」至 Notion 資料庫...`, 'info');
+                              try {
+                                const res = await fetch('https://omni-script-pro.vercel.app/api/heritage-notion', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    title: theme,
+                                    content: stepContents[1]
+                                  })
+                                });
+                                const data = await res.json();
+                                if (data.error) throw new Error(data.error);
+                                addLog(`[Notion] 儲存成功！已寫入資料庫。`, 'success');
+                              } catch (e: any) {
+                                addLog(`[Notion] 儲存失敗: ${e.message}`, 'error');
+                              }
+                              setIsSavingHeritage(false);
+                            }}
+                            disabled={isSavingHeritage}
+                            className="px-3 py-1.5 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/20 font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50"
+                          >
+                            {isSavingHeritage ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Database className="w-3.5 h-3.5" />}
+                            📥 儲存至 Notion
+                          </button>
+                        )}
 
                         <button 
                           onClick={triggerSingleStepAi}
