@@ -49,10 +49,10 @@ export async function POST(req: Request) {
       const theme = ACCESS_CODES[code];
       const allThemes = isMaster || code === 'FLEIX';
       
-      // 根據主題分派專屬的資料庫 Endpoint (未設定的暫時都先送 heritage)
       const apiEndpoints = {
         'fintech': 'https://omni-script-pro.vercel.app/api/fintech-notion',
         'heritage': 'https://omni-script-pro.vercel.app/api/heritage-notion',
+        'story': 'https://omni-script-pro.vercel.app/api/story-notion',
         'default': 'https://omni-script-pro.vercel.app/api/heritage-notion'
       };
       
