@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
-import { getWorkflowSteps } from "@/utils/promptConfigs";
+import { STEPS } from "@/utils/promptConfigs";
 
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
@@ -177,8 +177,7 @@ export async function POST(req: Request) {
     
     if (stepsData && audienceTheme) {
       // Loop over all steps and append their content
-      const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'fintech');
-      for (const step of WORKFLOW_STEPS) {
+      for (const step of STEPS) {
         const stepContent = stepsData[step.id];
         if (!stepContent) continue;
         
