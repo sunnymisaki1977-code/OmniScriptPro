@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
-import { STEPS } from "@/utils/promptConfigs";
+import { getWorkflowSteps } from "@/utils/promptConfigs";
 import { AUDIENCE_THEMES } from "@/utils/themeConfig";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -121,7 +121,8 @@ export async function POST(req: Request) {
     });
 
     // 2. Format each step's content into blocks
-    for (const step of STEPS) {
+    const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
+    for (const step of WORKFLOW_STEPS) {
       const content = stepsData[step.id];
       if (!content) continue;
 
