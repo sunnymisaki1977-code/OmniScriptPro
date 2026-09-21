@@ -1316,7 +1316,12 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     });
 
     if (!response.ok) {
-      throw new Error(`伺服器錯誤: ${response.status}`);
+      let errorMsg = `伺服器錯誤: ${response.status}`;
+      try {
+        const errData = await response.json();
+        if (errData.error) errorMsg = errData.error;
+      } catch (e) {}
+      throw new Error(errorMsg);
     }
 
     const data = await response.json();

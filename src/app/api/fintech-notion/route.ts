@@ -101,10 +101,25 @@ export async function POST(req: Request) {
     const categoryMatch = content?.match(/(?:主題分類)[：:]\s*(.*?)(?=\n|$)/);
     const categoryRaw = categoryMatch ? categoryMatch[1].trim() : "";
     
-    // The select options in Notion are exact strings, we should try to match them exactly,
-    // but typically Notion accepts creating new select options or matching if the text is identical.
-    // We will just pass the parsed string. Let's make sure we include the number if it's there.
+    // 智慧對應到 Notion 資料庫中設定好的精確 Select 選項
     let category = categoryRaw || "未分類";
+    const catClean = categoryRaw.replace(/^\d+\.\s*/, "").trim();
+
+    if (catClean.includes("盤前觀戰與全球市場極速晨報")) {
+      category = "1.盤前觀戰與全球市場極速晨報";
+    } else if (catClean.includes("盤後籌碼與強勢族群解析日報")) {
+      category = "2.盤後籌碼與強勢族群解析日報";
+    } else if (catClean.includes("企業拜訪與法說會深度提問訪綱")) {
+      category = "3.企業拜訪與法說會深度提問訪綱";
+    } else if (catClean.includes("總經指標與數據發布")) {
+      category = "1. 總經指標與數據發布"; // 假設原本是這樣，如果有錯會由 error 拋出
+    } else if (catClean.includes("重大財經事件與央行政策")) {
+      category = "2. 重大財經事件與央行政策";
+    } else if (catClean.includes("市場籌碼與交易結構")) {
+      category = "3. 市場籌碼與交易結構";
+    } else if (catClean.includes("商業模式與產業拆解")) {
+      category = "4. 商業模式與產業拆解";
+    }
 
     // Parse reason
     const reasonMatch = content?.match(/(?:判斷原因)[：:]\s*(.*?)(?=\n|$)/);
