@@ -2165,6 +2165,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
+const now = new Date();
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -2202,6 +2203,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
+const now = new Date();
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -2239,7 +2241,8 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = now.toLocaleDateString('zh-TW', { 
+  const now = new Date();
+    const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2276,7 +2279,8 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = now.toLocaleDateString('zh-TW', { 
+ const now = new Date();  
+   const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2313,7 +2317,8 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-       const currentDate = now.toLocaleDateString('zh-TW', { 
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2340,7 +2345,8 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = now.toLocaleDateString('zh-TW', { 
+ const now = new Date();
+     const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2367,7 +2373,8 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-       const currentDate = now.toLocaleDateString('zh-TW', { 
+ const now = new Date();
+      const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2397,6 +2404,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: ["theme"],
 tools: ["google_search"],    
 prompt: (ctx: any) =>{
+const now = new Date();
       // 1. 真正的程式碼必須寫在 return 的「前面」，且在反引號的「外面」
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
