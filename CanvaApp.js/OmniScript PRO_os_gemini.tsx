@@ -1293,15 +1293,26 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     const targetTheme = customTheme || theme || "未命名企劃主題";
     const targetContents = customContents || stepContents;
 
+    // 依據主題決定要呼叫的 API Endpoint
+    let apiUrl = VERCEL_NOTION_URL; // 預設使用總資料庫
+    if (audienceTheme === 'fintech') {
+      apiUrl = 'https://omni-script-pro.vercel.app/api/fintech-notion';
+    } else if (audienceTheme === 'heritage') {
+      apiUrl = 'https://omni-script-pro.vercel.app/api/heritage-notion';
+    }
+
+    addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份至對應資料庫...`, 'info');
+
     // 封裝目前所有的輸入與生成結果，符合後端 /api/notion 預期的格式
     const payload = {
       theme: targetTheme,
+      title: targetTheme, // 相容特定資料庫 API
       stepsData: targetContents,
       creatorName: curTheme.title, // 動態抓取目前選擇的角色名稱（例如：全職影音創作者）
       audienceTheme: audienceTheme
     };
 
-    const response = await fetch(VERCEL_NOTION_URL, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -1314,51 +1325,9 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     const data = await response.json();
     
     setNotionStatus('✅ 已成功');
-    addLog(`[Notion] ✨ 企劃成功！`, 'success');
+    addLog(`[Notion] ✨ 企劃成功寫入資料庫！`, 'success');
     
     let finalUrl = data.url;
-
-    // --- 自動雙向儲存至專屬主題資料庫 ---
-    if (audienceTheme === 'fintech' && targetContents[1]) {
-      addLog(`[Notion] 同步儲存至 FinTech 專屬資料庫...`, 'info');
-      try {
-        const specificRes = await fetch('https://omni-script-pro.vercel.app/api/fintech-notion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: targetTheme,
-            stepsData: targetContents,
-            audienceTheme: audienceTheme
-          })
-        });
-        const specificData = await specificRes.json();
-        if (specificData.url) finalUrl = specificData.url;
-        addLog(`[Notion] FinTech 專屬資料庫寫入成功！`, 'success');
-      } catch (e: any) {
-        addLog(`[Notion] FinTech 專屬資料庫儲存失敗: ${e.message}`, 'warning');
-      }
-    }
-    
-    if (audienceTheme === 'heritage' && targetContents[1]) {
-      addLog(`[Notion] 同步儲存至民俗傳承專屬資料庫...`, 'info');
-      try {
-        const specificRes = await fetch('https://omni-script-pro.vercel.app/api/heritage-notion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: targetTheme,
-            stepsData: targetContents,
-            audienceTheme: audienceTheme
-          })
-        });
-        const specificData = await specificRes.json();
-        if (specificData.url) finalUrl = specificData.url;
-        addLog(`[Notion] 民俗傳承專屬資料庫寫入成功！`, 'success');
-      } catch (e: any) {
-        addLog(`[Notion] 民俗傳承專屬資料庫儲存失敗: ${e.message}`, 'warning');
-      }
-    }
-    // --- 結束雙向儲存 ---
 
     // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
     if (finalUrl) {
