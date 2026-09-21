@@ -309,7 +309,7 @@ export default function App() {
   // 🔽 新增這個函數，去 Vercel 拿 Notion 清單 🔽
   const fetchArchives = async () => {
     try {
-      const response = await fetch('https://omni-script-pro.vercel.app/api/notion/history');
+      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?theme=${audienceTheme}`);
       const data = await response.json();
       if (data.history) {
         setArchiveList(data.history);
@@ -321,7 +321,7 @@ export default function App() {
 
   useEffect(() => {
      fetchArchives();
-  }, []);
+  }, [audienceTheme]);
 
 
  
@@ -1008,7 +1008,7 @@ export default function App() {
     addLog(`[Notion] 正在從資料庫讀取專案內容...`, 'info');
 
     try {
-      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}`);
+      const response = await fetch(`https://omni-script-pro.vercel.app/api/notion/history?id=${pageId}&theme=${audienceTheme}`);
       const data = await response.json();
 
       if (data.stepsData) {

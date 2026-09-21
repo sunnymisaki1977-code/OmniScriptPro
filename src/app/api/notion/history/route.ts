@@ -5,15 +5,16 @@ import { THEME_STEPS } from "@/utils/themeConfig";
 export const dynamic = 'force-dynamic';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DATABASE_ID = process.env.NOTION_DATABASE_ID || "";
-
 export async function GET(req: Request) {
   try {
-    if (!DATABASE_ID) {
-      return NextResponse.json({ error: "Notion Database ID is missing" }, { status: 500 });
-    }
-
     const { searchParams } = new URL(req.url);
+    const theme = searchParams.get("theme") || "";
+    
+    let targetDatabaseId = process.env.NOTION_DATABASE_ID || "";
+    if (theme === 'fintech') targetDatabaseId = process.env.NOTION_fintech_ID || targetDatabaseId;
+    else if (theme === 'heritage') targetDatabaseId = process.env.NOTION_heritage_ID || targetDatabaseId;
+    else if (theme === 'story') targetDatabaseId = process.env.NOTION_story_ID || targetDatabaseId;
+
     const pageId = searchParams.get("id");
 
     // 若有傳入 ID，代表要讀取該筆頁面的詳細內容 (還原 stepsData)
@@ -90,9 +91,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ id: pageId, stepsData, audienceTheme: audienceThemeFromNotion });
     }
 
+    if (!targetDatabaseId) {
+      return NextResponse.json({ error: "Notion Database ID is missing" }, { status: 500 });
+    }
+
     // 否則，讀取最近 10 筆清單
     const response = await notion.databases.query({
-      database_id: DATABASE_ID,
+      database_id: targetDatabaseId,
       sorts: [
         {
           timestamp: "created_time",
