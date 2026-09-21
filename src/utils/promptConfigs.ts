@@ -2158,20 +2158,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
   ],
   fintech: [
   {
-    id: "0_1",
+    id: "0_1" as any as number,
     title: "Step 0: 主題選題器 (半導體與 AI 科技股 - 雙軌選題法)",
     description: "自動搜尋熱門新聞，同時提煉『主流熱點』與『反常識黑馬』共 4 個主題供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);      
-      
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
 
@@ -2190,20 +2188,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_2",
+    id: "0_2" as any as number,
     title: "Step 0: 主題選題器 (總經變數與降息預期 - 雙軌選題法)",
     description: "自動搜尋總經數據，同時提煉『直觀解讀』與『預期落差』共 4 個主題供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
 
@@ -2222,20 +2218,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_3",
+    id: "0_3" as any as number,
     title: "Step 0: 主題選題器 (市場籌碼與資金流向 - 雙軌選題法)",
     description: "自動搜尋盤後籌碼，同時提煉『順勢跟單』與『主力陷阱』共 4 個主題供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向。
 
@@ -2254,20 +2248,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_4",
+    id: "0_4" as any as number,
     title: "Step 0: 主題選題器 (商業模式與產業拆解 - 雙軌選題法)",
     description: "自動搜尋產業動態，同時提煉『熱門財報』與『跨界降維打擊』共 4 個主題供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的熱門商業話題或企業財報。
 
@@ -2285,21 +2277,19 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
     }
   },
-  {
-    id: "0_5",
+{
+    id: "0_5" as any as number,
     title: "Step 0: 盤前觀戰與全球市場極速晨報",
     description: "自動搜尋隔夜美股與總經動態，提煉今日盤前觀戰焦點供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天最新的隔夜美股四大指數、台指期夜盤與全球總經動態。
 
@@ -2308,20 +2298,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_6",
+    id: "0_6" as any as number,
     title: "Step 0: 盤後籌碼與強勢族群解析日報",
     description: "自動搜尋台股今日盤後法人動向，提煉強勢族群與籌碼焦點供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天台股盤後籌碼數據（三大法人、未平倉）與強勢領漲族群。
 
@@ -2330,20 +2318,18 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     }
   },
   {
-    id: "0_7",
+    id: "0_7" as any as number,
     title: "Step 0: 企業拜訪與法說會深度提問訪綱",
     description: "自動搜尋近期重大法說會與產業熱點，提煉企業拜訪與提問焦點供您挑選。",
     type: "text",
     dependsOn: [],
     tools: ["google_search"],
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
-
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
       return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記（台北時間）：${isoTimestamp}
+系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索近期即將召開法說會或產業趨勢最熱的台美股公司。
 
@@ -2351,19 +2337,23 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 格式：『[目標公司/重點產業] + [最新財報/擴產疑慮] + 法人最關注的核心提問』`;
     }
   },
+
+
+
   {
-    id: "1",
+    id: 1,
     title: "核心企劃知識",
     description: "針對財經主題進行定義釐清、歷史數據比對與市場影響評估",
     type: "text",
     dependsOn: ["theme"],
-    tools: ["google_search"],    
-    prompt: (ctx) => {
-      const now = new Date();
-      const currentDate = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
-      const isoTimestamp = now.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-      const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(now);
+tools: ["google_search"],    
+prompt: (ctx: any) =>{
+      // 1. 真正的程式碼必須寫在 return 的「前面」，且在反引號的「外面」
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];
 
+      // 2. 算好變數後，才用 return 把包含變數的字串吐出去
       return `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
 
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
@@ -2385,7 +2375,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 請先判斷主題「${ctx.theme}」屬於哪一種類型：
 1. 總經指標與數據發布 (如：CPI、非農就業、PMI)
 2. 重大財經事件與央行政策 (如：FOMC 會議、降息/升息循環、地緣政治影響)
-3. 市場籌碼與交易結構 (如：融資融券增減、三大法人動向、選擇權未平倉)
+3. 市場籌碼與交易結構 (如：融資融券增減、三大法人動向、選擇權未平倉) // 💡 增加這個選項
 4. 商業模式與產業拆解
 5. 盤前觀戰與全球市場極速晨報
 6. 盤後籌碼與強勢族群解析日報
@@ -2555,15 +2545,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 2. [針對關鍵技術迭代或轉型瓶頸的實質效益提問]
 
 `;
-    }
-  },
+}
+    },
+
   {
-    id: "2",
+    id: 2,
     title: "主軸腳本文案",
     description: "根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx) => `請根據以下【經過查核的總經背景資料】，為「${ctx.step1}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
+    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「${ctx.step1}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
 
 背景資料：
 ====================
@@ -2611,13 +2602,14 @@ ${ctx.step1}
 - 畫面字卡: [明確條列出本集提及的重點個股清單，例如：本日觀察名單 - 台積電、ASML 等，並加上：為自己的投資負責，看見數據背後的趨勢]
 - 旁白配音 (VO)：[總結核心觀點，並強制盤點本集報告中提及的所有「關鍵個股與供應鏈名稱」，提醒投資人納入觀察名單。接著引導觀眾：「投資不是靠感覺，而是靠數據。點擊下方入群，看懂最新總經趨勢！記得按讚訂閱，我們下次見。」]`
   },
+
   {
-    id: "3",
+    id: 3,
     title: "影音 SEO 標題優化",
     description: "生成高點擊財經標題、標籤與說明欄內容。",
     type: "text",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx) => `根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率的財經類 SEO 內容。
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率的財經類 SEO 內容。
 
 《長影音腳本》：${ctx.step2}
 
@@ -2635,14 +2627,16 @@ ${ctx.step1}
 
 ### 📝 影片說明欄
 [150字財經簡介，自然融入關鍵字]`
+
   },
+
   {
-    id: "4",
+    id: 4,
     title: "擴散式影音文案",
     description: "產出 180 秒內的精簡財經爆款短影片文案。",
     type: "text",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx) => `根據《基礎背景資料》，撰寫一份 180 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
+    prompt: (ctx: any) => `根據《基礎背景資料》，撰寫一份 180 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
 資料：${ctx.step1}
 
 ## 📱 財經短影音腳本：${ctx.step1}
@@ -2667,13 +2661,14 @@ ${ctx.step1}
 - 畫面字卡: [精煉為 10 字以內的核心金句]
 - 旁白配音 (VO)：[行動呼籲 (CTA)]`
   },
+
   {
-    id: "5",
+    id: 5,
     title: "擴散式 SEO 標籤優化",
     description: "生成短影片標題與標籤。",
     type: "text",
     dependsOn: ["theme", "step4"],
-    prompt: (ctx) => `根據《短影音腳本》：${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
 
 ### 🎯 衝擊力財經標題 (3 個，適合放封面)
 1. [如：通膨爆表！下殺警訊？]
@@ -2682,15 +2677,17 @@ ${ctx.step1}
 
 ### 🏷️ 推薦 Hashtags
 #[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+
   },
+
   {
-    id: "6",
+    id: 6,
     title: "影音點擊率 (CTR) 圖像",
     description: "生成 16:9 YouTube 縮圖文案與 FinTech 風格繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step2", "step3"],
-    prompt: (ctx) => `針對主題「${ctx.step2}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對主題「${ctx.step2}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請【完全且嚴格】拷貝下方模板。AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography.
 
@@ -2700,14 +2697,15 @@ ${ctx.step1}
 中文：[中文 Prompt 畫面描述，如：一隻發光的機械牛衝破紅色下降趨勢線...]
 （請重複輸出第二組、第三組）`
   },
+
   {
-    id: "7",
+    id: 7,
     title: "擴散式影音吸睛圖像",
     description: "生成 9:16 短影音縮圖文案與 FinTech 風格繪圖指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step4", "step5"],
-    prompt: (ctx) => `針對主題「${ctx.step4}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對主題「${ctx.step4}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography, extreme vertical composition.
@@ -2717,14 +2715,15 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
 中文：[中文 Prompt 畫面描述]
 （請重複輸出第二組、第三組）`
   },
+
   {
-    id: "8",
+    id: 8,
     title: "風格化情境視覺",
     description: "生成 16:9 財經意象行銷海報。",
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step2"],
-    prompt: (ctx) => `針對「${ctx.step2}」生成 3 組 16:9 財經行銷海報。
+    prompt: (ctx: any) => `針對「${ctx.step2}」生成 3 組 16:9 財經行銷海報。
 視覺設計包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, cyberpunk finance。需充滿市場博弈與專業數據感。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
@@ -2733,14 +2732,15 @@ AI Prompt 必須包含：holographic stock charts, neon glowing lines, professio
 中文：[中文 Prompt 畫面描述，例如：虛擬全息投影的地球，被密集的交易數據流環繞]
 （請重複輸出第二組、第三組）`
   },
+
   {
-    id: "9",
+    id: 9,
     title: "Suno AI 情緒配樂",
     description: "生成符合市場氛圍的音樂指令。",
     type: "code",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx) => `針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+    prompt: (ctx: any) => `針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
 請直接輸出以下格式：
@@ -2757,14 +2757,15 @@ Suno AI Prompt：[例如：Corporate lo-fi chill, crisp tech beats, ambient synt
 適用場景：利多消息公布或經濟強勁
 Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic tech pop, fast tempo, optimistic]`
   },
+
   {
-    id: "10",
+    id: 10,
     title: "全平台社群推播文案",
     description: "一鍵生成數據圖卡提示詞與財經社群正文",
     type: "social",
     language: "markdown",
     dependsOn: ["theme", "step1"],
-    prompt: (ctx) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.step1}」打造一組 IG 財經圖卡懶人包。
+    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.step1}」打造一組 IG 財經圖卡懶人包。
 史料：${ctx.step1}
 
 ### 任務一：生成財經資訊圖卡 Prompt (1:1 或 4:5 構圖)
@@ -2788,6 +2789,7 @@ AI Prompt (中文):
 #[財經M平方] [#Bloomberg] #[鉅亨網] #[華爾街日報] #[商業周刊] #[總體經濟] #[經濟日報] #[工商時報] #[天下雜誌] #[今周刊] #[商業周刊] #[財訊] #[Smart智富月刊] #[Money錢雜誌] [補充 5 個相關標籤]`
   }
 ]  ,
+
   story: [
   {
     id: 1,
