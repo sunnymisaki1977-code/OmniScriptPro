@@ -176,10 +176,21 @@ export async function POST(req: Request) {
     const response = await notion.pages.create({
       parent: { database_id: targetDatabaseId },
       properties: properties,
-      children: childrenBlocks.slice(0, 100), // Max 100 blocks
     });
 
-    return NextResponse.json({ success: true, id: response.id, url: (response as any).url });
+    const pageId = response.id;
+
+    // Append blocks to the created page in batches of 100 (Notion limit)
+    const CHUNK_SIZE = 100;
+    for (let i = 0; i < childrenBlocks.length; i += CHUNK_SIZE) {
+      const chunk = childrenBlocks.slice(i, i + CHUNK_SIZE);
+      await notion.blocks.children.append({
+        block_id: pageId,
+        children: chunk,
+      });
+    }
+
+    return NextResponse.json({ success: true, id: pageId, url: (response as any).url });
   } catch (error: any) {
     console.error("Story Notion API Error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
