@@ -1324,6 +1324,42 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
         window.open(data.url, '_blank');
       }
     }
+
+    // --- 自動雙向儲存至專屬主題資料庫 ---
+    if (audienceTheme === 'fintech' && targetContents[1]) {
+      addLog(`[Notion] 同步儲存至 FinTech 專屬資料庫...`, 'info');
+      try {
+        await fetch('https://omni-script-pro.vercel.app/api/fintech-notion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: targetTheme,
+            content: targetContents[1]
+          })
+        });
+        addLog(`[Notion] FinTech 專屬資料庫寫入成功！`, 'success');
+      } catch (e: any) {
+        addLog(`[Notion] FinTech 專屬資料庫儲存失敗: ${e.message}`, 'warning');
+      }
+    }
+    
+    if (audienceTheme === 'heritage' && targetContents[1]) {
+      addLog(`[Notion] 同步儲存至民俗傳承專屬資料庫...`, 'info');
+      try {
+        await fetch('https://omni-script-pro.vercel.app/api/heritage-notion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: targetTheme,
+            content: targetContents[1]
+          })
+        });
+        addLog(`[Notion] 民俗傳承專屬資料庫寫入成功！`, 'success');
+      } catch (e: any) {
+        addLog(`[Notion] 民俗傳承專屬資料庫儲存失敗: ${e.message}`, 'warning');
+      }
+    }
+    // --- 結束雙向儲存 ---
     
   } catch (error) {
     console.error("Notion 匯出失敗:", error);
