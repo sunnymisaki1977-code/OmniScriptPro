@@ -3,6 +3,83 @@ import { NextResponse } from "next/server";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
+function parseMarkdownToNotionBlocks(text: string): any[] {
+  const MAX_LENGTH = 2000;
+  const blocks: any[] = [];
+  const lines = text.split("\n");
+  
+  let currentParagraph: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const pText = currentParagraph.join("\n").trim();
+      if (pText) {
+        let remaining = pText;
+        while (remaining.length > 0) {
+          blocks.push({
+            object: "block",
+            type: "paragraph",
+            paragraph: {
+              rich_text: [{ type: "text", text: { content: remaining.substring(0, MAX_LENGTH) } }],
+            },
+          });
+          remaining = remaining.substring(MAX_LENGTH);
+        }
+      }
+      currentParagraph = [];
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    if (trimmed.startsWith("### ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "heading_3",
+        heading_3: { rich_text: [{ type: "text", text: { content: trimmed.substring(4).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("## ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "heading_2",
+        heading_2: { rich_text: [{ type: "text", text: { content: trimmed.substring(3).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("# ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "heading_1",
+        heading_1: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "bulleted_list_item",
+        bulleted_list_item: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed.startsWith("> ")) {
+      flushParagraph();
+      blocks.push({
+        object: "block",
+        type: "quote",
+        quote: { rich_text: [{ type: "text", text: { content: trimmed.substring(2).substring(0, MAX_LENGTH) } }] }
+      });
+    } else if (trimmed === "") {
+      flushParagraph();
+    } else {
+      currentParagraph.push(line);
+    }
+  }
+  
+  flushParagraph();
+  
+  return blocks;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -68,7 +145,20 @@ export async function POST(req: Request) {
       properties: properties,
     });
 
-    return NextResponse.json({ success: true, id: response.id });
+    const pageId = response.id;
+    const children = parseMarkdownToNotionBlocks(content);
+
+    // Append blocks to the created page in batches of 100 (Notion limit)
+    const CHUNK_SIZE = 100;
+    for (let i = 0; i < children.length; i += CHUNK_SIZE) {
+      const chunk = children.slice(i, i + CHUNK_SIZE);
+      await notion.blocks.children.append({
+        block_id: pageId,
+        children: chunk,
+      });
+    }
+
+    return NextResponse.json({ success: true, id: pageId, url: (response as any).url });
   } catch (error: any) {
     console.error("Heritage Notion API Error:", error);
     return NextResponse.json({ error: error.message || "Failed to save to Notion" }, { status: 500 });
