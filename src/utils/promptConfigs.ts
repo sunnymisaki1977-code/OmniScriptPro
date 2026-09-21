@@ -2165,9 +2165,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];      
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});      
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2195,9 +2202,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2225,9 +2239,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2255,9 +2276,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2285,9 +2313,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+       const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2305,9 +2340,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2325,9 +2367,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+       const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
@@ -2349,9 +2398,16 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
 tools: ["google_search"],    
 prompt: (ctx: any) =>{
       // 1. 真正的程式碼必須寫在 return 的「前面」，且在反引號的「外面」
-      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
       const isoTimestamp = new Date().toISOString();
-      const today = new Date().toISOString().split('T')[0];
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
 
       // 2. 算好變數後，才用 return 把包含變數的字串吐出去
       return `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
@@ -2562,9 +2618,6 @@ ${ctx.step1}
 ====================
 
 【⚠️ 絕對真實性指令】：
-
-背景資料：
-${ctx.step1}
 
 【輸出模板】請嚴格遵守以下腳本架構撰寫：
 請精準輸出以下格式，將括號與說明文字替換為實際生成的內容（每個30秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
