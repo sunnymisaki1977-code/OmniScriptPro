@@ -1316,20 +1316,13 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     setNotionStatus('✅ 已成功');
     addLog(`[Notion] ✨ 企劃成功！`, 'success');
     
-    // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
-    if (data.url) {
-      setNotionUrl(data.url);
-      fetchArchives(); // 成功後立即刷新歷史清單
-      if (isGlobalMaster) {
-        window.open(data.url, '_blank');
-      }
-    }
+    let finalUrl = data.url;
 
     // --- 自動雙向儲存至專屬主題資料庫 ---
     if (audienceTheme === 'fintech' && targetContents[1]) {
       addLog(`[Notion] 同步儲存至 FinTech 專屬資料庫...`, 'info');
       try {
-        const fintechRes = await fetch('https://omni-script-pro.vercel.app/api/fintech-notion', {
+        const specificRes = await fetch('https://omni-script-pro.vercel.app/api/fintech-notion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1338,10 +1331,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             audienceTheme: audienceTheme
           })
         });
-        const fintechData = await fintechRes.json();
-        if (fintechData.url && isGlobalMaster) {
-          window.open(fintechData.url, '_blank');
-        }
+        const specificData = await specificRes.json();
+        if (specificData.url) finalUrl = specificData.url;
         addLog(`[Notion] FinTech 專屬資料庫寫入成功！`, 'success');
       } catch (e: any) {
         addLog(`[Notion] FinTech 專屬資料庫儲存失敗: ${e.message}`, 'warning');
@@ -1351,7 +1342,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     if (audienceTheme === 'heritage' && targetContents[1]) {
       addLog(`[Notion] 同步儲存至民俗傳承專屬資料庫...`, 'info');
       try {
-        const heritageRes = await fetch('https://omni-script-pro.vercel.app/api/heritage-notion', {
+        const specificRes = await fetch('https://omni-script-pro.vercel.app/api/heritage-notion', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1360,16 +1351,23 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
             audienceTheme: audienceTheme
           })
         });
-        const heritageData = await heritageRes.json();
-        if (heritageData.url && isGlobalMaster) {
-          window.open(heritageData.url, '_blank');
-        }
+        const specificData = await specificRes.json();
+        if (specificData.url) finalUrl = specificData.url;
         addLog(`[Notion] 民俗傳承專屬資料庫寫入成功！`, 'success');
       } catch (e: any) {
         addLog(`[Notion] 民俗傳承專屬資料庫儲存失敗: ${e.message}`, 'warning');
       }
     }
     // --- 結束雙向儲存 ---
+
+    // 自動開啟剛剛建好的 Notion 頁面並儲存 URL
+    if (finalUrl) {
+      setNotionUrl(finalUrl);
+      fetchArchives(); // 成功後立即刷新歷史清單
+      if (isGlobalMaster) {
+        window.open(finalUrl, '_blank');
+      }
+    }
     
   } catch (error) {
     console.error("Notion 匯出失敗:", error);
@@ -2147,12 +2145,16 @@ const handleLogin = async (e: React.FormEvent) => {
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({
                                     title: theme,
-                                    content: stepContents[1]
+                                    stepsData: stepContents,
+                                    audienceTheme: audienceTheme
                                   })
                                 });
                                 const data = await res.json();
                                 if (data.error) throw new Error(data.error);
                                 addLog(`[Notion] 儲存成功！已寫入資料庫。`, 'success');
+                                if (data.url) {
+                                  window.open(data.url, '_blank');
+                                }
                               } catch (e: any) {
                                 addLog(`[Notion] 儲存失敗: ${e.message}`, 'error');
                               }
@@ -2182,11 +2184,11 @@ const handleLogin = async (e: React.FormEvent) => {
                                   })
                                 });
                                 const data = await res.json();
-                                if (data.url && isGlobalMaster) {
-                                  window.open(data.url, '_blank');
-                                }
                                 if (data.error) throw new Error(data.error);
                                 addLog(`[Notion] 儲存成功！已寫入資料庫。`, 'success');
+                                if (data.url) {
+                                  window.open(data.url, '_blank');
+                                }
                               } catch (e: any) {
                                 addLog(`[Notion] 儲存失敗: ${e.message}`, 'error');
                               }
