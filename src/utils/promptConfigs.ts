@@ -2156,7 +2156,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
 Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
   }
   ],
-  fintech: [
+  	: [
   {
     id: "0_1" as any as number,
     title: "Step 0: 主題選題器 (半導體與 AI 科技股 - 雙軌選題法)",
