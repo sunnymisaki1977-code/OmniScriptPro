@@ -1,5 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
+import { getWorkflowSteps } from "@/utils/promptConfigs";
 
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
@@ -85,7 +86,10 @@ function parseMarkdownToNotionBlocks(text: string): any[] {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, content } = body;
+    const { title, stepsData, audienceTheme } = body;
+    
+    // Maintain backwards compatibility if frontend hasn't updated yet or passes single content
+    const content = body.content || (stepsData ? stepsData[1] : "");
 
     const targetDatabaseId = process.env.NOTION_fintech_ID || "3cdf374300dc8033af23d63306769950";
 
@@ -169,12 +173,34 @@ export async function POST(req: Request) {
     });
 
     const pageId = response.id;
-    const children = parseMarkdownToNotionBlocks(content);
+    const childrenBlocks: any[] = [];
+    
+    if (stepsData && audienceTheme) {
+      // Loop over all steps and append their content
+      const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'fintech');
+      for (const step of WORKFLOW_STEPS) {
+        const stepContent = stepsData[step.id];
+        if (!stepContent) continue;
+        
+        childrenBlocks.push({
+          object: "block",
+          type: "heading_2",
+          heading_2: {
+            rich_text: [{ type: "text", text: { content: `Step ${step.id}: ${step.title}` } }],
+          },
+        });
+        
+        childrenBlocks.push(...parseMarkdownToNotionBlocks(stepContent));
+      }
+    } else {
+      // Fallback for single content string
+      childrenBlocks.push(...parseMarkdownToNotionBlocks(content));
+    }
 
     // Append blocks to the created page in batches of 100 (Notion limit)
     const CHUNK_SIZE = 100;
-    for (let i = 0; i < children.length; i += CHUNK_SIZE) {
-      const chunk = children.slice(i, i + CHUNK_SIZE);
+    for (let i = 0; i < childrenBlocks.length; i += CHUNK_SIZE) {
+      const chunk = childrenBlocks.slice(i, i + CHUNK_SIZE);
       await notion.blocks.children.append({
         block_id: pageId,
         children: chunk,

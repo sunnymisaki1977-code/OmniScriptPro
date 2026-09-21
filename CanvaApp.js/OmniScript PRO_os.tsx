@@ -1412,7 +1412,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: targetTheme,
-            content: targetContents[1]
+            stepsData: targetContents,
+            audienceTheme: audienceTheme
           })
         });
         addLog(`[Notion] FinTech 專屬資料庫寫入成功！`, 'success');
@@ -1429,7 +1430,8 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: targetTheme,
-            content: targetContents[1]
+            stepsData: targetContents,
+            audienceTheme: audienceTheme
           })
         });
         addLog(`[Notion] 民俗傳承專屬資料庫寫入成功！`, 'success');
