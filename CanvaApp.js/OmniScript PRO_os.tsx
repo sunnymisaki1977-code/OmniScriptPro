@@ -3472,33 +3472,21 @@ const handleLogin = async (e: React.FormEvent) => {
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <button
-                      onClick={() => {
-                        setTheme("盤前觀戰與全球市場極速晨報");
-                        setShowTopicSelectorModal(false);
-                        setGeneratedTopics([]);
-                      }}
+                      onClick={() => handleGenerateTopic("0_5")}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">🌅</span>
                       <span className="font-bold text-[#1E293B] text-sm leading-tight">盤前觀戰與全球市場極速晨報</span>
                     </button>
                     <button
-                      onClick={() => {
-                        setTheme("盤後籌碼與強勢族群解析日報");
-                        setShowTopicSelectorModal(false);
-                        setGeneratedTopics([]);
-                      }}
+                      onClick={() => handleGenerateTopic("0_6")}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">📈</span>
                       <span className="font-bold text-[#1E293B] text-sm leading-tight">盤後籌碼與強勢族群解析日報</span>
                     </button>
                     <button
-                      onClick={() => {
-                        setTheme("企業拜訪與法說會深度提問訪綱");
-                        setShowTopicSelectorModal(false);
-                        setGeneratedTopics([]);
-                      }}
+                      onClick={() => handleGenerateTopic("0_7")}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">🏢</span>
