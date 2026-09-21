@@ -50,17 +50,18 @@ export async function POST(req: Request) {
       const allThemes = isMaster || code === 'FLEIX';
       
       // 根據主題分派專屬的資料庫 Endpoint (未設定的暫時都先送 heritage)
-      let apiUrl = 'https://omni-script-pro.vercel.app/api/heritage-notion';
-      if (theme === 'fintech') {
-        apiUrl = 'https://omni-script-pro.vercel.app/api/fintech-notion';
-      }
+      const apiEndpoints = {
+        'fintech': 'https://omni-script-pro.vercel.app/api/fintech-notion',
+        'heritage': 'https://omni-script-pro.vercel.app/api/heritage-notion',
+        'default': 'https://omni-script-pro.vercel.app/api/heritage-notion'
+      };
       
       return setCorsHeaders(NextResponse.json({
         success: true,
         theme: theme,
         isMaster: isMaster,
         allThemes: allThemes,
-        notionApiUrl: apiUrl
+        apiEndpoints: apiEndpoints
       }));
     } else {
       return setCorsHeaders(NextResponse.json({ error: "通行碼無效或已過期" }, { status: 401 }));

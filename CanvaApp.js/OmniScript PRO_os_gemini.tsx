@@ -241,7 +241,7 @@ export default function App() {
   const [customContext, setCustomContext] = useState('');
   const [completedSteps, setCompletedSteps] = useState([1]);
   const [audienceTheme, setAudienceTheme] = useState('heritage');
-  const [notionApiUrl, setNotionApiUrl] = useState('');
+  const [apiEndpoints, setApiEndpoints] = useState<Record<string, string>>({});
   
   const [stepContents, setStepContents] = useState(() => ({
     1: getInitialStepContent(1, ""), 2: getInitialStepContent(2, ""), 3: getInitialStepContent(3, ""),
@@ -267,7 +267,9 @@ export default function App() {
       } else {
         setIsGlobalMaster(sessionStorage.getItem('os_pro_master') === 'true');
         setAudienceTheme(sessionStorage.getItem('os_pro_theme') || 'heritage');
-        setNotionApiUrl(sessionStorage.getItem('os_pro_notion_url') || '');
+        try {
+          setApiEndpoints(JSON.parse(sessionStorage.getItem('os_pro_api_endpoints') || '{}'));
+        } catch(e) {}
       }
     }, []);
 
@@ -1296,7 +1298,7 @@ const startNotionExport = async (customContents = null, customTheme = null) => {
     const targetContents = customContents || stepContents;
 
     // 依據 auth 設定的 API Endpoint
-    let apiUrl = notionApiUrl || VERCEL_NOTION_URL;
+    let apiUrl = apiEndpoints[audienceTheme] || apiEndpoints['default'] || VERCEL_NOTION_URL;
 
     addLog(`[Notion] 準備將全自動生成的腳本進行雲端封裝與備份至對應資料庫...`, 'info');
 
@@ -1393,9 +1395,9 @@ const handleLogin = async (e: React.FormEvent) => {
         setIsGlobalMaster(data.isMaster);
         sessionStorage.setItem('os_pro_auth', 'true');
         sessionStorage.setItem('os_pro_theme', data.theme);
-        if (data.notionApiUrl) {
-          sessionStorage.setItem('os_pro_notion_url', data.notionApiUrl);
-          setNotionApiUrl(data.notionApiUrl);
+        if (data.apiEndpoints) {
+          sessionStorage.setItem('os_pro_api_endpoints', JSON.stringify(data.apiEndpoints));
+          setApiEndpoints(data.apiEndpoints);
         }
         if (data.isMaster) {
           sessionStorage.setItem('os_pro_master', 'true');
