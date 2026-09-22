@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const MODELS = ["gemini-2.5-flash",  "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     
-    const step = WORKFLOW_STEPS.find(s => s.id === Number(currentStepId));
+    const step = WORKFLOW_STEPS.find(s => String(s.id) === String(currentStepId) || s.id === Number(currentStepId));
     if (!step) {
       return NextResponse.json({ error: `找不到步驟編號 ${currentStepId}` }, { status: 400 });
     }
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       verifiedContext = ""; 
     }
 
-    if (Number(currentStepId) !== 1 && !verifiedContext) {
+    if (Number(currentStepId) !== 1 && !String(currentStepId).startsWith('0') && !verifiedContext) {
       return NextResponse.json(
         { error: "Step 1 基礎資料尚未載入完成，請等待資料獲取後再執行此步驟。" }, 
         { status: 400 }
