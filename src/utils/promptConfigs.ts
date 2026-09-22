@@ -2401,13 +2401,15 @@ const now = new Date();
 請務必強制調用 Google 搜尋工具，檢索今天最新的隔夜美股四大指數、台指期夜盤與全球總經動態。
 
 【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的檢索今天最新的隔夜美股四大指數、台指期夜盤與全球總經動態官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+請務必強制調用 Google 搜尋工具，取得截至 ${today}（含美股最新收盤）的真實報價與總經動態。
+1. 報價查詢技巧：若要查詢大盤、個股與殖利率，請直接搜尋『[標的名稱] stock price』或『US 10 year yield』，藉此讀取 Google 財經即時面板，或參考 CNBC、Bloomberg、鉅亨網等權威媒體。
+2. 時區與交易日豁免：美股隔夜收盤價（台灣時間清晨）與台指夜盤，即屬於『今日最新盤前數據』。只要是最近一個完整交易日的收盤數據，就【絕對不是 N/A】，請放心填入。
+3. 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+4. 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+5- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
 
 【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+1. 無資料處置：若遇到假日休市且完全查無近三日數據，才可標示「N/A (無最新數據)」。
 2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
 3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
 4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
