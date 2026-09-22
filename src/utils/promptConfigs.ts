@@ -2165,7 +2165,7 @@ Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-const now = new Date();
+const now = new Date(); 
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -2175,37 +2175,13 @@ const now = new Date();
       const isoTimestamp = new Date().toISOString();
       const today = now.toLocaleDateString('en-CA', { 
   timeZone: 'Asia/Taipei' 
-});      
+});    
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
 
-
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-
-【強制前置作業：動態數據定錨 (Chain of Thought)】：
-在發想主題名稱前，請先強制搜尋並在輸出內容的最上方條列以下真實數據：
-1. 關鍵半導體巨頭（如輝達 NVDA、台積電 ADR）昨夜/今日最新收盤漲跌幅。
-2. 費城半導體指數最新漲跌幅。
-（若搜尋不到請寫 N/A，絕對禁止自行捏造數字）
-
-確認真實數據後，你是一位極具策略眼光的財經主編，為了平衡頻道的『大眾流量』與『深度鐵粉』。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
-
-【⚠️ 報價零容忍原則】：標題若提及漲跌幅或點位，必須 100% 吻合上述定錨數據，絕對不可誇大或捏造。
-
+你是一位極具策略眼光的財經主編。為了平衡頻道的『大眾流量』與『深度鐵粉』，請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
 
 【🅰️ 主流熱點組 (產出 4 個)】（目標：蹭最大流量，迎合散戶直覺）
 - 切角：聚焦當天佔據最大版面的巨頭企業（如台積電、輝達）與最直觀的利多/利空消息。
@@ -2227,7 +2203,7 @@ const now = new Date();
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-const now = new Date();
+const now = new Date(); 
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -2243,29 +2219,8 @@ const now = new Date();
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
 
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-【強制前置作業：動態數據定錨 (Chain of Thought)】：
-在發想主題名稱前，請先強制搜尋並條列：
-1. 美國 10 年期國債殖利率 (%) 最新報價。
-2. 美元指數 (DXY) 最新報價。
-3. 近期最重要的總經數據（如 FED 基準利率、CPI）最新數值。
-（若無請寫 N/A，嚴禁捏造）
-
-
 你是一位極具策略眼光的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
-【⚠️ 報價零容忍原則】：標題若提及殖利率、通膨率或降/升息幅度，必須 100% 吻合上述真實數據。
+
 【🅰️ 主流熱點組 (產出 4 個)】（目標：解答大眾最焦慮的總經問題）
 - 切角：直接播報最新的通膨、降息數據或央行決議，並給出最直觀的資產配置建議。
 - 格式：『[降息/通膨數據事件] + [關鍵利率/殖利率點位] + 股債匯資產配置全攻略』
@@ -2286,8 +2241,8 @@ const now = new Date();
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
-  const now = new Date();
-    const currentDate = now.toLocaleDateString('zh-TW', { 
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2302,28 +2257,8 @@ const now = new Date();
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向。
 
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-【強制前置作業：動態數據定錨 (Chain of Thought)】：
-在發想主題名稱前，請先強制搜尋並條列：
-1. 今日/昨日台股三大法人（外資、投信、自營商）買賣超總金額。
-2. 外資台指期未平倉淨部位（多空口數）。
-3. 今日/昨日台股加權指數收盤點位。
-（嚴禁捏造）
-
 你是一位深諳法人操盤手法的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
-【⚠️ 報價零容忍原則】：標題若提及買賣超金額或大盤點位，必須 100% 吻合定錨數據。
+
 【🅰️ 主流熱點組 (產出 4 個)】（目標：順勢交易，跟隨大資金風口）
 - 切角：找出三大法人同步買超、外資大舉進場的強勢族群與大盤關鍵支撐/壓力位。
 - 格式：『[三大法人/籌碼轉折] + [大盤關鍵點位] + 散戶如何跟對資金風口』
@@ -2344,8 +2279,8 @@ const now = new Date();
     dependsOn: [],
     tools: ["google_search"],
     prompt: (ctx: any) => {
- const now = new Date();  
-   const currentDate = now.toLocaleDateString('zh-TW', { 
+ const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
@@ -2358,9 +2293,8 @@ const now = new Date();
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
+
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的熱門商業話題或企業財報。
-
-
 
 你是一位專精於商業模式拆解的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
 
@@ -2374,149 +2308,7 @@ const now = new Date();
 
 要求：
 請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
-    }
-  },
-{
-    id: "0_5" as any as number,
-    title: "Step 0: 盤前觀戰與全球市場極速晨報",
-    description: "自動搜尋隔夜美股與總經動態，提煉今日盤前觀戰焦點供您挑選。",
-    type: "text",
-    dependsOn: [],
-    tools: ["google_search"],
-    prompt: (ctx: any) => {
-const now = new Date(); 
-      const currentDate = now.toLocaleDateString('zh-TW', { 
-  timeZone: 'Asia/Taipei', 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric' 
-});
-      const isoTimestamp = new Date().toISOString();
-      const today = now.toLocaleDateString('en-CA', { 
-  timeZone: 'Asia/Taipei' 
-});    
-      return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
-今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天最新的隔夜美股四大指數、台指期夜盤與全球總經動態。
 
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必強制調用 Google 搜尋工具，取得截至 ${today}（含美股最新收盤）的真實報價與總經動態。
-1. 報價查詢技巧：若要查詢大盤、個股與殖利率，請直接搜尋『[標的名稱] stock price』或『US 10 year yield』，藉此讀取 Google 財經即時面板，或參考 CNBC、Bloomberg、鉅亨網等權威媒體。
-2. 時區與交易日豁免：美股隔夜收盤價（台灣時間清晨）與台指夜盤，即屬於『今日最新盤前數據』。只要是最近一個完整交易日的收盤數據，就【絕對不是 N/A】，請放心填入。
-3. 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-4. 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-5- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若遇到假日休市且完全查無近三日數據，才可標示「N/A (無最新數據)」。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-
-【強制前置作業：動態數據定錨 (Chain of Thought)】：
-在撰寫報告前，你必須先在內文最頂端使用條列式列出你搜到的具體數據（若無則寫 N/A）。請強制檢索並列出以下 5 項核心數據，作為後續分析的絕對基準：
-1. 隔夜美股四大指數（道瓊、標普、那斯達克、費半）最新收盤點位與漲跌幅。
-2. 關鍵科技巨頭（輝達 NVDA、台積電 ADR TSM、蘋果 AAPL 或其他與主題相關之個股）最新收盤漲跌幅。
-3. 台灣加權指數昨日收盤點位，以及台指期夜盤最新收盤點位（用以推算今日開盤溢價）。
-4. 美國 10 年期國債殖利率 (%) 與美元指數 (DXY) 最新報價。
-5. 今日盤前重大財經頭條（請列出 1 則與本主題強相關的真實新聞標題與來源）。
-
-你是一位專業的券商操盤手。請幫我提煉出 4 個【盤前觀戰焦點】的主題名稱（ctx.theme），並附上 1 句選題理由。
-【⚠️ 報價零容忍原則】：標題中提及任何漲跌幅或點位，必須 100% 吻合上述定錨數據。
-格式：『[重點指數/科技巨頭] + [關鍵總經數據/財報事件] + 今日開盤多空推演』`;
-    }
-  },
-  {
-    id: "0_6" as any as number,
-  title: "Step 0: 盤後籌碼與強勢族群解析日報",
-  description: "自動搜尋台股最近交易日盤後法人動向，提煉強勢族群與籌碼焦點供您挑選。",
-  type: "text",
-  dependsOn: [],
-  tools: ["google_search"],
-  prompt: (ctx: any) => {
-    const now = new Date();
-    const currentDate = now.toLocaleDateString('zh-TW', { 
-      timeZone: 'Asia/Taipei', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-    const today = now.toLocaleDateString('en-CA', { 
-      timeZone: 'Asia/Taipei' 
-    });    
-    
-    return `【絕對時間定錨與最近交易日鎖定】：
-系統執行日期：${currentDate}（格式：${today}）。
-注意：若執行當天為週末、國定假日或台股收盤前（13:30 前），請自動將「今日」調整為「最近一個台股實際交易日」。
-請務必強制調用 Google 搜尋工具，檢索該交易日的台股加權指數收盤點位、三大法人買賣超金額與強勢領漲族群。
-
-【⚠️ 資料源與搜尋策略】：
-請優先利用 Google 搜尋查證各大主流財經媒體（如鉅亨網 site:cnyes.com、MoneyDJ site:moneydj.com 等）盤後所發布的當日台股戰報與籌碼統計數據，以避開交易所官方網站深層結構不易被即時抓取的問題。
-
-【⚠️ 最高合規與真實性指令】：
-1. 數據日期核對：必須在 Chain of Thought 中明確標註該筆數據所屬的「實際交易日期」，嚴禁將歷史舊資料包裝為當日。
-2. 報價零容忍原則：針對大盤指數點位、漲跌幅與三大法人買賣超金額，必須 100% 照抄真實搜尋結果。絕對禁止 AI 進行「情境推演」或「常理推估」來捏造數字。
-3. 若搜尋 API 無法取得該交易日的確切數據，請直接填寫「N/A (無最新數據)」。
-4. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-
-【強制前置作業：動態數據定錨 (Chain of Thought)】：
-在發想主題名稱前，請先強制搜尋並依序條列：
-1. 資料對應的「實際交易日期」（例如：YYYY-MM-DD）。
-2. 該交易日台股加權指數收盤點位與漲跌。
-3. 三大法人（外資、投信、自營商）合計買賣超金額。
-4. 盤面最強勢領漲的 1-2 個產業族群名稱。
-（嚴禁捏造）
-
-你是一位專業的籌碼分析師。請幫我提煉出 4 個【盤後籌碼與強勢族群】的主題名稱（ctx.theme），並附上 1 句選題理由。
-【⚠️ 報價零容忍原則】：標題中的點位與金額必須絕對真實，且需與前置作業抓取的數據完全一致。
-格式：『[強勢族群/異常籌碼] + [主力法人動向] + 明日實戰應對策略』`;
-    }
-  },
-  {
-    id: "0_7" as any as number,
-    title: "Step 0: 企業拜訪與法說會深度提問訪綱",
-    description: "自動搜尋近期重大法說會與產業熱點，提煉企業拜訪與提問焦點供您挑選。",
-    type: "text",
-    dependsOn: [],
-    tools: ["google_search"],
-    prompt: (ctx: any) => {
- const now = new Date();
-      const currentDate = now.toLocaleDateString('zh-TW', { 
-  timeZone: 'Asia/Taipei', 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric' 
-});
-      const isoTimestamp = new Date().toISOString();
-      const today = now.toLocaleDateString('en-CA', { 
-  timeZone: 'Asia/Taipei' 
-});    
-      return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
-今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索近期即將召開法說會或產業趨勢最熱的台美股公司。
-
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-【強制前置作業：動態數據定錨】：
-請檢索並列出近期（本週/下週）即將召開法說會的最熱門台美股公司名稱（1-2家）及其關注議題。
-
-你是一位頂尖的外資分析師。請幫我提煉出 4 個【法說會與企業拜訪】的主題名稱（ctx.theme），並附上 1 句選題理由。
-格式：『[目標公司/重點產業] + [最新財報/擴產疑慮] + 法人最關注的核心提問』`;
     }
   },
 
@@ -2549,20 +2341,6 @@ const now = new Date();
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
 請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
 
-【⚠️ 終極資料源鎖定與強制搜尋指令】：
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
-- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
-
-【⚠️ 最高合規與真實性指令】：
-1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
-2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
-3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
-4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
-5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
-
-
 
 請先判斷主題「${ctx.theme}」屬於哪一種類型：
 1. 總經指標與數據發布 (如：CPI、非農就業、PMI)
@@ -2578,6 +2356,19 @@ const now = new Date();
 
 
 ### 📌 若分類為【1. 總經指標與數據發布 2. 重大財經事件與央行政策】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
+- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
 接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
 
 ## 🗂️  [日期] 總經深度解析報告架構
@@ -2620,6 +2411,19 @@ const now = new Date();
 
 ---
 ### 📌 分類為【3. 市場籌碼與交易結構】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
+- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
 接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
 
 ## 🗂️ [日期]  籌碼與技術盤勢深度報告架構
@@ -2646,6 +2450,20 @@ const now = new Date();
 
 ---
 ### 📌 分類為【4. 商業模式與產業拆解】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
+- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
+
 接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
 
 ## 🗂️ [日期] 產業趨勢與商業模式深度報告架構
@@ -2672,7 +2490,22 @@ const now = new Date();
 
 ---
 ### 📌 分類為【5. 盤前觀戰與全球市場極速晨報】，
-接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+請務必強制調用 Google 搜尋工具，取得截至 ${today}（含美股最新收盤）的真實報價與總經動態。
+1. 報價查詢技巧：若要查詢大盤、個股與殖利率，請直接搜尋『[標的名稱] stock price』或『US 10 year yield』，藉此讀取 Google 財經即時面板，或參考 CNBC、Bloomberg、鉅亨網等權威媒體。
+2. 時區與交易日豁免：美股隔夜收盤價（台灣時間清晨）與台指夜盤，即屬於『今日最新盤前數據』。只要是最近一個完整交易日的收盤數據，就【絕對不是 N/A】，請放心填入。
+3. 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+4. 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+5- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+1. 無資料處置：若遇到假日休市且完全查無近三日數據，才可標示「N/A (無最新數據)」。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
 
 【強制前置作業：動態數據定錨 (Chain of Thought)】：
 在撰寫報告前，你必須先在內文最頂端使用條列式列出你搜到的具體數據（若無則寫 N/A）。請強制檢索並列出以下 5 項核心數據，作為後續分析的絕對基準：
@@ -2680,12 +2513,11 @@ const now = new Date();
 2. 關鍵科技巨頭（輝達 NVDA、台積電 ADR TSM、蘋果 AAPL 或其他與主題相關之個股）最新收盤漲跌幅。
 3. 台灣加權指數昨日收盤點位，以及台指期夜盤最新收盤點位（用以推算今日開盤溢價）。
 4. 美國 10 年期國債殖利率 (%) 與美元指數 (DXY) 最新報價。
-5. 今日盤前重大財經頭條（請列出 1 則與本主題強相關的真實新聞標題與來源）。
 
-確認以上 5 項數據皆為最新真實報價後，再嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
 
 ## ☀️ [日期] 券商盤前策略晨報
-
 
 ### 一、 隔夜國際市場與夜盤定錨
 * **美股與科技股動向：** [一言以蔽之隔夜美股氛圍與關鍵個股表現]
@@ -2702,12 +2534,29 @@ const now = new Date();
 
 ---
 ### 📌 分類為【6. 盤後籌碼與強勢族群解析日報】，
+【⚠️ 資料源與搜尋策略】：
+注意：若執行當天為週末、國定假日或台股收盤前（13:30 前），請自動將「今日」調整為「最近一個台股實際交易日」。
+請務必強制調用 Google 搜尋工具，檢索該交易日的台股加權指數收盤點位、三大法人買賣超金額與強勢領漲族群。
+請優先利用 Google 搜尋查證各大主流財經媒體（如鉅亨網 site:cnyes.com、MoneyDJ site:moneydj.com 等）盤後所發布的當日台股戰報與籌碼統計數據，以避開交易所官方網站深層結構不易被即時抓取的問題。
+
+【⚠️ 最高合規與真實性指令】：
+1. 數據日期核對：必須在 Chain of Thought 中明確標註該筆數據所屬的「實際交易日期」，嚴禁將歷史舊資料包裝為當日。
+2. 報價零容忍原則：針對大盤指數點位、漲跌幅與三大法人買賣超金額，必須 100% 照抄真實搜尋結果。絕對禁止 AI 進行「情境推演」或「常理推估」來捏造數字。
+3. 若搜尋 API 無法取得該交易日的確切數據，請直接填寫「N/A (無最新數據)」。
+4. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+
+【強制前置作業：動態數據定錨 (Chain of Thought)】：
+請先強制搜尋並依序條列：
+1. 外資台指期未平倉（Net Position）口數與今日增減
+2. 該交易日台股加權指數收盤點位與漲跌。
+3. 三大法人（外資、投信、自營商）合計買賣超金額。
+4. 盤面最強勢領漲的 1-2 個產業族群名稱。
+5. 今日成交比重最高、表現最強勢的族群與個股
+6. 融資融券增減金額與大盤維持率
+（嚴禁捏造）
+
+
 接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
-請檢索並包含以下數據：
-1. 三大法人（外資、投信、自營商）買賣超金額
-2. 外資台指期未平倉（Net Position）口數與今日增減
-3. 融資融券增減金額與大盤維持率
-4. 今日成交比重最高、表現最強勢的族群與個股
 
 ## 📊 [日期] 盤後籌碼與強勢族群解析
 
