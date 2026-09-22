@@ -2747,7 +2747,15 @@ const handleLogin = async (e: React.FormEvent) => {
                                   </div>
                                 </div>
                                 <h5 className="text-[11px] font-bold text-[#1E293B] truncate">{g.title}</h5>
-                                <p className="text-[10px] text-[#64748B] font-mono mt-1 line-clamp-2" title={g.prompt}>{g.prompt}</p>
+                                <textarea
+                                  className="w-full text-[10px] text-[#64748B] font-mono mt-1 p-2 border border-slate-200 rounded-lg resize-y focus:outline-none focus:border-indigo-500 bg-slate-50 min-h-[50px]"
+                                  value={g.prompt}
+                                  onChange={(e) => {
+                                    const newVal = e.target.value;
+                                    setExtremeParsedGroups(prev => prev.map((item: any) => item.id === g.id ? { ...item, prompt: newVal } : item));
+                                  }}
+                                  title="您可以直接在此修改 AI 繪圖提示詞"
+                                />
                               </div>
                               
                               <button
