@@ -2491,7 +2491,16 @@ const handleLogin = async (e: React.FormEvent) => {
                                 </div>
                               </div>
                               <h5 className="text-[11px] font-bold text-[#1E293B]">{group.title}</h5>
-                              <p className="text-[12px] text-[#64748B] font-mono truncate mt-1" title={group.prompt}>{group.prompt}</p>
+                              <textarea
+                                className="w-full text-[12px] text-[#64748B] font-mono mt-1 p-2 border border-slate-200 rounded-lg resize-y focus:outline-none focus:border-indigo-500 bg-slate-50 min-h-[60px]"
+                                value={group.prompt}
+                                onChange={(e) => {
+                                  const newVal = e.target.value;
+                                  setParsedVisualGroups(prev => prev.map((g: any) => g.id === group.id ? { ...g, prompt: newVal } : g));
+                                }}
+                                title="您可以直接在此修改 AI 繪圖提示詞"
+                                placeholder="輸入影像生成提示詞..."
+                              />
                             </div>
                             
                             <button
