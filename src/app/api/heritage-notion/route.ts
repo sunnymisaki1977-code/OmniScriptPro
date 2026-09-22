@@ -95,24 +95,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing title" }, { status: 400 });
     }
 
-    // Parse category
-    const categoryMatch = content?.match(/(?:主題分類|分類)[：:]\s*(.*?)(?=\n|$)/);
+    function buildRichText(text: string) {
+      if (!text) return [];
+      const MAX_LENGTH = 2000;
+      const richText = [];
+      let remaining = text.trim();
+      while (remaining.length > 0) {
+        richText.push({ text: { content: remaining.substring(0, MAX_LENGTH) } });
+        remaining = remaining.substring(MAX_LENGTH);
+      }
+      return richText;
+    }
+
+    // Parse category (主題分類)
+    const categoryMatch = content?.match(/(?:主題分類)[：:]\s*(.*?)(?=\n|$)/);
     const category = categoryMatch ? categoryMatch[1].trim() : "未分類";
 
-    // Parse birthday
+    // Parse reason (判斷原因)
+    const reasonMatch = content?.match(/(?:判斷原因)[：:]\s*(.*?)(?=\n|$)/);
+    const reason = reasonMatch ? reasonMatch[1].trim() : "";
+
+    // Parse birthday (重要聖誕及所屬節氣與重要節慶)
     let birthday = "";
-    const birthdayMatch = content?.match(/(?:重要聖誕與重要節慶|聖誕千秋|農曆)[：:]?\s*([^\n]*?(?:農曆|初|十)[^\n]*)/);
+    const birthdayMatch = content?.match(/(?:重要聖誕及所屬節氣與重要節慶)[：:]\s*(.*?)(?=\n|$)/);
     if (birthdayMatch) {
       birthday = birthdayMatch[1].trim();
+    } else {
+      const altBirthdayMatch = content?.match(/聖誕(?:千秋)?[：:]\s*(.*?)(?=\n|$)/);
+      if (altBirthdayMatch) {
+          birthday = altBirthdayMatch[1].trim();
+      }
     }
-    
-    // Fallback for birthday if it wasn't matched well
-    if (!birthday) {
-        const altBirthdayMatch = content?.match(/聖誕(?:千秋)?[：:]\s*(.*?)(?=\n|$)/);
-        if (altBirthdayMatch) {
-            birthday = altBirthdayMatch[1].trim();
-        }
-    }
+
+    // Parse Intro (導言)
+    const introMatch = content?.match(/###\s*一、.*?導言.*?\n([\s\S]*?)(?=###|$)/);
+    const intro = introMatch ? introMatch[1].trim() : "";
+
+    // Parse Protection (職能守護與信仰群體)
+    const protectionMatch = content?.match(/###\s*(?:六|五|四)、.*?職能守護.*?\n([\s\S]*?)(?=###|$)/);
+    const protection = protectionMatch ? protectionMatch[1].trim() : "";
 
     const properties: any = {
       "名稱": {
@@ -127,22 +148,17 @@ export async function POST(req: Request) {
           start: new Date().toISOString().split("T")[0],
         },
       },
-      "類型": {
+      "主題分類": {
         select: {
           name: category,
         },
       }
     };
 
-    if (birthday) {
-      properties["聖誕"] = {
-        rich_text: [
-          {
-            text: { content: birthday },
-          },
-        ],
-      };
-    }
+    if (reason) properties["判斷原因"] = { rich_text: buildRichText(reason) };
+    if (birthday) properties["重要聖誕及所屬節氣與重要節慶"] = { rich_text: buildRichText(birthday) };
+    if (intro) properties["導言"] = { rich_text: buildRichText(intro) };
+    if (protection) properties["職能守護與信仰群體"] = { rich_text: buildRichText(protection) };
 
     const response = await notion.pages.create({
       parent: { database_id: targetDatabaseId },
