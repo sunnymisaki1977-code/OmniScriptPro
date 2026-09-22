@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing title" }, { status: 400 });
     }
 
-    function buildRichText(text: string) {
+    const buildRichText = (text: string) => {
       if (!text) return [];
       const MAX_LENGTH = 2000;
       const richText = [];
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
         remaining = remaining.substring(MAX_LENGTH);
       }
       return richText;
-    }
+    };
 
     // Parse category (主題分類)
     const categoryMatch = content?.match(/(?:主題分類)[：:]\s*(.*?)(?=\n|$)/);
