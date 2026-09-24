@@ -50,7 +50,8 @@ export const AUDIENCE_STYLES: Record<string, StyleOption> = {
     name: "商業提案風格 (極簡專業)",
     promptSuffix: ", sleek modern corporate presentation style, minimalist infographic, clean typography, soft emerald green and white palette, professional corporate branding, highly detailed, high-end commercial aesthetic"
   },
-  edtech: {
+
+edtech: {
     id: "style-edtech-flat",
     name: "現代幾何圖解 (扁平化教育)",
     promptSuffix: ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
@@ -172,6 +173,40 @@ export const POPULAR_STYLES: StyleOption[] = [
     promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
   },
   {
+    id: "style-value-chain",
+    name: "商業模式圖解 (價值鏈風)",
+    promptSuffix: ", professional business model canvas style, supply chain infographic, clean structural diagram, tech corporate aesthetic, smiling curve visualization, layered data presentation, flat vector art style, minimalist background, highly detailed, 8k resolution"
+  },
+ {
+    id: "style-market-strategy",
+    name: "市場博弈策略 (華爾街風)",
+    promptSuffix: ", premium institutional strategy poster, holographic global capital flow map, Wall Street financial aesthetic, dynamic data glowing lines, dramatic cinematic lighting, corporate typography layout, powerful market game concept, deep blue and gold tones, masterpiece, 8k"
+  }, 
+{
+    id: "style-consulting-mbb",
+    name: "MBB 頂尖顧問風 (高密邏輯)",
+    promptSuffix: ", professional McKinsey consulting style presentation, high information density, strict grid layout, MECE structure, waterfall charts, action titles, minimalist corporate navy and grey palette, structured data cards, highly detailed, 8k resolution"
+  },
+  {
+    id: "style-vc-pitch",
+    name: "矽谷創投募資風 (商業敘事)",
+    promptSuffix: ", Sequoia Capital startup pitch deck style, modern sleek design, high contrast before-after layout, business model canvas, bold traction metrics, dynamic startup aesthetic, vibrant accent colors on dark background, highly detailed, 8k"
+  },
+  {
+    id: "style-apple-keynote",
+    name: "極簡發布會風 (蘋果級視覺)",
+    promptSuffix: ", Apple keynote presentation style, ultra minimalist layout, massive bold typography, cinematic product isolation, negative space, dramatic soft spotlight, single key metric focus, high-end commercial aesthetic, masterpiece, 8k"
+  },
+  {
+    id: "style-b2b-corporate",
+    name: "B2B 企業級標準風 (沉穩專業)",
+    promptSuffix: ", professional B2B corporate presentation style, consistent brand identity, clean flat vector infographics, balanced text-to-image ratio, corporate blue and white theme, trustworthy and structured layout, high quality commercial design, 8k"
+  },
+ 
+
+
+
+{
     id: "style-edtech-flat",
     name: "現代幾何圖解 (扁平化教育)",
     promptSuffix: ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
