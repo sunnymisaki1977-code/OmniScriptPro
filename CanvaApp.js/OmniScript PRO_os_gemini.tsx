@@ -69,14 +69,23 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     }
 
     // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
-    const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-const isoTimestamp = new Date().toISOString();
+ const now = new Date();
+         const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+       const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});      
+
     const geminiPayload = {
         // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
         systemInstruction: {
             parts: [{ text: `
 [時間基準與事實嚴格約束]
-1. 現在的真實時間是 ${currentDate} (ISO時間戳: ${isoTimestamp}，時區: Asia/Taipei)。
+1. 現在的真實時間是 ${currentDate} 所有時間判斷請以此當地時間為準：忽略其他 UTC 時間戳記．
 2. 你必須嚴格以該時間點作為「現在」的基準。
 3. 【數據防偽條款】涉及即時股市指數、個股價格、最新新聞或具體數據時，若沒有外部搜尋結果（Google Search Grounding）或上下文數據佐證，嚴禁憑空編造數字。請明確標註「需檢索最新即時數據」或僅進行趨勢分析。
 ` }]
@@ -3358,21 +3367,33 @@ const handleLogin = async (e: React.FormEvent) => {
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <button
-                      onClick={() => handleGenerateTopic("0_5")}
+                      onClick={() => {
+                        setTheme("盤前觀戰與全球市場極速晨報");
+                        setShowTopicSelectorModal(false);
+                        setGeneratedTopics([]);
+                      }}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">🌅</span>
                       <span className="font-bold text-[#1E293B] text-sm leading-tight">盤前觀戰與全球市場極速晨報</span>
                     </button>
                     <button
-                      onClick={() => handleGenerateTopic("0_6")}
+                      onClick={() => {
+                        setTheme("盤後籌碼與強勢族群解析日報");
+                        setShowTopicSelectorModal(false);
+                        setGeneratedTopics([]);
+                      }}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">📈</span>
                       <span className="font-bold text-[#1E293B] text-sm leading-tight">盤後籌碼與強勢族群解析日報</span>
                     </button>
                     <button
-                      onClick={() => handleGenerateTopic("0_7")}
+                      onClick={() => {
+                        setTheme("企業拜訪與法說會深度提問訪綱");
+                        setShowTopicSelectorModal(false);
+                        setGeneratedTopics([]);
+                      }}
                       className="w-full p-4 rounded-xl border border-slate-200 hover:border-orange-500 hover:bg-orange-50 text-left transition-all flex items-center gap-3 group"
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">🏢</span>

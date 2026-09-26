@@ -59,6 +59,7 @@ ${combineInstruction}
 2. 節氣
 3. 宮廟
 
+
 【絕對不可】包含任何 Markdown 語法 (如 \`\`\`json) 或其他多餘的解釋文字，只能回傳一個完整的 JSON 物件。請嚴格根據判斷結果輸出對應的格式：
 
 如果判斷為【第一類：神佛/歷史人物】，請輸出：
@@ -71,8 +72,8 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下，由右到左，不要標點符號）",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「${name}」形象特徵，壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下，由右到左，不要標點符號）]
-${imageTextInstruction1}。"
+  "imagePrompt": "「藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）${name}」形象特徵，壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下，由右到左，不要標點符號）]
+[${imageTextInstruction1}（由上到下，由右到左，不要標點符號）]。"
 }
 
 如果判斷為【第二類：節氣】，請輸出：
@@ -105,8 +106,8 @@ ${imageTextInstruction1}。"
   "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左，不要標點符號）'}",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"]
-  "imagePrompt": "「${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，【⚠️ 強制圖像查證指令】「隨機填入一個圖片網址（Image URL）」，
-${imageTextInstruction3}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
+  "imagePrompt": "「藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，【⚠️ 強制圖像查證指令】「隨機填入一個圖片網址（Image URL）」，
+[藝術書法文字：（由上到下，由右到左，不要標點符號）${imageTextInstruction3}${poemInstruction}][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
 }`;
     });
 
