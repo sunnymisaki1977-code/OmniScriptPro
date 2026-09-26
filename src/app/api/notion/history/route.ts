@@ -46,8 +46,9 @@ export async function GET(req: Request) {
            }
         }
         
-        if (block.type === "heading_2") {
-          const text = block.heading_2.rich_text.map((rt: any) => rt.plain_text).join("");
+        if (block.type === "heading_2" || block.type === "heading_1") {
+          const typeData = block[block.type];
+          const text = typeData.rich_text.map((rt: any) => rt.plain_text).join("");
           const match = text.match(/Step (\d+):\s*(.*)/);
           if (match) {
             currentStepId = parseInt(match[1]);
