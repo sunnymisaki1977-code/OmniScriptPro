@@ -47,15 +47,32 @@ export async function GET(req: Request) {
         }
         
         let isStepHeading = false;
-        if (block.type === "heading_2") {
-          const text = block.heading_2.rich_text.map((rt: any) => rt.plain_text).join("");
-          const match = text.match(/Step (\d+):\s*(.*)/);
-          if (match) {
-            currentStepId = parseInt(match[1]);
-            if (currentStepId === 1) {
-                firstStepTitle = match[2].trim();
+        if (block.type === "heading_1" || block.type === "heading_2") {
+          const headingData = block[block.type];
+          if (headingData && headingData.rich_text) {
+            const text = headingData.rich_text.map((rt: any) => rt.plain_text).join("");
+            
+            // 1. Try legacy matching: "Step X: title"
+            const match = text.match(/Step (\d+):\s*(.*)/i);
+            if (match) {
+              currentStepId = parseInt(match[1]);
+              if (currentStepId === 1) firstStepTitle = match[2].trim();
+              isStepHeading = true;
+            } else {
+              // 2. Try matching exact step names from THEME_STEPS
+              for (const [key, steps] of Object.entries(THEME_STEPS)) {
+                 const foundStep = (steps as any[]).find((s) => text.includes(s.name) || s.name.includes(text));
+                 if (foundStep) {
+                   currentStepId = foundStep.id;
+                   if (currentStepId === 1) {
+                     firstStepTitle = foundStep.name;
+                     audienceThemeFromNotion = key;
+                   }
+                   isStepHeading = true;
+                   break;
+                 }
+              }
             }
-            isStepHeading = true;
           }
         }
         
