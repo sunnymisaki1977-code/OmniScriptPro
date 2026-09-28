@@ -46,17 +46,20 @@ export async function GET(req: Request) {
            }
         }
         
-        if (block.type === "heading_2" || block.type === "heading_1") {
-          const typeData = block[block.type];
-          const text = typeData.rich_text.map((rt: any) => rt.plain_text).join("");
+        let isStepHeading = false;
+        if (block.type === "heading_2") {
+          const text = block.heading_2.rich_text.map((rt: any) => rt.plain_text).join("");
           const match = text.match(/Step (\d+):\s*(.*)/);
           if (match) {
             currentStepId = parseInt(match[1]);
             if (currentStepId === 1) {
                 firstStepTitle = match[2].trim();
             }
+            isStepHeading = true;
           }
-        } else if (currentStepId > 0) {
+        }
+        
+        if (!isStepHeading && currentStepId > 0) {
           const typeData = block[block.type];
           if (typeData && typeData.rich_text) {
             const text = typeData.rich_text.map((rt: any) => rt.plain_text).join("");
