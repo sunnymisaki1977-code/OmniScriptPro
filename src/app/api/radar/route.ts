@@ -1,11 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-export const dynamic = 'force-dynamic';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-// 簡易零依賴 RSS 解析函數 (支援 Yahoo 與 Google News RSS)
-function parseRssItems(xml: string, limit = 5) {
+// 簡易零依賴 RSS 解析函數 (預設限制改為 10 筆)
+function parseRssItems(xml: string, limit = 10) {
   const items: { title: string; summary: string; pubDate: string; link: string }[] = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
   let match;
@@ -21,7 +20,6 @@ function parseRssItems(xml: string, limit = 5) {
       return text.replace(/<[^>]+>/g, '').trim(); // 移除所有 HTML 標籤
     };
     
-    // Google News 會將發布源放在標題最後 (e.g. "... - 自由時報")
     let title = getTag('title');
     const summary = getTag('description') || getTag('summary');
     const pubDate = getTag('pubDate');
@@ -44,7 +42,11 @@ function parseRssItems(xml: string, limit = 5) {
 }
 
 const THEME_RSS_MAP: Record<string, { keyword: string; isYahooFinance: boolean }> = {
-  heritage: { keyword: "民俗信仰 OR 台灣宗教 OR 宮廟", isYahooFinance: false },
+  // 優化關鍵字：包含繞境、進香、拜拜、神明、風水等多元熱門詞彙
+  heritage: { 
+    keyword: "(民俗 OR 宗教 OR 信仰 OR 廟會 OR 遶境 OR 進香 OR 宮廟 OR 拜拜 OR 神明 OR 陣頭 OR 節慶 OR 風水)", 
+    isYahooFinance: false 
+  },
   beauty: { keyword: "美妝保養 OR 保養品 OR 醫美", isYahooFinance: false },
   travelpreneur: { keyword: "旅遊景點 OR 出國旅遊 OR 自由行", isYahooFinance: false },
   food: { keyword: "美食推薦 OR 餐廳評鑑 OR 料理食譜", isYahooFinance: false },
@@ -75,7 +77,8 @@ export async function GET(req: Request) {
     }
 
     const xmlText = await rssRes.text();
-    const newsList = parseRssItems(xmlText, 5);
+    // 修改為抓取 10 筆新聞
+    const newsList = parseRssItems(xmlText, 10);
 
     if (newsList.length === 0) {
       return NextResponse.json({
@@ -105,7 +108,8 @@ export async function GET(req: Request) {
         ? "判斷其中是否包含『可能造成全球或台灣股市劇烈震盪或大跌』的突發重大事件" 
         : "判斷其中是否包含『能引發大量社群共鳴、具備病毒式傳播潛力』的重大趨勢或突發話題";
 
-      const prompt = `你是一個${roleStr}。請閱讀以下 5 則最新快訊標題與簡介。
+      // Prompt 中的數字改為動態帶入 ${newsList.length}
+      const prompt = `你是一個${roleStr}。請閱讀以下 ${newsList.length} 則最新快訊標題與簡介。
 ${criteriaStr}。
 
 【最新快訊清單】：
