@@ -552,6 +552,16 @@ export default function App() {
         }
       }
 
+      if (group.localImage) {
+        partsArr.push({
+          inlineData: {
+            mimeType: group.localImage.mimeType,
+            data: group.localImage.data
+          }
+        });
+        addLog(`[System] 已將使用者上傳的本機圖片加入為墊圖！`, 'success');
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2428,6 +2438,28 @@ const handleLogin = async (e: React.FormEvent) => {
                                 title="您可以直接在此修改 AI 繪圖提示詞"
                                 placeholder="輸入影像生成提示詞..."
                               />
+                              <div className="flex items-center justify-between mt-1 mb-1">
+                                <label className="text-[11px] font-medium text-slate-500 cursor-pointer hover:text-indigo-500 flex items-center gap-1 bg-slate-100 px-2 py-1 rounded">
+                                  <ImageIcon className="w-3 h-3" /> 選取本機墊圖
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    className="hidden" 
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          const base64 = (event.target?.result as string).split(',')[1];
+                                          setParsedVisualGroups(prev => prev.map((g: any) => g.id === group.id ? { ...g, localImage: { data: base64, mimeType: file.type } } : g));
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                    }} 
+                                  />
+                                </label>
+                                {group.localImage && <span className="text-[10px] text-emerald-500 font-bold">✅ 已選取墊圖</span>}
+                              </div>
                             </div>
                             
                             <button
@@ -2774,6 +2806,28 @@ const handleLogin = async (e: React.FormEvent) => {
                                   }}
                                   title="您可以直接在此修改 AI 繪圖提示詞"
                                 />
+                                <div className="flex items-center justify-between mt-1 mb-1">
+                                  <label className="text-[10px] font-medium text-slate-500 cursor-pointer hover:text-indigo-500 flex items-center gap-1 bg-slate-100 px-2 py-1 rounded">
+                                    <ImageIcon className="w-3 h-3" /> 選取本機墊圖
+                                    <input 
+                                      type="file" 
+                                      accept="image/*" 
+                                      className="hidden" 
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onload = (event) => {
+                                            const base64 = (event.target?.result as string).split(',')[1];
+                                            setExtremeParsedGroups(prev => prev.map((item: any) => item.id === g.id ? { ...item, localImage: { data: base64, mimeType: file.type } } : item));
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }} 
+                                    />
+                                  </label>
+                                  {g.localImage && <span className="text-[9px] text-emerald-500 font-bold">✅ 已載入</span>}
+                                </div>
                               </div>
                               
                               <button
