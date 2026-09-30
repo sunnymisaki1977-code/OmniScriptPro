@@ -4275,6 +4275,260 @@ AI Prompt (中文):
 
 export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
   return WORKFLOWS_REGISTRY[theme] || [];
+  , "competition": [
+    {
+      id: 1,
+      title: "�֤ߥ�������",
+      description: "�w���v�ɥD�D�i�楫���h�I�w�q�B�зs�ѨM��ש�ѻP�M�׸��a�i��ʵ���",
+      type: "text",
+      dependsOn: ["theme"],
+      tools: ["google_search"],
+      prompt: (ctx: any) => {
+        const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+        const isoTimestamp = new Date().toISOString();
+        const today = new Date().toISOString().split('T')[0];      
+        return \�i����ɶ��w��P�j��j�M���O�j�G
+�t�κ�T�ɶ��W�O�G\
+���ѬO \�]�зǮ榡�G\�^�C
+�аȥ��j��ե� Google �j�M�u��A�˯����ѡ]�H \ ��ǡ^���̷s�����C
+�A�O�@��֦��״I����g�窺�«ȪQ�P�ӷ~�v�ɾɮv�C�аw���v�ɥD�D�u\�v���g�@�� 1500 �r���M�׮֤ߥ����ѡC
+
+�i��X�ҪO�j���Y����`�H�U�[�c�G
+### �@�B ����K�n (TL;DR / Elevator Pitch)
+[�@�y�ܯ}�D�G�o�ӱM�׸ѨM�F����֤ߵh�I�H�гy�F������ȡH]
+[�M�׮֤��@���P�ؼ�]
+
+### �G�B �����h�I�P���h�޿�
+[�N���������~���D�ΨϥΪ̧x����Ƭ��������h�I���R]
+[�h�I 1�G�{����ת�����...]
+[�h�I 2�G���Q�������ݨD...]
+
+### �T�B �зs�ѨM��׻P�֤߫G�I (Solution)
+[�C�X 2-3 �ӥ��M�ת��зs��}�I�A�û����B�ΤF��������޳N�γзN����]
+[�G�I 1�G...]
+[�G�I 2�G...]
+
+### �|�B ���a���λP���Ӯi��
+[���~/�A�ȤW�u�᪺������α���]
+[�д��� 2 �ӥؼШ���(TA)���ϥα��Ҽ����A�û����M�צb���Ӫ��o�i��O]\;
+      }
+    },
+    {
+      id: 2,
+      title: "�D�b�}�����",
+      description: "�ھڱM�ץ����A���X�v�� Demo / Pitch ���׼v���}���C",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => \�ЮھڥH�U�i�M�׮֤ߥ����j�A���g�@�� 3 ������ Pitch (����) �v���}���C�C 15 �����@�Ӹ`�I�C
+
+��ƨӷ��G
+====================
+\
+====================
+
+�i?? �ǥհt�� (VO) �r�Ʊj����O (�ѨM�v���L�u�θ`��������D)�j�G
+�Ш̧ǲ��X�U�ɶ��`�I�����e�C���F�ŦX�u��t�����רü��_���㴣�סA�y�C�@�� 15 ���϶����ǥհt�� (VO)�z�����ܤ֥]�t 40 �� 50 �Ӥ���r�C
+�Сu�����u�Ρv�������ءA�N�޳N�η�����Ƭ��㻡�A�O��²���f�k�C
+
+�i��X�ҪO�j���Y����u�H�U�[�c���g�A�C�� 15 �����X [�e���`�I][�e���r�d][�ǥհt�� (VO)]�G
+## ?? �v�ɴ��ײ`�׸ѪR�G\
+
+### ?? �}���P�h�I (Hook & Problem)�G
+ (�ɶ��W���G00:00 - 00:45�A�@ 3 �Ӹ`�I)
+- ��ı�e���G[�y�z�}���e���A�ݨ�Ʋ{�N��޷P�P�j�P���]
+- �e���r�d�G[10�r�H�����}�D���D����H�ƾ�]
+- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�Τ@�ӱj�P�������h�I�ΨϥΪ̧x�Ҷ}��]
+
+### ?? �֤߳зs�P�Ѫk (Solution) (00:45 - 01:45)
+ (�ɶ��W���G00:45 - 01:45�A�@ 4 �Ӹ`�I)
+- ��ı�e���G[�y�z�f�t�����~�[�c�ϡBUI �����η����ʵe]
+- �e���r�d�G[10�r�H�����֤ߥ\��ΫG�I���y]
+- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�Q�κ�Ҫ��y�𻡩��ڭ̪��ѨM��צp���A�в{��]
+
+### ?? �쫬�i�ܻP�ӷ~�Ҧ� (Traction/Demo) (01:45 - 02:30)
+ (�ɶ��W���G01:45 - 02:30�A�@ 3 �Ӹ`�I)
+- ��ı�e���G[�@�B�B�a����f�ݨ����~�B�@���ҩΰӷ~�Ҧ���]
+- �e���r�d�G[���ҨB�J����Q�Ҧ�]
+- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�y�Z�����~�B�@�޿�ѻ�]
+
+### ?? �`���P�����@�� (Vision & Call to Action) (02:30 - 03:00)
+ (�ɶ��W���G02:30 - 03:00�A�@ 2 �Ӹ`�I)
+- ��ı�e���G[�ζ��лx�B�����@���N�H�αM�׭��I���C�r�d]
+- �e���r�d�G[�M�פf���P�I�~���]
+- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�`���M�׻��ȡA�İǥ����ŹϡA�æ۫H�a��������]\
+    },
+    {
+      id: 3,
+      title: "�v�� SEO ���D�u��",
+      description: "�ͦ����I�����M�׮i�ܼv�����D�B���һP�����椺�e�C",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => \�ھڤU�誺�m���׼v���}���n�A���X�෥�j���I���v���M�׮i���� SEO ���e�]�A�Ω� YouTube ú��ΤH��벼�^�C
+
+�}�����e�G
+====================
+\
+====================
+
+�i��X�ҪO�j�G
+### ?? �z�ڱM�׼��D (5 �Ӥ���)
+1. [�h�I�ѨM�����D�G�j�ոѨM����j�·�]
+2. [�޳N�зs�����D�G�j�ըϥΪ��e�u���]
+3. [�����@�������D�G�j�դU�@�ӥ@�N������]
+4. [�ͬ����Ϋ����D�G�j�չ��`���v�T]
+5. [�����a�������D�G�޵o�n�_��]
+
+### ??? ���� Hashtags (10 ��)
+#[����1] #[����2] ... (�ݥ]�t�v�ɬ����γзs��޼���)
+
+### ?? �v��������
+[150�r�t������r���M��²���A�éI�~�[���I�g�B���ɩΫe���벼�������]\
+    },
+    {
+      id: 4,
+      title: "�X�����v�����",
+      description: "���X 60 ��������² Elevator Pitch (�q��²��) �u�v����סC",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => \�ھڡm�M�׮֤ߥ����n�G\�A���g�@�� 60 ������ YouTube Shorts / IG Reels ���׵u�v���}�� (Elevator Pitch)�C�`���ݷ��ש��֡B��ư��׻��A�O�C
+
+�i��X�ҪO�j�G
+### ?? �e 3 ���G���� Hook (00:00 - 00:05)
+- ��ı�e���G[��������O�����D���������A����ı����]
+- �e���r�d�G[��ҵh�I���a���r�d]
+- �ǥհt�� (VO)�G[�@�y���I�X�����̤j���h�I�ΧY�N�A�Ъ��{��]
+
+### ?? ����Ѫk�@�Y (00:05 - 00:45)
+- ��ı�e���G[�ָ`�����������~ Prototype �ά�޷N�H]
+- �e���r�d�G[�֤߳зs�I]
+- �ǥհt�� (VO)�G[���X�M�׳̮֤ߪ��Ѫk�P���ȥD�i�A�y�t���֡B�R���۫H]
+
+### ?? �`���P��ʩI�~ (00:45 - 00:60)
+- ��ı�e���G[�M�� LOGO�B�v�ɵ�ı�P�I�~�벼�e��]
+- �e���r�d�G[�Ф���ڭ� / �F�ѧ�h]
+- �ǥհt�� (VO)�G[�Τ@�y�j�Ӧ��O�� Slogan �����A�޾��[���I���s������Χ벼]\
+    },
+    {
+      id: 5,
+      title: "�X���� SEO �����u��",
+      description: "�ͦ��q��²���u�v���ʭ����D�P���ҡC",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => \�ھڡm�u�v���}���n�G\�A���X�Բ�/�n���u�v���M�� SEO�C
+
+�i��X�ҪO�j�G
+### ?? �����O�u�v�����D (3 ��)
+1. [�p�G�o���зs�Y�N����...]
+2. [�p�G60���������Ӫ�...]
+3. [�p�G�ڭ̦p��ѨM...]
+
+### ??? ���� Hashtags
+#[����1] #[����2] #[����3] #[����4] #[����5]\
+    },
+    {
+      id: 6,
+      title: "�v���I���v (CTR) �Ϲ�",
+      description: "�ͦ� 16:9 �v�ɴ��׼v���Y�Ϥ�׻P����P����ø�ϫ��O�C",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => \�w�ﴣ�׸}���u\�v�ͦ� 3 �� YouTube ���׮i�ܼv���Y�Ϥ�׻P AI ø�ϫ��O (16:9)�C
+
+�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�CAI ø�� Prompt �����Y��]�t�H�U�ƪ������Gclean sans-serif typography layout, high contrast, highly detailed�C
+�i�ʺA������O�j�G��ı���� (Visual Aesthetic) �Ч����ھڡu\�v���ݩʦ۰ʱ��ɡ]�Ҧp�G�Y�D�D���C���A�Шϥ� cyberpunk/gaming aesthetic�F�Y������o�i�A�Шϥ� eco-friendly/nature-inspired�F�Y���H�����h�A�Шϥ� warm cinematic lighting�^�C����T��ϥι������I���P�ʭ�����ΦL����� (strictly avoid thick square seal borders and solid block backgrounds)�C
+
+### �Ĥ@�աG[�Y�ϦW��]
+�D�СG[�h�I/�a���D��]
+�ƼСG[�ɥR����]
+����ø�ϴ��ܵ��G[�e���y�z�C�����P��m�Ч����K�X�u\�v���M�ݪ^��]�p�q�v�i�O�B�۵M���O�B���ɼg�굥�^�A�ýT�O�I���c�ϾA�X��m���D��r�A��ı�l���W��]
+�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
+    },
+    {
+      id: 7,
+      title: "�X�����v���l���Ϲ�",
+      description: "�ͦ� 9:16 �u�v���ʭ���׻Pø�ϫ��O�C",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => \�w��q��²���u�}���u\�v�ͦ� 3 �� 9:16 �u�v���Y�ϳ]�p�C
+
+�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�CAI ø�� Prompt �����]�t�Gextreme vertical composition, clean sans-serif typography layout, minimal background configuration�C
+�i�ʺA������O�j�G�e�������N���楲���P�u\�v���D�D�թʧ����k�X�C
+
+### �Ĥ@�աG[�Y�ϦW��]
+���I����סG[���׺�²���֤߻��ȩεh�I�r�d�A5�r�H��]
+����ø�ϴ��ܵ��G[��ı�J�I���������b���j�B�M������r�ƪ��W�A�I���ЮھڥD�D�۰ʥͦ���²�����p�N�H�]�p�Ӫű����B�Ʀ�Ч@�B�ͬ����浥�M�ݷN�H�^�A�קK����p�������]
+�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
+    },
+    {
+      id: 8,
+      title: "����Ʊ��ҵ�ı",
+      description: "�ͦ� 16:9 �M�׷����N�H/�i�������C",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => \�w������u\�v�ͦ� 3 �� 16:9 �M�׷����N�H�P�@�������C
+
+�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�C��ı�]�p���������ĦX�H�U��¦�����Gcinematic lighting, clean background composition, elegant sans-serif typography layout, concept art style�C
+�i�ʺA������O�j�G�֤ߵ�ı���� (Core Art Style) �Ч����̾ڡu\�v�����Ҷq�����y�A�i�{�ӻ��M�ݪ��h���Q���C
+
+### �Ĥ@�աG[�����W��]
+�@���f���G[�P�M�׮֤ߺ믫������ Slogan]
+����ø�ϴ��ܵ��G[�e���y�z�C�����^�򥲶��H�D�D�F���ܤơ]�p�G�C���q�v���O�i���v�B����o�i����N�@�͡B�H�����h���ŷx�g��^�C�Цb�e���A���B�ĤJ�M�ת��֤����α��ҡA�îi�{�ӥD�D�M�ݪ��u�U�@��40�~�v�Q���C�Y���קK����L�ʪ������س]�p�C]
+�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
+    },
+    {
+      id: 9,
+      title: "Suno AI �����t��",
+      description: "�ͦ��A�X Pitch ���׻P�i�{���ӷP�����֫��O�C",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => \�w��M�פ��e�u\�v�A�ͦ� 3 �� Suno AI ���֥ͦ� Prompt�A�A�Ω��v�ɴ���²���ήi�ܼv���C
+
+�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�C
+�Ъ�����X�H�U�榡�G
+
+### �Ĥ@�աG��ޫe�u (Futuristic Tech)
+�A�γ����G�i�ܧ޳N�зs�BAI ���Ωβ��~�쫬
+Suno AI Prompt�G[�p�GCyberpunk synthwave, deep bass, futuristic electronic, steady driving beat, high-tech vibe]
+
+### �ĤG�աG�M�~�@�� (Corporate Vision)
+�A�γ����G���z�����h�I�B�ӷ~�Ҧ��P���Ӯi��
+Suno AI Prompt�G[�p�GCinematic ambient, inspiring orchestral, subtle piano, building momentum, professional presentation]
+
+### �ĤT�աG�ʷP���O (Dynamic Impact)
+�A�γ����G�ֳt���q��²���B�i�ܥͬ�����ΨϥΪ�����
+Suno AI Prompt�G[�p�GUpbeat modern pop, energetic rhythm, bright synth, confident and inspiring, fast-paced pitch]\
+    },
+    {
+      id: 10,
+      title: "�����x���s�������",
+      description: "�@��ͦ��M�׫G�I�ϥd���ܵ��P�Բ����s����",
+      type: "social",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => \�ھڡi�M�׮֤ߥ����j�G\�A���y�@�ժ��s�i���i�H�]�]Carousel�^�P�Բ�/�n���K��C
+
+### ���Ȥ@�G�ͦ��M�׫G�I�ϥd Prompt (4:5 �c��)
+�Ъ�����X�G
+AI Prompt (����):
+�H�u\�v���֤ߡA�ĥ� high-end corporate presentation style�C�ͦ��@�M�]�t 5 �Ӹ�T�϶����Ϫ��ƪ��C�����ϥβM������r�h�� (clean typography layout) �P��²��޷P�I���A�קK�I������C
+�ϥd 1 �ʭ�/�h�I�G[��g�G�I1 - �����{��]
+�ϥd 2 �֤߸Ѫk�G[��g�G�I2 - �ڭ̪��зs]
+�ϥd 3 ���α��ҡG[��g�G�I3 - �p��B�@]
+�ϥd 4 �w���įq�G[��g�G�I4 - ���Ӽv�T]
+�ϥd 5 �ζ�/�I�~�G[��g�G�I5 - ����ڭ�]
+
+### ���ȤG�G���s�o������
+[�a�� Emoji ���h�I���@���}���աA�l�ޥإ�]
+[���C 3-4 �I�M�׮֤߫G�I�A�Υոܤ�����A�̪��зs���B]
+[���ʻP��ʩI�~�G�ܽФj�a���Ѧ^�X�ΰѻP�v�ɤH��벼]
+?? ı�o�o�ӷQ�k�ŶܡH�d���i�D�ڭ̧A���ݪk�A���I���D���s�����ڭ̯��t���@���I
+#�зs�v�� #�M�פ��� #\ [�ɥR2�Ӭ��/�зs��������]\
+    }
+  ]
+
 };
 
 export const WORKFLOW_STEPS = WORKFLOWS_REGISTRY['heritage'];

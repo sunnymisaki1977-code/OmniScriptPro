@@ -316,6 +316,35 @@ export const AUDIENCE_THEMES = {
     actionBtn: 'bg-blue-600 hover:bg-blue-500 text-white',
     actionBtnOutline: 'bg-blue-500/10 text-blue-600 hover:text-blue-700 border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/20',
     themeLogMessage: '[Theme] 已切換至「EdTech 知識賦能 (Digital Learning)」模式。啟動知識架構萃取與圖解視覺優化 🔵'
+  },
+  competition: {
+    id: 'competition',
+    ambientGlow: 'bg-indigo-500',
+    title: '競賽企劃・黑客松',
+    subtitle: 'Indigo Tech 靛藍科技',
+    desc: '深邃專業的靛藍色調。專為黑客松與商業競賽專案落地企劃設計。',
+    gradient: 'from-[#6366F1] to-[#4338CA]',
+    primaryColor: 'indigo-500',
+    borderActive: 'border-[#6366F1]/50',
+    textActive: 'text-[#6366F1]',
+    bgActive: 'bg-[#6366F1]/10',
+    bgBadge: 'bg-[#F59E0B]/10 border-[#F59E0B]/20 text-[#F59E0B]',
+    primaryBtn: 'bg-gradient-to-r from-[#6366F1] to-[#4338CA] hover:opacity-90 text-white rounded-full shadow-lg hover:-translate-y-[2px] transition-all duration-300',
+    secondaryBtn: 'bg-[#F8FAFC] text-[#1E293B] border-slate-200 hover:bg-slate-100 rounded-full',
+    textMuted: 'text-[#64748B]',
+    accentText: 'text-[#F59E0B]',
+    accentBg: 'bg-[#F59E0B]/10',
+    ringColor: 'focus:ring-[#6366F1] focus:border-[#6366F1]',
+    pipelineCurrent: 'bg-white border-[#6366F1]/50 shadow-[0_4px_20px_rgba(99,102,241,0.05)]',
+    pipelineCurrentIcon: 'bg-[#6366F1] text-white animate-pulse',
+    tagBg: 'bg-[#F8FAFC] border-slate-200 text-[#64748B]',
+    matrixRequired: 'bg-indigo-900/50 text-[#6366F1] border border-indigo-500/30 cursor-not-allowed opacity-80',
+    matrixSelected: 'bg-indigo-500 text-white shadow-md hover:bg-indigo-600',
+    matrixUnselected: 'bg-white border border-slate-200 text-[#64748B] hover:bg-indigo-50',
+    focusRing: 'focus:border-indigo-500/50',
+    actionBtn: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    actionBtnOutline: 'bg-indigo-500/10 text-indigo-600 hover:text-indigo-700 border border-indigo-500/20 hover:border-indigo-500/50 hover:bg-indigo-500/20',
+    themeLogMessage: '[Theme] 已切換至「競賽企劃 (Indigo Tech)」模式。啟動競賽專案萃取與創新視覺優化 🔵'
   }
 };
 
@@ -434,5 +463,17 @@ export const THEME_STEPS = {
     { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '自動判斷文章視覺，生成 16:9 情境視覺海報', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'], aspectRatio: '16:9' },
     { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '動態分析文章情緒起伏，生成 3 組 Suno AI 音樂指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'] },
     { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成多風格圖卡提示詞與社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
+  ],
+  competition: [
+    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對競賽主題進行市場痛點定義、創新解決方案拆解與專案落地可行性評估', type: 'text', dependsOn: ['theme'] },
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: '根據專案企劃，產出競賽 Demo / Pitch 提案影音腳本', type: 'text', dependsOn: ['theme', 'step1'] },
+    { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: '生成高點擊的專案展示影片標題、標籤與說明欄內容', type: 'text', dependsOn: ['theme', 'step2'] },
+    { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: '產出 60 秒內的精簡 Elevator Pitch (電梯簡報) 短影片文案', type: 'text', dependsOn: ['theme', 'step1'] },
+    { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: '生成電梯簡報短影片封面標題與標籤', type: 'text', dependsOn: ['theme', 'step4'] },
+    { id: 6, name: '影音點擊率 (CTR) 圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 競賽提案影片縮圖文案與高質感概念繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step2'], aspectRatio: '16:9' },
+    { id: 7, name: '擴散式影音吸睛圖像', icon: 'ImageIcon', category: 'Visuals', desc: '生成 9:16 短影音封面文案與繪圖指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step4'], aspectRatio: '9:16' },
+    { id: 8, name: '風格化情境視覺', icon: 'ImageIcon', category: 'Visuals', desc: '生成 16:9 專案概念意象/展覽海報', type: 'code', language: 'markdown', dependsOn: ['theme', 'step1'], aspectRatio: '16:9' },
+    { id: 9, name: 'Suno AI 情緒配樂', icon: 'Music', category: 'Audio', desc: '生成適合 Pitch 提案與展現未來感的音樂指令', type: 'code', language: 'markdown', dependsOn: ['theme', 'step1'] },
+    { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成專案亮點圖卡提示詞與拉票社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
   ]
 };

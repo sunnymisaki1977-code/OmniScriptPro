@@ -15,6 +15,7 @@ const ACCESS_CODES: Record<string, string> = {
   'FAIRY TALES2026': 'fairy tales', // 允許空白鍵
   'PROPOSAL2026': 'proposal', // 企劃文案・AI 提案
   'EDTECH2026': 'edtech', // EdTech 知識賦能
+  'COMPETITION2026': 'competition', // 競賽企劃
   'MASTER': 'heritage',     // 管理員
   'FLEIX': 'heritage'       // 全主題通用 (同管理員)
 };
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
         'fintech': 'https://omni-script-pro.vercel.app/api/fintech-notion',
         'heritage': 'https://omni-script-pro.vercel.app/api/heritage-notion',
         'story': 'https://omni-script-pro.vercel.app/api/story-notion',
+        'competition': 'https://omni-script-pro.vercel.app/api/competition-notion',
         'default': 'https://omni-script-pro.vercel.app/api/heritage-notion'
       };
       

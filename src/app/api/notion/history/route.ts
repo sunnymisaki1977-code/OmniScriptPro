@@ -14,6 +14,7 @@ export async function GET(req: Request) {
     if (theme === 'fintech') targetDatabaseId = process.env.NOTION_fintech_ID || targetDatabaseId;
     else if (theme === 'heritage') targetDatabaseId = process.env.NOTION_heritage_ID || targetDatabaseId;
     else if (theme === 'story') targetDatabaseId = process.env.NOTION_story_ID || targetDatabaseId;
+    else if (theme === 'competition') targetDatabaseId = process.env.NOTION_competition_ID || "3bdf374300dc80769461f8d6d1afaf22" || targetDatabaseId;
 
     const pageId = searchParams.get("id");
 
