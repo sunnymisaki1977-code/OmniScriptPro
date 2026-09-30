@@ -70,6 +70,11 @@ edtech: {
 
 export const POPULAR_STYLES: StyleOption[] = [
   {
+    id: "style-empty",
+    name: "無預設風格 (空白)",
+    promptSuffix: ""
+  },
+  {
     id: "style-fintech",
     name: "FinTech 財經量化 (彭博全息)",
     promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"

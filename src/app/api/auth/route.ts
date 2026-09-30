@@ -16,6 +16,7 @@ const ACCESS_CODES: Record<string, string> = {
   'PROPOSAL2026': 'proposal', // 企劃文案・AI 提案
   'EDTECH2026': 'edtech', // EdTech 知識賦能
   'COMPETITION2026': 'competition', // 競賽企劃
+  'COMPETITION': 'competition', // 競賽企劃 (無 2026 後綴)
   'MASTER': 'heritage',     // 管理員
   'FLEIX': 'heritage'       // 全主題通用 (同管理員)
 };
