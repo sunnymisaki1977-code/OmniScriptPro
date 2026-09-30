@@ -804,7 +804,7 @@ export default function App() {
       heritage: '民俗信仰', beauty: '美妝保養', travelpreneur: '旅遊生活',
       food: '美食探店', pet: '寵物照護', fintech: '財經知識',
       story: '銘印說書', 'fairy tales': '銘印童話', proposal: '企劃文案',
-      edtech: '教育科技'
+      edtech: '教育科技', competition: '競賽企劃'
     };
     return map[themeId] || '財經知識';
   };
@@ -1842,6 +1842,15 @@ const handleLogin = async (e: React.FormEvent) => {
                           >
                             <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🎓 EdTech 知識賦能</span>
                             <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">edtech2026</code>
+                          </div>
+                          
+                          <div 
+                            onClick={() => { setPasscode('competition2026'); setAuthError(''); }}
+                            className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-400 hover:shadow transition-all cursor-pointer group/hint"
+                            title="點擊帶入 competition2026"
+                          >
+                            <span className="group-hover/hint:text-slate-900 transition-colors truncate mr-2">🏆 黑客松競賽企劃</span>
+                            <code className="font-mono font-bold text-emerald-600 bg-emerald-50 group-hover/hint:bg-emerald-500 group-hover/hint:text-white px-2 py-0.5 rounded transition-colors shrink-0">competition2026</code>
                           </div>
                         </div>
                       </div>
