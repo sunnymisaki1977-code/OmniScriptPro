@@ -4270,266 +4270,261 @@ AI Prompt (中文):
 #學習日常 #線上課程 #${ctx.theme} [補充2個相關標籤]`
   }
   ]
-};
+,
+  "competition": [
 
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對競賽主題進行市場痛點定義、創新解決方案拆解與專案落地可行性評估",
+    type: "text",
+    dependsOn: ["theme"],
+tools: ["google_search"],
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+你是一位擁有豐富獲獎經驗的黑客松與商業競賽導師。請針對競賽主題「${ctx.theme}」撰寫一份 1500 字的專案核心企劃書。
 
-export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => {
-  return WORKFLOWS_REGISTRY[theme] || [];
-  , "competition": [
-    {
-      id: 1,
-      title: "�֤ߥ�������",
-      description: "�w���v�ɥD�D�i�楫���h�I�w�q�B�зs�ѨM��ש�ѻP�M�׸��a�i��ʵ���",
-      type: "text",
-      dependsOn: ["theme"],
-      tools: ["google_search"],
-      prompt: (ctx: any) => {
-        const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-        const isoTimestamp = new Date().toISOString();
-        const today = new Date().toISOString().split('T')[0];      
-        return \�i����ɶ��w��P�j��j�M���O�j�G
-�t�κ�T�ɶ��W�O�G\
-���ѬO \�]�зǮ榡�G\�^�C
-�аȥ��j��ե� Google �j�M�u��A�˯����ѡ]�H \ ��ǡ^���̷s�����C
-�A�O�@��֦��״I����g�窺�«ȪQ�P�ӷ~�v�ɾɮv�C�аw���v�ɥD�D�u\�v���g�@�� 1500 �r���M�׮֤ߥ����ѡC
+【輸出模板】請嚴格遵循以下架構：
+### 一、 執行摘要 (TL;DR / Elevator Pitch)
+[一句話破題：這個專案解決了什麼核心痛點？創造了什麼價值？]
+[專案核心願景與目標]
 
-�i��X�ҪO�j���Y����`�H�U�[�c�G
-### �@�B ����K�n (TL;DR / Elevator Pitch)
-[�@�y�ܯ}�D�G�o�ӱM�׸ѨM�F����֤ߵh�I�H�гy�F������ȡH]
-[�M�׮֤��@���P�ؼ�]
+### 二、 市場痛點與底層邏輯
+[將複雜的產業問題或使用者困境轉化為易懂的痛點分析]
+[痛點 1：現有方案的不足...]
+[痛點 2：未被滿足的需求...]
 
-### �G�B �����h�I�P���h�޿�
-[�N���������~���D�ΨϥΪ̧x����Ƭ��������h�I���R]
-[�h�I 1�G�{����ת�����...]
-[�h�I 2�G���Q�������ݨD...]
+### 三、 創新解決方案與核心亮點 (Solution)
+[列出 2-3 個本專案的創新突破點，並說明運用了哪些關鍵技術或創意概念]
+[亮點 1：...]
+[亮點 2：...]
 
-### �T�B �зs�ѨM��׻P�֤߫G�I (Solution)
-[�C�X 2-3 �ӥ��M�ת��зs��}�I�A�û����B�ΤF��������޳N�γзN����]
-[�G�I 1�G...]
-[�G�I 2�G...]
-
-### �|�B ���a���λP���Ӯi��
-[���~/�A�ȤW�u�᪺������α���]
-[�д��� 2 �ӥؼШ���(TA)���ϥα��Ҽ����A�û����M�צb���Ӫ��o�i��O]\;
-      }
-    },
-    {
-      id: 2,
-      title: "�D�b�}�����",
-      description: "�ھڱM�ץ����A���X�v�� Demo / Pitch ���׼v���}���C",
-      type: "text",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => \�ЮھڥH�U�i�M�׮֤ߥ����j�A���g�@�� 3 ������ Pitch (����) �v���}���C�C 15 �����@�Ӹ`�I�C
-
-��ƨӷ��G
-====================
-\
-====================
-
-�i?? �ǥհt�� (VO) �r�Ʊj����O (�ѨM�v���L�u�θ`��������D)�j�G
-�Ш̧ǲ��X�U�ɶ��`�I�����e�C���F�ŦX�u��t�����רü��_���㴣�סA�y�C�@�� 15 ���϶����ǥհt�� (VO)�z�����ܤ֥]�t 40 �� 50 �Ӥ���r�C
-�Сu�����u�Ρv�������ءA�N�޳N�η�����Ƭ��㻡�A�O��²���f�k�C
-
-�i��X�ҪO�j���Y����u�H�U�[�c���g�A�C�� 15 �����X [�e���`�I][�e���r�d][�ǥհt�� (VO)]�G
-## ?? �v�ɴ��ײ`�׸ѪR�G\
-
-### ?? �}���P�h�I (Hook & Problem)�G
- (�ɶ��W���G00:00 - 00:45�A�@ 3 �Ӹ`�I)
-- ��ı�e���G[�y�z�}���e���A�ݨ�Ʋ{�N��޷P�P�j�P���]
-- �e���r�d�G[10�r�H�����}�D���D����H�ƾ�]
-- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�Τ@�ӱj�P�������h�I�ΨϥΪ̧x�Ҷ}��]
-
-### ?? �֤߳зs�P�Ѫk (Solution) (00:45 - 01:45)
- (�ɶ��W���G00:45 - 01:45�A�@ 4 �Ӹ`�I)
-- ��ı�e���G[�y�z�f�t�����~�[�c�ϡBUI �����η����ʵe]
-- �e���r�d�G[10�r�H�����֤ߥ\��ΫG�I���y]
-- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�Q�κ�Ҫ��y�𻡩��ڭ̪��ѨM��צp���A�в{��]
-
-### ?? �쫬�i�ܻP�ӷ~�Ҧ� (Traction/Demo) (01:45 - 02:30)
- (�ɶ��W���G01:45 - 02:30�A�@ 3 �Ӹ`�I)
-- ��ı�e���G[�@�B�B�a����f�ݨ����~�B�@���ҩΰӷ~�Ҧ���]
-- �e���r�d�G[���ҨB�J����Q�Ҧ�]
-- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�y�Z�����~�B�@�޿�ѻ�]
-
-### ?? �`���P�����@�� (Vision & Call to Action) (02:30 - 03:00)
- (�ɶ��W���G02:30 - 03:00�A�@ 2 �Ӹ`�I)
-- ��ı�e���G[�ζ��лx�B�����@���N�H�αM�׭��I���C�r�d]
-- �e���r�d�G[�M�פf���P�I�~���]
-- �ǥհt�� (VO)�G[�ܤ� 40-50 �r�A�`���M�׻��ȡA�İǥ����ŹϡA�æ۫H�a��������]\
-    },
-    {
-      id: 3,
-      title: "�v�� SEO ���D�u��",
-      description: "�ͦ����I�����M�׮i�ܼv�����D�B���һP�����椺�e�C",
-      type: "text",
-      dependsOn: ["theme", "step2"],
-      prompt: (ctx: any) => \�ھڤU�誺�m���׼v���}���n�A���X�෥�j���I���v���M�׮i���� SEO ���e�]�A�Ω� YouTube ú��ΤH��벼�^�C
-
-�}�����e�G
-====================
-\
-====================
-
-�i��X�ҪO�j�G
-### ?? �z�ڱM�׼��D (5 �Ӥ���)
-1. [�h�I�ѨM�����D�G�j�ոѨM����j�·�]
-2. [�޳N�зs�����D�G�j�ըϥΪ��e�u���]
-3. [�����@�������D�G�j�դU�@�ӥ@�N������]
-4. [�ͬ����Ϋ����D�G�j�չ��`���v�T]
-5. [�����a�������D�G�޵o�n�_��]
-
-### ??? ���� Hashtags (10 ��)
-#[����1] #[����2] ... (�ݥ]�t�v�ɬ����γзs��޼���)
-
-### ?? �v��������
-[150�r�t������r���M��²���A�éI�~�[���I�g�B���ɩΫe���벼�������]\
-    },
-    {
-      id: 4,
-      title: "�X�����v�����",
-      description: "���X 60 ��������² Elevator Pitch (�q��²��) �u�v����סC",
-      type: "text",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => \�ھڡm�M�׮֤ߥ����n�G\�A���g�@�� 60 ������ YouTube Shorts / IG Reels ���׵u�v���}�� (Elevator Pitch)�C�`���ݷ��ש��֡B��ư��׻��A�O�C
-
-�i��X�ҪO�j�G
-### ?? �e 3 ���G���� Hook (00:00 - 00:05)
-- ��ı�e���G[��������O�����D���������A����ı����]
-- �e���r�d�G[��ҵh�I���a���r�d]
-- �ǥհt�� (VO)�G[�@�y���I�X�����̤j���h�I�ΧY�N�A�Ъ��{��]
-
-### ?? ����Ѫk�@�Y (00:05 - 00:45)
-- ��ı�e���G[�ָ`�����������~ Prototype �ά�޷N�H]
-- �e���r�d�G[�֤߳зs�I]
-- �ǥհt�� (VO)�G[���X�M�׳̮֤ߪ��Ѫk�P���ȥD�i�A�y�t���֡B�R���۫H]
-
-### ?? �`���P��ʩI�~ (00:45 - 00:60)
-- ��ı�e���G[�M�� LOGO�B�v�ɵ�ı�P�I�~�벼�e��]
-- �e���r�d�G[�Ф���ڭ� / �F�ѧ�h]
-- �ǥհt�� (VO)�G[�Τ@�y�j�Ӧ��O�� Slogan �����A�޾��[���I���s������Χ벼]\
-    },
-    {
-      id: 5,
-      title: "�X���� SEO �����u��",
-      description: "�ͦ��q��²���u�v���ʭ����D�P���ҡC",
-      type: "text",
-      dependsOn: ["theme", "step4"],
-      prompt: (ctx: any) => \�ھڡm�u�v���}���n�G\�A���X�Բ�/�n���u�v���M�� SEO�C
-
-�i��X�ҪO�j�G
-### ?? �����O�u�v�����D (3 ��)
-1. [�p�G�o���зs�Y�N����...]
-2. [�p�G60���������Ӫ�...]
-3. [�p�G�ڭ̦p��ѨM...]
-
-### ??? ���� Hashtags
-#[����1] #[����2] #[����3] #[����4] #[����5]\
-    },
-    {
-      id: 6,
-      title: "�v���I���v (CTR) �Ϲ�",
-      description: "�ͦ� 16:9 �v�ɴ��׼v���Y�Ϥ�׻P����P����ø�ϫ��O�C",
-      type: "code",
-      language: "markdown",
-      dependsOn: ["theme", "step2"],
-      prompt: (ctx: any) => \�w�ﴣ�׸}���u\�v�ͦ� 3 �� YouTube ���׮i�ܼv���Y�Ϥ�׻P AI ø�ϫ��O (16:9)�C
-
-�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�CAI ø�� Prompt �����Y��]�t�H�U�ƪ������Gclean sans-serif typography layout, high contrast, highly detailed�C
-�i�ʺA������O�j�G��ı���� (Visual Aesthetic) �Ч����ھڡu\�v���ݩʦ۰ʱ��ɡ]�Ҧp�G�Y�D�D���C���A�Шϥ� cyberpunk/gaming aesthetic�F�Y������o�i�A�Шϥ� eco-friendly/nature-inspired�F�Y���H�����h�A�Шϥ� warm cinematic lighting�^�C����T��ϥι������I���P�ʭ�����ΦL����� (strictly avoid thick square seal borders and solid block backgrounds)�C
-
-### �Ĥ@�աG[�Y�ϦW��]
-�D�СG[�h�I/�a���D��]
-�ƼСG[�ɥR����]
-����ø�ϴ��ܵ��G[�e���y�z�C�����P��m�Ч����K�X�u\�v���M�ݪ^��]�p�q�v�i�O�B�۵M���O�B���ɼg�굥�^�A�ýT�O�I���c�ϾA�X��m���D��r�A��ı�l���W��]
-�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
-    },
-    {
-      id: 7,
-      title: "�X�����v���l���Ϲ�",
-      description: "�ͦ� 9:16 �u�v���ʭ���׻Pø�ϫ��O�C",
-      type: "code",
-      language: "markdown",
-      dependsOn: ["theme", "step4"],
-      prompt: (ctx: any) => \�w��q��²���u�}���u\�v�ͦ� 3 �� 9:16 �u�v���Y�ϳ]�p�C
-
-�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�CAI ø�� Prompt �����]�t�Gextreme vertical composition, clean sans-serif typography layout, minimal background configuration�C
-�i�ʺA������O�j�G�e�������N���楲���P�u\�v���D�D�թʧ����k�X�C
-
-### �Ĥ@�աG[�Y�ϦW��]
-���I����סG[���׺�²���֤߻��ȩεh�I�r�d�A5�r�H��]
-����ø�ϴ��ܵ��G[��ı�J�I���������b���j�B�M������r�ƪ��W�A�I���ЮھڥD�D�۰ʥͦ���²�����p�N�H�]�p�Ӫű����B�Ʀ�Ч@�B�ͬ����浥�M�ݷN�H�^�A�קK����p�������]
-�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
-    },
-    {
-      id: 8,
-      title: "����Ʊ��ҵ�ı",
-      description: "�ͦ� 16:9 �M�׷����N�H/�i�������C",
-      type: "code",
-      language: "markdown",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => \�w������u\�v�ͦ� 3 �� 16:9 �M�׷����N�H�P�@�������C
-
-�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�C��ı�]�p���������ĦX�H�U��¦�����Gcinematic lighting, clean background composition, elegant sans-serif typography layout, concept art style�C
-�i�ʺA������O�j�G�֤ߵ�ı���� (Core Art Style) �Ч����̾ڡu\�v�����Ҷq�����y�A�i�{�ӻ��M�ݪ��h���Q���C
-
-### �Ĥ@�աG[�����W��]
-�@���f���G[�P�M�׮֤ߺ믫������ Slogan]
-����ø�ϴ��ܵ��G[�e���y�z�C�����^�򥲶��H�D�D�F���ܤơ]�p�G�C���q�v���O�i���v�B����o�i����N�@�͡B�H�����h���ŷx�g��^�C�Цb�e���A���B�ĤJ�M�ת��֤����α��ҡA�îi�{�ӥD�D�M�ݪ��u�U�@��40�~�v�Q���C�Y���קK����L�ʪ������س]�p�C]
-�]�Э��ƿ�X�ĤG�աB�ĤT�ա^\
-    },
-    {
-      id: 9,
-      title: "Suno AI �����t��",
-      description: "�ͦ��A�X Pitch ���׻P�i�{���ӷP�����֫��O�C",
-      type: "code",
-      language: "markdown",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => \�w��M�פ��e�u\�v�A�ͦ� 3 �� Suno AI ���֥ͦ� Prompt�A�A�Ω��v�ɴ���²���ήi�ܼv���C
-
-�i�榡������w���O�j�G�A�O�@�Ӧ۰ʤƸ���ഫ API�C
-�Ъ�����X�H�U�榡�G
-
-### �Ĥ@�աG��ޫe�u (Futuristic Tech)
-�A�γ����G�i�ܧ޳N�зs�BAI ���Ωβ��~�쫬
-Suno AI Prompt�G[�p�GCyberpunk synthwave, deep bass, futuristic electronic, steady driving beat, high-tech vibe]
-
-### �ĤG�աG�M�~�@�� (Corporate Vision)
-�A�γ����G���z�����h�I�B�ӷ~�Ҧ��P���Ӯi��
-Suno AI Prompt�G[�p�GCinematic ambient, inspiring orchestral, subtle piano, building momentum, professional presentation]
-
-### �ĤT�աG�ʷP���O (Dynamic Impact)
-�A�γ����G�ֳt���q��²���B�i�ܥͬ�����ΨϥΪ�����
-Suno AI Prompt�G[�p�GUpbeat modern pop, energetic rhythm, bright synth, confident and inspiring, fast-paced pitch]\
-    },
-    {
-      id: 10,
-      title: "�����x���s�������",
-      description: "�@��ͦ��M�׫G�I�ϥd���ܵ��P�Բ����s����",
-      type: "social",
-      language: "markdown",
-      dependsOn: ["theme", "step1"],
-      prompt: (ctx: any) => \�ھڡi�M�׮֤ߥ����j�G\�A���y�@�ժ��s�i���i�H�]�]Carousel�^�P�Բ�/�n���K��C
-
-### ���Ȥ@�G�ͦ��M�׫G�I�ϥd Prompt (4:5 �c��)
-�Ъ�����X�G
-AI Prompt (����):
-�H�u\�v���֤ߡA�ĥ� high-end corporate presentation style�C�ͦ��@�M�]�t 5 �Ӹ�T�϶����Ϫ��ƪ��C�����ϥβM������r�h�� (clean typography layout) �P��²��޷P�I���A�קK�I������C
-�ϥd 1 �ʭ�/�h�I�G[��g�G�I1 - �����{��]
-�ϥd 2 �֤߸Ѫk�G[��g�G�I2 - �ڭ̪��зs]
-�ϥd 3 ���α��ҡG[��g�G�I3 - �p��B�@]
-�ϥd 4 �w���įq�G[��g�G�I4 - ���Ӽv�T]
-�ϥd 5 �ζ�/�I�~�G[��g�G�I5 - ����ڭ�]
-
-### ���ȤG�G���s�o������
-[�a�� Emoji ���h�I���@���}���աA�l�ޥإ�]
-[���C 3-4 �I�M�׮֤߫G�I�A�Υոܤ�����A�̪��зs���B]
-[���ʻP��ʩI�~�G�ܽФj�a���Ѧ^�X�ΰѻP�v�ɤH��벼]
-?? ı�o�o�ӷQ�k�ŶܡH�d���i�D�ڭ̧A���ݪk�A���I���D���s�����ڭ̯��t���@���I
-#�зs�v�� #�M�פ��� #\ [�ɥR2�Ӭ��/�зs��������]\
+### 四、 落地應用與未來展望
+[產品/服務上線後的實際應用情境]
+[請提供 2 個目標受眾(TA)的使用情境模擬，並說明專案在未來的發展潛力]`;
     }
-  ]
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據專案企劃，產出競賽 Demo / Pitch 提案影音腳本。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【專案核心企劃】，撰寫一份 3 分鐘的 Pitch (提案) 影音腳本。每 15 秒為一個節點。
 
-};
+資料來源：
+====================
+${ctx.step1}
+====================
+
+【⚠️ 旁白配音 (VO) 字數強制指令 (解決影片過短或節奏不對問題)】：
+請依序產出各時間節點的內容。為了符合真實配音長度並撐起完整提案，『每一個 15 秒區塊的旁白配音 (VO)』必須至少包含 40 到 50 個中文字。
+請「直接沿用」原企劃精華，將技術或概念轉化為具說服力的簡報口吻。
+
+【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+## 🎬 競賽提案深度解析：${ctx.theme}
+
+### ⏱️ 開場與痛點 (Hook & Problem)：
+ (時間規劃：00:00 - 00:45，共 3 個節點)
+- 視覺畫面：[描述開場畫面，需具備現代科技感與強烈對比]
+- 畫面字卡：[10字以內的破題標題或驚人數據]
+- 旁白配音 (VO)：[至少 40-50 字，用一個強烈的市場痛點或使用者困境開場]
+
+### ⏱️ 核心創新與解法 (Solution) (00:45 - 01:45)
+ (時間規劃：00:45 - 01:45，共 4 個節點)
+- 視覺畫面：[描述搭配的產品架構圖、UI 介面或概念動畫]
+- 畫面字卡：[10字以內的核心功能或亮點金句]
+- 旁白配音 (VO)：[至少 40-50 字，利用精煉的語氣說明我們的解決方案如何顛覆現狀]
+
+### ⏱️ 原型展示與商業模式 (Traction/Demo) (01:45 - 02:30)
+ (時間規劃：01:45 - 02:30，共 3 個節點)
+- 視覺畫面：[一步步帶領評審看見產品運作情境或商業模式圖]
+- 畫面字卡：[情境步驟或獲利模式]
+- 旁白配音 (VO)：[至少 40-50 字，流暢的產品運作邏輯解說]
+
+### ⏱️ 總結與未來願景 (Vision & Call to Action) (02:30 - 03:00)
+ (時間規劃：02:30 - 03:00，共 2 個節點)
+- 視覺畫面：[團隊標誌、未來願景意象或專案重點條列字卡]
+- 畫面字卡：[專案口號與呼籲行動]
+- 旁白配音 (VO)：[至少 40-50 字，總結專案價值，勾勒未來藍圖，並自信地結束提案]`
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊的專案展示影片標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《提案影音腳本》，產出能極大化點擊率的專案展示類 SEO 內容（適用於 YouTube 繳件或人氣投票）。
+
+腳本內容：
+====================
+${ctx.step2}
+====================
+
+【輸出模板】：
+### 🎯 爆款專案標題 (5 個切角)
+1. [痛點解決型標題：強調解決什麼大麻煩]
+2. [技術創新型標題：強調使用的前沿科技]
+3. [未來願景型標題：強調下一個世代的改變]
+4. [生活應用型標題：強調對日常的影響]
+5. [概念懸念型標題：引發好奇心]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ... (需包含競賽相關或創新科技標籤)
+
+### 📝 影片說明欄
+[150字含有關鍵字的專案簡介，並呼籲觀眾點讚、分享或前往投票網站支持]`
+  },
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 60 秒內的精簡 Elevator Pitch (電梯簡報) 短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《專案核心企劃》：${ctx.step1}，撰寫一份 60 秒內的 YouTube Shorts / IG Reels 提案短影片腳本 (Elevator Pitch)。節奏需極度明快、具備高度說服力。
+
+【輸出模板】：
+### 💥 前 3 秒：黃金 Hook (00:00 - 00:05)
+- 視覺畫面：[極具衝擊力的問題場景或驚艷的視覺概念]
+- 畫面字卡：[精煉痛點或懸念字卡]
+- 旁白配音 (VO)：[一句話點出市場最大的痛點或即將顛覆的現狀]
+
+### 📖 高能解法濃縮 (00:05 - 00:45)
+- 視覺畫面：[快節奏切換的產品 Prototype 或科技意象]
+- 畫面字卡：[核心創新點]
+- 旁白配音 (VO)：[給出專案最核心的解法與價值主張，語速明快、充滿自信]
+
+### 📢 總結與行動呼籲 (00:45 - 00:60)
+- 視覺畫面：[專案 LOGO、競賽視覺與呼籲投票畫面]
+- 畫面字卡：[請支持我們 / 了解更多]
+- 旁白配音 (VO)：[用一句強而有力的 Slogan 收尾，引導觀眾點擊連結支持或投票]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成電梯簡報短影片封面標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出拉票/曝光短影音專屬 SEO。
+
+【輸出模板】：
+### 🎯 衝擊力短影音標題 (3 個)
+1. [如：這項創新即將改變...]
+2. [如：60秒看懂未來的...]
+3. [如：我們如何解決...]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 競賽提案影片縮圖文案與高質感概念繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對提案腳本「${ctx.step2}」生成 3 組 YouTube 提案展示影片縮圖文案與 AI 繪圖指令 (16:9)。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須嚴格包含以下排版約束：clean sans-serif typography layout, high contrast, highly detailed。
+【動態風格指令】：視覺美學 (Visual Aesthetic) 請完全根據「${ctx.theme}」的屬性自動推導（例如：若主題為遊戲，請使用 cyberpunk/gaming aesthetic；若為永續發展，請使用 eco-friendly/nature-inspired；若為人文關懷，請使用 warm cinematic lighting）。絕對禁止使用實體色塊背景與粗重的方形印章邊框 (strictly avoid thick square seal borders and solid block backgrounds)。
+
+### 第一組：[縮圖名稱]
+主標：[痛點/懸念主標]
+副標：[補充說明]
+中文繪圖提示詞：[畫面描述。場景與色彩請完全貼合「${ctx.theme}」的專屬氛圍（如電競張力、自然環保、溫馨寫實等），並確保背景構圖適合放置標題文字，視覺吸睛俐落]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音封面文案與繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對電梯簡報短腳本「${ctx.step4}」生成 3 組 9:16 短影音縮圖設計。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須包含：extreme vertical composition, clean sans-serif typography layout, minimal background configuration。
+【動態風格指令】：畫面的藝術風格必須與「${ctx.theme}」的主題調性完美吻合。
+
+### 第一組：[縮圖名稱]
+高點擊文案：[極度精簡的核心價值或痛點字卡，5字以內]
+中文繪圖提示詞：[視覺焦點必須集中在巨大且清晰的文字排版上，背景請根據主題自動生成極簡的關聯意象（如太空探索、數位創作、生活風格等專屬意象），避免任何厚重的邊框]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 專案概念意象/展覽海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對企劃「${ctx.step1}」生成 3 組 16:9 專案概念意象與願景海報。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。視覺設計必須完美融合以下基礎元素：cinematic lighting, clean background composition, elegant sans-serif typography layout, concept art style。
+【動態風格指令】：核心視覺風格 (Core Art Style) 請完全依據「${ctx.theme}」的情境量身打造，展現該領域專屬的多元想像。
+
+### 第一組：[海報名稱]
+願景口號：[與專案核心精神相關的 Slogan]
+中文繪圖提示詞：[畫面描述。場景氛圍必須隨主題靈活變化（如：遊戲電競的霓虹光影、永續發展的綠意共生、人文關懷的溫暖寫實）。請在畫面適當處融入專案的核心應用情境，並展現該主題專屬的「下一個40年」想像。嚴格避免任何過粗的方形邊框設計。]
+（請重複輸出第二組、第三組）`
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成適合 Pitch 提案與展現未來感的音樂指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對專案內容「${ctx.step1}」，生成 3 組 Suno AI 音樂生成 Prompt，適用於競賽提案簡報或展示影片。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請直接輸出以下格式：
+
+### 第一組：科技前沿 (Futuristic Tech)
+適用場景：展示技術創新、AI 應用或產品原型
+Suno AI Prompt：[如：Cyberpunk synthwave, deep bass, futuristic electronic, steady driving beat, high-tech vibe]
+
+### 第二組：專業願景 (Corporate Vision)
+適用場景：講述市場痛點、商業模式與未來展望
+Suno AI Prompt：[如：Cinematic ambient, inspiring orchestral, subtle piano, building momentum, professional presentation]
+
+### 第三組：動感活力 (Dynamic Impact)
+適用場景：快速的電梯簡報、展示生活風格或使用者體驗
+Suno AI Prompt：[如：Upbeat modern pop, energetic rhythm, bright synth, confident and inspiring, fast-paced pitch]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成專案亮點圖卡提示詞與拉票社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據【專案核心企劃】：${ctx.step1}，打造一組社群展示懶人包（Carousel）與拉票/曝光貼文。
+
+### 任務一：生成專案亮點圖卡 Prompt (4:5 構圖)
+請直接輸出：
+AI Prompt (中文):
+以「${ctx.theme}」為核心，採用 high-end corporate presentation style。生成一套包含 5 個資訊區塊的圖表排版。必須使用清晰的文字層級 (clean typography layout) 與極簡科技感背景，避免沉重色塊。
+圖卡 1 封面/痛點：[填寫亮點1 - 市場現狀]
+圖卡 2 核心解法：[填寫亮點2 - 我們的創新]
+圖卡 3 應用情境：[填寫亮點3 - 如何運作]
+圖卡 4 預期效益：[填寫亮點4 - 未來影響]
+圖卡 5 團隊/呼籲：[填寫亮點5 - 支持我們]
+
+### 任務二：社群發布正文
+[帶有 Emoji 的痛點或願景開場白，吸引目光]
+[條列 3-4 點專案核心亮點，用白話文解釋你們的創新之處]
+[互動與行動呼籲：邀請大家提供回饋或參與競賽人氣投票]
+💬 覺得這個想法酷嗎？留言告訴我們你的看法，或點擊主頁連結給我們神聖的一票！
+#創新競賽 #專案分享 #${ctx.theme} [補充2個科技/創新相關標籤]`
+   } ] };
 
 export const WORKFLOW_STEPS = WORKFLOWS_REGISTRY['heritage'];
 export const STEPS = WORKFLOWS_REGISTRY['heritage'];
+export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => { return WORKFLOWS_REGISTRY[theme] || []; };
