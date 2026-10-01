@@ -2611,8 +2611,6 @@ const now = new Date();
 ### 📌 分類為【4. 商業模式與產業拆解】，
 【⚠️ 終極資料源鎖定與強制搜尋指令】：
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
-
 請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
 - 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
 - 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
