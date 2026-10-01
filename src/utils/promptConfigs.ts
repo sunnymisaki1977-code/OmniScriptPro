@@ -2670,7 +2670,7 @@ const now = new Date();
    - 那斯達克指數：[點位] ([漲跌幅]) | 來源網址：[URL]
    - 費城半導體指數：[點位] ([漲跌幅]) | 來源網址：[URL]
 
-2. 關鍵科技個股（搜尋詞：`NVDA stock` / `TSM stock` / `AAPL stock`）
+2. 關鍵科技個股（搜尋詞：[NVDA stock] / [TSM stock] / [AAPL stock]）
    - 輝達 (NVDA)：[收盤價] ([漲跌幅]) | 來源網址：[URL]
    - 台積電 ADR (TSM)：[收盤價] ([漲跌幅]) | 來源網址：[URL]
    - 蘋果 (AAPL)：[收盤價] ([漲跌幅]) | 來源網址：[URL]
