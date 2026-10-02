@@ -4567,8 +4567,15 @@ Suno AI Prompt：[如：Upbeat modern pop, energetic rhythm, bright synth, confi
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `根據【專案核心企劃】：${ctx.step1}，打造一組社群展示懶人包（Carousel）與拉票/曝光貼文。
 
-【基礎背景】：
+企劃與腳本參考：
+====================
 ${ctx.step1}
+====================
+
+【核心視覺焦點指定】：
+請【優先】提取【${ctx.step1}
+ - 第三區塊：創新解決方案與核心亮點】中的核心產品/技術與創新概念作為主要視覺焦點（Visual Focal Point），切勿以第一、二區塊的「問題或痛點」為主要畫面。
+
 
 請嚴格遵循以下二大任務與格式要求：
 
