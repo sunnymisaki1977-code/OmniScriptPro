@@ -4463,7 +4463,7 @@ ${ctx.step1}
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt  必須包含：核心視覺風格 (Core Art Style)，大而醒目藝術文字設計。
+AI Prompt  必須包含：大而醒目藝術文字設計。
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
 
@@ -4494,7 +4494,7 @@ ${ctx.step1}
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
 請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
-AI Prompt  必須包含：核心視覺風格 (Core Art Style)，大而醒目藝術文字設計。
+AI Prompt  必須包含：大而醒目藝術文字設計。
 
 
 請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
@@ -4595,7 +4595,7 @@ ${ctx.step1}
 
 #### 16:9 動態分割構圖提示詞
 **AI Prompt (中文):**
-運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】，核心視覺風格 (Core Art Style)。
+運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
 
 **主標題：** 《[請填入主標題]》
 
@@ -4614,7 +4614,7 @@ ${ctx.step1}
 
 #### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
 **AI Prompt (中文):**
-運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】，核心視覺風格 (Core Art Style)。
+運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
 
 **主標題：** 《[請填入主標題]》
 
