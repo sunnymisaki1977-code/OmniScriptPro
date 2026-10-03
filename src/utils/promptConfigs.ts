@@ -4191,14 +4191,21 @@ ${ctx.step2}
     language: "markdown",
     dependsOn: ["theme", "step2"],
     prompt: (ctx: any) => `針對腳本「${ctx.step2}」生成 3 組 YouTube 教學縮圖文案與 AI 繪圖指令 (16:9)。
+參考背景：${ctx.step2}
 
-【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須嚴格包含以下美學約束：clean sans-serif typography layout, line-art background configuration, highly detailed, stylized illustrations, educational aesthetic. 絕對禁止使用實體色塊背景與粗重的方形印章邊框 (strictly avoid thick square seal borders and solid block backgrounds)。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
 
-### 第一組：[縮圖名稱]
-主標：[痛點/懸念主標]
-副標：[補充說明]
-中文繪圖提示詞：[畫面描述。背景必須明確指定為線條藝術配置，圖框設計請使用極細線條，呈現明亮專業的學術氛圍]
-（請重複輸出第二組、第三組）`
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入 Prompt，大而醒目藝術文字設計]`,
+
   },
   {
     id: 7,
@@ -4209,12 +4216,18 @@ ${ctx.step2}
     dependsOn: ["theme", "step4"],
     prompt: (ctx: any) => `針對腳本「${ctx.step4}」生成 3 組 9:16 短影音縮圖設計。
 
-【格式絕對鎖定指令】：你是一個自動化資料轉換 API。AI 繪圖 Prompt 必須包含：extreme vertical composition, clean sans-serif typography layout, minimal line-art background configuration.
+參考背景：${ctx.step4}
 
-### 第一組：[縮圖名稱]
-高點擊文案：[極度精簡的痛點字卡，5字以內]
-中文繪圖提示詞：[視覺焦點必須集中在巨大且清晰的文字排版上，背景使用極簡的線條幾何配置，避免任何厚重的邊框]
-（請重複輸出第二組、第三組）`
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt 必須包含：大而醒目藝術文字設計．
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容][請填入 Prompt，大而醒目藝術文字設計]`,
   },
   {
     id: 8,
@@ -4224,13 +4237,18 @@ ${ctx.step2}
     language: "markdown",
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `針對「${ctx.step1}」生成 3 組 16:9 課程宣傳意象海報。
+參考背景：${ctx.step1}
 
-【格式絕對鎖定指令】：你是一個自動化資料轉換 API。視覺設計必須完美融合以下元素：color ink wash, line-art background composition, elegant serif or sans-serif typography layout。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
 
-### 第一組：[海報名稱]
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入名稱]
 教育名言：[與該堂課核心精神相關的名人語錄]
-中文繪圖提示詞：[畫面描述。場景應營造出知識啟發的人文氛圍，背景必須是線條藝術配置 (避免實體物件充斥)，搭配彩墨渲染的藝術風格。若需具象化「吸收知識」或「基礎」的意象，請在畫面適當處融入一個極簡的純白瓷碗 (plain white bowl) 作為視覺隱喻，並嚴格避免任何過粗的方形邊框設計。]
-（請重複輸出第二組、第三組）`
+中文：[請填入中文畫面描述，知識啟發的意象人文氛圍]`,
   },
   {
     id: 9,
