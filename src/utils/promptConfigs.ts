@@ -2656,11 +2656,10 @@ const now = new Date();
 【⚠️ 終極資料源鎖定與強制搜尋指令】：
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
 請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
-1. 報價查詢技巧：若要查詢大盤、個股與殖利率，請直接搜尋『[標的名稱] stock price』或『US 10 year yield』，藉此讀取 Google 財經即時面板，或參考 CNBC、Bloomberg、鉅亨網等權威媒體。
-2. 時區與交易日豁免：美股隔夜收盤價（台灣時間清晨）與台指夜盤，即屬於『今日最新盤前數據』。只要是最近一個完整交易日的收盤數據，就【絕對不是 N/A】，請放心填入。
-3. 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
-4. 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
-5- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+2. 搜尋關鍵字建議：
+   - 美股與科技股：`美股 道瓊 標普 那斯達克 費半 收盤`、`NVDA TSM AAPL 股價`
+   - 台指夜盤與債券：`台指期夜盤 收盤`、`美國10年期國債殖利率`、`美元指數`
+3. 【數據精確性】：指數點位、漲跌幅、殖利率必須嚴格依據搜尋到的最新真實數據，若因假日休市無數據請標示 N/A。
 
 【⚠️ 最高合規與真實性指令】：
 【當前系統即時時間】：${currentDate} (${isoTimestamp})
