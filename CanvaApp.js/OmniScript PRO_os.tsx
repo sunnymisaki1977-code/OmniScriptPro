@@ -77,18 +77,28 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
 
-    // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
-    const currentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-    
-    // 強制將時間寫入到主提示詞最後，防止 AI 忽略 systemInstruction
-    const timeInjectedPrompt = finalPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${currentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
+        // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
+ const now = new Date();
+         const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+       const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});      
 
-    const geminiPayload = {
-        // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
-        systemInstruction: {
-            parts: [{ text: `你是一位專業的資料分析師與企劃。現在真實台灣時間是 ${currentDate}。請嚴格以這個時間點作為基準。` }]
-        },
-        contents: [{ parts: [{ text: timeInjectedPrompt }] }],
+const geminiPayload = {
+    // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
+    systemInstruction: {
+        parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
+` }]
+    },
+        contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
             maxOutputTokens: 8192
         }
@@ -96,8 +106,9 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 
     // 🌟 核心分流邏輯：正確的 Google Search 語法實作
     if (isSearchEnabled) {
-        console.log(`[Google Search] 🌐 Step ${stepId} 已強制啟動 Google 搜尋功能！`);
-        geminiPayload.tools = [{ "googleSearch": {} }];
+        console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
+        // 啟用 Google Search Tool
+        geminiPayload.tools = [{ "google_search": {} }];
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
         geminiPayload.generationConfig.responseMimeType = "application/json";
