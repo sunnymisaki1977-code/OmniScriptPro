@@ -78,16 +78,18 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     }
 
         // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
- const now = new Date();
-         const currentDate = now.toLocaleDateString('zh-TW', { 
+ const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
   month: 'long', 
   day: 'numeric' 
 });
-       const today = now.toLocaleDateString('en-CA', { 
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
   timeZone: 'Asia/Taipei' 
-});      
+});    
+
 
 const geminiPayload = {
     // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
