@@ -2477,10 +2477,9 @@ const now = new Date();
     description: "針對財經主題進行定義釐清、歷史數據比對與市場影響評估",
     type: "text",
     dependsOn: ["theme"],
-tools: ["google_search"],    
-prompt: (ctx: any) =>{
-const now = new Date();
-      // 1. 真正的程式碼必須寫在 return 的「前面」，且在反引號的「外面」
+tools: ["google_search"],
+    prompt: (ctx: any) => {
+const now = new Date(); 
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -2491,12 +2490,10 @@ const now = new Date();
       const today = now.toLocaleDateString('en-CA', { 
   timeZone: 'Asia/Taipei' 
 });    
-
-      // 2. 算好變數後，才用 return 把包含變數的字串吐出去
-      return `你是一位專精於全球總體經濟、央行政策與量化歷史回測的首席財經分析師。你的任務是產出高含金量財經內容。
-
-【當前系統即時時間】：${currentDate} (${isoTimestamp})
-請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據再回答。
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
 
 
 請先判斷主題「${ctx.theme}」屬於哪一種類型：
@@ -2696,7 +2693,6 @@ const now = new Date();
 
 ### 三、 短線操作策略建議
 * [一句話給予營業員/客戶或短線投資人的應對方向]
-
 
 
 ---
