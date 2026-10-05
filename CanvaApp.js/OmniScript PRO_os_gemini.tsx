@@ -81,6 +81,14 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 });      
 
     const geminiPayload = {
+         // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
+    systemInstruction: {
+        parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
+` }]
+    },
                 contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
             maxOutputTokens: 8192
