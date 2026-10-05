@@ -81,16 +81,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 });      
 
     const geminiPayload = {
-        // 🌟 新增：強制注入 System Instruction，校正 AI 的時間認知
-        systemInstruction: {
-            parts: [{ text: `
-[時間基準與事實嚴格約束]
-1. 現在的真實時間是 ${currentDate} 所有時間判斷請以此當地時間為準：忽略其他 UTC 時間戳記．
-2. 你必須嚴格以該時間點作為「現在」的基準。
-3. 【數據防偽條款】涉及即時股市指數、個股價格、最新新聞或具體數據時，若沒有外部搜尋結果（Google Search Grounding）或上下文數據佐證，嚴禁憑空編造數字。請明確標註「需檢索最新即時數據」或僅進行趨勢分析。
-` }]
-        },
-        contents: [{ parts: [{ text: finalPrompt }] }],
+                contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
             maxOutputTokens: 8192
         }
@@ -101,10 +92,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
-        // 強制在 Prompt 中補充當前年份關鍵字
-        const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-09"
-        geminiPayload.contents[0].parts[0].text += `\n\n(特別檢索條件：請優先參考 ${yearMonth} 以後的真實新聞或官方資料)`;
-        // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
+             // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
         geminiPayload.generationConfig.responseMimeType = "application/json";
