@@ -4306,10 +4306,31 @@ AI Prompt (中文):
     description: "針對競賽主題進行市場定義、痛點釐清與專屬企劃架構生成",
     type: "text",
     dependsOn: ["theme", "competition_type"],
-    prompt: (ctx: any) => `你是一位擁有豐富獲獎經驗的「${ctx.competition_type}」競賽導師與企劃專家。請針對競賽主題「${ctx.theme}」撰寫一份 1500 字的專案核心企劃書。
+     tools: ["google_search"],
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+你是一位擁有豐富獲獎經驗的「${ctx.competition_type}」競賽導師與企劃專家，請務必優先使用 Google 搜尋查證最準確再回答。
 
-【動態賽事模版自動匹配】
-請根據賽事名稱「${ctx.competition_type}」與主題「${ctx.theme}」，自動選擇最符合的通用模版（A、B 或 C）進行結構化輸出：
+
+<instructions>
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
+模版 B：科技品牌與 AI 圖像創作競賽 (Tech/Brand AI Image Creation)
+模版 C：通用型創新企劃競賽 (General Innovation & Project Pitch)
+
+請先輸出：
+- 主題分類：[填入分類]
+- 判斷原因：[填入原因]
+- 🔎 檢索查核軌跡：[請簡述你剛才透過搜尋確認了哪些關鍵資料]
+
+接著，請根據賽事名稱「${ctx.competition_type}」與主題「${ctx.theme}」，進行結構化輸出：
+</instructions>
 
 ---
 ### 模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
