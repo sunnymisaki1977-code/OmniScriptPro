@@ -4299,7 +4299,6 @@ AI Prompt (中文):
   ]
 ,
   "competition": [
-
   {
     id: 1,
     title: "核心企劃知識",
