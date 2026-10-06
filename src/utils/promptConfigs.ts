@@ -4295,16 +4295,19 @@ AI Prompt (中文):
 [互動提問：針對隨堂測驗提出一個簡單問題]
 💬 留言「+1」或特定關鍵字，小編私訊發給你本單元【完整課後心智圖與講義】！
 #學習日常 #線上課程 #${ctx.theme} [補充2個相關標籤]`
-    }
-  ],
+  }
+  ]
+,
   "competition": [
+
+
   {
     id: 1,
     title: "核心企劃知識",
     description: "針對競賽主題進行市場定義、痛點釐清與專屬企劃架構生成",
     type: "text",
     dependsOn: ["theme"],
-  tools: ["google_search"],
+    tools: ["google_search"],
     prompt: (ctx: any) => {
       const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
       const isoTimestamp = new Date().toISOString();
@@ -4315,9 +4318,8 @@ AI Prompt (中文):
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
 你是一位擁有豐富獲獎經驗的競賽導師與企劃專家，請務必優先使用 Google 搜尋查證最準確再回答。
 
-
 <instructions>
-請先判斷主題「${ctx.theme}」屬於哪一種類型：
+請先判斷賽事主題「${ctx.theme}」屬於哪一種類型：
 模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
 模版 B：科技品牌與 AI 圖像創作競賽 (Tech/Brand AI Image Creation)
 模版 C：通用型創新企劃競賽 (General Innovation & Project Pitch)
@@ -4391,13 +4393,14 @@ AI Prompt (中文):
 #### 四、 落地應用與未來展望
 - [產品/服務上線後的實際應用情境]
 - [請提供 2 個目標受眾 (TA) 的使用情境模擬，並說明專案在未來的發展潛力]`
+    }
   },
   {
     id: 2,
     title: "主軸腳本文案",
     description: "根據專案企劃，產出競賽 Demo / Pitch 提案影音腳本。",
     type: "text",
-    dependsOn: ["theme", "step1"],
+    dependsOn: ["theme","step1"],
     prompt: (ctx: any) => `請根據以下【專案核心企劃】，撰寫一份 3 分鐘的 Pitch (提案) 影音腳本。每 15 秒為一個節點。
 
 資料來源：
@@ -4407,10 +4410,10 @@ ${ctx.step1}
 
 【⚠️ 旁白配音 (VO) 字數強制指令】：
 請依序產出各時間節點的內容。為了符合真實配音長度，『每一個 15 秒區塊的旁白配音 (VO)』必須至少包含 40 到 50 個中文字。
-請將技術或概念轉化為適合競賽的說服力簡報口吻。
+請將技術或概念轉化為適合「${ctx.competition_type}」競賽的說服力簡報口吻。
 
 【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
-## 🎬 競賽提案深度解析：${ctx.theme}
+## 🎬 競賽提案深度解析：
 
 ### ⏱️ 開場與痛點 (Hook & Problem)：(00:00 - 00:45)
 - 視覺畫面：[描述開場畫面]
@@ -4501,10 +4504,12 @@ ${ctx.step1}
     description: "依據競賽主題，生成主視覺概念與設計指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme",  "step1"],
-    prompt: (ctx: any) => `針對企劃「${ctx.step1}」及主題「${ctx.theme}」，生成 3 組核心主視覺 (Main Visual) 提案。
+    dependsOn: ["theme","step1"],
+    prompt: (ctx: any) => `針對競賽的企劃「${ctx.step1}」二、 主視覺 (Main Visual) 概念與視覺美學
+- [設計理念與故事性：敘事邏輯、符號轉化與色彩計畫]
+- [構圖與識別度：空間層級、視覺焦點與多平台適配度分析]生成 3 組核心主視覺 (Main Visual) 提案。
 
-【動態風格指令】：視覺美學請完全貼合「${ctx.theme}」與該競賽的屬性自動推導。若需生成 AI 繪圖 Prompt 作為發想，必須包含排版約束：clean typography layout, central focal point。請避免實體色塊背景與粗重的邊框。
+
 
 ### 第一組：[主視覺概念名稱]
 設計理念：[說明此視覺如何扣合主題]
@@ -4520,8 +4525,10 @@ ${ctx.step1}
     description: "根據主視覺概念，生成指定延伸物設計A的設計指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step6"],
-    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step6}，針對「延伸物設計A」此一指定延伸物，生成 3 組設計概念。
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step1}， 三、 指定延伸應用與實體製作可行性
+- [主要延伸物 A 設計構想：視覺轉化巧思、結構設計與應用情境]
+，生成 3 組設計概念。
 
 【動態風格指令】：延伸物設計A與主視覺維持一致的品牌識別性，考量印刷製作及製成實品可行性。
 
@@ -4537,8 +4544,9 @@ ${ctx.step1}
     description: "根據主視覺概念，生成指定延伸物設計B的設計指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step6"],
-    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step6}，針對「延伸物設計B」此一指定延伸物，生成 3 組設計概念。
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step1}， 三、 指定延伸應用與實體製作可行性
+- [主要延伸物 B 設計構想：立體/材質模擬、發光或特殊效果]，生成 3 組設計概念。
 
 【動態風格指令】：延伸物設計B，與主視覺維持一致的品牌識別性，考量印刷製作及製成實品可行性。
 
@@ -4554,8 +4562,9 @@ ${ctx.step1}
     description: "根據主視覺概念，發想並生成其他適合的周邊延伸物設計指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step6"],
-    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step6}，請自由發想 3 種適合應用該主視覺的「其他延伸物」，並生成設計概念。
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `延續《主視覺設計提案》：${ctx.step1}， 三、 指定延伸應用與實體製作可行性
+- [其他周邊延伸設計：印刷工法、材質選擇與量產/製作可行性評估]請自由發想 3 種適合應用該主視覺的「其他延伸物」，並生成設計概念。
 
 【動態風格指令】：延伸物需展現延伸應用的多元性與實用價值。
 
@@ -4570,13 +4579,13 @@ ${ctx.step1}
     description: "一鍵生成專案亮點圖卡提示詞與拉票社群正文",
     type: "social",
     language: "markdown",
-    dependsOn: ["theme",  "step1"],
-    prompt: (ctx: any) => `根據【專案核心企劃】：${ctx.step1}，打造一組社群展示懶人包（Carousel）與貼文」。
+    dependsOn: ["theme", "competition_type", "step1"],
+    prompt: (ctx: any) => `根據【專案核心企劃】：${ctx.step1}，針對「${ctx.competition_type}」打造一組社群展示懶人包（Carousel）與貼文。
 
 ### 任務一：生成專案亮點圖卡 Prompt (4:5 構圖)
 請直接輸出：
 AI Prompt (中文):
-以「${ctx.theme}」為核心，採用符合該主題的視覺風格。生成一套包含 5 個資訊區塊的圖表排版。必須使用清晰的文字層級 (clean typography layout) 與極簡背景，避免沉重色塊。
+以「${ctx.theme}」為核心，採用符合該賽事主題的視覺風格。生成一套包含 5 個資訊區塊的圖表排版。必須使用清晰的文字層級 (clean typography layout) 與極簡背景，避免沉重色塊。
 圖卡 1 封面/痛點：[填寫亮點1]
 圖卡 2 核心解法：[填寫亮點2]
 圖卡 3 應用情境：[填寫亮點3]
