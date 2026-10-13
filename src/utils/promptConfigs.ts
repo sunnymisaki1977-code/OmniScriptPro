@@ -2412,7 +2412,7 @@ const now = new Date();
       return `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）台股最新盤後籌碼與資金動向。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
 
 你是一位深諳法人操盤手法的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
 
