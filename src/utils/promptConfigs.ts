@@ -3021,6 +3021,7 @@ AI Prompt (中文):
     id: 1,
     title: "核心企劃知識",
     description: "基於指定作品與集數或傳統神話，撰寫 1500 字具備起承轉合的沉浸式故事",
+    type: "text",  // 👈 請補上這一行
     dependsOn: ["series", "episode"],
     prompt: (ctx: any) => `你是一位深諳東方古典文學、神話史詩、民間傳說與動漫影視的「首席說書人」。
 本次你要說書的主題是：【${ctx.series}】${ctx.episode ? ` 的【${ctx.episode}】` : ''}。
