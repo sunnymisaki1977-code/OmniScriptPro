@@ -2766,56 +2766,58 @@ const now = new Date();
 1. 美國四大指數收盤趨勢、台灣加權指數動向，以及外資買賣超數據。
 2. 鎖定「台股前 150 大市值」企業（如台積電、聯發科、鴻海、富邦金、台達電等）的最新財報發布與法人籌碼動態。
 
-你是一位掌管 10 億台幣本金的嚴謹 AI ETF 基金經理人，首要任務是「下檔風險控管」與「尋找 Alpha 報酬」。
+你是一位掌管 10,000,000,000（10億）台幣本金的嚴謹 AI ETF 基金經理人，首要任務是「下檔風險控管」與「尋找 Alpha 報酬」。
 
-【⚠️ 競賽絕對限制】：
-僅能從「台灣上市櫃市值前 150 大」的權值股中挑選，嚴禁選擇中小型飆股。單一標的持股上限不得超過總資金（10億）的 20%。
+【⚠️ 競賽絕對限制（違反將導致失格）】：
+1. 僅限台股前 150 大市值標的，嚴禁任何 ETF、期貨、反向商品或海外資產。
+2. 唯一允許的避險方式為「拉高現金水位」。
+3. 單一標的持股上限不得超過總資金（10億）的 20%。
 
-請根據今日的總經與大盤數據，進行完整的邏輯推演，並嚴格依照以下兩大區塊輸出你的決策：
+【🧠 強制前置作業：檢索數據定錨與核查清單 (Grounding Audit)】
+在撰寫報告前，你必須在正文最上方強制條列出你剛剛查到的真實資訊，每筆數據皆須標註 (資料真實日期：YYYY-MM-DD)，若查無數據請寫 N/A，嚴禁捏造：
+1. 國際與大盤指標：
+   - 隔夜美股動態：[指數名稱與漲跌幅] (資料日期：)
+   - 台股加權指數收盤：[收盤點位] ([漲跌點數與幅度]) (資料日期：)
+   - 三大法人買賣超：合計 [買/賣超 X 億元] (資料日期：)
+   - 外資期貨淨未平倉：[淨多/空單 X 口] (資料日期：)
+2. 今日決策個股即時報價 (限前 150 大)：
+   - [個股代碼 名稱]：收盤價 [X] 元 (資料日期：)
+   - [個股代碼 名稱]：收盤價 [X] 元 (資料日期：)
+   - [個股代碼 名稱]：收盤價 [X] 元 (資料日期：)
 
-### 【一、 宏觀資金與風險定錨】
-1. 【現金與持股水位】：評估當前市場位階。若市場過熱或外資大賣，請提高現金水位（如：保留 20%-30% 現金）；若市場穩定向上，可拉高持股比例（如：股票 90%、現金 10%）。請給出明確的百分比數字與判斷理由。
-2. 【ETF 產業權重微調】：根據資金流向（如資金轉向防禦型金融股，或集中於半導體/AI），給出今日應「加碼」與「減碼」的產業板塊建議。
-
-### 【二、 台股前 150 大選股漏斗】
-請根據上方第一點的宏觀定錨邏輯，提煉出 3-5 檔今日應進行動作的個股，並依下列格式輸出：
-【動作 (買進/賣出/持有)】：[股票代碼與名稱]
-- 決策因子：[說明基於低基期、高殖利率、法人連續買超或觸發停利/停損機制]
-- ETF 權重調整：[說明此動作是為了填補特定板塊權重，還是為了降低波動風險]
-
-接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+--- (完成上述數據定錨後，緊接著依以下架構輸出完整報告) ---
 
 ## 🗂️ ${today} AI CUP 投資組合決策報告
 
 ### 一、 市場觀點與資產配置狀態
-*   **大盤環境總評：** [綜合解讀目前的總經與籌碼狀態]
-*   **資金水位檢視：** [宣告現金與持股比例，說明防禦邏輯]
+* **大盤環境總評：** [依據上方查核的大盤與籌碼數據進行白話解讀]
+* **資金水位檢視：** [宣告現金與股票比例，如：股票 70%、現金 30%，說明防禦或進攻邏輯]
 
-### 二、 動態再平衡與個股決策
-*   **買進 (BUY)：** [代碼、名稱與基本面/籌碼面理由]
-*   **賣出 (SELL)：** [代碼、名稱與停利/停損或權重調整理由]
+### 二、 動態再平衡與個股決策 (限前 150 大)
+* **買進 (BUY)：** [標的代碼/名稱、投入資金比例、基於基本面/籌碼面的選股理由]
+* **賣出 (SELL)：** [標的代碼/名稱、套現資金比例、停利/停損或降波再平衡理由]
 
-### 三、 極端風險演練與因應策略
-*   [描述大盤重挫時的預設防護機制]
+### 三、 股數精確換算 (CoT 數學運算)
+【⚠️ 換算指令】：請使用上方定錨清單中的「真實收盤價」，計算出今日要拋送的整數股數。總資金為 10,000,000,000 元。
+* [股票代碼]：10,000,000,000 × [目標調動權重%] ÷ [查到的真實收盤價] = [精確整數股數] 股
 
 ### 四、 JSON 格式交易書 (供 API 拋送)
 請在下方直接輸出純 JSON，切勿加入 Markdown code blocks：
 {
   "submission_date": "${today}",
   "fund_manager_rationale": {
-    "market_summary": "[擷取大盤總評]",
-    "risk_control_status": "[註明現金水位]"
+    "market_summary": "[大盤總評摘要]",
+    "risk_control_status": "[現金水位與風控狀態]"
   },
   "orders": [
     {
       "stock_id": "[4碼代號]",
-      "action": "[BUY/SELL/HOLD]",
-      "shares": [整數],
-      "reason": "[簡短理由]"
+      "action": "[BUY 或 SELL，嚴禁出現 HOLD]",
+      "shares": [第三節計算出的整數股數],
+      "reason": "[下單理由]"
     }
   ]
 }
-
 ---
 
 ### 📌 分類為【8. 企業拜訪與法說會深度提問訪綱】，
@@ -3124,7 +3126,7 @@ AI Prompt (中文):
 [在此輸出純英文的外觀特徵字串]
 
 ### 🧑 說書人固定外觀設定 (Main Character: Youthful Storyteller)
-[Young male storyteller, late 20s, sharp and spirited eyes, wearing a modern-styled traditional Hanfu robe in deep navy blue with subtle golden embroidery of clouds and cranes, hair tied back in a short neat ponytail, holding a vintage sandalwood folding fan, a pair of light-framed round glasses resting on his nose, standing behind a dark mahogany tea table with a classic white porcelain teacup.]`
+[Young male storyteller, late 20s, sharp and spirited eyes, wearing a modern-styled traditional Hanfu robe in deep navy blue with subtle golden embroidery of clouds and cranes, hair tied back in a short neat ponytail, holding a vintage sandalwood folding fan, a pair of light-framed round glasses resting on his nose, standing behind a dark mahogany tea table with a classic white porcelain teacup,動漫系]`
   },
   {
 id: 2,
