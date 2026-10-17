@@ -225,5 +225,10 @@ export const POPULAR_STYLES: StyleOption[] = [
     id: "style-edtech-sketch",
     name: "學術手帳線稿 (筆記圖解)",
     promptSuffix: ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere"
+  },
+  {
+    id: "style-zen-minimalist",
+    name: "東方禪意極簡 (水墨留白)",
+    promptSuffix: ", Zen minimalist aesthetic, traditional oriental ink wash accents, soft muted earthy tones, ample negative space, peaceful and mindful atmosphere, subtle glowing natural light, profound spiritual vibe, elegant traditional typography layout, 8k resolution"
   }
 ];
