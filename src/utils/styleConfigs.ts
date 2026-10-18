@@ -227,6 +227,17 @@ export const POPULAR_STYLES: StyleOption[] = [
     promptSuffix: ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere"
   },
   {
+    id: "style-oriental-colorink",
+    name: "現代彩墨琉璃 (靈性光影)",
+    promptSuffix: ", modern colorful ink wash painting style, translucent glass-like color accents, cinematic volumetric lighting, ethereal and profound atmosphere, spiritual awakening concept, any characters strictly from back-view perspective, subtle golden light rays, profound depth, 8k resolution"
+  },
+  {
+    id: "style-ancient-scripture",
+    name: "經卷古剎金石 (歷史沉澱)",
+    promptSuffix: ", ancient Chinese scripture aesthetic, floating golden calligraphy characters, weathered parchment and bamboo slip texture, traditional seal script elements, dimly lit ancient temple atmosphere, swirling incense smoke, rich warm amber and dark wood tones, traditional vertical text layout, cinematic composition, 8k"
+  },
+  
+  {
     id: "style-zen-minimalist",
     name: "東方禪意極簡 (水墨留白)",
     promptSuffix: ", Zen minimalist aesthetic, traditional oriental ink wash accents, soft muted earthy tones, ample negative space, peaceful and mindful atmosphere, subtle glowing natural light, profound spiritual vibe, elegant traditional typography layout, 8k resolution"
