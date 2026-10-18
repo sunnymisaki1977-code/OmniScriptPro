@@ -2839,11 +2839,13 @@ const now = new Date();
 
 ### 四、 JSON 格式交易書 (供 API 拋送)
 請在下方直接輸出純 JSON，切勿加入 Markdown 語法：
+**如果這是建倉首日，你的 `orders` 陣列必須剛好有 20 到 30 個獨立的 JSON 物件！**
+**嚴禁只寫前幾個就用 `...` 省略！你今天打算買幾檔股票，這裡就必須有幾筆 {"stock_id": "...", "action": "BUY", "shares": ...} 的完整資料。如果陣列長度少於 20，你將立刻被取消參賽資格！**
 {
   "submission_date": "${today}",
   "fund_manager_rationale": {
     "market_summary": "[大盤總評摘要]",
-    "risk_control_status": "[現金水位與 Active Share 狀態]"
+    "risk_control_status": "[現金水位與風控狀態]"
   },
   "orders": [
     {
