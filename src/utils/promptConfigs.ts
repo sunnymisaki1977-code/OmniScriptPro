@@ -4653,7 +4653,7 @@ AI Prompt (中文):
 - [IP 延展性評估：說明角色未來發展實體周邊或其他數位內容的潛力]
 - [上架與推廣策略：如何利用社群活動或互動誘因，提高貼圖下載與使用率]
 
-### 模版 E：LOGO 設計競賽 (Logo Design)
+### 模版 D：LOGO 設計競賽 (Logo Design)
 > 適用賽事：企業商標、活動標誌、品牌 LOGO 徵件賽事。
 
 #### 一、 品牌核心價值與 LOGO 定位
@@ -4786,7 +4786,21 @@ ${ctx.step1}
     prompt: (ctx: any) => `針對競賽的主題類型專屬模版生成 3 組核心主視覺 (Main Visual) 提案。
 
 
-依據「${ctx.step1}」專屬模版對應產出
+<instructions>
+請先判斷「${ctx.step1}」屬於哪一種類型：
+模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
+模版 B：科技品牌與 AI 圖像創作競賽 (Tech/Brand AI Image Creation)
+模版 C：通用型創新企劃競賽 (General Innovation & Project Pitch)
+模版 D：LOGO 設計競賽 (Logo Design)
+
+
+請先輸出：
+- 主題分類：[填入分類]
+
+接著，請根據「${ctx.step1}」，進行結構化輸出：
+</instructions>
+
+
 模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
 二、 主視覺 (Main Visual) 概念與視覺美學
 - [設計理念與故事性：敘事邏輯、符號轉化與色彩計畫]
@@ -4824,7 +4838,19 @@ ${ctx.step1}
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `延續《主視覺設計提案》主題類型，生成 3 組設計概念。
 
-依據「${ctx.step1}」專屬模版對應產出
+<instructions>
+請先判斷「${ctx.step1}」屬於哪一種類型：
+模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
+模版 B：科技品牌與 AI 圖像創作競賽 (Tech/Brand AI Image Creation)
+模版 C：通用型創新企劃競賽 (General Innovation & Project Pitch)
+模版 D：LOGO 設計競賽 (Logo Design)
+
+
+請先輸出：
+- 主題分類：[填入分類]
+
+接著，請根據「${ctx.step1}」，進行結構化輸出：
+</instructions>
 模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
 三、 指定延伸應用與實體製作可行性
 - [主要延伸物 A 設計構想：視覺轉化巧思、結構設計與應用情境]
@@ -4867,7 +4893,19 @@ ${ctx.step1}
     dependsOn: ["theme", "step1"],
     prompt: (ctx: any) => `延續《主視覺設計提案》主題類型，生成 3 組設計概念。
 
-依據「${ctx.step1}」專屬模版對應產出
+<instructions>
+請先判斷「${ctx.step1}」屬於哪一種類型：
+模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
+模版 B：科技品牌與 AI 圖像創作競賽 (Tech/Brand AI Image Creation)
+模版 C：通用型創新企劃競賽 (General Innovation & Project Pitch)
+模版 D：LOGO 設計競賽 (Logo Design)
+
+
+請先輸出：
+- 主題分類：[填入分類]
+
+接著，請根據「${ctx.step1}」，進行結構化輸出：
+</instructions>
 模版 A：視覺識別與周邊延伸設計競賽 (Visual Identity & Extension Design)
 三、 指定延伸應用與實體製作可行性
 - [主要延伸物 B 設計構想：立體/材質模擬、發光或特殊效果]
