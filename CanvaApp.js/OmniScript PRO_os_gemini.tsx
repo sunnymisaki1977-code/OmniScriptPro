@@ -68,8 +68,8 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         throw new Error("Vercel API 沒有回傳有效的 Prompt");
     }
 
-    // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
- const now = new Date(); 
+   // 🌟 新增：取得使用者裝置的當前真實時間，做為 AI 的時間錨點
+const now = new Date(); 
       const currentDate = now.toLocaleDateString('zh-TW', { 
   timeZone: 'Asia/Taipei', 
   year: 'numeric', 
@@ -81,9 +81,8 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
   timeZone: 'Asia/Taipei' 
 });    
 
-
-    const geminiPayload = {
-         // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
+const geminiPayload = {
+    // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
     systemInstruction: {
         parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
@@ -91,7 +90,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
 ` }]
     },
-                contents: [{ parts: [{ text: finalPrompt }] }],
+        contents: [{ parts: [{ text: finalPrompt }] }],
         generationConfig: {
             maxOutputTokens: 8192
         }
@@ -102,7 +101,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
-             // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
+      // ⚠️ 注意：如果啟用了搜尋，就不能同時使用 responseSchema 結構化輸出
     } else if (responseSchema) {
         console.log(`[JSON Schema] 📄 Step ${stepId} 未啟動搜尋，強制啟用 JSON Schema 結構化輸出。`);
         geminiPayload.generationConfig.responseMimeType = "application/json";
@@ -812,6 +811,30 @@ export default function App() {
       setIsFetchingRadar(false);
     }
   };
+
+  const [isFetchingBenchmark, setIsFetchingBenchmark] = useState(false);
+  const handleFetchBenchmark = async () => {
+    setIsFetchingBenchmark(true);
+    addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、全球資金指標)...', 'info');
+    try {
+      const res = await fetch('/api/fintech/benchmark');
+      const data = await res.json();
+      if (data.success && data.formatted) {
+        setCustomContext(data.formatted);
+        if (!theme.trim()) {
+          setTheme('盤前觀戰與全球市場極速晨報');
+        }
+        addLog('✅ [盤前數據基準抓取完成] 已自動匯入自訂背景資料，可直接供 Step 1 生成盤前晨報！', 'success');
+      } else {
+        addLog('⚠️ 抓取盤前數據失敗: ' + (data.error || '無法取得數據'), 'error');
+      }
+    } catch (err) {
+      addLog('❌ 盤前數據連線異常: ' + err.message, 'error');
+    } finally {
+      setIsFetchingBenchmark(false);
+    }
+  };
+
 
   // ============================================================================
   // 4. 改寫全自動生成引擎 (打 Vercel API)
@@ -1874,12 +1897,29 @@ const handleLogin = async (e: React.FormEvent) => {
                         )}
                       </button>
    {audienceTheme === 'fintech' && (
-                        <button
-                          onClick={() => setShowTopicSelectorModal(true)}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer ml-2"
-                        >
-                          🤖 智慧選題
-                        </button>
+                        <div className="flex items-center gap-2 ml-2">
+                          <button
+                            onClick={handleFetchBenchmark}
+                            disabled={isFetchingBenchmark}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
+                            title="一鍵抓取美股四大指數、台積電ADR、輝達、台指期夜盤最新盤前數據"
+                          >
+                            {isFetchingBenchmark ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>正在抓取盤前數據...</span>
+                              </>
+                            ) : (
+                              <span>🗂️ 盤前數據基準</span>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setShowTopicSelectorModal(true)}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
+                          >
+                            🤖 智慧選題
+                          </button>
+                        </div>
                       )}
                     </div>
 
