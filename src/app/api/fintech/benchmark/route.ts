@@ -26,12 +26,12 @@ export async function GET() {
 
     const results: Record<string, SymbolMeta> = {};
 
-    // 1. 平行抓取 Yahoo Finance 最新即時與歷史行情
+    // 1. 平行抓取 Yahoo Finance 最新單日收盤價與單日漲跌幅 (range=1d)
     await Promise.all(
       Object.entries(yahooSymbols).map(async ([key, sym]) => {
         try {
           const res = await fetch(
-            `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=5d`,
+            `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`,
             {
               headers: {
                 'User-Agent':
@@ -45,12 +45,19 @@ export async function GET() {
           const meta = data?.chart?.result?.[0]?.meta;
           if (meta) {
             const price = meta.regularMarketPrice;
-            const prevClose = meta.chartPreviousClose || price;
-            const diff = price - prevClose;
-            const diffPercent = prevClose ? (diff / prevClose) * 100 : 0;
+            // 優先直接使用官方即時計算之單日漲跌幅 (regularMarketChangePercent)，避免受多日範圍基準偏誤
+            const diffPercent =
+              typeof meta.regularMarketChangePercent === 'number'
+                ? meta.regularMarketChangePercent
+                : typeof meta.fulldayChangePercent === 'number'
+                ? meta.fulldayChangePercent
+                : meta.chartPreviousClose
+                ? ((price - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+                : 0;
+
             const timestamp = meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now();
-            
-            // 判斷時區：台股使用台北時間，美股與資金指標使用紐約時間
+
+            // 時區判斷：台股為台北時間 (Asia/Taipei)，美股及國際資金指標為美東紐約時間 (America/New_York)
             const dateStr =
               key === 'taiex'
                 ? new Date(timestamp).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })
@@ -58,7 +65,7 @@ export async function GET() {
 
             results[key] = {
               price,
-              prevClose,
+              prevClose: meta.chartPreviousClose,
               diffPercent,
               dateStr,
             };
@@ -77,7 +84,7 @@ export async function GET() {
     };
 
     try {
-      // 先查詢盤後交易 (夜盤 marketCode=1)
+      // 優先查詢盤後交易 (夜盤 marketCode=1)
       const res = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
         method: 'POST',
         headers: {
@@ -114,7 +121,7 @@ export async function GET() {
           }
         }
 
-        // 若夜盤無成交，嘗試查詢一般交易 (日盤 marketCode=0)
+        // 若夜盤尚未開盤或無成交，查詢一般交易 (日盤 marketCode=0)
         if (!found) {
           const dayRes = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
             method: 'POST',
@@ -169,7 +176,7 @@ export async function GET() {
 
     const fmtDate = (d?: string) => d || new Date().toLocaleDateString('zh-TW');
 
-    // 組合使用者指定之完全對照格式
+    // 依使用者需求嚴格組合指定格式
     const formatted = `1. 隔夜美股四大指數最新收盤點位與漲跌幅：
    - 道瓊 (DJIA)：${fmtNum(results.djia?.price)} (${fmtPct(results.djia?.diffPercent)}) (資料日期：${fmtDate(results.djia?.dateStr)})
    - 標普 (S&P 500)：${fmtNum(results.sp500?.price)} (${fmtPct(results.sp500?.diffPercent)}) (資料日期：${fmtDate(results.sp500?.dateStr)})
