@@ -2808,61 +2808,43 @@ const now = new Date();
 *   [股票代號]：目標權重 X% → floor(X% × {current_nav} ÷ [收盤價] ÷ 1000)×1000 = [目標股數] 股。委託：[BUY/SELL] [差額股數] 股。
 
 ### 四、 JSON 格式交易書 (D-Plan API Payload)
-【🚨 API 嚴格格式警告】：請輸出符合 D-Plan schema v4.3 的完整 JSON。包含 sources, observations, market_view, inferences, decisions, no_trade_decisions, orders, agent_metadata。
-- IDs 必須嚴格對應。
-- 【極度警告：decisions 的 action 限制】：新建倉只能填 "BUY"，加碼既有持股填 "ADD"，減碼填 "TRIM"，全數出清填 "SELL_ALL"。絕對不可以在此處填 "SELL"！
-- 【極度警告：no_trade_decisions 絕不可偷懶】：昨天所有的庫存股票，只要今天沒有買賣異動，就**必須、強制、逐一**寫進這個陣列中！如果昨天有 25 檔，今天動了 3 檔，這裡就必須精準產出 22 個物件！嚴禁用省略號，漏掉一檔會直接失去參賽資格！
-- JSON 請直接輸出，確保可被程式解析。請勿加上任何 markdown 語法 (不要寫 \`\`\`json )，直接從左大括號 { 開始輸出。
+【🚨 API 嚴格格式警告 - 攸關晉級資格】：請輸出符合 D-Plan schema v4.3 的完整 JSON。
+1. IDs 必須嚴格對應：orders 需引用 decisions (decision_ref) 等等。
+2. 【極度警告：decisions 的 action 限制】：新建倉(昨無庫存)填 "BUY"，加碼既有持股填 "ADD"，減碼填 "TRIM"，全數出清填 "SELL_ALL"。絕對不可以填 "SELL"！
+3. 【極度警告：no_trade_decisions 絕不可偷懶】：昨天所有的庫存，只要今天沒買賣，**強制、逐一**寫進這個陣列！漏掉一檔會直接退件！
+4. 【極度警告：orders 陣列完整性】：如果你在 decisions 中做了 N 筆交易決定，你的 orders 陣列就必須、強制產出 N 筆委託單！如果你今天要買 25 檔股票，orders 就必須有 25 個 `{...}` 物件，嚴禁只寫前幾個就用省略號中斷，一旦中斷直接取消資格！
+5. JSON 請直接從左大括號 { 開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法 (如 \`\`\`json 標籤)！絕對禁止在 key 與 value 之間加入不合法的換行符號 ( \n )！
+
 {
   "schema_version": "4.3",
   "doc_type": "D-Plan",
-  "team_id": "TEAM_XXX",
+  "team_id": "TEAM_12006",
   "trade_date": "${today}",
-  "sources": [
-    { "source_id": "S1", "authority": "media", "url": "https://example.com", "content_as_of": "${today}T05:00:00+08:00" }
-  ],
-  "observations": [
-    { "obs_id": "O1", "source_ref": ["S1"], "statement": "市場總結短句", "values": { "metric": 0 } }
-  ],
-  "market_view": {
-    "basis_refs": ["O1"],
-    "logic": "總體市場判斷邏輯...",
-    "regime": "neutral",
-    "stance": "neutral",
-    "posture": { "net_exposure_intent": "hold", "target_cash_pct_range": [0.05, 0.15] },
-    "counter_evidence": null
-  },
-  "inferences": [
-    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "推導結論", "counter_evidence": null }
-  ],
-  "decisions": [
-    { "decision_id": "D1", "ticker": "2330", "action": "BUY", "target_weight": 0.24, "inference_refs": ["I1"] }
-  ],
-  "no_trade_decisions": [
-    { "ticker": "2317", "reason_refs": ["I1"], "reason": "未觸發再平衡" }
-  ],
+  "sources": [ ... ],
+  "observations": [ ... ],
+  "market_view": { ... },
+  "inferences": [ ... ],
+  "decisions": [ ... ],
+  "no_trade_decisions": [ ... ],
   "orders": [
-    { "ticker": "2330", "side": "BUY", "shares": 10000, "decision_ref": "D1", "derivation_detail": "公式推導說明" }
+    { "ticker": "...", "side": "BUY", "shares": ..., "decision_ref": "D1", "derivation_detail": "..." }
+    // ⚠️ 這裡必須完整列出所有委託，嚴禁偷懶省略！
   ],
   "agent_metadata": {
-    "model_provider": "openai",
-    "model_version": "gpt-4o",
+    "model_provider": "google",
+    "model_version": "gemini-1.5-pro",
     "run_started_at": "${today}T08:00:00+08:00",
     "run_completed_at": "${today}T08:05:00+08:00",
-    "code_version": "v1.0"
+    "code_version": "v4.3"
   }
 }
 
 ### 五、 帳戶真實庫存定錨 (Portfolio State)
-【🚨 庫存結算嚴格警告】：
-如果今日將某檔股票「全數賣出 (清倉)」，總持股檔數就會自然減少，只要維持在 20 檔以上即完全合法！絕對禁止在沒有於 JSON orders 中買進的情況下，憑空捏造、假設或補入任何新的股票來湊數！你的庫存明細必須 100% 與今日的買賣金流對帳相符。
-【⚠️ 極度嚴格限制】：你必須完整印出所有 X 檔股票的明細，絕對禁止使用「...」省略。若為第一天建倉，請務必自行挑選足夠的標的填滿 20~30 檔名單。
 - **今日結算總資產淨值 (NAV)：** [計算今日所有持股現值加總 + 剩餘現金] 元
 - **今日結算剩餘現金：** [昨日現金 + 賣出套現總和 - 買進耗資總和] 元
-- **今日最新持股明細 (共 X 檔，必須逐一列出 1 到 X 項)：**
-  1. [股票代碼 名稱]：[最新總股數] 股 (現值約 X 元，權重 Y%)「買進單價 元/股」(依照公式 現值 ÷ 股數 = 買進單價)
-  ... (請完整列出至第 20~30 檔)
----
+- **今日最新持股明細 (共 X 檔，必須逐一完整列出 1 到 X 項，嚴禁省略！)：**
+  1. [股票代碼 名稱]：[最新總股數] 股 (現值約 X 元，權重 Y%)「買進單價 元/股」
+  ... (完整列出至 20~30 檔)---
 
 ### 📌 分類為【8. 企業拜訪與法說會深度提問訪綱】，
 接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
