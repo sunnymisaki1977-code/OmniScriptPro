@@ -2812,7 +2812,7 @@ const now = new Date();
 - IDs 必須嚴格對應：orders 需引用 decisions (decision_ref)，decisions 需引用 inferences (inference_refs)，inferences 需引用 observations (premise_refs)。
 - no_trade_decisions 必須包含昨天所有沒有在 decisions 出現的庫存股票！
 - JSON 請直接輸出，確保可被程式解析。
-```json
+
 {
   "schema_version": "4.3",
   "doc_type": "D-Plan",
