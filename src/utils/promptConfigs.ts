@@ -2811,7 +2811,7 @@ const now = new Date();
 【🚨 API 嚴格格式警告】：請輸出符合 D-Plan schema v4.3 的完整 JSON。包含 sources, observations, market_view, inferences, decisions, no_trade_decisions, orders, agent_metadata。
 - IDs 必須嚴格對應：orders 需引用 decisions (decision_ref)，decisions 需引用 inferences (inference_refs)，inferences 需引用 observations (premise_refs)。
 - no_trade_decisions 必須包含昨天所有沒有在 decisions 出現的庫存股票！
-- JSON 請直接輸出，確保可被程式解析。
+- JSON 請直接輸出，確保可被程式解析。請勿加上任何 markdown 語法 (不要寫 \`\`\`json )，直接從左大括號 { 開始輸出。
 
 {
   "schema_version": "4.3",
@@ -2819,7 +2819,7 @@ const now = new Date();
   "team_id": "TEAM_XXX",
   "trade_date": "${today}",
   "sources": [
-    { "source_id": "S1", "authority": "media", "url": "[https://example.com](https://example.com)", "content_as_of": "${today}T05:00:00+08:00" }
+    { "source_id": "S1", "authority": "media", "url": "https://example.com", "content_as_of": "${today}T05:00:00+08:00" }
   ],
   "observations": [
     { "obs_id": "O1", "source_ref": ["S1"], "statement": "市場總結短句", "values": { "metric": 0 } }
