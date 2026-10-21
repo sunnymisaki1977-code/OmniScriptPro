@@ -2809,35 +2809,52 @@ const now = new Date();
 
 ### 四、 JSON 格式交易書 (D-Plan API Payload)
 【🚨 API 嚴格格式警告 - 攸關晉級資格】：請輸出符合 D-Plan schema v4.3 的完整 JSON。
-1. IDs 必須嚴格對應：orders 需引用 decisions (decision_ref) 等等。
-2. 【極度警告：decisions 的 action 限制】：新建倉(昨無庫存)填 "BUY"，加碼既有持股填 "ADD"，減碼填 "TRIM"，全數出清填 "SELL_ALL"。絕對不可以填 "SELL"！
-3. 【極度警告：no_trade_decisions 絕不可偷懶】：昨天所有的庫存，只要今天沒買賣，**強制、逐一**寫進這個陣列！漏掉一檔會直接退件！
-4. 【極度警告：orders 陣列完整性】：如果你在 decisions 中做了 N 筆交易決定，你的 orders 陣列就必須、強制產出 N 筆委託單！如果你今天要買 25 檔股票，orders 就必須有 25 個 `{...}` 物件，嚴禁只寫前幾個就用省略號中斷，一旦中斷直接取消資格！
-5. JSON 請直接從左大括號 { 開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法 (如 \`\`\`json 標籤)！絕對禁止在 key 與 value 之間加入不合法的換行符號 ( \n )！
+1. IDs 必須嚴格對應：orders 需引用 decisions 等等。
+2. 【極度警告：decisions 的 action 限制】：新建倉昨無庫存填 BUY，加碼既有持股填 ADD，減碼填 TRIM，全數出清填 SELL_ALL。絕對不可以填 SELL！
+3. 【極度警告：no_trade_decisions 絕不可偷懶】：昨天所有的庫存，只要今天沒買賣，強制、逐一寫進這個陣列！漏掉一檔會直接退件！
+4. 【極度警告：orders 陣列完整性】：如果你在 decisions 中做了 N 筆交易決定，你的 orders 陣列就必須、強制產出 N 筆委託單！如果你今天要買 25 檔股票，orders 就必須有 25 個委託單物件，嚴禁只寫前幾個就用省略號中斷，一旦中斷直接取消資格！
+5. JSON 請直接從左大括號開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法如 code block 標籤！絕對禁止在 key 與 value 之間加入不合法的換行符號！
 
 {
   "schema_version": "4.3",
   "doc_type": "D-Plan",
   "team_id": "TEAM_12006",
   "trade_date": "${today}",
-  "sources": [ ... ],
-  "observations": [ ... ],
-  "market_view": { ... },
-  "inferences": [ ... ],
-  "decisions": [ ... ],
-  "no_trade_decisions": [ ... ],
+  "sources": [ 
+    { "source_id": "S1", "authority": "media", "url": "https://example.com", "content_as_of": "${today}T05:00:00+08:00" } 
+  ],
+  "observations": [ 
+    { "obs_id": "O1", "source_ref": ["S1"], "statement": "市場總結", "values": { "metric": 0 } } 
+  ],
+  "market_view": {
+    "basis_refs": ["O1"],
+    "logic": "總體判斷...",
+    "regime": "neutral",
+    "stance": "neutral",
+    "posture": { "net_exposure_intent": "hold", "target_cash_pct_range": [0.05, 0.15] },
+    "counter_evidence": null
+  },
+  "inferences": [ 
+    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "推導", "counter_evidence": null } 
+  ],
+  "decisions": [ 
+    { "decision_id": "D1", "ticker": "2330", "action": "BUY", "target_weight": 0.24, "inference_refs": ["I1"] } 
+  ],
+  "no_trade_decisions": [ 
+    { "ticker": "2317", "reason_refs": ["I1"], "reason": "未觸發再平衡" } 
+  ],
   "orders": [
-    { "ticker": "...", "side": "BUY", "shares": ..., "decision_ref": "D1", "derivation_detail": "..." }
-    // ⚠️ 這裡必須完整列出所有委託，嚴禁偷懶省略！
+    { "ticker": "2330", "side": "BUY", "shares": 10000, "decision_ref": "D1", "derivation_detail": "推導說明" }
   ],
   "agent_metadata": {
     "model_provider": "google",
-    "model_version": "gemini-1.5-pro",
+    "model_version": "gemini-pro",
     "run_started_at": "${today}T08:00:00+08:00",
     "run_completed_at": "${today}T08:05:00+08:00",
     "code_version": "v4.3"
   }
 }
+
 
 ### 五、 帳戶真實庫存定錨 (Portfolio State)
 - **今日結算總資產淨值 (NAV)：** [計算今日所有持股現值加總 + 剩餘現金] 元
