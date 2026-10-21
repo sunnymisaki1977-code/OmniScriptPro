@@ -2810,7 +2810,7 @@ const now = new Date();
 ### 四、 JSON 格式交易書 (D-Plan API Payload)
 【🚨 API 嚴格格式警告】：請輸出符合 D-Plan schema v4.3 的完整 JSON。包含 sources, observations, market_view, inferences, decisions, no_trade_decisions, orders, agent_metadata。
 - IDs 必須嚴格對應：orders 需引用 decisions (decision_ref)，decisions 需引用 inferences (inference_refs)，inferences 需引用 observations (premise_refs)。
-- `no_trade_decisions` 必須包含昨天所有沒有在 decisions 出現的庫存股票！
+- no_trade_decisions 必須包含昨天所有沒有在 decisions 出現的庫存股票！
 - JSON 請直接輸出，確保可被程式解析。
 ```json
 {
