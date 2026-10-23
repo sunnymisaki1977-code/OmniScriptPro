@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
 
+function cleanVoiceover(line: string) {
+  let text = line.replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/, '').replace(/^.*\(VO\)\**[：:]\s*\*?\s*/, '').trim();
+  const isJa = line.includes('日文') || line.includes('日語') || line.includes('Japanese') || line.includes('日本語') || /[\u3040-\u309F\u30A0-\u30FF]/.test(text);
+  // 去除開頭提示型括號 (例如 [中文旁白，至少 40-50 字] 或 [日文旁白，至少 70-120 字])
+  const cleanedText = text.replace(/^[\[【][^\]】]*(?:旁白|口吻|字)[^\]】]*[\]】]\s*/, '').trim();
+  return { isJa, text: cleanedText || text };
+}
+
 export async function POST(req: Request) {
   try {
     const { content, source } = await req.json();
@@ -40,6 +48,7 @@ export async function POST(req: Request) {
             let visualPrompt = "";
             let caption = "";
             let voiceover = "";
+            let voiceover_ja = "";
             
             for (const line of lines) {
                 if (line.includes("畫面節點") || line.includes("視覺畫面建議") || line.includes("視覺畫面")) {
@@ -47,8 +56,17 @@ export async function POST(req: Request) {
                 } else if (line.includes("畫面字卡")) {
                     caption = line.replace(/^.*?畫面字卡\**[：:]\s*\*?\s*/, '').trim();
                 } else if (line.includes("旁白配音") || line.includes("(VO)")) {
-                    voiceover = line.replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/, '').trim();
+                    const vo = cleanVoiceover(line);
+                    if (vo.isJa) {
+                      voiceover_ja = vo.text;
+                    } else {
+                      voiceover = vo.text;
+                    }
                 }
+            }
+
+            if (!voiceover && voiceover_ja) {
+              voiceover = voiceover_ja;
             }
             
             if (!visualPrompt) {
@@ -59,8 +77,8 @@ export async function POST(req: Request) {
             const sceneIdx = parsedScenes.length;
             const sceneTitle = isStep4 ? get15sTimecode(sceneIdx) : `[${matches[i].timecode}]`;
             const scenePrompt = isStep4
-                ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}`
-                : `[${matches[i].timecode}]\n視覺畫面建議：${visualPrompt}\n畫面字卡：${caption}`;
+                ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}${voiceover_ja ? `\n- 旁白配音 (日文)：${voiceover_ja}` : ''}`
+                : `[${matches[i].timecode}]\n視覺畫面建議：${visualPrompt}\n畫面字卡：${caption}${voiceover_ja ? `\n日文旁白：${voiceover_ja}` : ''}`;
             
             parsedScenes.push({
                 id: `group-Extreme-${sceneIdx + 1}`,
@@ -68,7 +86,9 @@ export async function POST(req: Request) {
                 prompt: scenePrompt,
                 mainTitle: "",
                 subTitle: caption,
-                poetry: voiceover
+                poetry: voiceover,
+                voiceover: voiceover,
+                voiceover_ja: voiceover_ja
             });
         }
       }
@@ -84,14 +104,24 @@ export async function POST(req: Request) {
         let visualPrompt = "";
         let caption = "";
         let voiceover = "";
+        let voiceover_ja = "";
         for (const line of lines) {
             if (line.includes("畫面節點") || line.includes("視覺畫面建議") || line.includes("視覺畫面")) {
                 visualPrompt = line.replace(/^.*?(畫面節點|視覺畫面建議|視覺畫面)\**[：:]\s*\*?\s*/, '').trim();
             } else if (line.includes("畫面字卡")) {
                 caption = line.replace(/^.*?畫面字卡\**[：:]\s*\*?\s*/, '').trim();
             } else if (line.includes("旁白配音") || line.includes("(VO)")) {
-                voiceover = line.replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/, '').trim();
+                const vo = cleanVoiceover(line);
+                if (vo.isJa) {
+                  voiceover_ja = vo.text;
+                } else {
+                  voiceover = vo.text;
+                }
             }
+        }
+
+        if (!voiceover && voiceover_ja) {
+          voiceover = voiceover_ja;
         }
 
         const descMatch = parts[i].match(/中文[：:]\s*(.*?)(?=\n|$)/);
@@ -101,7 +131,7 @@ export async function POST(req: Request) {
         const sceneIdx = parsedScenes.length;
         const sceneTitle = isStep4 ? get15sTimecode(sceneIdx) : titleRaw;
         const scenePrompt = isStep4
-            ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}`
+            ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}${voiceover_ja ? `\n- 旁白配音 (日文)：${voiceover_ja}` : ''}`
             : `視覺畫面建議：${desc}`;
         
         parsedScenes.push({
@@ -110,7 +140,9 @@ export async function POST(req: Request) {
           prompt: scenePrompt,
           mainTitle: "",
           subTitle: caption,
-          poetry: voiceover
+          poetry: voiceover,
+          voiceover: voiceover,
+          voiceover_ja: voiceover_ja
         });
       }
     }

@@ -439,28 +439,34 @@ export default function App() {
     addLog(`[Extreme] 🎨 所有影像生成完畢！`, 'success');
   };
 
-  const handleDownloadExtremePython = async () => {
+  const handleDownloadExtremePython = async (lang: 'zh' | 'ja' = 'zh') => {
     if (ExtremeParsedGroups.length === 0) {
       safeAlert("請先產生分鏡卡片！");
       return;
     }
     
-    addLog(`[System] 正在向後端請求產生 Python 自動化草稿...`, 'info');
+    const isJa = lang === 'ja';
+    addLog(`[System] 正在向後端請求產生 ${isJa ? '日文旁白' : '中文旁白'} Python 自動化草稿...`, 'info');
     
     const scenesToExport = ExtremeParsedGroups.map(g => {
         return {
             title: g.title,
             caption: g.subTitle || "",
-            voiceover: g.poetry || "",
+            voiceover: isJa ? (g.voiceover_ja || g.poetry || g.voiceover || "") : (g.voiceover || g.poetry || ""),
+            voiceover_ja: g.voiceover_ja || "",
             prompt: g.prompt || ""
         };
     });
 
     try {
-        const response = await fetch('https://omni-script-pro.vercel.app/api/Extreme/export', {
+        const response = await fetch('/api/Extreme/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scenes: scenesToExport })
+            body: JSON.stringify({ 
+              scenes: scenesToExport,
+              theme: audienceTheme,
+              lang: lang
+            })
         });
         
         if (!response.ok) {
@@ -472,13 +478,13 @@ export default function App() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'capcut_generator.py';
+        a.download = isJa ? 'capcut_generator_ja.py' : 'capcut_generator.py';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
         
-        addLog(`[System] 成功下載 Python 剪映草稿腳本！`, 'success');
+        addLog(`[System] 成功下載 ${isJa ? '日文旁白' : '中文旁白'} Python 剪映草稿腳本 (${a.download})！`, 'success');
     } catch (err: any) {
         addLog(`[Error] 匯出 Python 腳本失敗: ${err.message}`, 'error');
         safeAlert("匯出失敗：" + err.message);
@@ -2752,12 +2758,24 @@ const handleLogin = async (e: React.FormEvent) => {
                         </button>
 
                         <button 
-                          onClick={handleDownloadExtremePython}
-                          className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                          onClick={() => handleDownloadExtremePython('zh')}
+                          className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                          title="匯出中文旁白字幕軌道至剪映"
                         >
                           <Download className="w-4 h-4" />
-                          匯出剪映草稿
+                          匯出剪映草稿 (中文)
                         </button>
+
+                        {(audienceTheme === 'edtech' || ExtremeParsedGroups.some((g: any) => g.voiceover_ja)) && (
+                          <button 
+                            onClick={() => handleDownloadExtremePython('ja')}
+                            className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
+                            title="匯出日文旁白字幕軌道至剪映"
+                          >
+                            <Download className="w-4 h-4" />
+                            🇯🇵 匯出日文旁白草稿
+                          </button>
+                        )}
                         
                         <button 
                           onClick={async () => {
@@ -2866,6 +2884,12 @@ const handleLogin = async (e: React.FormEvent) => {
                                   </label>
                                   {g.localImage && <span className="text-[9px] text-emerald-500 font-bold">✅ 已載入</span>}
                                 </div>
+                                {g.voiceover_ja && (
+                                  <div className="mt-1 text-[9px] text-slate-600 bg-rose-50/80 p-1.5 rounded border border-rose-200/60 line-clamp-2" title={g.voiceover_ja}>
+                                    <span className="font-bold text-rose-600">🇯🇵 日文旁白：</span>
+                                    {g.voiceover_ja}
+                                  </div>
+                                )}
                               </div>
                               
                               <button

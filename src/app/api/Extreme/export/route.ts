@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { scenes, theme } = await req.json();
+    const { scenes, theme, lang } = await req.json();
 
     if (!scenes || !Array.isArray(scenes)) {
       return NextResponse.json({ error: 'Missing or invalid scenes data' }, { status: 400 });
@@ -10,45 +10,50 @@ export async function POST(req: Request) {
 
     const themeToFolderMap: Record<string, string> = {
       'fairy tales': '銘印童話',
-      'heritage': '文化傳承',
-      'beauty': '悅己美學',
-      'travelpreneur': '世界漫遊',
+      'heritage': '銘印傳承',
+      'beauty': '利己美學',
+      'travelpreneur': '世代漫遊',
       'food': '風味探索',
-      'pet': '寵物照護',
+      'pet': '寵物守護',
       'story': '銘印說書',
       'fintech': '財經知識',
-      'proposal': '企劃文案'
+      'proposal': '企劃文案',
+      'edtech': '教育科技',
+      'competition': '競賽企劃'
     };
 
+    const isJa = lang === 'ja';
     const folderName = themeToFolderMap[theme || ''] || 'Omniscript';
-    const draftPath = `C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/${folderName}/draft_content.json`;
 
-    // 這裡的 scenes 會包含每個畫格的時間軸與旁白資訊
-    // 我們將其寫死在 Python 腳本內，作為字典，與使用者資料夾中的圖檔配對
+    // 依據選擇語言 (中文 / 日文) 決定寫入剪映字幕軌道的旁白文字
     const scenesJson = JSON.stringify(scenes.map((s: any, idx: number) => ({
       id: idx + 1,
       title: s.title || `Scene ${idx + 1}`,
-      voiceover: s.poetry || s.voiceover || "",
+      voiceover: isJa ? (s.voiceover_ja || s.voiceover || s.poetry || "") : (s.voiceover || s.poetry || ""),
       caption: s.subTitle || s.caption || "",
     })), null, 4);
+
+    const draftPathJa = `C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/${folderName}_日文/draft_content.json`;
+    const draftPathDefault = `C:/Users/sunny/AppData/Local/JianyingPro/User Data/Projects/com.lveditor.draft/${folderName}/draft_content.json`;
 
     const pythonCode = `import json
 import os
 import uuid
 import glob
 import shutil
-import re  # 💡 就是這裡！必須載入這個模組才能處理數字排序
+import re
 
 # ==========================================
-# 剪映自動化草稿注入腳本 (純文字輸出修正版)
+# 剪映專業版草稿自動注入腳本 (${isJa ? '日文旁白版本' : '中文旁白版本'})
 # ==========================================
 
-DRAFT_PATH = "${draftPath}"
+DRAFT_PATH_JA = "${draftPathJa}"
+DRAFT_PATH_DEFAULT = "${draftPathDefault}"
+# 若為日文匯出且剪映存在「${folderName}_日文」草稿則優先寫入，否則寫入「${folderName}」
+DRAFT_PATH = DRAFT_PATH_JA if ("${isJa}" == "True" and os.path.exists(DRAFT_PATH_JA)) else DRAFT_PATH_DEFAULT
 
-
-# 💡 新增：定義自然排序的判斷規則
 def natural_sort_key(s):
-    """將字串拆分為文字與數字，讓數字以整數型態進行大小比較"""
+    """將字串切為文字與數字，讓數字以整數大小比較"""
     return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\\d+)', s)]
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,24 +61,21 @@ image_files = sorted(
     glob.glob(os.path.join(current_dir, "*.jpg"))
     + glob.glob(os.path.join(current_dir, "*.png"))
 )
-
-# 💡 修改：使用自訂的 natural_sort_key 來進行排序
 image_files = sorted(image_files, key=natural_sort_key)
 
 if not image_files:
-    print("❌ 在當前資料夾找不到任何 .jpg 或 .png 圖片！")
+    print("❌ 在當前資料夾找不到任何 .jpg 或 .png 圖檔！")
     exit()
 
-# 3. 從後端擷取的時間軸與旁白結構
 SCENES_DATA = ${scenesJson}
 
 def generate_ids():
-    """產生剪映所需要的隨機 UUID"""
     return str(uuid.uuid4()).upper(), str(uuid.uuid4()).upper()
 
 def inject_to_capcut(draft_path, images, scenes):
     if not os.path.exists(draft_path):
-        print(f"❌ 找不到剪映草稿檔案：{draft_path}")
+        print(f"❌ 找不到剪映草稿檔案: {draft_path}")
+        print("💡 請先在剪映專業版中建立名稱為【${folderName}】${isJa ? ' 或【' + folderName + '_日文】' : ''} 的空白草稿專案！")
         return
 
     with open(draft_path, "r", encoding="utf-8") as f:
@@ -95,12 +97,12 @@ def inject_to_capcut(draft_path, images, scenes):
     current_start_time = 0
     duration_per_scene = 30 * 1000000
 
-    print("🚀 開始注入本機圖片與純文字字卡至剪映草稿...")
+    print("🚀 正在注入${isJa ? '日文' : '中文'}素材圖片與旁白字卡到剪映草稿...")
 
     for index, (img_path, scene) in enumerate(zip(images, scenes)):
         duration_microsec = duration_per_scene
 
-        # --- 處理圖像 ---
+        # --- 圖片軌道 ---
         img_segment_id, img_material_id = generate_ids()
         photo_material = {
             "id": img_material_id,
@@ -131,7 +133,7 @@ def inject_to_capcut(draft_path, images, scenes):
         }
         image_track["segments"].append(image_segment)
 
-        # --- 處理文字 (直接填寫純文字) ---
+        # --- 文字軌道 (旁白字卡) ---
         voiceover_text = scene.get("voiceover", "")
         if voiceover_text:
             text_segment_id, text_material_id = generate_ids()
@@ -139,7 +141,6 @@ def inject_to_capcut(draft_path, images, scenes):
             text_material = {
                 "id": text_material_id,
                 "type": "text",
-                # 💡 這裡修改為：直接輸入純文字變數，去除所有 JSON 語法
                 "content": voiceover_text,
                 "words": [],
                 "text_to_audio_ids": [],
@@ -169,17 +170,19 @@ def inject_to_capcut(draft_path, images, scenes):
     with open(draft_path, "w", encoding="utf-8") as f:
         json.dump(draft, f, ensure_ascii=False, indent=4)
 
-    print("🎉 成功！純文字字卡已寫入。")
+    print("🎉 大功告成！${isJa ? '日文' : '中文'}旁白字卡與圖片已完美寫入剪映草稿！")
 
 if __name__ == "__main__":
     inject_to_capcut(DRAFT_PATH, image_files, SCENES_DATA)
 `;
 
+    const downloadFilename = isJa ? 'capcut_generator_ja.py' : 'capcut_generator.py';
+
     return new NextResponse(pythonCode, {
       status: 200,
       headers: {
         'Content-Type': 'text/x-python',
-        'Content-Disposition': 'attachment; filename="capcut_generator.py"'
+        'Content-Disposition': `attachment; filename="${downloadFilename}"`
       }
     });
 
