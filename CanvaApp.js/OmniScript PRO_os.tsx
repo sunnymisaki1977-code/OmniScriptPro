@@ -921,7 +921,7 @@ export default function App() {
 
     let usedCustomContextForStep1 = false;
     // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
-    if (customContext.trim() && isStepEmpty(1)) {
+    if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
@@ -1006,6 +1006,7 @@ export default function App() {
             step8: currentContextContents[8] || "",
             step9: currentContextContents[9] || "",
             step10: currentContextContents[10] || "",
+            customContext: customContext || "",
         };
 
         // 💡 依據環境決定生成方式

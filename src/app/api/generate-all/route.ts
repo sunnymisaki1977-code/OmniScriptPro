@@ -52,11 +52,12 @@ export async function POST(req: Request) {
       step3: existingData.step3 || existingData['3'] || "【缺乏 Step 3 資料】",
       step4: existingData.step4 || existingData['4'] || "【缺乏 Step 4 資料】",
       step5: existingData.step5 || existingData['5'] || "【缺乏 Step 5 資料】",
+      customContext: verifiedContext || existingData.customContext || customDocText || "",
     };
 
     let finalPrompt = "";
-    if (step.id === 1 && !verifiedContext) {
-      finalPrompt = step.prompt({ theme });
+    if (step.id === 1) {
+      finalPrompt = step.prompt(stepContext);
     } else {
       finalPrompt = `你現在是頂尖的企劃 AI 助理。請針對主題「${theme}」產出【步驟 ${step.id}：${step.title}】的內容。\n`;
       if (verifiedContext) {

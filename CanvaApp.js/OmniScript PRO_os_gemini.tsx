@@ -459,7 +459,7 @@ export default function App() {
     });
 
     try {
-        const response = await fetch('/api/Extreme/export', {
+        const response = await fetch('https://omni-script-pro.vercel.app/api/Extreme/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -823,12 +823,12 @@ export default function App() {
     setIsFetchingBenchmark(true);
     addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、全球資金指標)...', 'info');
     try {
-      const res = await fetch('/api/fintech/benchmark');
+      const res = await fetch('https://omni-script-pro.vercel.app/api/fintech/benchmark');
       const data = await res.json();
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
         if (!theme.trim()) {
-          setTheme('盤前觀戰與全球市場極速晨報');
+          setTheme('AI 宏觀風控與選股決策引擎');
         }
         addLog('✅ [盤前數據基準抓取完成] 已自動匯入自訂背景資料，可直接供 Step 1 生成盤前晨報！', 'success');
       } else {
@@ -877,7 +877,7 @@ export default function App() {
 
     let usedCustomContextForStep1 = false;
     // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
-    if (customContext.trim() && isStepEmpty(1)) {
+    if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
@@ -962,6 +962,7 @@ export default function App() {
             step8: currentContextContents[8] || "",
             step9: currentContextContents[9] || "",
             step10: currentContextContents[10] || "",
+            customContext: customContext || "",
         };
 
         // 💡 依據環境決定生成方式

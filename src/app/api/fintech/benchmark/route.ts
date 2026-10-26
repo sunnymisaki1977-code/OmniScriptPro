@@ -190,7 +190,11 @@ export async function GET() {
 4. 台指期夜盤最新收盤點位：${txData.close} (${txData.diffPercent}) (資料日期：${txData.dateStr})
 5. 全球資金指標：
    - 美國 10 年期國債殖利率：${fmtNum(results.us10y?.price, 3)}% (資料日期：${fmtDate(results.us10y?.dateStr)})
-   - 美元指數 (DXY)：${fmtNum(results.dxy?.price)} (資料日期：${fmtDate(results.dxy?.dateStr)})`;
+   - 美元指數 (DXY)：${fmtNum(results.dxy?.price)} (資料日期：${fmtDate(results.dxy?.dateStr)})
+6. 歷史庫存狀態：
+   - 今日總資產淨值 (NAV_tradable)：1,000,000,000 元 (預設10億，非首日請依實際更新)
+   - 今日初始可用現金：1,000,000,000 元 (非首日請依實際更新)
+   - 昨日持股明細：無 (首日建倉；若非首日請依格式列出：代碼-股數-成本)`;
 
     return NextResponse.json({
       success: true,
