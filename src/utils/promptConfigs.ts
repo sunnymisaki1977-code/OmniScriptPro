@@ -2951,20 +2951,45 @@ ${ctx.customContext ? `(請直接完整引用上方【系統預載之真實盤�
 **如果這是建倉首日，你的 orders 陣列必須剛好有 20 到 30 個獨立的 JSON 物件！**
 **嚴禁只寫前幾個就用 ... 省略！你今天打算買幾檔股票，這裡就必須有幾筆 {"stock_id": "...", "action": "BUY", "shares": ...} 的完整資料。如果陣列長度少於 20，你將立刻被取消參賽資格！**
 {
-  "submission_date": "${today}",
-  "fund_manager_rationale": {
-    "market_summary": "[大盤總評摘要]",
-    "risk_control_status": "[現金水位與 Active Share 狀態]"
+  "schema_version": "4.3",
+  "doc_type": "D-Plan",
+  "team_id": "TEAM_12006",
+  "trade_date": "${today}",
+  "sources": [ 
+    { "source_id": "S1", "authority": "media", "url": "https://example.com", "content_as_of": "${today}T05:00:00+08:00" } 
+  ],
+  "observations": [ 
+    { "obs_id": "O1", "source_ref": ["S1"], "statement": "市場總結", "values": { "metric": 0 } } 
+  ],
+  "market_view": {
+    "basis_refs": ["O1"],
+    "logic": "總體判斷...",
+    "regime": "neutral",
+    "stance": "neutral",
+    "posture": { "net_exposure_intent": "hold", "target_cash_pct_range": [0.05, 0.15] },
+    "counter_evidence": null
   },
+  "inferences": [ 
+    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "推導", "counter_evidence": null } 
+  ],
+  "decisions": [ 
+    { "decision_id": "D1", "ticker": "2330", "action": "BUY", "target_weight": 0.24, "inference_refs": ["I1"] } 
+  ],
+  "no_trade_decisions": [ 
+    { "ticker": "2317", "reason_refs": ["I1"], "reason": "未觸發再平衡" } 
+  ],
   "orders": [
-    {
-      "stock_id": "[4碼代號]",
-      "action": "[BUY 或 SELL，嚴禁出現 HOLD]",
-      "shares": [填入你上方算出的整數股數],
-      "reason": "[下單理由]"
-    }
-  ]
+    { "ticker": "2330", "side": "BUY", "shares": 10000, "decision_ref": "D1", "derivation_detail": "推導說明" }
+  ],
+  "agent_metadata": {
+    "model_provider": "google",
+    "model_version": "gemini-pro",
+    "run_started_at": "${today}T08:00:00+08:00",
+    "run_completed_at": "${today}T08:05:00+08:00",
+    "code_version": "v4.3"
+  }
 }
+
 
 ### 五、 帳戶真實庫存定錨 (Portfolio State)
 【🚨 庫存結算嚴格警告】：
