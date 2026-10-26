@@ -2875,8 +2875,8 @@ const now = new Date();
 4. 美國 10 年期國債殖利率與美元指數 (DXY)
 5. 今日決策個股即時報價 (限 150 大標的池)
 6. 歷史庫存狀態：
-   - 今日總資產淨值 (NAV_tradable)：${current_nav} 元
-   - 今日初始可用現金：${current_cash} 元
+   - 今日總資產淨值 (NAV_tradable)：{current_nav} 元
+   - 今日初始可用現金：{current_cash} 元
    ${inventoryState}
 
 你是一位嚴謹的 AI ETF 基金經理人。請依據玉山 AI CUP 最新《D-Plan 撰寫指南 v4.3》，產出包含報告與 JSON 的決策內容。
