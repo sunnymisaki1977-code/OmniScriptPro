@@ -32,7 +32,7 @@ const IMAGE_ENGINES = [
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -116,7 +116,7 @@ const geminiPayload = {
     }
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
-    const targetModel = isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite';
+    const targetModel = isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash';
     const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
     let aiResponse = await fetch(finalApiUrl, {
@@ -865,16 +865,19 @@ export default function App() {
   const [isFetchingBenchmark, setIsFetchingBenchmark] = useState(false);
   const handleFetchBenchmark = async () => {
     setIsFetchingBenchmark(true);
-    addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、全球資金指標)...', 'info');
+    addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、資金指標與 150 檔標的池報價)...', 'info');
     try {
-      const res = await fetch('/api/fintech/benchmark');
+      const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
+        ? '/api/fintech/benchmark'
+        : 'https://omni-script-pro.vercel.app/api/fintech/benchmark';
+      const res = await fetch(benchmarkUrl);
       const data = await res.json();
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
         if (!theme.trim()) {
-          setTheme('盤前觀戰與全球市場極速晨報');
+          setTheme('AI 宏觀風控與選股決策引擎');
         }
-        addLog('✅ [盤前數據基準抓取完成] 已自動匯入自訂背景資料，可直接供 Step 1 生成盤前晨報！', 'success');
+        addLog('✅ [盤前數據基準抓取完成] 已自動匯入宏觀指數與 150 檔標的池 T-1 真實收盤/最高價，可直接供 Step 1 生成決策！', 'success');
       } else {
         addLog('⚠️ 抓取盤前數據失敗: ' + (data.error || '無法取得數據'), 'error');
       }
@@ -1036,7 +1039,7 @@ export default function App() {
             const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
             // 🌟 動態選擇模型：Step 1 需要 Google Search 時，切換至 gemini-2.5-flash
-            const targetModel = (i === 1 && !safeStep1) ? 'gemini-2.5-flash' : 'gemini-2.5-flash-preview-09-2025';
+            const targetModel = (i === 1 && !safeStep1) ? 'gemini-2.5-flash' : 'gemini-3-flash-preview';
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -3204,7 +3207,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             const useProxy = !activeApiKey;
                             const geminiUrl = useProxy 
                               ? (process.env.NODE_ENV === 'production' ? 'https://omni-script-pro.vercel.app/api/proxy-generate' : '/api/proxy-generate')
-                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${activeApiKey}`;
                             
                             const payload = useProxy
                               ? { prompt: prompt }

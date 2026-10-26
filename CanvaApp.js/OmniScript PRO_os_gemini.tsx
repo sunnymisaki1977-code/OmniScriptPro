@@ -32,7 +32,7 @@ const IMAGE_ENGINES = [
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -821,16 +821,19 @@ export default function App() {
   const [isFetchingBenchmark, setIsFetchingBenchmark] = useState(false);
   const handleFetchBenchmark = async () => {
     setIsFetchingBenchmark(true);
-    addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、全球資金指標)...', 'info');
+    addLog('📊 正在抓取最新盤前數據基準 (美股四大指數、科技巨頭、台指期夜盤、資金指標與 150 檔標的池報價)...', 'info');
     try {
-      const res = await fetch('https://omni-script-pro.vercel.app/api/fintech/benchmark');
+      const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
+        ? '/api/fintech/benchmark'
+        : 'https://omni-script-pro.vercel.app/api/fintech/benchmark';
+      const res = await fetch(benchmarkUrl);
       const data = await res.json();
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
         if (!theme.trim()) {
           setTheme('AI 宏觀風控與選股決策引擎');
         }
-        addLog('✅ [盤前數據基準抓取完成] 已自動匯入自訂背景資料，可直接供 Step 1 生成盤前晨報！', 'success');
+        addLog('✅ [盤前數據基準抓取完成] 已自動匯入宏觀指數與 150 檔標的池 T-1 真實收盤/最高價，可直接供 Step 1 生成決策！', 'success');
       } else {
         addLog('⚠️ 抓取盤前數據失敗: ' + (data.error || '無法取得數據'), 'error');
       }
@@ -988,7 +991,7 @@ export default function App() {
             // 🌟 新增：本地端呼叫也需要注入時間錨點
             const localCurrentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -3108,7 +3111,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             
                             addLog(`[諸神解碼] 正在考證: ${name} (${i + 1}/${names.length})...`, 'info');
                             
-                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
                             
                             const res = await fetch(geminiUrl, {
                                 method: 'POST',
