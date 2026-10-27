@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       step3: existingData.step3 || existingData['3'] || "【缺乏 Step 3 資料】",
       step4: existingData.step4 || existingData['4'] || "【缺乏 Step 4 資料】",
       step5: existingData.step5 || existingData['5'] || "【缺乏 Step 5 資料】",
-      customContext: verifiedContext || existingData.customContext || customDocText || "",
+      customContext: existingData.customContext || customDocText || verifiedContext || "",
     };
 
     let finalPrompt = "";
