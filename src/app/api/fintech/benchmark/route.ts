@@ -29,6 +29,21 @@ interface StockQuote {
   dateStr?: string;
 }
 
+interface DPlanParsed {
+  tradeDate: string;
+  holdings: Array<{
+    ticker: string;
+    shares: number;
+    price: number;
+    cost: number;
+  }>;
+  totalCost: number;
+  remainingCash: number;
+  nav: number;
+  holdingsCount: number;
+  portfolioStr: string;
+}
+
 // 官方指定 150 檔合法標的池清單
 const OFFICIAL_150_STOCKS = [
   "2330", "2454", "2308", "2317", "3711", "2881", "2383", "2303", "2882", "3037",
@@ -58,270 +73,350 @@ const parseRocDate = (raw?: string) => {
   return clean;
 };
 
-export async function GET(request: Request) {
+function parseDPlanJson(data: any, customNav?: number): DPlanParsed | null {
   try {
-    const { searchParams } = new URL(request.url);
-    const queryType = searchParams.get('type');
-
-    const yahooSymbols: Record<string, string> = {
-      djia: '^DJI',
-      sp500: '^GSPC',
-      nasdaq: '^IXIC',
-      sox: '^SOX',
-      nvda: 'NVDA',
-      tsm: 'TSM',
-      aapl: 'AAPL',
-      taiex: '^TWII',
-      us10y: '^TNX',
-      dxy: 'DX-Y.NYB',
-    };
-
-    const results: Record<string, SymbolMeta> = {};
-
-    // 1. 平行抓取 Yahoo Finance 最新單日收盤價與單日漲跌幅 (range=1d)
-    const fetchYahooTask = Promise.all(
-      Object.entries(yahooSymbols).map(async ([key, sym]) => {
-        try {
-          const res = await fetch(
-            `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`,
-            {
-              headers: {
-                'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              },
-              cache: 'no-store',
-            }
-          );
-          if (!res.ok) return;
-          const data = await res.json();
-          const meta = data?.chart?.result?.[0]?.meta;
-          if (meta) {
-            const price = meta.regularMarketPrice;
-            const diffPercent =
-              typeof meta.regularMarketChangePercent === 'number'
-                ? meta.regularMarketChangePercent
-                : typeof meta.fulldayChangePercent === 'number'
-                ? meta.fulldayChangePercent
-                : meta.chartPreviousClose
-                ? ((price - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
-                : 0;
-
-            const timestamp = meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now();
-
-            const dateStr =
-              key === 'taiex'
-                ? new Date(timestamp).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })
-                : new Date(timestamp).toLocaleDateString('zh-TW', { timeZone: 'America/New_York' });
-
-            results[key] = {
-              price,
-              prevClose: meta.chartPreviousClose,
-              diffPercent,
-              dateStr,
-            };
-          }
-        } catch (e: any) {
-          console.warn(`[Benchmark API] Yahoo fetch failed for ${sym}:`, e.message);
-        }
-      })
-    );
-
-    // 2. 抓取台灣期貨交易所 (TAIFEX) 台指期夜盤最新收盤點位
-    let txData = {
-      close: '46,975',
-      diffPercent: '+1.37%',
-      dateStr: new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }),
-    };
-
-    const fetchTaifexTask = (async () => {
+    if (!data) return null;
+    let parsed = data;
+    if (typeof data === 'string') {
       try {
-        const res = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-          body: 'queryType=2&marketCode=1&commodity_id=TX',
-          cache: 'no-store',
-        });
+        parsed = JSON.parse(data);
+      } catch {
+        return null;
+      }
+    }
+    const orders = Array.isArray(parsed.orders) ? parsed.orders : [];
+    if (orders.length === 0) return null;
 
-        if (res.ok) {
-          const html = await res.text();
-          const dateMatch = html.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
-          const dateStr = dateMatch
-            ? dateMatch[1]
-            : new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
+    const nav = typeof customNav === 'number' && customNav > 0 ? customNav : 1000000000;
+    let totalCost = 0;
+    const holdings: Array<{ ticker: string; shares: number; price: number; cost: number }> = [];
+    const portfolioParts: string[] = [];
 
-          const rows = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi);
-          let found = false;
-          for (const r of rows || []) {
-            const text = r.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-            if (text.startsWith('TX 202')) {
-              const parts = text.split(' ');
-              if (parts.length >= 8 && parts[5] && parts[5] !== '-') {
-                txData = {
-                  close: parts[5],
-                  diffPercent: parts[7] || '+0.00%',
-                  dateStr: dateStr,
-                };
-                found = true;
-                break;
-              }
+    for (const order of orders) {
+      const ticker = String(order.ticker || order.stock_id || '').trim();
+      const shares = Number(order.shares) || 0;
+      if (!ticker || shares <= 0) continue;
+
+      let price = 0;
+      if (typeof order.derivation_detail === 'string') {
+        const match = order.derivation_detail.match(/\/\s*([0-9.]+)\s*\/\s*1000/);
+        if (match && match[1]) {
+          price = parseFloat(match[1]);
+        }
+      }
+      if (!price && typeof order.price === 'number') price = order.price;
+      if (!price && typeof order.cost === 'number') price = order.cost;
+
+      const cost = price > 0 ? shares * price : 0;
+      totalCost += cost;
+
+      holdings.push({ ticker, shares, price, cost });
+      portfolioParts.push(`${ticker}-${shares}-${price || '--'}`);
+    }
+
+    const remainingCash = Math.max(0, nav - totalCost);
+
+    return {
+      tradeDate: parsed.trade_date || '',
+      holdings,
+      totalCost,
+      remainingCash,
+      nav,
+      holdingsCount: holdings.length,
+      portfolioStr: portfolioParts.join(', '),
+    };
+  } catch (e) {
+    console.error('[Benchmark API] Error parsing D-Plan JSON:', e);
+    return null;
+  }
+}
+
+async function generateBenchmarkResponse(options: {
+  queryType?: string | null;
+  dplan?: any;
+  customPortfolioStr?: string;
+  customCash?: number;
+  customNav?: number;
+}) {
+  const { queryType, dplan, customPortfolioStr, customCash, customNav } = options;
+
+  const yahooSymbols: Record<string, string> = {
+    djia: '^DJI',
+    sp500: '^GSPC',
+    nasdaq: '^IXIC',
+    sox: '^SOX',
+    nvda: 'NVDA',
+    tsm: 'TSM',
+    aapl: 'AAPL',
+    taiex: '^TWII',
+    us10y: '^TNX',
+    dxy: 'DX-Y.NYB',
+  };
+
+  const results: Record<string, SymbolMeta> = {};
+
+  // 1. 平行抓取 Yahoo Finance 最新單日收盤價與單日漲跌幅 (range=1d)
+  const fetchYahooTask = Promise.all(
+    Object.entries(yahooSymbols).map(async ([key, sym]) => {
+      try {
+        const res = await fetch(
+          `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`,
+          {
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+            cache: 'no-store',
+          }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const meta = data?.chart?.result?.[0]?.meta;
+        if (meta) {
+          const price = meta.regularMarketPrice;
+          const diffPercent =
+            typeof meta.regularMarketChangePercent === 'number'
+              ? meta.regularMarketChangePercent
+              : typeof meta.fulldayChangePercent === 'number'
+              ? meta.fulldayChangePercent
+              : meta.chartPreviousClose
+              ? ((price - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+              : 0;
+
+          const timestamp = meta.regularMarketTime ? meta.regularMarketTime * 1000 : Date.now();
+
+          const dateStr =
+            key === 'taiex'
+              ? new Date(timestamp).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' })
+              : new Date(timestamp).toLocaleDateString('zh-TW', { timeZone: 'America/New_York' });
+
+          results[key] = {
+            price,
+            prevClose: meta.chartPreviousClose,
+            diffPercent,
+            dateStr,
+          };
+        }
+      } catch (e: any) {
+        console.warn(`[Benchmark API] Yahoo fetch failed for ${sym}:`, e.message);
+      }
+    })
+  );
+
+  // 2. 抓取台灣期貨交易所 (TAIFEX) 台指期夜盤最新收盤點位
+  let txData = {
+    close: '46,975',
+    diffPercent: '+1.37%',
+    dateStr: new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }),
+  };
+
+  const fetchTaifexTask = (async () => {
+    try {
+      const res = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+        body: 'queryType=2&marketCode=1&commodity_id=TX',
+        cache: 'no-store',
+      });
+
+      if (res.ok) {
+        const html = await res.text();
+        const dateMatch = html.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
+        const dateStr = dateMatch
+          ? dateMatch[1]
+          : new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
+
+        const rows = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi);
+        let found = false;
+        for (const r of rows || []) {
+          const text = r.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+          if (text.startsWith('TX 202')) {
+            const parts = text.split(' ');
+            if (parts.length >= 8 && parts[5] && parts[5] !== '-') {
+              txData = {
+                close: parts[5],
+                diffPercent: parts[7] || '+0.00%',
+                dateStr: dateStr,
+              };
+              found = true;
+              break;
             }
           }
+        }
 
-          if (!found) {
-            const dayRes = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              },
-              body: 'queryType=2&marketCode=0&commodity_id=TX',
-              cache: 'no-store',
-            });
-            if (dayRes.ok) {
-              const dayHtml = await dayRes.text();
-              const dayDateMatch = dayHtml.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
-              const dayRows = dayHtml.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi);
-              for (const r of dayRows || []) {
-                const text = r.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-                if (text.startsWith('TX 202')) {
-                  const parts = text.split(' ');
-                  if (parts.length >= 8 && parts[5] && parts[5] !== '-') {
-                    txData = {
-                      close: parts[5],
-                      diffPercent: parts[7] || '+0.00%',
-                      dateStr: dayDateMatch ? dayDateMatch[1] : dateStr,
-                    };
-                    break;
-                  }
+        if (!found) {
+          const dayRes = await fetch('https://www.taifex.com.tw/cht/3/futDailyMarketReport', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+            body: 'queryType=2&marketCode=0&commodity_id=TX',
+            cache: 'no-store',
+          });
+          if (dayRes.ok) {
+            const dayHtml = await dayRes.text();
+            const dayDateMatch = dayHtml.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
+            const dayRows = dayHtml.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi);
+            for (const r of dayRows || []) {
+              const text = r.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+              if (text.startsWith('TX 202')) {
+                const parts = text.split(' ');
+                if (parts.length >= 8 && parts[5] && parts[5] !== '-') {
+                  txData = {
+                    close: parts[5],
+                    diffPercent: parts[7] || '+0.00%',
+                    dateStr: dayDateMatch ? dayDateMatch[1] : dateStr,
+                  };
+                  break;
                 }
               }
             }
           }
         }
-      } catch (e: any) {
-        console.warn('[Benchmark API] TAIFEX fetch failed:', e.message);
       }
-    })();
-
-    // 3. 抓取台灣 150 檔標的池最新報價 (上市 TWSE + 上櫃 TPEx)
-    const stockMap = new Map<string, StockQuote>();
-    let stockDateStr = '';
-
-    const fetchStocksTask = (async () => {
-      try {
-        const [twseRes, tpexRes] = await Promise.all([
-          fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL', {
-            headers: {
-              'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-            cache: 'no-store',
-          })
-            .then((r) => (r.ok ? r.json() : []))
-            .catch(() => []),
-          fetch('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_quotes', {
-            headers: {
-              'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-            cache: 'no-store',
-          })
-            .then((r) => (r.ok ? r.json() : []))
-            .catch(() => []),
-        ]);
-
-        for (const item of twseRes || []) {
-          if (item?.Code) {
-            const date = parseRocDate(item.Date);
-            if (date && !stockDateStr) stockDateStr = date;
-            stockMap.set(item.Code, {
-              code: item.Code,
-              name: item.Name?.trim() || '',
-              close: parseFloat(item.ClosingPrice) || 0,
-              high: parseFloat(item.HighestPrice) || 0,
-              change: parseFloat(item.Change) || 0,
-              dateStr: date,
-            });
-          }
-        }
-
-        for (const item of tpexRes || []) {
-          const code = item?.SecuritiesCompanyCode;
-          if (code) {
-            const date = parseRocDate(item.Date);
-            if (date && !stockDateStr) stockDateStr = date;
-            stockMap.set(code, {
-              code,
-              name: item.CompanyName?.trim() || '',
-              close: parseFloat(item.Close) || 0,
-              high: parseFloat(item.High) || 0,
-              change: parseFloat(item.Change) || 0,
-              dateStr: date,
-            });
-          }
-        }
-      } catch (e: any) {
-        console.warn('[Benchmark API] TWSE/TPEx fetch failed:', e.message);
-      }
-    })();
-
-    // 平行執行所有資料源查詢
-    await Promise.all([fetchYahooTask, fetchTaifexTask, fetchStocksTask]);
-
-    // 整理 150 檔標的池清單
-    const stockResults: StockQuote[] = [];
-    const stockLines: string[] = [];
-    for (const code of OFFICIAL_150_STOCKS) {
-      const s = stockMap.get(code);
-      if (s) {
-        stockResults.push(s);
-        const chgSign = s.change > 0 ? `+${s.change}` : `${s.change}`;
-        stockLines.push(`${s.code} ${s.name}: 收${s.close}/最高${s.high} (${chgSign})`);
-      } else {
-        stockLines.push(`${code}: N/A`);
-      }
+    } catch (e: any) {
+      console.warn('[Benchmark API] TAIFEX fetch failed:', e.message);
     }
-    const stocksFormattedStr = stockLines.join(' | ');
+  })();
 
-    // 若呼叫端指定只要個股清單
-    if (queryType === 'stocks') {
-      return setCorsHeaders(
-        NextResponse.json({
-          success: true,
-          count: stockResults.length,
-          date: stockDateStr || new Date().toLocaleDateString('zh-TW'),
-          stocks: stockResults,
-          formatted: stocksFormattedStr,
+  // 3. 抓取台灣 150 檔標的池最新報價 (上市 TWSE + 上櫃 TPEx)
+  const stockMap = new Map<string, StockQuote>();
+  let stockDateStr = '';
+
+  const fetchStocksTask = (async () => {
+    try {
+      const [twseRes, tpexRes] = await Promise.all([
+        fetch('https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL', {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+          cache: 'no-store',
         })
-      );
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => []),
+        fetch('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_quotes', {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+          cache: 'no-store',
+        })
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => []),
+      ]);
+
+      for (const item of twseRes || []) {
+        if (item?.Code) {
+          const date = parseRocDate(item.Date);
+          if (date && !stockDateStr) stockDateStr = date;
+          stockMap.set(item.Code, {
+            code: item.Code,
+            name: item.Name?.trim() || '',
+            close: parseFloat(item.ClosingPrice) || 0,
+            high: parseFloat(item.HighestPrice) || 0,
+            change: parseFloat(item.Change) || 0,
+            dateStr: date,
+          });
+        }
+      }
+
+      for (const item of tpexRes || []) {
+        const code = item?.SecuritiesCompanyCode;
+        if (code) {
+          const date = parseRocDate(item.Date);
+          if (date && !stockDateStr) stockDateStr = date;
+          stockMap.set(code, {
+            code,
+            name: item.CompanyName?.trim() || '',
+            close: parseFloat(item.Close) || 0,
+            high: parseFloat(item.High) || 0,
+            change: parseFloat(item.Change) || 0,
+            dateStr: date,
+          });
+        }
+      }
+    } catch (e: any) {
+      console.warn('[Benchmark API] TWSE/TPEx fetch failed:', e.message);
     }
+  })();
 
-    // 格式化輔助函數
-    const fmtPct = (pct?: number | string) => {
-      if (pct === undefined || pct === null) return '0.00%';
-      if (typeof pct === 'string') return pct;
-      const sign = pct > 0 ? '+' : '';
-      return `${sign}${pct.toFixed(2)}%`;
-    };
+  // 平行執行所有資料源查詢
+  await Promise.all([fetchYahooTask, fetchTaifexTask, fetchStocksTask]);
 
-    const fmtNum = (num?: number, digits = 2) => {
-      if (num === undefined || num === null || isNaN(num)) return '--';
-      return num.toLocaleString('en-US', {
-        minimumFractionDigits: digits,
-        maximumFractionDigits: digits,
-      });
-    };
+  // 整理 150 檔標的池清單
+  const stockResults: StockQuote[] = [];
+  const stockLines: string[] = [];
+  for (const code of OFFICIAL_150_STOCKS) {
+    const s = stockMap.get(code);
+    if (s) {
+      stockResults.push(s);
+      const chgSign = s.change > 0 ? `+${s.change}` : `${s.change}`;
+      stockLines.push(`${s.code} ${s.name}: 收${s.close}/最高${s.high} (${chgSign})`);
+    } else {
+      stockLines.push(`${code}: N/A`);
+    }
+  }
+  const stocksFormattedStr = stockLines.join(' | ');
 
-    const fmtDate = (d?: string) => d || new Date().toLocaleDateString('zh-TW');
-    const finalStockDate = stockDateStr || fmtDate(results.taiex?.dateStr);
+  // 若呼叫端指定只要個股清單
+  if (queryType === 'stocks') {
+    return setCorsHeaders(
+      NextResponse.json({
+        success: true,
+        count: stockResults.length,
+        date: stockDateStr || new Date().toLocaleDateString('zh-TW'),
+        stocks: stockResults,
+        formatted: stocksFormattedStr,
+      })
+    );
+  }
 
-    // 依使用者需求嚴格組合指定格式 (六大核心區塊，嚴格無縫定錨)
-    const formatted = `1. 隔夜美股四大指數最新收盤點位與漲跌幅：
+  // 格式化輔助函數
+  const fmtPct = (pct?: number | string) => {
+    if (pct === undefined || pct === null) return '0.00%';
+    if (typeof pct === 'string') return pct;
+    const sign = pct > 0 ? '+' : '';
+    return `${sign}${pct.toFixed(2)}%`;
+  };
+
+  const fmtNum = (num?: number, digits = 2) => {
+    if (num === undefined || num === null || isNaN(num)) return '--';
+    return num.toLocaleString('en-US', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    });
+  };
+
+  const fmtDate = (d?: string) => d || new Date().toLocaleDateString('zh-TW');
+  const finalStockDate = stockDateStr || fmtDate(results.taiex?.dateStr);
+
+  // 解析昨日持股 (若有提供 D-Plan JSON 或持股明細)
+  const parsedHoldings = dplan ? parseDPlanJson(dplan, customNav) : null;
+
+  const item6 = parsedHoldings
+    ? `6. 歷史庫存狀態：
+   - 今日總資產淨值 (NAV_tradable)：${fmtNum(parsedHoldings.nav, 0)} 元
+   - 今日初始可用現金：${fmtNum(parsedHoldings.remainingCash, 0)} 元
+   - 昨日持股明細：${parsedHoldings.portfolioStr} (共 ${parsedHoldings.holdingsCount} 檔)`
+    : (customPortfolioStr
+      ? `6. 歷史庫存狀態：
+   - 今日總資產淨值 (NAV_tradable)：1,000,000,000 元
+   - 今日初始可用現金：${fmtNum(customCash || 33616150, 0)} 元
+   - 昨日持股明細：${customPortfolioStr}`
+      : `6. 歷史庫存狀態：
+   - 今日總資產淨值 (NAV_tradable)：1,000,000,000 元 (預設10億，非首日請依實際更新)
+   - 今日初始可用現金：1,000,000,000 元 (非首日請依實際更新)
+   - 昨日持股明細：無 (首日建倉；若非首日請依格式列出：代碼-股數-成本)`);
+
+  // 依需求嚴格組合 6 大核心區塊
+  const formatted = `1. 隔夜美股四大指數最新收盤點位與漲跌幅：
    - 道瓊 (DJIA)：${fmtNum(results.djia?.price)} (${fmtPct(results.djia?.diffPercent)}) (資料日期：${fmtDate(results.djia?.dateStr)})
    - 標普 (S&P 500)：${fmtNum(results.sp500?.price)} (${fmtPct(results.sp500?.diffPercent)}) (資料日期：${fmtDate(results.sp500?.dateStr)})
    - 那斯達克 (Nasdaq)：${fmtNum(results.nasdaq?.price)} (${fmtPct(results.nasdaq?.diffPercent)}) (資料日期：${fmtDate(results.nasdaq?.dateStr)})
@@ -338,24 +433,66 @@ export async function GET(request: Request) {
    - 美元指數 (DXY)：${fmtNum(results.dxy?.price)} (資料日期：${fmtDate(results.dxy?.dateStr)})
 5. 今日決策個股即時報價 (限 150 大標的池真實 T-1 收盤價與最高價，資料日期：${finalStockDate})：
    ${stocksFormattedStr}
-6. 歷史庫存狀態：
-   - 今日總資產淨值 (NAV_tradable)：1,000,000,000 元 (預設10億，非首日請依實際更新)
-   - 今日初始可用現金：1,000,000,000 元 (非首日請依實際更新)
-   - 昨日持股明細：無 (首日建倉；若非首日請依格式列出：代碼-股數-成本)`;
+${item6}`;
 
-    return setCorsHeaders(
-      NextResponse.json({
-        success: true,
-        formatted,
-        raw: {
-          results,
-          txData,
-          stocks: stockResults,
-        },
-      })
-    );
+  return setCorsHeaders(
+    NextResponse.json({
+      success: true,
+      formatted,
+      raw: {
+        results,
+        txData,
+        stocks: stockResults,
+        holdings: parsedHoldings,
+      },
+    })
+  );
+}
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const queryType = searchParams.get('type');
+    const customPortfolioStr = searchParams.get('portfolio') || undefined;
+    const customCash = searchParams.get('cash') ? parseFloat(searchParams.get('cash')!) : undefined;
+    const customNav = searchParams.get('nav') ? parseFloat(searchParams.get('nav')!) : undefined;
+
+    return await generateBenchmarkResponse({
+      queryType,
+      customPortfolioStr,
+      customCash,
+      customNav,
+    });
   } catch (error: any) {
     console.error('[Benchmark API] Error:', error);
+    return setCorsHeaders(
+      NextResponse.json(
+        {
+          success: false,
+          error: error.message || '未知錯誤',
+        },
+        { status: 500 }
+      )
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const dplan = body.dplan || (body.orders ? body : undefined);
+    const customPortfolioStr = body.portfolio || undefined;
+    const customCash = typeof body.cash === 'number' ? body.cash : undefined;
+    const customNav = typeof body.nav === 'number' ? body.nav : undefined;
+
+    return await generateBenchmarkResponse({
+      dplan,
+      customPortfolioStr,
+      customCash,
+      customNav,
+    });
+  } catch (error: any) {
+    console.error('[Benchmark API POST] Error:', error);
     return setCorsHeaders(
       NextResponse.json(
         {

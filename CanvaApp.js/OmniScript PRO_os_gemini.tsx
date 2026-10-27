@@ -289,6 +289,9 @@ export default function App() {
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
    const [showTopicSelectorModal, setShowTopicSelectorModal] = useState(false);
+  const [showDPlanModal, setShowDPlanModal] = useState(false);
+  const [dplanInput, setDplanInput] = useState('');
+  const [isImportingDPlan, setIsImportingDPlan] = useState(false);
    const [generatingTopic, setGeneratingTopic] = useState(false);
    const [generatedTopics, setGeneratedTopics] = useState<string[]>([]);
    const [pendingAction, setPendingAction] = useState<any>(null);
@@ -508,7 +511,7 @@ export default function App() {
       let aspectRatio = "1:1";
       if (visualStep === 6 || visualStep === 8) aspectRatio = "16:9";
       if (visualStep === 7) aspectRatio = "9:16";
-      if (visualStep === 10) aspectRatio = "4:3";
+      if (visualStep === 10) aspectRatio = "16:9";
       
       let base64 = "";
       const finalPromptWithStyle = prompt + (currentImageStyle ? currentImageStyle.promptSuffix : "");
@@ -826,7 +829,18 @@ export default function App() {
       const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
         ? '/api/fintech/benchmark'
         : 'https://omni-script-pro.vercel.app/api/fintech/benchmark';
-      const res = await fetch(benchmarkUrl);
+      
+      const hasDPlan = customContext.includes('"orders"') || customContext.includes('"doc_type"');
+      let res;
+      if (hasDPlan) {
+        res = await fetch(benchmarkUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dplan: customContext }),
+        });
+      } else {
+        res = await fetch(benchmarkUrl);
+      }
       const data = await res.json();
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
@@ -837,10 +851,42 @@ export default function App() {
       } else {
         addLog('⚠️ 抓取盤前數據失敗: ' + (data.error || '無法取得數據'), 'error');
       }
-    } catch (err) {
+    } catch (err: any) {
       addLog('❌ 盤前數據連線異常: ' + err.message, 'error');
     } finally {
       setIsFetchingBenchmark(false);
+    }
+  };
+
+  const handleImportDPlan = async () => {
+    if (!dplanInput.trim()) return;
+    setIsImportingDPlan(true);
+    addLog('📊 正在解析昨日 D-Plan 持股並抓取今日最新盤前基準...', 'info');
+    try {
+      const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
+        ? '/api/fintech/benchmark'
+        : 'https://omni-script-pro.vercel.app/api/fintech/benchmark';
+      const res = await fetch(benchmarkUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dplan: dplanInput }),
+      });
+      const data = await res.json();
+      if (data.success && data.formatted) {
+        setCustomContext(data.formatted);
+        setTheme('AI 宏觀風控與選股決策引擎');
+        setShowDPlanModal(false);
+        setDplanInput('');
+        const count = data.raw?.holdings?.holdingsCount || 0;
+        const cash = data.raw?.holdings?.remainingCash ? (data.raw.holdings.remainingCash / 10000).toLocaleString('zh-TW', { maximumFractionDigits: 0 }) : '--';
+        addLog(`✅ [昨日 D-Plan 匯入成功] 已解析 ${count} 檔昨日持股（可用現金約 ${cash} 萬），並已自動更新今日盤前數據基準！可直接執行 Step 1 決策生成！`, 'success');
+      } else {
+        addLog('⚠️ 解析失敗: ' + (data.error || '無法解析 D-Plan JSON'), 'error');
+      }
+    } catch (err: any) {
+      addLog('❌ 匯入連線異常: ' + err.message, 'error');
+    } finally {
+      setIsImportingDPlan(false);
     }
   };
 
@@ -1113,8 +1159,8 @@ export default function App() {
 
   const handleStartAuto = () => {
  
-  if (customContext.length > 5000) {
-    safeAlert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+  if (customContext.length > 50000) {
+    safeAlert(`字數總和 (${customContext.length} 字) 超過 50000 字上限，請刪減內容後再執行！`);
     return;
   }
   if (!theme.trim() && !customContext.trim()) {
@@ -1138,8 +1184,8 @@ export default function App() {
   isResumeIntentRef.current = false;
 };
   const startManualWorkspace = () => {
-    if (customContext.length > 5000) {
-      safeAlert(`字數總和 (${customContext.length} 字) 超過 5000 字上限，請刪減內容後再執行！`);
+    if (customContext.length > 50000) {
+      safeAlert(`字數總和 (${customContext.length} 字) 超過 50000 字上限，請刪減內容後再執行！`);
       return;
     }
     if (!theme.trim() && !customContext.trim()) {
@@ -1178,9 +1224,9 @@ export default function App() {
     const appendText = (text: string) => {
       setCustomContext((prev: string) => {
         const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 5000) {
-          addLog(`[Warning] 檔案 ${file.name} 內容已匯入並截斷至 5000 字上限。`, 'warning');
-          return newText.substring(0, 5000);
+        if (newText.length > 50000) {
+          addLog(`[Warning] 檔案 ${file.name} 內容已匯入並截斷至 50000 字上限。`, 'warning');
+          return newText.substring(0, 50000);
         }
         addLog(`[System] 已成功解析並匯入文件：${file.name}`, 'success');
         return newText;
@@ -1259,10 +1305,35 @@ export default function App() {
         appendText(result.data.text);
 
       } else {
-        // TXT, CSV, MD
+        // TXT, CSV, MD, JSON
         const reader = new FileReader();
-        reader.onload = (event: any) => {
-          appendText(event.target.result);
+        reader.onload = async (event: any) => {
+          const text = event.target.result;
+          if (typeof text === 'string' && (text.includes('"orders"') || text.includes('"doc_type"'))) {
+            addLog(`[System] 偵測到 D-Plan 交易書 JSON (${file.name})，正在解析持股並自動整合今日盤前基準...`, 'info');
+            try {
+              const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
+                ? '/api/fintech/benchmark'
+                : 'https://omni-script-pro.vercel.app/api/fintech/benchmark';
+              const res = await fetch(benchmarkUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dplan: text }),
+              });
+              const data = await res.json();
+              if (data.success && data.formatted) {
+                setCustomContext(data.formatted);
+                setTheme('AI 宏觀風控與選股決策引擎');
+                const count = data.raw?.holdings?.holdingsCount || 0;
+                const cash = data.raw?.holdings?.remainingCash ? (data.raw.holdings.remainingCash / 10000).toLocaleString('zh-TW', { maximumFractionDigits: 0 }) : '--';
+                addLog(`✅ [昨日 D-Plan 匯入完成] 已成功解析 ${count} 檔昨日持股（可用現金約 ${cash} 萬）並自動整合盤前基準！`, 'success');
+                return;
+              }
+            } catch (err: any) {
+              console.error(err);
+            }
+          }
+          appendText(text);
         };
         reader.readAsText(file);
       }
@@ -1626,7 +1697,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             <option value={6}>{STEPS.find(s => s.id === 6)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 6)?.name || '橫幅縮圖 (YouTube / FB)'}</option>
                             <option value={7}>{STEPS.find(s => s.id === 7)?.aspectRatio || '9:16'} - {STEPS.find(s => s.id === 7)?.name || '短片直式封面 (Shorts / Reels)'}</option>
                             <option value={8}>{STEPS.find(s => s.id === 8)?.aspectRatio || '16:9'} - {STEPS.find(s => s.id === 8)?.name || '意象圖 / 海報'}</option>
-                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '1:1 / 4:3'} - {STEPS.find(s => s.id === 10)?.name || '社群推播 / 視覺素材'}</option>
+                            <option value={10}>{STEPS.find(s => s.id === 10)?.aspectRatio || '16:9 / 9:16'} - {STEPS.find(s => s.id === 10)?.name || '社群推播 / 視覺素材'}</option>
                           </select>
                         </div>
 
@@ -1951,19 +2022,19 @@ const handleLogin = async (e: React.FormEvent) => {
                           <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200 shadow-sm" title="支援 txt, md, csv, pdf, docx, 圖片">
                             <UploadCloud className="w-3 h-3" />
                             <span>上傳文件/圖片擷取文字</span>
-                            <input type="file" accept=".txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" onChange={handleFileUpload} />
+                            <input type="file" accept=".json,.txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" onChange={handleFileUpload} />
                           </label>
                       </div>
                       <div className="relative">
                         <textarea
-                          maxLength={5000}
-                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
+                          maxLength={50000}
+                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 6000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
-                          className={`w-full bg-white border ${customContext.length >= 5000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
+                          className={`w-full bg-white border ${customContext.length >= 50000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
                         />
-                        <div className={`absolute bottom-2 right-3 text-[12px] font-mono ${customContext.length >= 5000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
-                          {customContext.length} / 5000
+                        <div className={`absolute bottom-2 right-3 text-[12px] font-mono ${customContext.length >= 50000 ? 'text-red-400 font-bold' : 'text-[#64748B]'}`}>
+                          {customContext.length} / 50000
                         </div>
                       </div>
                     </div>
@@ -3413,6 +3484,91 @@ const handleLogin = async (e: React.FormEvent) => {
           </div>
         </div>
       )}
+      {/* --- 匯入昨日 D-Plan / 持股 Modal --- */}
+      {showDPlanModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📥</span>
+                <h3 className="text-base font-bold text-slate-800">匯入昨日 D-Plan 交易書 / 持股明細</h3>
+              </div>
+              <button
+                onClick={() => setShowDPlanModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg text-lg"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="py-4 space-y-3 flex-1 overflow-y-auto">
+              <p className="text-xs text-slate-500">
+                請貼上昨日產出之完整 D-Plan JSON（含 orders / decisions），系統將自動解析昨日 20~25 檔持股明細、現金餘額與最新總資產淨值，並自動平行抓取最新國際盤前指標與 150 檔標的池報價！
+              </p>
+              
+              <div className="relative">
+                <textarea
+                  rows={10}
+                  placeholder="請在此貼上完整 D-Plan JSON，例如：
+{
+  &quot;schema_version&quot;: &quot;4.3&quot;,
+  &quot;doc_type&quot;: &quot;D-Plan&quot;,
+  &quot;orders&quot;: [
+    { &quot;ticker&quot;: &quot;2330&quot;, &quot;side&quot;: &quot;BUY&quot;, &quot;shares&quot;: 104000, ... }
+  ]
+}"
+                  value={dplanInput}
+                  onChange={(e) => setDplanInput(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono text-slate-800 focus:outline-none focus:border-indigo-500 shadow-inner resize-none custom-scrollbar"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium cursor-pointer transition-colors border border-slate-200">
+                  <span>📁 上傳 .json 檔案</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={async (e: any) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const text = await file.text();
+                        setDplanInput(text);
+                      }
+                    }}
+                  />
+                </label>
+                <span className="text-[11px] text-slate-400">支援 AI CUP D-Plan v4.3 官方格式</span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowDPlanModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+              >
+                取消
+              </button>
+              <button
+                disabled={isImportingDPlan || !dplanInput.trim()}
+                onClick={handleImportDPlan}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {isImportingDPlan ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>正在解析並整合盤前基準...</span>
+                  </>
+                ) : (
+                  <span>確認解析並整合今日盤前基準</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showTopicSelectorModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
