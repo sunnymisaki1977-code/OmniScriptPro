@@ -2956,7 +2956,7 @@ ${ctx.customContext}` : `1. 隔夜美股四大指數 (DJIA, S&P 500, Nasdaq, SOX
    - derivation_detail: 差額精算推導過程
 5. 【持股檔數限制】：結算後總持股檔數必須維持在 20-30 檔。
 6. 【🚨 結算持股陣列】：請在 JSON 中務必輸出 "settled_holdings" 陣列，逐一列出今日結算後的 20~30 檔完整持股（含 ticker, shares, price, weight），以供明日調倉自動無損載入！
-6. JSON 請直接從左大括號開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法如 code block 標籤！絕對禁止在 key 與 value 之間加入不合法的換行符號！
+7. JSON 請直接從左大括號開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法如 code block 標籤！絕對禁止在 key 與 value 之間加入不合法的換行符號！
 
 {
   "schema_version": "4.3",
