@@ -138,21 +138,23 @@ async function executeDPlanWorkflow() {
       {
         "obs_id": "O1",
         "source_ref": ["S3"],
-        "statement": "隔夜美股四大指數同步走揚，費城半導體大漲 3.36% (11,455.47 點)，科技巨頭輝達 (+1.07%) 與台積電 ADR (+2.98%) 強勢領漲。",
+        "statement": "隔夜美股四大指數同步收紅，費城半導體大漲 3.60% (11,482.51 點)，科技巨頭輝達收 217.94 美元 (+0.90%) 與台積電 ADR 收 436.87 美元 (+2.95%) 強勢領漲。",
         "values": {
-          "sox_change_pct": 0.0336,
-          "nvda_close": 218.31,
-          "tsm_adr_change_pct": 0.0298
+          "sox_close": 11482.51,
+          "sox_change_pct": 0.0360,
+          "nvda_close": 217.94,
+          "tsm_adr_close": 436.87,
+          "tsm_adr_change_pct": 0.0295
         }
       },
       {
         "obs_id": "O2",
         "source_ref": ["S1", "S2"],
-        "statement": "台股加權指數前日小漲 +0.12% 收在 46,096.23 點；台指期夜盤受到美債殖利率維持 4.995% 高檔影響回測 45,654 點，盤面呈現科技權值強、傳產金融整理之結構。",
+        "statement": "台股加權指數前日小漲 +0.12% 收在 46,096.23 點；台指期夜盤收在 46,975 點 (+1.37%)，美債殖利率維持 4.993%，盤面呈現科技權值走強之偏多架構。",
         "values": {
           "taiex_close": 46096.23,
-          "tx_night_close": 45654,
-          "us10y_yield": 4.995
+          "tx_night_close": 46975,
+          "us10y_yield": 4.993
         }
       }
     ],
