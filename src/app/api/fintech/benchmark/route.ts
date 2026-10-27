@@ -73,6 +73,24 @@ const parseRocDate = (raw?: string) => {
   return clean;
 };
 
+function sanitizeJsonString(raw: string): string {
+  let inString = false;
+  let result = '';
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (c === '"' && (i === 0 || raw[i - 1] !== '\\')) {
+      inString = !inString;
+      result += c;
+    } else if (inString && (c === '\n' || c === '\r' || c === '\t')) {
+      result += ' ';
+    } else {
+      result += c;
+    }
+  }
+  // 去除物件或陣列尾部的逗號
+  return result.replace(/,\s*([\]}])/g, '$1');
+}
+
 function parseDPlanJson(
   data: any,
   customNav?: number,
@@ -85,10 +103,11 @@ function parseDPlanJson(
 
     if (typeof data === 'string') {
       rawText = data.trim();
+      const sanitized = sanitizeJsonString(rawText);
       try {
-        parsed = JSON.parse(rawText);
+        parsed = JSON.parse(sanitized);
       } catch {
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        const jsonMatch = sanitized.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           try {
             parsed = JSON.parse(jsonMatch[0]);
@@ -97,6 +116,9 @@ function parseDPlanJson(
       }
     } else if (typeof data === 'object') {
       parsed = data;
+      try {
+        rawText = JSON.stringify(data);
+      } catch {}
     }
 
     const nav = typeof customNav === 'number' && customNav > 0 ? customNav : 1000000000;
@@ -208,6 +230,18 @@ function parseDPlanJson(
           const existing = holdingsMap.get(ticker) || { ticker, shares: 0, price: 0, cost: 0 };
           existing.shares = shares;
           holdingsMap.set(ticker, existing);
+        }
+      }
+    }
+
+    // 4.5 若仍無持股且有 rawText，使用 Regex 全文掃描所有 150 檔法定個股代碼
+    if (holdingsMap.size === 0 && rawText) {
+      const tickerRegex = /"ticker"\s*:\s*"([0-9]{4})"/g;
+      let m;
+      while ((m = tickerRegex.exec(rawText)) !== null) {
+        const code = m[1];
+        if (OFFICIAL_150_STOCKS.includes(code) && !holdingsMap.has(code)) {
+          holdingsMap.set(code, { ticker: code, shares: 0, price: 0, cost: 0 });
         }
       }
     }
