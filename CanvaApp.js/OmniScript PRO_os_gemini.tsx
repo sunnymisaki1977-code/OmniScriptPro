@@ -40,9 +40,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
      const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://omni-script-pro.vercel.app' 
       : '';   
-    const VERCEL_API_URL = typeof window !== 'undefined' && window.location.origin.includes('localhost')
-      ? '/api/generate-all'
-      : 'https://omni-script-pro.vercel.app/api/generate-all';
+    const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/generate-all';
 
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
@@ -53,7 +51,7 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
             existingData: context,
             audienceTheme,
             apiKey: apiKey,
-            returnPromptOnly: !!apiKey
+            returnPromptOnly: true
         })
     });
 
@@ -62,15 +60,6 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     }
 
     const vercelData = await promptResponse.json();
-    
-    // 如果使用者沒有提供 API Key，代表已經由 Vercel 後端（使用其環境變數）代為完成生成
-    if (!apiKey) {
-        if (!vercelData.success || !vercelData.output) {
-            throw new Error(vercelData.error || "Vercel 伺服器生成失敗 (可能未設定伺服器端 GEMINI_API_KEY)");
-        }
-        return vercelData.output;
-    }
-
     const finalPrompt = vercelData.prompt; 
     const responseSchema = vercelData.schema;
     const isSearchEnabled = vercelData.isSearchEnabled;

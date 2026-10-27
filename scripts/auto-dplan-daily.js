@@ -41,10 +41,12 @@ async function executeDPlanWorkflow() {
   const tradeDate = dataPack.trade_date || '2026-10-28';
   const teamId = dataPack.team_id || 'TEAM_12006';
   const openingCash = Math.floor(dataPack.account?.cash || 43133612);
-  const currentNav = 1000000000;
+  const currentNav = dataPack.account?.nav_tradable || 1000000000;
   const initialHoldings = dataPack.holdings || [];
+  const holdingsMap = new Map();
+  initialHoldings.forEach(h => holdingsMap.set(h.code, h));
 
-  log(`📊 開盤持股檔數: ${initialHoldings.length} 檔，初始可用現金: ${openingCash.toLocaleString()} 元`);
+  log(`📊 開盤持股檔數: ${initialHoldings.length} 檔，初始可用現金: ${openingCash.toLocaleString()} 元，官方結算淨值 NAV: ${currentNav.toLocaleString()} 元`);
 
   // 2. 抓取最終盤前基準行情
   let benchmarkData = null;
@@ -63,20 +65,38 @@ async function executeDPlanWorkflow() {
   }
 
   // 3. 委託精算與防透支現金平衡
-  // 調度決策：TRIM 1101 (-252,000股), TRIM 2002 (-267,000股), ADD 2382 (+13,000股), ADD 3711 (+8,000股)
-  const sellOrders = [
-    { ticker: '1101', shares: 252000, price: 28.1, target_weight: 0.0281 },
-    { ticker: '2002', shares: 267000, price: 19.75, target_weight: 0.0099 }
-  ];
-  const buyOrders = [
-    { ticker: '2382', shares: 13000, price: 327.5, target_weight: 0.0450 },
-    { ticker: '3711', shares: 8000, price: 651.0, target_weight: 0.0350 }
+  const decisions = [
+    { decision_id: "D1", ticker: "1101", action: "TRIM", target_weight: 0.0281, inference_refs: ["I1"] },
+    { decision_id: "D2", ticker: "2002", action: "TRIM", target_weight: 0.0099, inference_refs: ["I1"] },
+    { decision_id: "D3", ticker: "2382", action: "ADD", target_weight: 0.0450, inference_refs: ["I2"] },
+    { decision_id: "D4", ticker: "3711", action: "ADD", target_weight: 0.0350, inference_refs: ["I2"] }
   ];
 
+  const orders = [];
   let totalSellCash = 0;
-  sellOrders.forEach(o => totalSellCash += (o.shares * o.price));
   let totalBuyCash = 0;
-  buyOrders.forEach(o => totalBuyCash += (o.shares * o.price));
+
+  for (const d of decisions) {
+    const holding = holdingsMap.get(d.ticker);
+    const closePrice = holding ? holding.close_price : 100;
+    const prevShares = holding ? holding.shares : 0;
+    const targetShares = Math.floor((d.target_weight * currentNav) / closePrice / 1000) * 1000;
+    const delta = targetShares - prevShares;
+    const side = delta > 0 ? "BUY" : "SELL";
+    const shares = Math.abs(delta);
+    const cashDelta = shares * closePrice;
+
+    if (side === 'SELL') totalSellCash += cashDelta;
+    else totalBuyCash += cashDelta;
+
+    orders.push({
+      ticker: d.ticker,
+      side,
+      shares,
+      decision_ref: d.decision_id,
+      derivation_detail: `floor(${d.target_weight.toFixed(4)} * ${currentNav} / ${closePrice.toFixed(1)} / 1000) * 1000 = ${targetShares}; 原持有 ${prevShares} 股; 委託差額: ${side} ${shares} 股 (${side === 'SELL' ? '回收' : '耗資'} ${Math.round(cashDelta).toLocaleString()} 元)`
+    });
+  }
 
   const endingCash = openingCash + totalSellCash - totalBuyCash;
   const cashRatio = (endingCash / currentNav);
@@ -190,36 +210,7 @@ async function executeDPlanWorkflow() {
       { "ticker": "5880", "reason_refs": ["I1"], "reason": "金融防禦部位續抱" },
       { "ticker": "6669", "reason_refs": ["I2"], "reason": "高價 ASIC 雲端伺服器指標續抱" }
     ],
-    "orders": [
-      {
-        "ticker": "1101",
-        "side": "SELL",
-        "shares": 252000,
-        "decision_ref": "D1",
-        "derivation_detail": "floor(0.0281 * 1000000000 / 28.1 / 1000) * 1000 = 1000000; 原持有 1252000 股; 委託差額: SELL 252000 股 (回收 7,081,200 元)"
-      },
-      {
-        "ticker": "2002",
-        "side": "SELL",
-        "shares": 267000,
-        "decision_ref": "D2",
-        "derivation_detail": "floor(0.0099 * 1000000000 / 19.75 / 1000) * 1000 = 500000; 原持有 767000 股; 委託差額: SELL 267000 股 (回收 5,273,250 元)"
-      },
-      {
-        "ticker": "2382",
-        "side": "BUY",
-        "shares": 13000,
-        "decision_ref": "D3",
-        "derivation_detail": "floor(0.0450 * 1000000000 / 327.5 / 1000) * 1000 = 137000; 原持有 124000 股; 委託差額: BUY 13000 股 (耗資 4,257,500 元)"
-      },
-      {
-        "ticker": "3711",
-        "side": "BUY",
-        "shares": 8000,
-        "decision_ref": "D4",
-        "derivation_detail": "floor(0.0350 * 1000000000 / 651.0 / 1000) * 1000 = 53000; 原持有 45000 股; 委託差額: BUY 8000 股 (耗資 5,208,000 元)"
-      }
-    ],
+    "orders": orders,
     "agent_metadata": {
       "model_provider": "google",
       "model_version": "gemini-pro-antigravity",
