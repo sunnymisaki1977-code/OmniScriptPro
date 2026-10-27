@@ -1467,6 +1467,7 @@ export default function App() {
     try {
       const context = {
         theme: theme || "未命名企劃主題",
+        customContext: customContext || "",
         step1: stepContents[1] || "",
         step2: stepContents[2] || "",
         step3: stepContents[3] || "",
@@ -2360,6 +2361,26 @@ const handleLogin = async (e: React.FormEvent) => {
                           <FileText className="w-3.5 h-3.5" />
                           📄 匯出完整企劃 (.PDF)
                         </button>
+
+                        {audienceTheme === 'fintech' && (
+                          <>
+                            <button
+                              onClick={() => setShowDPlanModal(true)}
+                              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                              title="匯入昨日 D-Plan JSON，自動解析持股並整合盤前基準"
+                            >
+                              📥 匯入昨日持股
+                            </button>
+                            <button
+                              onClick={handleFetchBenchmark}
+                              disabled={isFetchingBenchmark}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                              title="重新抓取盤前數據基準"
+                            >
+                              {isFetchingBenchmark ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <span>🗂️ 盤前數據基準</span>}
+                            </button>
+                          </>
+                        )}
                         
                         {audienceTheme === 'heritage' && stepContents[1] && (
                           <button
