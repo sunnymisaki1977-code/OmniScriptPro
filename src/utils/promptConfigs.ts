@@ -2969,9 +2969,9 @@ ${ctx.customContext}` : `1. 隔夜美股四大指數 (DJIA, S&P 500, Nasdaq, SOX
    - shares: 差額股數 (|目標股數 - 目前持有股數|，必須是 1,000 的整數倍)
    - derivation_detail: 差額精算推導過程
 5. 【持股檔數限制】：結算後總持股檔數必須維持在 20-30 檔。
-6. 【🚨 sources 官方白名單與時區格式嚴格限制】：
+6. 【🚨 全局時間格式與 sources 官方白名單嚴格限制】：
    - authority 必須【只能是】下列其中之一：twse / tpex / taifex / mops / fininst / media / vendor / other（例如 Yahoo Finance、Bloomberg、財經新聞請填 "vendor" 或 "media"，絕對嚴禁自創 "yahoo_finance"！）。
-   - content_as_of 時間格式必須強制為台灣時間且結尾為 "+08:00"，嚴格符合正規表達式 ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?\+08:00$！絕對嚴禁使用 -04:00 或 Z！
+   - content_as_of 以及 agent_metadata.run_started_at、agent_metadata.run_completed_at 之所有時間格式，必須強制為台灣時間且結尾為 "+08:00"，嚴格符合正規表達式 ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?\+08:00$！絕對嚴禁使用 -04:00 或 UTC 的 "Z"！
 7. 【🚨 嚴禁輸出官方規格未定義之根欄位（生死線）】：JSON 最外層【絕對嚴禁】包含官方 schema 以外的自創欄位（例如最外層絕對不可輸出 settled_holdings，否則官方驗證器會直接報錯退件：✕ $root — 含規格未定義的欄位 settled_holdings）！
 8. JSON 請直接從左大括號開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法如 code block 標籤！絕對禁止在 key 與 value 之間加入不合法的換行符號！
 
