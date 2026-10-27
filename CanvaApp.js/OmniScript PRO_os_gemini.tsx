@@ -1980,6 +1980,13 @@ const handleLogin = async (e: React.FormEvent) => {
    {audienceTheme === 'fintech' && (
                         <div className="flex items-center gap-2 ml-2">
                           <button
+                            onClick={() => setShowDPlanModal(true)}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
+                            title="匯入昨日 D-Plan JSON，自動解析持股與現金並整合今日盤前基準"
+                          >
+                            <span>📥 匯入昨日持股</span>
+                          </button>
+                          <button
                             onClick={handleFetchBenchmark}
                             disabled={isFetchingBenchmark}
                             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
