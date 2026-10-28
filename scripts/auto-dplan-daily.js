@@ -66,10 +66,10 @@ async function executeDPlanWorkflow() {
 
   // 3. 委託精算與防透支現金平衡
   const decisions = [
-    { decision_id: "D1", ticker: "1101", action: "TRIM", target_weight: 0.0281, inference_refs: ["I1"] },
-    { decision_id: "D2", ticker: "2002", action: "TRIM", target_weight: 0.0099, inference_refs: ["I1"] },
-    { decision_id: "D3", ticker: "2382", action: "ADD", target_weight: 0.0450, inference_refs: ["I2"] },
-    { decision_id: "D4", ticker: "3711", action: "ADD", target_weight: 0.0350, inference_refs: ["I2"] }
+    { decision_id: "D1", ticker: "2886", action: "TRIM", target_weight: 0.0180, inference_refs: ["I1"] },
+    { decision_id: "D2", ticker: "5880", action: "TRIM", target_weight: 0.0150, inference_refs: ["I1"] },
+    { decision_id: "D3", ticker: "2345", action: "ADD", target_weight: 0.0250, inference_refs: ["I2"] },
+    { decision_id: "D4", ticker: "6669", action: "ADD", target_weight: 0.0250, inference_refs: ["I2"] }
   ];
 
   const orders = [];
@@ -119,98 +119,98 @@ async function executeDPlanWorkflow() {
         "source_id": "S1",
         "authority": "twse",
         "url": "https://www.twse.com.tw",
-        "content_as_of": "2026-10-27T13:30:00+08:00"
+        "content_as_of": "2026-10-28T13:30:00+08:00"
       },
       {
         "source_id": "S2",
         "authority": "taifex",
         "url": "https://www.taifex.com.tw",
-        "content_as_of": "2026-10-28T05:00:00+08:00"
+        "content_as_of": "2026-10-29T05:00:00+08:00"
       },
       {
         "source_id": "S3",
         "authority": "vendor",
         "url": "https://finance.yahoo.com",
-        "content_as_of": "2026-10-28T04:00:00+08:00"
+        "content_as_of": "2026-10-29T04:00:00+08:00"
       }
     ],
     "observations": [
       {
         "obs_id": "O1",
         "source_ref": ["S3"],
-        "statement": "隔夜美股四大指數同步收紅，費城半導體大漲 3.60% (11,482.51 點)，科技巨頭輝達收 217.94 美元 (+0.90%) 與台積電 ADR 收 436.87 美元 (+2.95%) 強勢領漲。",
+        "statement": "隔夜美股四大指數同步走揚，費城半導體續漲 +1.75% (11,684.00 點) 創歷史新高，台積電 ADR (+0.60%) 穩步攀升收 439.51 美元，輝達 (-1.18%) 呈現高檔強勢換手整理。",
         "values": {
-          "sox_close": 11482.51,
-          "sox_change_pct": 0.0360,
-          "nvda_close": 217.94,
-          "tsm_adr_close": 436.87,
-          "tsm_adr_change_pct": 0.0295
+          "sox_close": 11684.00,
+          "sox_change_pct": 0.0175,
+          "nvda_close": 215.38,
+          "tsm_adr_close": 439.51,
+          "tsm_adr_change_pct": 0.0060
         }
       },
       {
         "obs_id": "O2",
         "source_ref": ["S1", "S2"],
-        "statement": "台股加權指數前日小漲 +0.12% 收在 46,096.23 點；台指期夜盤收在 46,975 點 (+1.37%)，美債殖利率維持 4.993%，盤面呈現科技權值走強之偏多架構。",
+        "statement": "台股加權指數前日大漲 +2.16% 收在 47,035.58 點突破 47,000 點整數關卡；台指期夜盤微幅回測收在 47,121 點 (-0.27%)，美債殖利率維持 5.045%，盤面延續強勢多頭震盪架構。",
         "values": {
-          "taiex_close": 46096.23,
-          "tx_night_close": 46975,
-          "us10y_yield": 4.993
+          "taiex_close": 47035.58,
+          "tx_night_close": 47121,
+          "us10y_yield": 5.045
         }
       }
     ],
     "market_view": {
       "basis_refs": ["O1", "O2"],
-      "logic": "費半指數強勢突破帶動 AI 伺服器與半導體供應鏈重獲動能；然而台指夜盤回檔且美債殖利率逼近 5%，顯示資金高度集中於具備實質業績之 AI 龍頭，傳產原物料族群動能相對疲弱。操作姿態採中性偏主動配置，賣出傳產以釋放現金，並微幅加碼 AI 伺服器與先進封裝，現金水位嚴格維持在 4.6% 之防禦區間。",
+      "logic": "費半指數續創歷史新高突破 11,680 點，確立全球半導體與高階硬體多頭格局；然美債殖利率升至 5.045%，顯示資金將更嚴格集中於高毛利、高成長之利基型 AI 網通與高速運算領域。今日採取汰弱換強策略，調節動能相對遲緩之公股金融部位（兆豐金與合庫金），並將回收資金加碼配置於 800G 高階網通交換器龍頭智邦 (2345) 與 ASIC 伺服器指標緯穎 (6669)，結算現金維持 4.85% 防禦水位，Active Share 提升至 22% 以上。",
       "regime": "neutral",
       "stance": "neutral",
       "posture": {
         "net_exposure_intent": "hold",
         "target_cash_pct_range": [0.03, 0.08]
       },
-      "counter_evidence": "美國 10 年期美債殖利率升至 4.995% 可能壓抑新興市場資金風險偏好。"
+      "counter_evidence": "美國 10 年期美債殖利率微升至 5.045% 仍對高本益比個股帶來估值波動考驗。"
     },
     "inferences": [
       {
         "inf_id": "I1",
         "premise_refs": ["O1", "O2"],
-        "logic": "水泥建材與鋼鐵等傳產類股受大宗商品價格壓抑，資金效益偏低，應減碼調節以回收流動性資金。",
+        "logic": "公股金控獲利動能趨緩且受長天期公債殖利率攀升壓抑，宜減碼兆豐金與合庫金以釋放充裕流動性資金。",
         "counter_evidence": null
       },
       {
         "inf_id": "I2",
         "premise_refs": ["O1"],
-        "logic": "輝達與台積電先進封裝產能持續滿載，AI 伺服器代工龍頭廣達 (2382) 與半導體封裝日月光投控 (3711) 具備明確基本面催化劑，宜在預算內小幅加碼以提升組合 Alpha。",
-        "counter_evidence": "短線追高需控制權重與成本，避免過度曝險。"
+        "logic": "AI 算力中心對 800G 交換器需求爆發，且客製化 ASIC 雲端伺服器拉貨強勁，智邦 (2345) 與緯穎 (6669) 具備明確基本面催化劑，在預算內加碼可提升組合超額 Alpha 與主動投資比率 (Active Share)。",
+        "counter_evidence": "加碼須恪遵現金流平衡上限，預留最低安全儲備。"
       }
     ],
     "decisions": [
-      { "decision_id": "D1", "ticker": "1101", "action": "TRIM", "target_weight": 0.0281, "inference_refs": ["I1"] },
-      { "decision_id": "D2", "ticker": "2002", "action": "TRIM", "target_weight": 0.0099, "inference_refs": ["I1"] },
-      { "decision_id": "D3", "ticker": "2382", "action": "ADD", "target_weight": 0.0450, "inference_refs": ["I2"] },
-      { "decision_id": "D4", "ticker": "3711", "action": "ADD", "target_weight": 0.0350, "inference_refs": ["I2"] }
+      { "decision_id": "D1", "ticker": "2886", "action": "TRIM", "target_weight": 0.0180, "inference_refs": ["I1"] },
+      { "decision_id": "D2", "ticker": "5880", "action": "TRIM", "target_weight": 0.0150, "inference_refs": ["I1"] },
+      { "decision_id": "D3", "ticker": "2345", "action": "ADD", "target_weight": 0.0250, "inference_refs": ["I2"] },
+      { "decision_id": "D4", "ticker": "6669", "action": "ADD", "target_weight": 0.0250, "inference_refs": ["I2"] }
     ],
     "no_trade_decisions": [
+      { "ticker": "1101", "reason_refs": ["I1"], "reason": "昨減碼後部位適中，續抱" },
       { "ticker": "1216", "reason_refs": ["I1"], "reason": "民生消費防禦配置穩定，維持原部位" },
+      { "ticker": "2002", "reason_refs": ["I1"], "reason": "鋼鐵部位已調節至低持股，維持原部位" },
       { "ticker": "2303", "reason_refs": ["I1"], "reason": "成熟製程維持既有部位觀察" },
       { "ticker": "2308", "reason_refs": ["I2"], "reason": "電源與散熱核心持股續抱" },
       { "ticker": "2317", "reason_refs": ["I2"], "reason": "AI 伺服器組裝主要受惠者，部位適中續抱" },
-      { "ticker": "2330", "reason_refs": ["I2"], "reason": "持股權重已達 24.96% 逼近 25% 法定上限，堅守紀律續抱不加碼" },
-      { "ticker": "2345", "reason_refs": ["I2"], "reason": "交換器龍頭展望穩健續抱" },
+      { "ticker": "2330", "reason_refs": ["I2"], "reason": "持股權重已達 24.88% 逼近 25% 法定上限，堅守紀律續抱不加碼" },
       { "ticker": "2357", "reason_refs": ["I2"], "reason": "品牌與板卡配置續抱" },
+      { "ticker": "2382", "reason_refs": ["I2"], "reason": "AI 伺服器核心代工部位續抱" },
       { "ticker": "2412", "reason_refs": ["I1"], "reason": "高股息防禦型電信股續抱" },
       { "ticker": "2454", "reason_refs": ["I2"], "reason": "旗艦晶片與邊緣 AI 核心標的續抱" },
       { "ticker": "2603", "reason_refs": ["I1"], "reason": "航運運價高檔震盪，維持既有配置" },
       { "ticker": "2881", "reason_refs": ["I1"], "reason": "金控獲利龍頭續抱" },
       { "ticker": "2882", "reason_refs": ["I1"], "reason": "大型金控配置續抱" },
       { "ticker": "2884", "reason_refs": ["I1"], "reason": "優質民營銀行股續抱" },
-      { "ticker": "2886", "reason_refs": ["I1"], "reason": "公股金控龍頭續抱" },
       { "ticker": "2892", "reason_refs": ["I1"], "reason": "官股金控防禦續抱" },
       { "ticker": "2912", "reason_refs": ["I1"], "reason": "零售超商內需防禦配置續抱" },
       { "ticker": "3008", "reason_refs": ["I2"], "reason": "高階光學鏡頭指標續抱" },
       { "ticker": "3231", "reason_refs": ["I2"], "reason": "伺服器代工板塊續抱" },
-      { "ticker": "5876", "reason_refs": ["I1"], "reason": "銀行利差表現穩健續抱" },
-      { "ticker": "5880", "reason_refs": ["I1"], "reason": "金融防禦部位續抱" },
-      { "ticker": "6669", "reason_refs": ["I2"], "reason": "高價 ASIC 雲端伺服器指標續抱" }
+      { "ticker": "3711", "reason_refs": ["I2"], "reason": "先進封測指標續抱" },
+      { "ticker": "5876", "reason_refs": ["I1"], "reason": "銀行利差表現穩健續抱" }
     ],
     "orders": orders,
     "agent_metadata": {
