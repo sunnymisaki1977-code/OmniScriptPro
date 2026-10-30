@@ -1,10 +1,44 @@
 import { NextResponse } from "next/server";
-import { spawn } from "child_process";
-import path from "path";
-import fs from "fs";
-import os from "os";
+import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 export const dynamic = "force-dynamic";
+
+const VOICE_MAP: Record<string, string> = {
+  "tw-female": "zh-TW-HsiaoChenNeural",  // 台灣曉臻
+  "tw-male": "zh-TW-YunJheNeural",      // 台灣雲哲
+  "tw-female2": "zh-TW-HsiaoYuNeural",   // 台灣曉雨
+  "cn-male": "zh-CN-YunxiNeural",       // 雲希說書
+  "cn-female": "zh-CN-XiaoxiaoNeural"    // 曉曉女聲
+};
+
+function extractNarration(text: string): string {
+  const lines = text.split(/\r?\n/);
+  const narrations: string[] = [];
+  const voPattern = /^(?:旁白配音\s*(?:\(VO\))?|旁白|VO|口播)\s*[:：]\s*(.+)/i;
+
+  const hasVoTags = lines.some(line => voPattern.test(line));
+  if (hasVoTags) {
+    for (const line of lines) {
+      const m = line.trim().match(voPattern);
+      if (m) {
+        let cleaned = m[1].trim();
+        cleaned = cleaned.replace(/\[.*?\]/g, "").replace(/\(.*?\)/g, "").trim();
+        if (cleaned) narrations.push(cleaned);
+      }
+    }
+    return narrations.join("\n");
+  } else {
+    const cleanedLines: string[] = [];
+    for (const line of lines) {
+      let lineStr = line.trim();
+      if (!lineStr || lineStr.startsWith("#") || lineStr.startsWith("---")) continue;
+      if (/^(視覺畫面|畫面字卡|時間|⏱️|🎬|📱|💥)/.test(lineStr)) continue;
+      let cleaned = lineStr.replace(/\[.*?\]/g, "").trim();
+      if (cleaned) cleanedLines.push(cleaned);
+    }
+    return cleanedLines.join("\n");
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -14,75 +48,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "請提供要合成語音的文字內容" }, { status: 400 });
     }
 
-    const scriptPath = path.join(process.cwd(), "scripts", "text_to_speech.py");
-    if (!fs.existsSync(scriptPath)) {
-      return NextResponse.json({ error: "找不到 TTS 核心腳本: scripts/text_to_speech.py" }, { status: 500 });
-    }
-
-    // 建立臨時輸出檔案
-    const tempFileName = `tts_${Date.now()}_${Math.random().toString(36).substring(7)}.mp3`;
-    const tempFilePath = path.join(os.tmpdir(), tempFileName);
-
-    // 寫入臨時文字檔，避免命令行參數長度限制與編碼溢出問題
-    const tempTextFileName = `tts_text_${Date.now()}_${Math.random().toString(36).substring(7)}.txt`;
-    const tempTextFilePath = path.join(os.tmpdir(), tempTextFileName);
-    fs.writeFileSync(tempTextFilePath, text, "utf8");
-
-    const pythonArgs = [
-      scriptPath,
-      "--file", tempTextFilePath,
-      "--output", tempFilePath,
-      "--voice", voice,
-      "--rate", rate,
-      "--pitch", pitch,
-    ];
-
+    let targetText = text.trim();
     if (autoExtract) {
-      pythonArgs.push("--auto-extract");
+      const extracted = extractNarration(targetText);
+      if (extracted.trim()) {
+        targetText = extracted.trim();
+      }
     }
 
-    await new Promise((resolve, reject) => {
-      const pyProcess = spawn("python", pythonArgs);
-      let stderr = "";
-      let stdout = "";
+    const voiceName = VOICE_MAP[voice] || voice || "zh-TW-HsiaoChenNeural";
 
-      pyProcess.stdout.on("data", (data) => {
-        stdout += data.toString();
-      });
+    const tts = new MsEdgeTTS();
+    await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
 
-      pyProcess.stderr.on("data", (data) => {
-        stderr += data.toString();
-      });
-
-      pyProcess.on("close", (code) => {
-        // 清理臨時文字檔案
-        if (fs.existsSync(tempTextFilePath)) {
-          try { fs.unlinkSync(tempTextFilePath); } catch (e) {}
-        }
-
-        if (code === 0 && fs.existsSync(tempFilePath)) {
-          resolve(stdout);
-        } else {
-          reject(new Error(`TTS 生成失敗 (code ${code}): ${stderr || stdout}`));
-        }
-      });
-
-      pyProcess.on("error", (err) => {
-        if (fs.existsSync(tempTextFilePath)) {
-          try { fs.unlinkSync(tempTextFilePath); } catch (e) {}
-        }
-        reject(err);
-      });
+    const { audioStream } = tts.toStream(targetText, {
+      rate: rate || "+0%",
+      pitch: pitch || "+0Hz"
     });
 
-    // 讀取生成的音訊檔案並轉為 base64
-    const audioBuffer = fs.readFileSync(tempFilePath);
-    const audioBase64 = audioBuffer.toString("base64");
+    const chunks: Buffer[] = [];
+    await new Promise<void>((resolve, reject) => {
+      audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+      audioStream.on("end", () => resolve());
+      audioStream.on("error", (err: any) => reject(err));
+    });
 
-    // 清理臨時音訊檔案
-    try {
-      fs.unlinkSync(tempFilePath);
-    } catch (e) {}
+    const audioBuffer = Buffer.concat(chunks);
+    const audioBase64 = audioBuffer.toString("base64");
 
     return NextResponse.json({
       success: true,
