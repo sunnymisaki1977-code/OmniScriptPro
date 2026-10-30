@@ -63,3 +63,16 @@ $$\text{委託股數} = |\text{目標股數} - \text{原持有股數}|$$
 4. **生成交易書與驗證**：
    - 執行現有自動化腳本：`node scripts/auto-dplan-daily.js`。
    - 確認產出之 `DPlan_YYYYMMDD_TEAM_12006.json` 格式無誤、四檔委託推導與提交股數完全一致。
+
+---
+
+## 🔗 Notion 全工作流整合（Step 1~10）
+
+使用者可在 Antigravity 手動觸發完整 10-Step 工作流，結果同時：
+1. 存檔至本地 `DPlan_YYYYMMDD_TEAM_12006.json`
+2. 寫入 Notion（Page ID：`3cdf374300dc8033af23d63306769950`）
+
+**觸發咒語**：
+> 「執行今日 D-Plan 完整工作流（Step 1~10），輸入檔為最新 DataPack JSON，輸出：本地存檔 DPlan_YYYYMMDD_TEAM_12006.json ＋ 寫入 Notion。Notion Page ID: 3cdf374300dc8033af23d63306769950」
+
+詳細執行對應表請參閱：[notion-workflow.md](./notion-workflow.md)

@@ -228,6 +228,14 @@ export default function App() {
   const [selectedNotionDb, setSelectedNotionDb] = useState("");
   const [notionDbFiles, setNotionDbFiles] = useState<any[]>([]);
   const [isLoadingNotionDb, setIsLoadingNotionDb] = useState(false);
+  // ====== TTS 語音發控中心狀態 ======
+  const [ttsText, setTtsText] = useState('');
+  const [ttsVoice, setTtsVoice] = useState('tw-female');
+  const [ttsRate, setTtsRate] = useState('+0%');
+  const [ttsPitch, setTtsPitch] = useState('+0Hz');
+  const [ttsAutoExtract, setTtsAutoExtract] = useState(true);
+  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
+  const [ttsAudioUrl, setTtsAudioUrl] = useState('');
  
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======
@@ -778,6 +786,44 @@ export default function App() {
   };
 
   
+
+  const handleGenerateTts = async (customText) => {
+    const textToUse = typeof customText === 'string' ? customText : ttsText;
+    if (!textToUse || !textToUse.trim()) {
+      addLog('❌ 請提供要合成語音的腳本或旁白內容', 'error');
+      return;
+    }
+
+    setIsGeneratingTts(true);
+    addLog('🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊...', 'info');
+
+    try {
+      const res = await fetch('https://omni-script-pro.vercel.app/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textToUse,
+          voice: ttsVoice,
+          rate: ttsRate,
+          pitch: ttsPitch,
+          autoExtract: ttsAutoExtract
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'TTS 生成失敗');
+      }
+
+      setTtsAudioUrl(data.audioBase64);
+      addLog(`✅ TTS 語音合成成功！音訊大小: ${(data.byteSize / 1024).toFixed(1)} KB`, 'success');
+    } catch (err: any) {
+      console.error(err);
+      addLog(`❌ TTS 生成錯誤: ${err.message}`, 'error');
+    } finally {
+      setIsGeneratingTts(false);
+    }
+  };
 
   const handleThemeChange = (newThemeId) => {
     setAudienceTheme(newThemeId);
@@ -1616,6 +1662,7 @@ const handleLogin = async (e: React.FormEvent) => {
               { id: 'creation', icon: FileText, label: '內容創作中心' },
               { id: 'visual', icon: ImageIcon, label: '視覺發控中心' },
               { id: 'suno', icon: Music, label: 'Suno 配樂中心' },
+              { id: 'tts', icon: Volume2, label: 'TTS 語音發控中心' },
               { id: 'Extreme', icon: BookOpen, label: '極速影片中心' },
               { id: 'gods_data', icon: Star, label: '諸神文化解碼中心' }
             ].map((tab) => {
@@ -2771,6 +2818,224 @@ const handleLogin = async (e: React.FormEvent) => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB: TTS 語音發控中心 */}
+          {activeTab === 'tts' && (
+            <div className="flex-1 p-6 overflow-y-auto bg-transparent custom-scrollbar">
+              <div className="max-w-4xl mx-auto space-y-6">
+                
+                {/* 頂部標題 */}
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#1E293B] flex items-center gap-2.5">
+                      <Volume2 className="w-5 h-5 text-[#10B981]" />
+                      TTS 語音發控中心
+                    </h3>
+                    <p className="text-xs text-[#64748B] mt-1">
+                      整合 Microsoft Neural 高音質繁體中文神經語音。一鍵提取腳本中的旁白配音（VO），自動合成專業音檔。
+                    </p>
+                  </div>
+
+                  {/* 快捷導入按鈕 */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        const s2 = stepContents[2] || '';
+                        if (s2) {
+                          setTtsText(s2);
+                          addLog('📥 已載入 Step 2 長影音腳本至 TTS 編輯區', 'info');
+                        } else {
+                          addLog('⚠️ Step 2 目前尚無內容', 'error');
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#1E293B] transition-colors border border-slate-200 flex items-center gap-1.5"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-blue-500" />
+                      載入 Step 2 腳本
+                    </button>
+                    <button
+                      onClick={() => {
+                        const s4 = stepContents[4] || '';
+                        if (s4) {
+                          setTtsText(s4);
+                          addLog('📥 已載入 Step 4 短影音腳本至 TTS 編輯區', 'info');
+                        } else {
+                          addLog('⚠️ Step 4 目前尚無內容', 'error');
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#1E293B] transition-colors border border-slate-200 flex items-center gap-1.5"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      載入 Step 4 腳本
+                    </button>
+                  </div>
+                </div>
+
+                {/* 主設置與文字工作區 */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* 左側參數設置 */}
+                  <div className="col-span-1 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 backdrop-blur-lg">
+                    <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-[#10B981]" />
+                      語音參數設置
+                    </h4>
+
+                    {/* 角色選擇 */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#64748B]">語音角色 (Voice Persona)</label>
+                      <div className="space-y-2">
+                        {[
+                          { id: 'tw-female', label: '台灣曉臻 (專業主播女聲)', tag: '推薦・財經' },
+                          { id: 'tw-male', label: '台灣雲哲 (沈穩成熟男聲)', tag: '深度解讀' },
+                          { id: 'tw-female2', label: '台灣曉雨 (親切自然女聲)', tag: '日常親民' },
+                          { id: 'cn-male', label: '雲希說書 (爆款短片男聲)', tag: '短劇說書' }
+                        ].map((v) => (
+                          <div
+                            key={v.id}
+                            onClick={() => setTtsVoice(v.id)}
+                            className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between ${
+                              ttsVoice === v.id
+                                ? 'border-[#10B981] bg-[#10B981]/10 text-[#1E293B] font-bold shadow-sm'
+                                : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                            }`}
+                          >
+                            <span>{v.label}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{v.tag}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 語速調節 */}
+                    <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                      <label className="text-xs font-bold text-[#64748B]">語速調整</label>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[
+                          { label: '慢速', val: '-10%' },
+                          { label: '標準', val: '+0%' },
+                          { label: '輕快', val: '+10%' },
+                          { label: '短片', val: '+20%' }
+                        ].map((r) => (
+                          <button
+                            key={r.val}
+                            onClick={() => setTtsRate(r.val)}
+                            className={`py-1.5 text-xs rounded-lg border font-medium transition-all ${
+                              ttsRate === r.val
+                                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            {r.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 自動過濾開關 */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <span className="text-xs font-bold text-[#64748B]">自動萃取旁白 (過濾視覺指示)</span>
+                        <input
+                          type="checkbox"
+                          checked={ttsAutoExtract}
+                          onChange={(e) => setTtsAutoExtract(e.target.checked)}
+                          className="w-4 h-4 accent-[#10B981] rounded cursor-pointer"
+                        />
+                      </label>
+                      <p className="text-[11px] text-slate-400 mt-1">開啟時會自動去除分鏡指示與字卡提示，僅朗讀純口播詞。</p>
+                    </div>
+
+                    {/* 生成按鈕 */}
+                    <div className="pt-3">
+                      <button
+                        onClick={() => handleGenerateTts()}
+                        disabled={isGeneratingTts || !ttsText.trim()}
+                        className="w-full py-3 rounded-xl bg-gradient-to-r from-[#10B981] to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+                      >
+                        {isGeneratingTts ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            正在合成高音質音訊...
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 className="w-4 h-4" />
+                            一鍵生成 AI 語音配音
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 右側文字輸入與播放器區塊 */}
+                  <div className="col-span-2 space-y-4">
+                    {/* 文字編輯框 */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 backdrop-blur-lg">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-[#1E293B] uppercase tracking-widest flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-slate-400" />
+                          待合成文字內容
+                        </h4>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-mono text-slate-400">{ttsText.length} 字</span>
+                          <button
+                            onClick={() => setTtsText('')}
+                            className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+                          >
+                            清空
+                          </button>
+                        </div>
+                      </div>
+
+                      <textarea
+                        value={ttsText}
+                        onChange={(e) => setTtsText(e.target.value)}
+                        placeholder="請貼上或輸入要轉換為語音的文字、腳本內容，或點擊上方「載入 Step 2 / Step 4 腳本」按鈕..."
+                        className="w-full h-64 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all resize-none font-sans"
+                      />
+                    </div>
+
+                    {/* 音訊生成成果與播放卡片 */}
+                    {ttsAudioUrl && (
+                      <div className="bg-white border border-emerald-200 rounded-2xl p-5 space-y-3 backdrop-blur-lg shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-bold text-[#1E293B]">語音配音生成完成</h5>
+                              <p className="text-[11px] text-slate-400">Microsoft Neural • {ttsVoice} • MP3 高音質格式</p>
+                            </div>
+                          </div>
+
+                          <a
+                            href={ttsAudioUrl}
+                            download={`omniscript_voiceover_${Date.now()}.mp3`}
+                            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            下載音檔 (MP3)
+                          </a>
+                        </div>
+
+                        {/* HTML5 Audio Player */}
+                        <div className="pt-2">
+                          <audio
+                            src={ttsAudioUrl}
+                            controls
+                            className="w-full h-10 rounded-lg outline-none"
+                            autoPlay={false}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
