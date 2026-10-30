@@ -2891,10 +2891,12 @@ const handleLogin = async (e: React.FormEvent) => {
                       <label className="text-xs font-bold text-[#64748B]">語音角色 (Voice Persona)</label>
                       <div className="space-y-2">
                         {[
-                          { id: 'tw-female', label: '台灣曉臻 (專業主播女聲)', tag: '推薦・財經' },
-                          { id: 'tw-male', label: '台灣雲哲 (沈穩成熟男聲)', tag: '深度解讀' },
-                          { id: 'tw-female2', label: '台灣曉雨 (親切自然女聲)', tag: '日常親民' },
-                          { id: 'cn-male', label: '雲希說書 (爆款短片男聲)', tag: '短劇說書' }
+                          { id: 'tw-female', label: '🇹🇼 台灣曉臻 (專業主播女聲)', tag: '推薦・財經' },
+                          { id: 'tw-male', label: '🇹🇼 台灣雲哲 (沈穩成熟男聲)', tag: '深度解讀' },
+                          { id: 'tw-female2', label: '🇹🇼 台灣曉雨 (親切自然女聲)', tag: '日常親民' },
+                          { id: 'ja-female', label: '🇯🇵 日本七海 (溫柔知性女聲)', tag: '日語首選' },
+                          { id: 'ja-male', label: '🇯🇵 日本圭太 (陽光熱血男聲)', tag: '動漫短片' },
+                          { id: 'cn-male', label: '🎙️ 雲希說書 (爆款短片男聲)', tag: '短劇說書' }
                         ].map((v) => (
                           <div
                             key={v.id}

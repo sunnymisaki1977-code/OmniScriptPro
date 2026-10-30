@@ -4,9 +4,16 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 export const dynamic = "force-dynamic";
 
 const VOICE_MAP: Record<string, string> = {
+  // 台灣繁體中文 (zh-TW)
   "tw-female": "zh-TW-HsiaoChenNeural",  // 台灣曉臻
   "tw-male": "zh-TW-YunJheNeural",      // 台灣雲哲
   "tw-female2": "zh-TW-HsiaoYuNeural",   // 台灣曉雨
+  // 日本日語語音 (ja-JP)
+  "ja-female": "ja-JP-NanamiNeural",    // 日本七海 (溫柔知性女聲)
+  "ja-male": "ja-JP-KeitaNeural",       // 日本圭太 (陽光活力男聲)
+  "ja-female2": "ja-JP-AoiNeural",      // 日本葵 (清新少女女聲)
+  "ja-male2": "ja-JP-DaichiNeural",     // 日本大地 (沉穩磁性男聲)
+  // 中文特色說書語音
   "cn-male": "zh-CN-YunxiNeural",       // 雲希說書
   "cn-female": "zh-CN-XiaoxiaoNeural"    // 曉曉女聲
 };

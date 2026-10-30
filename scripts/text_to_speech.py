@@ -10,13 +10,18 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
-# 支援的台灣與中文推薦聲音列表
+# 支援的台灣、日本與中文推薦聲音列表
 VOICE_MAP = {
-    # 台灣微軟自然語音
+    # 台灣微軟自然語音 (zh-TW)
     "tw-female": "zh-TW-HsiaoChenNeural",  # 曉臻 (專業播報、財經首選)
     "tw-male": "zh-TW-YunJheNeural",      # 雲哲 (穩重專業男聲)
     "tw-female2": "zh-TW-HsiaoYuNeural",   # 曉雨 (活潑親切女聲)
-    # 擴充備用
+    # 日本微軟自然語音 (ja-JP)
+    "ja-female": "ja-JP-NanamiNeural",    # 七海 (溫柔知性、日語首選女聲)
+    "ja-male": "ja-JP-KeitaNeural",       # 圭太 (陽光活力、動漫熱血男聲)
+    "ja-female2": "ja-JP-AoiNeural",      # 葵 (清新甜美少女聲)
+    "ja-male2": "ja-JP-DaichiNeural",     # 大地 (沉穩磁性紀錄片男聲)
+    # 擴充說書角色
     "cn-male": "zh-CN-YunxiNeural",       # 雲希 (熱門短影音說書男聲)
     "cn-female": "zh-CN-XiaoxiaoNeural"    # 曉曉 (溫和女聲)
 }
