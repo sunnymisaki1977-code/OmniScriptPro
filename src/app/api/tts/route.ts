@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const VOICE_MAP: Record<string, string> = {
   // 台灣繁體中文 (zh-TW)
@@ -47,6 +48,63 @@ function extractNarration(text: string): string {
   }
 }
 
+async function synthesizeSingleChunk(voiceName: string, textChunk: string, rate: string, pitch: string): Promise<Buffer> {
+  const tts = new MsEdgeTTS();
+  await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+
+  const { audioStream } = tts.toStream(textChunk, {
+    rate: rate || "+0%",
+    pitch: pitch || "+0Hz"
+  });
+
+  const chunks: Buffer[] = [];
+  return new Promise<Buffer>((resolve, reject) => {
+    audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+    audioStream.on("end", () => resolve(Buffer.concat(chunks)));
+    audioStream.on("error", (err: any) => reject(err));
+  });
+}
+
+async function synthesizeText(voiceName: string, text: string, rate: string, pitch: string): Promise<Buffer> {
+  // 若文字小於等於 250 字，直接單次合成
+  if (text.length <= 250) {
+    return await synthesizeSingleChunk(voiceName, text, rate, pitch);
+  }
+
+  // 超過 250 字進行自然標點分段，避免 Microsoft WebSocket 串流因超時或過載中斷
+  const chunks: string[] = [];
+  let current = "";
+  const sentences = text.split(/(?<=[。！？\n；…])/);
+  for (const s of sentences) {
+    if ((current + s).length > 250) {
+      if (current.trim()) chunks.push(current.trim());
+      current = s;
+    } else {
+      current += s;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+
+  const audioBuffers: Buffer[] = [];
+  for (const chunk of chunks) {
+    let retries = 2;
+    let buf: Buffer | null = null;
+    while (retries >= 0) {
+      try {
+        buf = await synthesizeSingleChunk(voiceName, chunk, rate, pitch);
+        break;
+      } catch (err) {
+        retries--;
+        if (retries < 0) throw err;
+        await new Promise(r => setTimeout(r, 400));
+      }
+    }
+    if (buf) audioBuffers.push(buf);
+  }
+
+  return Buffer.concat(audioBuffers);
+}
+
 export async function POST(req: Request) {
   try {
     const { text, voice = "tw-female", rate = "+0%", pitch = "+0Hz", autoExtract = true } = await req.json();
@@ -65,22 +123,7 @@ export async function POST(req: Request) {
 
     const voiceName = VOICE_MAP[voice] || voice || "zh-TW-HsiaoChenNeural";
 
-    const tts = new MsEdgeTTS();
-    await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-
-    const { audioStream } = tts.toStream(targetText, {
-      rate: rate || "+0%",
-      pitch: pitch || "+0Hz"
-    });
-
-    const chunks: Buffer[] = [];
-    await new Promise<void>((resolve, reject) => {
-      audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
-      audioStream.on("end", () => resolve());
-      audioStream.on("error", (err: any) => reject(err));
-    });
-
-    const audioBuffer = Buffer.concat(chunks);
+    const audioBuffer = await synthesizeText(voiceName, targetText, rate, pitch);
     const audioBase64 = audioBuffer.toString("base64");
 
     return NextResponse.json({
