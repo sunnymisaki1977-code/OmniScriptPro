@@ -2893,6 +2893,7 @@ const handleLogin = async (e: React.FormEvent) => {
                         {[
                           { id: 'tw-female', label: '🇹🇼 台灣曉臻 (專業主播女聲)', tag: '推薦・財經' },
                           { id: 'tw-male', label: '🇹🇼 台灣雲哲 (沈穩成熟男聲)', tag: '深度解讀' },
+                          { id: 'cn-male-mature', label: '🎙️ 雲健解說 (大氣沈穩男聲)', tag: '宏觀深度' },
                           { id: 'tw-female2', label: '🇹🇼 台灣曉雨 (親切自然女聲)', tag: '日常親民' },
                           { id: 'ja-female', label: '🇯🇵 日本七海 (溫柔知性女聲)', tag: '日語首選' },
                           { id: 'ja-male', label: '🇯🇵 日本圭太 (陽光熱血男聲)', tag: '動漫短片' },

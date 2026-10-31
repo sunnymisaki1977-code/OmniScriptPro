@@ -16,7 +16,8 @@ const VOICE_MAP: Record<string, string> = {
   "ja-male2": "ja-JP-DaichiNeural",     // 日本大地 (沉穩磁性男聲)
   // 中文特色說書語音
   "cn-male": "zh-CN-YunxiNeural",       // 雲希說書
-  "cn-female": "zh-CN-XiaoxiaoNeural"    // 曉曉女聲
+  "cn-female": "zh-CN-XiaoxiaoNeural",    // 曉曉女聲
+  "cn-male-mature": "zh-CN-YunjianNeural" // 雲健解說 (大氣沈穩成熟男聲)
 };
 
 function sanitizeTextForSpeech(text: string): string {
@@ -71,9 +72,14 @@ function extractNarration(text: string): string {
   }
 }
 
+const FALLBACK_VOICE_MAP: Record<string, string> = {
+  // 微軟伺服器若對特定節點拒絕連線 (Stream closed)，無縫降級回退到同性別的高可用穩健模型
+  "zh-TW-YunJheNeural": "zh-CN-YunjianNeural" // 台灣雲哲連線中斷時，無縫回退至同樣極致沉穩大氣的雲健男聲
+};
+
 async function synthesizeSingleChunk(voiceName: string, textChunk: string, rate: string, pitch: string): Promise<Buffer> {
   const sanitized = sanitizeTextForSpeech(textChunk);
-  const tts = new MsEdgeTTS();
+  const tts = new MsEdgeTTS({ connectionTimeoutMs: 30000, synthesisTimeoutMs: 90000 });
   await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
 
   const { audioStream } = tts.toStream(sanitized, {
@@ -84,8 +90,8 @@ async function synthesizeSingleChunk(voiceName: string, textChunk: string, rate:
   const chunks: Buffer[] = [];
   return new Promise<Buffer>((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new Error("Edge TTS 單一片段合成超時 (15s)"));
-    }, 15000);
+      reject(new Error("Edge TTS 單一片段合成超時 (30s)"));
+    }, 30000);
 
     audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
     audioStream.on("end", () => {
@@ -100,17 +106,30 @@ async function synthesizeSingleChunk(voiceName: string, textChunk: string, rate:
 }
 
 async function synthesizeText(voiceName: string, text: string, rate: string, pitch: string): Promise<Buffer> {
-  // 若文字小於等於 800 字，直接單次極速合成
-  if (text.length <= 800) {
-    return await synthesizeSingleChunk(voiceName, text, rate, pitch);
+  const isYunJhe = voiceName === "zh-TW-YunJheNeural";
+  // 台灣雲哲節點承載力較低，限制單段 ~100 字；其他高速神經語音支援至 800 字
+  const maxChunk = isYunJhe ? 100 : 800;
+
+  // 若文字小於等於限制，直接單次合成
+  if (text.length <= maxChunk) {
+    try {
+      return await synthesizeSingleChunk(voiceName, text, rate, pitch);
+    } catch (err: any) {
+      const fallbackVoice = FALLBACK_VOICE_MAP[voiceName];
+      if (fallbackVoice) {
+        console.warn(`[TTS] ${voiceName} 合成異常，自動平滑回退至 ${fallbackVoice}`);
+        return await synthesizeSingleChunk(fallbackVoice, text, rate, pitch);
+      }
+      throw err;
+    }
   }
 
-  // 超過 800 字進行自然標點分段，每段上限 ~800 字（2,333 字僅需 3 段）
+  // 超過門檻進行自然標點分段
   const chunks: string[] = [];
   let current = "";
   const sentences = text.split(/(?<=[。！？\n；…])/);
   for (const s of sentences) {
-    if ((current + s).length > 800) {
+    if ((current + s).length > maxChunk) {
       if (current.trim()) chunks.push(current.trim());
       current = s;
     } else {
@@ -119,21 +138,27 @@ async function synthesizeText(voiceName: string, text: string, rate: string, pit
   }
   if (current.trim()) chunks.push(current.trim());
 
-  // 採用並行批次合成 (Batch Size = 3)：3 個片段同時請求，將總耗時從 46 秒壓縮至 4~6 秒
-  const BATCH_SIZE = 3;
+  // 採用批次合成 (雲哲跑單線避開微軟限流，高速語音跑 2 並行)
+  const BATCH_SIZE = isYunJhe ? 1 : 2;
   const audioBuffers: Buffer[] = [];
 
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const batch = chunks.slice(i, i + BATCH_SIZE);
     const batchPromises = batch.map(async (chunk) => {
       let retries = 2;
+      let currentVoice = voiceName;
       while (retries >= 0) {
         try {
-          return await synthesizeSingleChunk(voiceName, chunk, rate, pitch);
-        } catch (err) {
+          return await synthesizeSingleChunk(currentVoice, chunk, rate, pitch);
+        } catch (err: any) {
           retries--;
+          // 若為雲哲遇到斷線，立即嘗試 fallback 語音 (雲健大氣成熟男聲)
+          if (FALLBACK_VOICE_MAP[currentVoice]) {
+            currentVoice = FALLBACK_VOICE_MAP[currentVoice];
+            retries = Math.max(retries, 1);
+          }
           if (retries < 0) throw err;
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 400));
         }
       }
       throw new Error("無法合成語音片段");
