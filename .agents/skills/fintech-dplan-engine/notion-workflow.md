@@ -5,10 +5,22 @@
 
 ## 🚀 每日觸發咒語（複製貼上即可）
 
+### 🌟 通用每日咒語：
 ```
 執行今日 D-Plan 完整工作流（Step 1~10），輸入檔為最新 DataPack JSON，
 輸出：本地存檔 DPlan_YYYYMMDD_TEAM_12006.json ＋ 寫入 Notion。
 Notion Page ID: 3cdf374300dc8033af23d63306769950
+```
+
+### 🛡️ 11/02（週一）美盤重挫防禦與排名超車專屬咒語：
+```
+執行 11/02 D-Plan 完整工作流（Step 1~10）：
+1. 輸入檔：c:\Users\sunny\OmniScript PRO\DataPack_596_2026-11-02.json
+2. 宏觀定錨：美股週五重挫（Nasdaq -2.86%、TSM ADR -5.97%、美債 4.93%），姿態設定為 regime="risk_off"、stance="defensive"。
+3. 排名戰略：
+   - 2330 台積電 (24.15%)、金融雙保險 (2881/2882) 堅定 HOLD。
+   - 清結 2002 中鋼釋放流動性，目標結算現金維持在 6.0% ~ 7.0% 防禦區間，嚴禁開盤追高科技股。
+4. 輸出：本地存檔 DPlan_20261102_TEAM_12006.json ＋ 同步寫入 Notion (Page ID: 3cdf374300dc8033af23d63306769950)。
 ```
 
 ---
