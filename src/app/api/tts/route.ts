@@ -19,6 +19,29 @@ const VOICE_MAP: Record<string, string> = {
   "cn-female": "zh-CN-XiaoxiaoNeural"    // 曉曉女聲
 };
 
+function sanitizeTextForSpeech(text: string): string {
+  return text
+    // 移除 Markdown 粗體、斜體、刪除線與行內代碼
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/~~(.*?)~~/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    // 移除 Markdown 標題符號
+    .replace(/^#+\s+/gm, "")
+    // 轉換容易破壞 SSML XML 語法或口播不順的關鍵符號為自然中文口播
+    .replace(/&/g, "與")
+    .replace(/>/g, "大於")
+    .replace(/</g, "小於")
+    // 移除常見 Emoji 與無聲圖示（避免微軟語音引擎混亂，相容標準 ES5 正則）
+    .replace(/[\uD83C-\uDBFF\uDC00-\uDFFF\u2600-\u26FF\u2700-\u27BF]/g, "")
+    // XML 實體保護（防止任何殘留 XML 特殊字元破壞 SSML）
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function extractNarration(text: string): string {
   const lines = text.split(/\r?\n/);
   const narrations: string[] = [];
@@ -49,34 +72,45 @@ function extractNarration(text: string): string {
 }
 
 async function synthesizeSingleChunk(voiceName: string, textChunk: string, rate: string, pitch: string): Promise<Buffer> {
+  const sanitized = sanitizeTextForSpeech(textChunk);
   const tts = new MsEdgeTTS();
   await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
 
-  const { audioStream } = tts.toStream(textChunk, {
+  const { audioStream } = tts.toStream(sanitized, {
     rate: rate || "+0%",
     pitch: pitch || "+0Hz"
   });
 
   const chunks: Buffer[] = [];
   return new Promise<Buffer>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("Edge TTS 單一片段合成超時 (15s)"));
+    }, 15000);
+
     audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
-    audioStream.on("end", () => resolve(Buffer.concat(chunks)));
-    audioStream.on("error", (err: any) => reject(err));
+    audioStream.on("end", () => {
+      clearTimeout(timer);
+      resolve(Buffer.concat(chunks));
+    });
+    audioStream.on("error", (err: any) => {
+      clearTimeout(timer);
+      reject(err);
+    });
   });
 }
 
 async function synthesizeText(voiceName: string, text: string, rate: string, pitch: string): Promise<Buffer> {
-  // 若文字小於等於 250 字，直接單次合成
-  if (text.length <= 250) {
+  // 若文字小於等於 800 字，直接單次極速合成
+  if (text.length <= 800) {
     return await synthesizeSingleChunk(voiceName, text, rate, pitch);
   }
 
-  // 超過 250 字進行自然標點分段，避免 Microsoft WebSocket 串流因超時或過載中斷
+  // 超過 800 字進行自然標點分段，每段上限 ~800 字（2,333 字僅需 3 段）
   const chunks: string[] = [];
   let current = "";
   const sentences = text.split(/(?<=[。！？\n；…])/);
   for (const s of sentences) {
-    if ((current + s).length > 250) {
+    if ((current + s).length > 800) {
       if (current.trim()) chunks.push(current.trim());
       current = s;
     } else {
@@ -85,21 +119,28 @@ async function synthesizeText(voiceName: string, text: string, rate: string, pit
   }
   if (current.trim()) chunks.push(current.trim());
 
+  // 採用並行批次合成 (Batch Size = 3)：3 個片段同時請求，將總耗時從 46 秒壓縮至 4~6 秒
+  const BATCH_SIZE = 3;
   const audioBuffers: Buffer[] = [];
-  for (const chunk of chunks) {
-    let retries = 2;
-    let buf: Buffer | null = null;
-    while (retries >= 0) {
-      try {
-        buf = await synthesizeSingleChunk(voiceName, chunk, rate, pitch);
-        break;
-      } catch (err) {
-        retries--;
-        if (retries < 0) throw err;
-        await new Promise(r => setTimeout(r, 400));
+
+  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+    const batch = chunks.slice(i, i + BATCH_SIZE);
+    const batchPromises = batch.map(async (chunk) => {
+      let retries = 2;
+      while (retries >= 0) {
+        try {
+          return await synthesizeSingleChunk(voiceName, chunk, rate, pitch);
+        } catch (err) {
+          retries--;
+          if (retries < 0) throw err;
+          await new Promise(r => setTimeout(r, 300));
+        }
       }
-    }
-    if (buf) audioBuffers.push(buf);
+      throw new Error("無法合成語音片段");
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    audioBuffers.push(...batchResults);
   }
 
   return Buffer.concat(audioBuffers);

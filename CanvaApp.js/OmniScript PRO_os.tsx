@@ -839,7 +839,9 @@ export default function App() {
     }
 
     setIsGeneratingTts(true);
-    addLog('🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊...', 'info');
+    const charCount = textToUse.trim().length;
+    addLog(`🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊（共 ${charCount} 字，極速並行處理中）...`, 'info');
+    const startTime = Date.now();
 
     try {
       const res = await fetch('/api/tts', {
@@ -859,8 +861,9 @@ export default function App() {
         throw new Error(data.error || 'TTS 生成失敗');
       }
 
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
       setTtsAudioUrl(data.audioBase64);
-      addLog(`✅ TTS 語音合成成功！音訊大小: ${(data.byteSize / 1024).toFixed(1)} KB`, 'success');
+      addLog(`✅ TTS 語音合成成功！耗時 ${elapsed} 秒，音訊大小: ${(data.byteSize / 1024).toFixed(1)} KB`, 'success');
     } catch (err: any) {
       console.error(err);
       addLog(`❌ TTS 生成錯誤: ${err.message}`, 'error');

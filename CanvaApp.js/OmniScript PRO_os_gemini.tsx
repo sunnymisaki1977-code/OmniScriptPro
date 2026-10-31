@@ -795,10 +795,10 @@ export default function App() {
     }
 
     setIsGeneratingTts(true);
-    addLog('🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊...', 'info');
+    addLog(`🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊（共 ${textToUse.trim().length} 字，極速並行處理中）...`, 'info');
 
     try {
-      const res = await fetch('https://omni-script-pro.vercel.app/api/tts', {
+      const res = await fetch(typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '/api/tts' : 'https://omni-script-pro.vercel.app/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
