@@ -1,0 +1,309 @@
+{
+  "schema_version": "4.3",
+  "doc_type": "D-Plan",
+  "team_id": "TEAM_12006",
+  "trade_date": "2026-11-02",
+  "sources": [
+    {
+      "source_id": "S1",
+      "authority": "twse",
+      "url": "https://www.twse.com.tw",
+      "content_as_of": "2026-10-30T13:30:00+08:00"
+    },
+    {
+      "source_id": "S2",
+      "authority": "vendor",
+      "url": "https://finance.yahoo.com",
+      "content_as_of": "2026-10-31T05:00:00+08:00"
+    },
+    {
+      "source_id": "S3",
+      "authority": "taifex",
+      "url": "https://www.taifex.com.tw",
+      "content_as_of": "2026-10-31T05:00:00+08:00"
+    }
+  ],
+  "observations": [
+    {
+      "obs_id": "O1",
+      "source_ref": [
+        "S2"
+      ],
+      "statement": "美股週五科技股遭遇重挫，那斯達克重跌 -2.86%，晶片板塊全面走低；台積電 ADR (TSM) 大跌 -5.97% 收 406.5 美元，週一台股科技權值股開盤面臨強烈補跌與估值回調壓力。",
+      "values": {
+        "nasdaq_change_pct": -0.0286,
+        "tsm_adr_change_pct": -0.0597,
+        "tsm_adr_close": 406.5
+      }
+    },
+    {
+      "obs_id": "O2",
+      "source_ref": [
+        "S2"
+      ],
+      "statement": "美國 10 年期公債殖利率定案於 4.93%，極度逼近 5.0% 宏觀防禦生死線，資金面進入防守收縮狀態，操作姿態強制轉為 defensive，嚴禁開盤追高高估值科技股。",
+      "values": {
+        "us10y_yield": 4.93,
+        "defensive_threshold": 5.0,
+        "defensive_triggered": 1
+      }
+    },
+    {
+      "obs_id": "O3",
+      "source_ref": [
+        "S1"
+      ],
+      "statement": "DataPack_596_2026-11-02 結算淨值 981,280,165.02 元，可用現金 55,502,265.02 元 (5.66%)。台積電 (2330) 持有 100,000 股，權重 24.1521%，安全降至 25.0% 上限以下，合規警示徹底消除；持股檔數 25 檔合規。",
+      "values": {
+        "nav_tradable": 981280165.02,
+        "cash_ratio": 0.056561,
+        "tsmc_shares": 100000,
+        "tsmc_weight": 0.241521,
+        "holdings_count": 25
+      }
+    }
+  ],
+  "market_view": {
+    "basis_refs": [
+      "O1",
+      "O2",
+      "O3"
+    ],
+    "logic": "美股重挫與 TSM ADR -5.97% 確認科技股回調週期；美債殖利率達 4.93% 逼近 5.0% 硬核閾值。今日戰略全面轉向『防禦反擊與排名超車』：（一）合規與基底：台積電 (2330) 權重 24.15% 處於甜點位，開盤隨 ADR 降溫，堅定 HOLD；（二）金融雙保險：富邦金 (2881) 與國泰金 (2882) 堅定 HOLD 發揮抗跌護城河；（三）汰弱死錢：清結低效益弱勢傳產中鋼 (2002) 500,000 股，回收 9,625,000 元現金，將結算現金提升至 6.64% (6,512 萬元)，達標 [0.06, 0.10] 防衛水位，靜待恐慌殺盤落底後的抄底良機。",
+    "regime": "risk_off",
+    "stance": "defensive",
+    "posture": {
+      "net_exposure_intent": "reduce",
+      "target_cash_pct_range": [
+        0.06,
+        0.10
+      ]
+    },
+    "counter_evidence": "美股短線急跌若引發週一早盤非理性恐慌殺多，投組短期 NAV 或受波動；但 6.64% 高防守現金與金融抗震屏障足以保障相對排名逆勢攀升。"
+  },
+  "inferences": [
+    {
+      "inf_id": "I1",
+      "premise_refs": [
+        "O1",
+        "O2"
+      ],
+      "logic": "美債殖利率 4.93% 疊加 Nasdaq -2.86%，估值收縮環境下高估值科技股拉回風險劇增，嚴禁追高；目標現金水位強制調升至 6%~10% 防守區間。",
+      "counter_evidence": null
+    },
+    {
+      "inf_id": "I2",
+      "premise_refs": [
+        "O3"
+      ],
+      "logic": "台積電 (2330) 權重已降至 24.1521%，完全符合大會 25.0% 硬性上限，單一持股合規警示消除，今日轉為堅定 HOLD 不被動賤賣。",
+      "counter_evidence": null
+    },
+    {
+      "inf_id": "I3",
+      "premise_refs": [
+        "O3",
+        "O2"
+      ],
+      "logic": "2002 中鋼佔比僅 0.98% (500,000 股)，缺乏成長爆發力且屬低效死錢；清結賣出可全額回收 9,625,000 元流動性，將現金水位墊高至 6.64%，完美落入防守區間並優化整體投組 Active Share。",
+      "counter_evidence": "賣出傳統原物料個股可能錯失短期超跌反彈，但流動性價值顯著高於持有劣勢部位。"
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "D1",
+      "ticker": "2002",
+      "action": "TRIM",
+      "target_weight": 0.0,
+      "inference_refs": [
+        "I3"
+      ]
+    }
+  ],
+  "no_trade_decisions": [
+    {
+      "ticker": "2330",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "台積電持股權重 24.1521% 已在安全上限內，開盤隨 ADR 自然降溫，堅定續抱"
+    },
+    {
+      "ticker": "2881",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "富邦金獲利龍頭抗跌護城河，市場震盪下拉回防禦首選，維持原部位續抱"
+    },
+    {
+      "ticker": "2882",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "國泰金獲利動能穩健，提供大盤下挫時關鍵抗震屏障，維持原部位續抱"
+    },
+    {
+      "ticker": "2886",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "兆豐金官股龍頭，配息穩定具防禦屬性，維持原部位"
+    },
+    {
+      "ticker": "2412",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "中華電防禦性高息電信股，資金避風港，維持原部位"
+    },
+    {
+      "ticker": "2454",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "聯發科旗艦天璣晶片基本面穩健，暫不加碼，維持原部位觀察"
+    },
+    {
+      "ticker": "2317",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "鴻海 AI 伺服器核心組裝受惠，部位適中續抱"
+    },
+    {
+      "ticker": "2308",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "台達電 AI 電源核心配置，部位均衡續抱"
+    },
+    {
+      "ticker": "2382",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "廣達 AI 伺服器龍頭，部位適中續抱"
+    },
+    {
+      "ticker": "3711",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "日月光先進封裝核心，維持配置"
+    },
+    {
+      "ticker": "2345",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "智邦 800G 網通交換器長線看好，早盤靜待科技賣壓消化，暫不加碼"
+    },
+    {
+      "ticker": "6669",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "緯穎高價高毛利 ASIC 伺服器，暫緩追價，維持原部位"
+    },
+    {
+      "ticker": "1101",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "台泥低檔盤整，維持原部位"
+    },
+    {
+      "ticker": "1216",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "統一民生必需防禦配置，維持原部位"
+    },
+    {
+      "ticker": "2303",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "聯電成熟製程維持原部位"
+    },
+    {
+      "ticker": "2357",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "華碩板卡與 PC 配置維持原部位"
+    },
+    {
+      "ticker": "2603",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "長榮高息航運配置維持原部位"
+    },
+    {
+      "ticker": "2884",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "玉山金維持原部位"
+    },
+    {
+      "ticker": "2892",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "第一金官股配置維持原部位"
+    },
+    {
+      "ticker": "2912",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "統一超內需消費維持原部位"
+    },
+    {
+      "ticker": "3008",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "大立光光學鏡頭維持原部位"
+    },
+    {
+      "ticker": "3231",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "緯創伺服器代工維持原部位"
+    },
+    {
+      "ticker": "5876",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "上海商銀維持原部位"
+    },
+    {
+      "ticker": "5880",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "合庫金維持原部位"
+    }
+  ],
+  "orders": [
+    {
+      "ticker": "2002",
+      "side": "SELL",
+      "shares": 500000,
+      "decision_ref": "D1",
+      "derivation_detail": "floor(0.0000 * 981280165.02 / 19.25 / 1000) * 1000 = 0; 原持有 500,000 股; 委託差額: SELL 500,000 股 (回收 9,625,000 元)"
+    }
+  ],
+  "execution_plan": {
+    "run_started_at": "2026-11-02T05:30:00+08:00",
+    "run_completed_at": "2026-11-02T05:30:15+08:00",
+    "timing": "market_open",
+    "order_routing": "twse_batch_auction",
+    "settlement_cycle": "T+2"
+  }
+}
