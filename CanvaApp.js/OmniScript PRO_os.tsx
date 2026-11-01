@@ -1013,7 +1013,7 @@ export default function App() {
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
         if (!theme.trim()) {
-          setTheme('AI 宏觀風控與選股決策引擎');
+          setTheme('7. AI 宏觀風控與選股決策引擎');
         }
         addLog('✅ [盤前數據基準抓取完成] 已自動匯入宏觀指數與 150 檔標的池 T-1 真實收盤/最高價，可直接供 Step 1 生成決策！', 'success');
       } else {
@@ -2196,29 +2196,23 @@ const handleLogin = async (e: React.FormEvent) => {
                       {audienceTheme === 'fintech' && (
                         <div className="flex items-center gap-2 ml-2">
                           <button
-                            onClick={handleLoadLatestDataPack}
-                            disabled={isLoadingLatestDataPack}
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs shadow-md hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
-                            title="一鍵直接載入玉山 AI CUP 官方最新 2026-11-02 DataPack（真實淨值 9.81 億、現金 5,550 萬與 25 檔真實持股）"
+                            onClick={() => {
+                              if (!dplanInput.trim()) {
+                                fetch('/api/fintech/latest-datapack')
+                                  .then(r => r.json())
+                                  .then(res => {
+                                    if (res.success && res.data) {
+                                      setDplanInput(JSON.stringify(res.data, null, 2));
+                                    }
+                                  })
+                                  .catch(() => {});
+                              }
+                              setShowDPlanModal(true);
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
+                            title="匯入昨日 D-Plan / DataPack JSON，自動解析持股與現金並整合今日盤前基準"
                           >
-                            {isLoadingLatestDataPack ? (
-                              <>
-                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                <span>載入 DataPack 中...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Zap className="w-3.5 h-3.5 text-yellow-200" />
-                                <span>⚡ 一鍵載入官方 DataPack (11/02)</span>
-                              </>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => setShowDPlanModal(true)}
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
-                            title="手動貼上或上傳其他日期的 D-Plan JSON"
-                          >
-                            <span>📁 自訂上傳</span>
+                            <span>📥 匯入昨日持股</span>
                           </button>
                           <button
                             onClick={handleFetchBenchmark}
@@ -2232,7 +2226,7 @@ const handleLogin = async (e: React.FormEvent) => {
                                 <span>正在抓取盤前數據...</span>
                               </>
                             ) : (
-                              <span>🗂️ 盤前數據基準</span>
+                              <span>📁 盤前數據基準</span>
                             )}
                           </button>
                           <button
@@ -2248,7 +2242,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                       <input 
                         type="text"
-                        placeholder="例如：日本京阪神五日遊攻略"
+                        placeholder={audienceTheme === 'fintech' ? "例如：7. AI 宏觀風控與選股決策引擎 (可直接點擊「📥 匯入昨日持股」自動帶入)" : "例如：日本京阪神五日遊攻略"}
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
                         className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
@@ -4098,7 +4092,28 @@ const handleLogin = async (e: React.FormEvent) => {
                     }}
                   />
                 </label>
-                <span className="text-[11px] text-slate-400">支援 AI CUP D-Plan v4.3 官方格式</span>
+                <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/fintech/latest-datapack');
+                          const json = await res.json();
+                          if (json.success && json.data) {
+                            setDplanInput(JSON.stringify(json.data, null, 2));
+                            addLog('✅ 已成功將官方最新 DataPack (2026-11-02) 帶入輸入框！', 'success');
+                          }
+                        } catch (e: any) {
+                          safeAlert('無法取得最新 DataPack: ' + e.message);
+                        }
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-300 transition-colors cursor-pointer"
+                      title="直接填入本地最新官方 DataPack 2026-11-02 內容"
+                    >
+                      ⚡ 帶入最新 DataPack (11/02)
+                    </button>
+                    <span className="text-[11px] text-slate-400">支援 AI CUP D-Plan v4.3 官方格式</span>
+                  </div>
               </div>
             </div>
 

@@ -2996,10 +2996,10 @@ ${ctx.customContext}` : `1. 隔夜美股四大指數 (DJIA, S&P 500, Nasdaq, SOX
     "regime": "neutral",
     "stance": "neutral",
     "posture": { "net_exposure_intent": "hold", "target_cash_pct_range": [0.03, 0.08] },
-    "counter_evidence": null
+    "counter_evidence": "若10年期美債殖利率回落破4.15%且外資期貨空單顯著回補，將於T+1盤前轉為積極姿態回補科技權值股。"
   },
   "inferences": [ 
-    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "產業配置與選股推論", "counter_evidence": null } 
+    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "產業配置與選股推論", "counter_evidence": "若10年期美債殖利率回落破4.15%且外資期貨空單顯著回補，將於T+1盤前轉為積極姿態回補科技權值股。" } 
   ],
   "decisions": [ 
     { "decision_id": "D1", "ticker": "2330", "action": "ADD", "target_weight": 0.249, "inference_refs": ["I1"] } 
