@@ -81,19 +81,12 @@ const now = new Date();
   timeZone: 'Asia/Taipei' 
 });    
 
-const hasCustomData = !!(context?.customContext && context.customContext.trim());
 const geminiPayload = {
     systemInstruction: {
-        parts: [{ text: hasCustomData
-            ? `【絕對數據鎖定指令】：
+        parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
-使用者已提供完整真實之盤前數據與庫存現況，你【必須 100% 絕對以該數據為準進行分析與推導】，嚴禁調用搜尋或使用歷史記憶捏造！`
-            : `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
-今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。`
-        }]
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。` }]
     },
     contents: [{ parts: [{ text: finalPrompt }] }],
     generationConfig: {
@@ -101,8 +94,8 @@ const geminiPayload = {
     }
 };
 
-    // 🌟 核心分流邏輯：若無自訂資料才啟用搜尋
-    if (isSearchEnabled && !hasCustomData) {
+    // 🌟 核心分流邏輯：恢復原搜尋設計，Step 1 與 Step 0 啟用 Google Search
+    if (isSearchEnabled) {
         console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
@@ -1193,7 +1186,8 @@ export default function App() {
             
             // 🌟 新增：本地端呼叫也需要注入時間錨點
             const localCurrentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-            const hasCustomContext = !!(customContext && customContext.trim());
+            // 🌟 恢復原搜尋設計：Step 1 與 Step 0 一律開啟 Google Search，掌握全球最新市場局勢
+            const isSearchStep = (i === 1 && !safeStep1);
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
@@ -1202,14 +1196,11 @@ export default function App() {
                 body: JSON.stringify({
                     // 🌟 注入系統提示詞
                     systemInstruction: {
-                        parts: [{ text: hasCustomContext
-                            ? `現在的真實時間是 ${localCurrentDate}。使用者已在提示詞中提供完整的真實盤前數據與庫存現況，你【必須 100% 絕對以該數據為準進行分析與推導】，嚴禁調用搜尋或使用歷史記憶捏造！`
-                            : `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行分析。` 
-                        }]
+                        parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                     },
                     contents: [{ parts: [{ text: masterPrompt }] }],
-                    // 🌟 修正：若已提供 customContext 則不啟用搜尋
-                    tools: (i === 1 && !safeStep1 && !hasCustomContext) ? [{ google_search: {} }] : []
+                    // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
+                    tools: isSearchStep ? [{ google_search: {} }] : []
                 })
             });
             if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);

@@ -50,26 +50,19 @@ export async function POST(req: Request) {
         customContext: existingData.customContext || customDocText || verifiedContext || "",
       };
 
-      let finalPrompt = "";
-      if (step.id === 1) {
-        finalPrompt = step.prompt(stepContext);
-      } else {
-        finalPrompt = `你現在是頂尖的企劃 AI 助理。請針對主題「${theme}」產出【步驟 ${step.id}：${step.title}】的內容。\n`;
-        if (verifiedContext) {
-          finalPrompt += `\n【⚠️ 絕對真實性指令】：以下是經過專家查核的「基礎背景文獻」，所有產出必須 100% 遵守此文獻，禁止自創與腦補。\n---\n${verifiedContext}\n---\n`;
-        }
-        finalPrompt += `\n執行指令：\n${step.prompt(stepContext)}\n\n請直接輸出 Markdown 文本內容，不要將結果包裝在任何 JSON 結構中。`;
+      // 尊重 promptConfigs.ts 的專屬角色與規格設計，以 step.prompt(stepContext) 為核心
+      let finalPrompt = step.prompt(stepContext);
+      if (Number(step.id) > 1 && verifiedContext && !finalPrompt.includes(verifiedContext.slice(0, 30))) {
+        finalPrompt = `【⚠️ 絕對真實性指令】：以下是前置步驟已查核之「基礎背景文獻」，後續產出請以此為基準：\n---\n${verifiedContext}\n---\n\n${finalPrompt}`;
       }
-
-      const nowTw = new Date().toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false });
-      finalPrompt += `\n\n【系統即時資訊】：當前台灣時間為 ${nowTw}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
       return setCorsHeaders(NextResponse.json({
         success: true,
         stepId: step.id,
         title: step.title,
         prompt: finalPrompt,
-        isSearchEnabled: (step.id === 1 || (typeof (step.id as any) === 'string' && (step.id as any).startsWith('0_'))) && !stepContext.customContext
+        // 恢復原搜尋設計：Step 1 或 Step 0 步驟一律啟用 Google Search，掌握最新市場動態
+        isSearchEnabled: Number(step.id) === 1 || String(step.id).startsWith('0')
       }));
     }
 
