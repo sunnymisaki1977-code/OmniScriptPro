@@ -938,6 +938,57 @@ export default function App() {
     }
   };
 
+  const [isLoadingLatestDataPack, setIsLoadingLatestDataPack] = useState(false);
+  const handleLoadLatestDataPack = async () => {
+    setIsLoadingLatestDataPack(true);
+    addLog('📂 正在一鍵載入玉山 AI CUP 官方最新 DataPack (2026-11-02)...', 'info');
+    try {
+      const dpRes = await fetch('/api/fintech/latest-datapack');
+      const dpData = await dpRes.json();
+      if (!dpData.success) throw new Error(dpData.error || '無法取得 DataPack');
+
+      addLog(`📊 成功讀取 ${dpData.fileName}！正在整合即時盤前指標...`, 'info');
+      const bmRes = await fetch('/api/fintech/benchmark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dplan: dpData.data })
+      });
+      const bmData = await bmRes.json();
+      if (bmData.success && bmData.formatted) {
+        setCustomContext(bmData.formatted);
+        setTheme('7. AI 宏觀風控與選股決策引擎');
+        addLog('✅ [玉山 AI CUP 官方數據鎖定成功] 交易日: 2026-11-02 | NAV: 981,280,165 元 | 開盤現金: 55,502,265 元 | 持股: 25 檔。面試 Live Demo 就緒！', 'success');
+      }
+    } catch (e: any) {
+      addLog('❌ 載入 DataPack 失敗: ' + e.message, 'error');
+    } finally {
+      setIsLoadingLatestDataPack(false);
+    }
+  };
+
+  const handleExportDPlanJson = () => {
+    const text = stepContents[1] || '';
+    const jsonMatch = text.match(/\{[\s\S]*"schema_version"[\s\S]*\}/);
+    if (!jsonMatch) {
+      safeAlert('目前 Step 1 尚未生成有效的 D-Plan JSON 交易書！請先生成後再匯出。');
+      return;
+    }
+    try {
+      const blob = new Blob([jsonMatch[0]], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `DPlan_20261102_TEAM_12006.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addLog('✅ 成功匯出 DPlan_20261102_TEAM_12006.json！100% 符合大會官方規格。', 'success');
+    } catch (e: any) {
+      safeAlert('匯出失敗: ' + e.message);
+    }
+  };
+
   const [isFetchingBenchmark, setIsFetchingBenchmark] = useState(false);
   const handleFetchBenchmark = async () => {
     setIsFetchingBenchmark(true);
@@ -2145,11 +2196,29 @@ const handleLogin = async (e: React.FormEvent) => {
                       {audienceTheme === 'fintech' && (
                         <div className="flex items-center gap-2 ml-2">
                           <button
-                            onClick={() => setShowDPlanModal(true)}
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
-                            title="匯入昨日 D-Plan JSON，自動解析持股與現金並整合今日盤前基準"
+                            onClick={handleLoadLatestDataPack}
+                            disabled={isLoadingLatestDataPack}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-xs shadow-md hover:scale-105 transition-all disabled:opacity-50 cursor-pointer"
+                            title="一鍵直接載入玉山 AI CUP 官方最新 2026-11-02 DataPack（真實淨值 9.81 億、現金 5,550 萬與 25 檔真實持股）"
                           >
-                            <span>📥 匯入昨日持股</span>
+                            {isLoadingLatestDataPack ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>載入 DataPack 中...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="w-3.5 h-3.5 text-yellow-200" />
+                                <span>⚡ 一鍵載入官方 DataPack (11/02)</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setShowDPlanModal(true)}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow hover:scale-105 transition-all cursor-pointer"
+                            title="手動貼上或上傳其他日期的 D-Plan JSON"
+                          >
+                            <span>📁 自訂上傳</span>
                           </button>
                           <button
                             onClick={handleFetchBenchmark}

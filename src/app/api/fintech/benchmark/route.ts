@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -42,6 +44,23 @@ interface DPlanParsed {
   nav: number;
   holdingsCount: number;
   portfolioStr: string;
+}
+
+
+function getLatestDataPackFromDisk(): any | null {
+  try {
+    const cwd = process.cwd();
+    const files = fs.readdirSync(cwd);
+    const dpFiles = files.filter(f => f.startsWith('DataPack_') && f.endsWith('.json')).sort().reverse();
+    if (dpFiles.length > 0) {
+      const p = path.join(cwd, dpFiles[0]);
+      const raw = fs.readFileSync(p, 'utf8');
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.warn('[Benchmark] Error reading local DataPack:', e);
+  }
+  return null;
 }
 
 // 官方指定 150 檔合法標的池清單
@@ -121,7 +140,7 @@ function parseDPlanJson(
       } catch {}
     }
 
-    const nav = typeof customNav === 'number' && customNav > 0 ? customNav : 1000000000;
+    const nav = typeof customNav === 'number' && customNav > 0 ? customNav : (parsed?.account?.nav_tradable || 1000000000);
     const holdingsMap = new Map<string, { ticker: string; shares: number; price: number; cost: number }>();
 
     // 1. 若 JSON 內含有完整的 settled_holdings / portfolio / holdings 陣列 (最高精確度)
@@ -130,7 +149,7 @@ function parseDPlanJson(
       for (const h of directHoldings) {
         const ticker = String(h.ticker || h.code || h.stock_id || '').trim();
         const shares = Number(h.shares) || 0;
-        const price = Number(h.price || h.cost) || 0;
+        const price = Number(h.price || h.close_price || h.cost) || 0;
         if (ticker && shares > 0) {
           holdingsMap.set(ticker, {
             ticker,
@@ -279,7 +298,7 @@ function parseDPlanJson(
       portfolioParts.push(`${ticker}-${shares}-${price}`);
     });
 
-    let remainingCash = nav - totalCost;
+    let remainingCash = typeof parsed?.account?.cash === 'number' ? parsed.account.cash : (nav - totalCost);
     if (remainingCash < 20000000 || remainingCash > 250000000) {
       remainingCash = Math.round(nav * 0.045);
     }
