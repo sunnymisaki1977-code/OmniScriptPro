@@ -9,7 +9,7 @@ import {
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe,
-  PenLine, Loader2, Star, Gift, LogOut } from 'lucide-react';
+  PenLine, Loader2, Star, Gift, LogOut, Type } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -412,6 +412,7 @@ export default function App() {
   const [ExtremeParsedGroups, setExtremeParsedGroups] = useState<any[]>([]);
   const [ExtremeImages, setExtremeImages] = useState<any[]>([]);
   const [isGeneratingExtreme, setIsGeneratingExtreme] = useState(false);
+  const [includeVoiceoverInImage, setIncludeVoiceoverInImage] = useState(false);
   const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
   const [extremeSource, setExtremeSource] = useState<'step2' | 'step4'>('step2');
 
@@ -572,11 +573,13 @@ export default function App() {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${engineConfig.id}:generateContent?key=${activeApiKey}`;
 
       let flashPrompt = finalPromptWithStyle;        
-      if (mainTitle || subTitle || poetry) {
+      if (includeVoiceoverInImage && (mainTitle || subTitle || poetry)) {
         flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
         if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
         if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
         if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
+      } else if (!includeVoiceoverInImage) {
+        flashPrompt += `\n\n(IMPORTANT: Pure cinematic visual scene only. DO NOT generate or overlay any text, words, Chinese characters, subtitles, captions, or watermarks on the image. Clean background composition.)`;
       }
       
       const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
@@ -3241,6 +3244,31 @@ const handleLogin = async (e: React.FormEvent) => {
                           )}
                         </button>
 
+                        <button
+                          type="button"
+                          onClick={() => setIncludeVoiceoverInImage(prev => !prev)}
+                          className={`flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 border ${
+                            includeVoiceoverInImage
+                              ? 'bg-amber-500/10 border-amber-500/40 text-amber-700 hover:bg-amber-500/20'
+                              : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/20'
+                          }`}
+                          title={includeVoiceoverInImage 
+                            ? "目前模式：【含旁白字卡】將標題與旁白文字融入圖片排版繪製" 
+                            : "目前模式：【純淨畫面 (無字)】不繪製字幕文字，產出乾淨分鏡背景（推薦剪輯使用）"}
+                        >
+                          {includeVoiceoverInImage ? (
+                            <>
+                              <Type className="w-4 h-4 text-amber-600" />
+                              <span>繪入文字：含旁白字卡 (開)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 text-emerald-600" />
+                              <span>圖像模式：純淨畫面 (無字)</span>
+                            </>
+                          )}
+                        </button>
+
                         <button 
                           onClick={() => handleDownloadExtremePython('zh')}
                           className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-[#0A2E5C] hover:bg-blue-800 text-white text-xs font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-1.5"
@@ -3368,9 +3396,15 @@ const handleLogin = async (e: React.FormEvent) => {
                                   </label>
                                   {g.localImage && <span className="text-[9px] text-emerald-500 font-bold">✅ 已載入</span>}
                                 </div>
+                                {(g.voiceover || g.poetry) && (
+                                  <div className="mt-1 text-[9px] text-slate-700 bg-emerald-50/90 p-1.5 rounded border border-emerald-200/70 line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover || g.poetry}>
+                                    <span className="font-bold text-emerald-700">🇹🇼 中文旁白：</span>
+                                    {g.voiceover || g.poetry}
+                                  </div>
+                                )}
                                 {g.voiceover_ja && (
-                                  <div className="mt-1 text-[9px] text-slate-600 bg-rose-50/80 p-1.5 rounded border border-rose-200/60 line-clamp-2" title={g.voiceover_ja}>
-                                    <span className="font-bold text-rose-600">🇯🇵 日文旁白：</span>
+                                  <div className="mt-1 text-[9px] text-slate-700 bg-rose-50/90 p-1.5 rounded border border-rose-200/70 line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover_ja}>
+                                    <span className="font-bold text-rose-700">🇯🇵 日文旁白：</span>
                                     {g.voiceover_ja}
                                   </div>
                                 )}

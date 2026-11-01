@@ -76,9 +76,10 @@ export async function POST(req: Request) {
 
             const sceneIdx = parsedScenes.length;
             const sceneTitle = isStep4 ? get15sTimecode(sceneIdx) : `[${matches[i].timecode}]`;
+            // 淨化 prompt：專注於視覺畫面與字卡，不把長篇旁白塞進繪圖提示詞中
             const scenePrompt = isStep4
-                ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}${voiceover_ja ? `\n- 旁白配音 (日文)：${voiceover_ja}` : ''}`
-                : `[${matches[i].timecode}]\n視覺畫面建議：${visualPrompt}\n畫面字卡：${caption}${voiceover_ja ? `\n日文旁白：${voiceover_ja}` : ''}`;
+                ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}${caption ? `\n- 畫面字卡: ${caption}` : ''}`
+                : `[${matches[i].timecode}]\n視覺畫面建議：${visualPrompt}${caption ? `\n畫面字卡：${caption}` : ''}`;
             
             parsedScenes.push({
                 id: `group-Extreme-${sceneIdx + 1}`,
@@ -131,7 +132,7 @@ export async function POST(req: Request) {
         const sceneIdx = parsedScenes.length;
         const sceneTitle = isStep4 ? get15sTimecode(sceneIdx) : titleRaw;
         const scenePrompt = isStep4
-            ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}\n- 畫面字卡: ${caption}\n- 旁白配音 (VO)：${voiceover}${voiceover_ja ? `\n- 旁白配音 (日文)：${voiceover_ja}` : ''}`
+            ? `${sceneTitle}\n- 視覺畫面：${visualPrompt}${caption ? `\n- 畫面字卡: ${caption}` : ''}`
             : `視覺畫面建議：${desc}`;
         
         parsedScenes.push({
