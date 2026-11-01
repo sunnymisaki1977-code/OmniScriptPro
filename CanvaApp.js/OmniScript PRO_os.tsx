@@ -416,6 +416,36 @@ export default function App() {
   const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
   const [extremeSource, setExtremeSource] = useState<'step2' | 'step4'>('step2');
 
+  const getDynamicThemePlaceholder = (themeKey: string) => {
+    switch (themeKey) {
+      case 'fintech':
+        return "例如：7. AI 宏觀風控與選股決策引擎 (可點擊「📥 匯入昨日持股」自動帶入)";
+      case 'heritage':
+      case 'story':
+        return "例如：藥師佛琉璃之光：東方醫學信仰與身心解密";
+      case 'fairy tales':
+        return "例如：失落的森林密碼：愛麗絲與時間兔子的奇幻冒險";
+      case 'proposal':
+        return "例如：AI 企業數位轉型 PoC 導入與商業落地企劃書";
+      case 'edtech':
+        return "例如：Python 機器學習與多智能體協同實戰工作坊";
+      case 'competition':
+        return "例如：玉山 AI CUP 2026 金融演算法實戰競賽企劃";
+      case 'travelpreneur':
+        return "例如：日本京阪神五日遊深度文化與隱藏景點探索";
+      case 'food':
+        return "例如：米其林三星私房料理：法式低溫舒肥牛排秘訣";
+      case 'beauty':
+        return "例如：秋冬換季修護水光美學全攻略";
+      case 'pet':
+        return "例如：新手養貓指南：貓咪行為解讀與健康照護";
+      case 'historyMeme':
+        return "例如：古代皇帝極限操作：三國最強摸魚大師解密";
+      default:
+        return "例如：輸入創作核心企劃主題或點擊上方快捷按鈕";
+    }
+  };
+
 
   
 
@@ -2242,7 +2272,7 @@ const handleLogin = async (e: React.FormEvent) => {
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#10B981] to-[#0A2E5C] text-white hover:-translate-y-0.5 rounded-full shadow-md rounded-2xl blur opacity-15 group-hover:opacity-25 transition duration-1000"></div>
                       <input 
                         type="text"
-                        placeholder={audienceTheme === 'fintech' ? "例如：7. AI 宏觀風控與選股決策引擎 (可直接點擊「📥 匯入昨日持股」自動帶入)" : "例如：日本京阪神五日遊攻略"}
+                        placeholder={getDynamicThemePlaceholder(audienceTheme)}
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
                         className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
@@ -3466,16 +3496,20 @@ const handleLogin = async (e: React.FormEvent) => {
                                   </label>
                                   {g.localImage && <span className="text-[9px] text-emerald-500 font-bold">✅ 已載入</span>}
                                 </div>
-                                {(g.voiceover || g.poetry) && (
-                                  <div className="mt-1 text-[9px] text-slate-700 bg-emerald-50/90 p-1.5 rounded border border-emerald-200/70 line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover || g.poetry}>
-                                    <span className="font-bold text-emerald-700">🇹🇼 中文旁白：</span>
-                                    {g.voiceover || g.poetry}
+                                {(g.voiceover || g.poetry) && (g.voiceover !== g.voiceover_ja) && (
+                                  <div className="mt-1 text-[10px] text-slate-700 bg-emerald-50/90 p-2 rounded-xl border border-emerald-200/80 shadow-xs line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover || g.poetry}>
+                                    <div className="flex items-center gap-1.5 font-bold text-emerald-800 text-[10px] mb-0.5">
+                                      <span className="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] tracking-wide font-bold">中文旁白</span>
+                                    </div>
+                                    <p className="text-slate-800 leading-relaxed font-sans">{g.voiceover || g.poetry}</p>
                                   </div>
                                 )}
                                 {g.voiceover_ja && (
-                                  <div className="mt-1 text-[9px] text-slate-700 bg-rose-50/90 p-1.5 rounded border border-rose-200/70 line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover_ja}>
-                                    <span className="font-bold text-rose-700">🇯🇵 日文旁白：</span>
-                                    {g.voiceover_ja}
+                                  <div className="mt-1 text-[10px] text-slate-700 bg-rose-50/90 p-2 rounded-xl border border-rose-200/80 shadow-xs line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover_ja}>
+                                    <div className="flex items-center gap-1.5 font-bold text-rose-800 text-[10px] mb-0.5">
+                                      <span className="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] tracking-wide font-bold">日文旁白</span>
+                                    </div>
+                                    <p className="text-slate-800 leading-relaxed font-sans">{g.voiceover_ja}</p>
                                   </div>
                                 )}
                               </div>

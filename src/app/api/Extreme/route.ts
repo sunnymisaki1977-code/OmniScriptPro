@@ -3,10 +3,14 @@ import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 function cleanVoiceover(line: string) {
-  let text = line.replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/, '').replace(/^.*\(VO\)\**[：:]\s*\*?\s*/, '').trim();
+  let text = line
+    .replace(/^.*?旁白配音.*?[：:]\s*\*?\s*/i, '')
+    .replace(/^.*\(VO\)\**[：:]\s*\*?\s*/i, '')
+    .replace(/^.*?(?:中文旁白|日文旁白|旁白字幕|台詞旁白|旁白|口播|配音)\**[：:]\s*\*?\s*/i, '')
+    .trim();
   const isJa = line.includes('日文') || line.includes('日語') || line.includes('Japanese') || line.includes('日本語') || /[\u3040-\u309F\u30A0-\u30FF]/.test(text);
-  // 去除開頭提示型括號 (例如 [中文旁白，至少 40-50 字] 或 [日文旁白，至少 70-120 字])
-  const cleanedText = text.replace(/^[\[【][^\]】]*(?:旁白|口吻|字)[^\]】]*[\]】]\s*/, '').trim();
+  // 去除開頭提示型括號 (例如 [中文旁白，至少 40-50 字] 或 [語氣必須「極度生活化」中文旁白...])
+  const cleanedText = text.replace(/^[\[【][^\]】]*(?:旁白|口吻|字|語氣|生活化|極度)[^\]】]*[\]】]\s*/, '').trim();
   return { isJa, text: cleanedText || text };
 }
 
@@ -55,7 +59,15 @@ export async function POST(req: Request) {
                     visualPrompt = line.replace(/^.*?(畫面節點|視覺畫面建議|視覺畫面)\**[：:]\s*\*?\s*/, '').trim();
                 } else if (line.includes("畫面字卡")) {
                     caption = line.replace(/^.*?畫面字卡\**[：:]\s*\*?\s*/, '').trim();
-                } else if (line.includes("旁白配音") || line.includes("(VO)")) {
+                } else if (
+                  line.includes("旁白配音") || 
+                  line.includes("(VO)") || 
+                  line.includes("中文旁白") || 
+                  line.includes("日文旁白") || 
+                  line.includes("旁白") || 
+                  line.includes("口播") || 
+                  line.includes("配音")
+                ) {
                     const vo = cleanVoiceover(line);
                     if (vo.isJa) {
                       voiceover_ja = vo.text;
@@ -65,9 +77,7 @@ export async function POST(req: Request) {
                 }
             }
 
-            if (!voiceover && voiceover_ja) {
-              voiceover = voiceover_ja;
-            }
+            // 保持中日雙語旁白獨立，不互相覆蓋
             
             if (!visualPrompt) {
                const cleaned = blockRaw.replace(/(?:\[|\*\*|^|\s)\d{1,2}:\d{2}\s*(?:-|~)\s*\d{1,2}:\d{2}(?:\]|\*\*|$|\s)/g, '').replace(/#+/g, '').trim();
@@ -111,7 +121,15 @@ export async function POST(req: Request) {
                 visualPrompt = line.replace(/^.*?(畫面節點|視覺畫面建議|視覺畫面)\**[：:]\s*\*?\s*/, '').trim();
             } else if (line.includes("畫面字卡")) {
                 caption = line.replace(/^.*?畫面字卡\**[：:]\s*\*?\s*/, '').trim();
-            } else if (line.includes("旁白配音") || line.includes("(VO)")) {
+            } else if (
+                line.includes("旁白配音") || 
+                line.includes("(VO)") || 
+                line.includes("中文旁白") || 
+                line.includes("日文旁白") || 
+                line.includes("旁白") || 
+                line.includes("口播") || 
+                line.includes("配音")
+            ) {
                 const vo = cleanVoiceover(line);
                 if (vo.isJa) {
                   voiceover_ja = vo.text;
@@ -121,9 +139,7 @@ export async function POST(req: Request) {
             }
         }
 
-        if (!voiceover && voiceover_ja) {
-          voiceover = voiceover_ja;
-        }
+        // 保持中日雙語旁白獨立，不互相覆蓋
 
         const descMatch = parts[i].match(/中文[：:]\s*(.*?)(?=\n|$)/);
         const desc = descMatch ? descMatch[1].trim() : lines.slice(1).join(' ').substring(0, 100);
