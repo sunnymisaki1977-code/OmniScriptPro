@@ -304,11 +304,11 @@
       "derivation_detail": "floor(0.0000 * 981280165.02 / 19.25 / 1000) * 1000 = 0; 原持有 500,000 股; 委託差額: SELL 500,000 股 (回收 9,625,000 元)"
     }
   ],
-  "execution_plan": {
-    "run_started_at": "2026-11-02T05:30:00+08:00",
-    "run_completed_at": "2026-11-02T05:30:15+08:00",
-    "timing": "market_open",
-    "order_routing": "twse_batch_auction",
-    "settlement_cycle": "T+2"
+  "agent_metadata": {
+    "model_provider": "google",
+    "model_version": "gemini-pro-antigravity",
+    "run_started_at": "2026-11-02T06:00:25+08:00",
+    "run_completed_at": "2026-11-02T06:01:30+08:00",
+    "code_version": "v4.3"
   }
 }
