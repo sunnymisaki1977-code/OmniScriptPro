@@ -81,23 +81,28 @@ const now = new Date();
   timeZone: 'Asia/Taipei' 
 });    
 
+const hasCustomData = !!(context?.customContext && context.customContext.trim());
 const geminiPayload = {
-    // 配合後端，前端只做最輕量的時間提醒，甚至可完全留空 {}
     systemInstruction: {
-        parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
+        parts: [{ text: hasCustomData
+            ? `【絕對數據鎖定指令】：
 系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
-` }]
+使用者已提供完整真實之盤前數據與庫存現況，你【必須 100% 絕對以該數據為準進行分析與推導】，嚴禁調用搜尋或使用歷史記憶捏造！`
+            : `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。`
+        }]
     },
-        contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: {
-            maxOutputTokens: 8192
-        }
-    };
+    contents: [{ parts: [{ text: finalPrompt }] }],
+    generationConfig: {
+        maxOutputTokens: 8192
+    }
+};
 
-    // 🌟 核心分流邏輯：正確的 Google Search 語法實作
-    if (isSearchEnabled) {
+    // 🌟 核心分流邏輯：若無自訂資料才啟用搜尋
+    if (isSearchEnabled && !hasCustomData) {
         console.log(`[Google Search] 🌐 Step ${stepId} 已啟動搜尋，注入動態時間鎖...`);
         // 啟用 Google Search Tool
         geminiPayload.tools = [{ "google_search": {} }];
@@ -1181,12 +1186,14 @@ export default function App() {
                 step2: currentContextContents[2] || "【缺乏 Step 2 資料】",
                 step3: currentContextContents[3] || "【缺乏 Step 3 資料】",
                 step4: currentContextContents[4] || "【缺乏 Step 4 資料】",
-                step5: currentContextContents[5] || "【缺乏 Step 5 資料】"
+                step5: currentContextContents[5] || "【缺乏 Step 5 資料】",
+                customContext: customContext || ""
             };
             const masterPrompt = promptFunc(stepContext);
             
             // 🌟 新增：本地端呼叫也需要注入時間錨點
             const localCurrentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+            const hasCustomContext = !!(customContext && customContext.trim());
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
@@ -1195,11 +1202,14 @@ export default function App() {
                 body: JSON.stringify({
                     // 🌟 注入系統提示詞
                     systemInstruction: {
-                        parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
+                        parts: [{ text: hasCustomContext
+                            ? `現在的真實時間是 ${localCurrentDate}。使用者已在提示詞中提供完整的真實盤前數據與庫存現況，你【必須 100% 絕對以該數據為準進行分析與推導】，嚴禁調用搜尋或使用歷史記憶捏造！`
+                            : `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行分析。` 
+                        }]
                     },
                     contents: [{ parts: [{ text: masterPrompt }] }],
-                    // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
-                    tools: (i === 1 && !safeStep1) ? [{ google_search: {} }] : []
+                    // 🌟 修正：若已提供 customContext 則不啟用搜尋
+                    tools: (i === 1 && !safeStep1 && !hasCustomContext) ? [{ google_search: {} }] : []
                 })
             });
             if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
