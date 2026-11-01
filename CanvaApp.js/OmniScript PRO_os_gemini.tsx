@@ -314,6 +314,9 @@ export default function App() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('os_pro_audienceTheme', audienceTheme);
     }
+    if (audienceTheme === 'fintech' && (!theme.trim() || theme.includes('日本') || theme.includes('五日遊'))) {
+      setTheme('7. AI 宏觀風控與選股決策引擎');
+    }
   }, [audienceTheme]);
 
 
@@ -881,12 +884,17 @@ export default function App() {
     setAudienceTheme(newThemeId);
     const selectedTheme = audienceThemes[newThemeId];
     addLog(selectedTheme?.themeLogMessage || `[Theme] 已切換至 ${newThemeId}`, 'info');  
+    if (newThemeId === 'fintech') {
+      if (!theme.trim() || theme.includes('日本') || theme.includes('五日遊') || theme.includes('藥師佛') || theme.includes('愛麗絲')) {
+        setTheme('7. AI 宏觀風控與選股決策引擎');
+      }
+    }
   };
 
   const getThemeLabel = (themeId: string) => {
     const map: Record<string, string> = {
       heritage: '民俗信仰', beauty: '美妝保養', travelpreneur: '旅遊生活',
-      food: '美食探店', pet: '寵物照護', fintech: '財經知識',
+      food: '美食探店', pet: '寵物照護', fintech: 'AI 宏觀風控與選股',
       story: '銘印說書', 'fairy tales': '銘印童話', proposal: '企劃文案',
       edtech: '教育科技', competition: '競賽企劃'
     };
@@ -1023,7 +1031,7 @@ export default function App() {
       const data = await res.json();
       if (data.success && data.formatted) {
         setCustomContext(data.formatted);
-        setTheme('AI 宏觀風控與選股決策引擎');
+        setTheme('7. AI 宏觀風控與選股決策引擎');
         setShowDPlanModal(false);
         setDplanInput('');
         const count = data.raw?.holdings?.holdingsCount || 0;
@@ -2187,6 +2195,27 @@ const handleLogin = async (e: React.FormEvent) => {
                         className="w-full relative bg-white border border-slate-200 rounded-2xl px-6 py-4 text-sm font-semibold text-[#1E293B] placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner backdrop-blur-sm"
                       />
                     </div>
+                    {audienceTheme === 'fintech' && (
+                      <div className="flex items-center gap-2 flex-wrap pt-1">
+                        <span className="text-[11px] font-bold text-slate-500">🎯 官方決策主題：</span>
+                        <button
+                          type="button"
+                          onClick={() => setTheme('7. AI 宏觀風控與選股決策引擎')}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 shadow-sm cursor-pointer ${
+                            theme === '7. AI 宏觀風控與選股決策引擎'
+                              ? 'bg-blue-600 text-white border-blue-600 shadow'
+                              : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-400'
+                          }`}
+                        >
+                          <span>🛡️ 7. AI 宏觀風控與選股決策引擎</span>
+                          {theme === '7. AI 宏觀風控與選股決策引擎' ? (
+                            <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">已選定</span>
+                          ) : (
+                            <span className="text-[10px] text-blue-500 underline">點擊帶入</span>
+                          )}
+                        </button>
+                      </div>
+                    )}
 
                     {/* --- 新增：自訂背景資料區 --- */}
                     <div className="space-y-2 pt-2">
@@ -4121,6 +4150,23 @@ const handleLogin = async (e: React.FormEvent) => {
                     快速選題 (直接套用)
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button
+                      onClick={() => {
+                        setTheme("7. AI 宏觀風控與選股決策引擎");
+                        setShowTopicSelectorModal(false);
+                        setGeneratedTopics([]);
+                      }}
+                      className="w-full p-4 rounded-xl border-2 border-blue-500 bg-blue-50/80 hover:bg-blue-100 text-left transition-all flex items-center gap-3 group shadow-sm col-span-1 md:col-span-3 cursor-pointer"
+                    >
+                      <span className="text-2xl group-hover:scale-110 transition-transform">🛡️</span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-blue-900 text-sm leading-tight">7. AI 宏觀風控與選股決策引擎</span>
+                          <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold">玉山 AI CUP 官方推薦</span>
+                        </div>
+                        <span className="text-xs text-blue-700 mt-1 block font-medium">一鍵生成每日 D-Plan v4.3 交易書 JSON、宏觀數據定錨、持股再平衡與現金流檢核</span>
+                      </div>
+                    </button>
                     <button
                       onClick={() => {
                         setTheme("盤前觀戰與全球市場極速晨報");
