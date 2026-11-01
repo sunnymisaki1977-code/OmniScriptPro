@@ -1189,7 +1189,9 @@ export default function App() {
             // 🌟 恢復原搜尋設計：Step 1 與 Step 0 一律開啟 Google Search，掌握全球最新市場局勢
             const isSearchStep = (i === 1 && !safeStep1);
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
+            const isFintech = audienceTheme === 'fintech';
+            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-3-flash-preview';
+            let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             const aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1199,11 +1201,30 @@ export default function App() {
                         parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                     },
                     contents: [{ parts: [{ text: masterPrompt }] }],
+                    generationConfig: { maxOutputTokens: isFintech ? 32768 : 8192, ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
                     // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
                     tools: isSearchStep ? [{ google_search: {} }] : []
                 })
             });
-            if (!aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+            if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
+                if (targetModel === 'gemini-3-flash-thinking') {
+                    targetModel = 'gemini-2.5-flash';
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
+                }
+                const retryResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }] },
+                        contents: [{ parts: [{ text: masterPrompt }] }]
+                    })
+                });
+                if (retryResponse.ok) {
+                    const retryData = await retryResponse.json();
+                    outputText = retryData.candidates?.[0]?.content?.parts?.[0]?.text;
+                }
+            }
+            if (!outputText && !aiResponse.ok) throw new Error(`Google API 錯誤: ${aiResponse.status}`);
             const data = await aiResponse.json();
             outputText = data.candidates[0].content.parts[0].text;
             

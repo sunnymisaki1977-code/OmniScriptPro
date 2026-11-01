@@ -99,7 +99,8 @@ const geminiPayload = {
     },
     contents: [{ parts: [{ text: finalPrompt }] }],
     generationConfig: {
-        maxOutputTokens: 8192
+        maxOutputTokens: (audienceTheme === 'fintech') ? 32768 : 8192,
+        ...((audienceTheme === 'fintech') ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
     }
 };
 
@@ -114,7 +115,7 @@ const geminiPayload = {
     }
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
-    const targetModel = isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash';
+    let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : (isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash');
     const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
     let aiResponse = await fetch(finalApiUrl, {
@@ -126,9 +127,10 @@ const geminiPayload = {
         body: JSON.stringify(geminiPayload)
     });
 
-    if (!aiResponse.ok && isSearchEnabled && (aiResponse.status === 403 || aiResponse.status === 400)) {
+    if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
         console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
-        delete geminiPayload.tools; // 移除 tools 再次重試
+        if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`; }
+        delete geminiPayload.tools;
         aiResponse = await fetch(finalApiUrl, {
             method: 'POST',
             headers: { 
@@ -1239,7 +1241,8 @@ export default function App() {
 
             // 🌟 恢復原搜尋設計：Step 1 與 Step 0 一律開啟 Google Search，掌握全球最新市場局勢
             const isSearchStep = (i === 1 && !safeStep1);
-            const targetModel = isSearchStep ? 'gemini-2.5-flash' : 'gemini-3-flash-preview';
+            const isFintech = audienceTheme === 'fintech';
+            let targetModel = isFintech ? 'gemini-3-flash-thinking' : (isSearchStep ? 'gemini-2.5-flash' : 'gemini-3-flash-preview');
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -1252,12 +1255,14 @@ export default function App() {
                         parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                     },
                     contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }],
+                    generationConfig: { maxOutputTokens: isFintech ? 32768 : 8192, ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
                     tools: isSearchStep ? [{ googleSearch: {} }] : []
                 })
             });
 
             // ⚠️ 如果 Step 1 因為 Google Search (403/400) 權限不足失敗，自動拔除 tools 並重試
-            if (!aiResponse.ok && i === 1 && !safeStep1 && (aiResponse.status === 403 || aiResponse.status === 400)) {
+            if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
+                if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`; }
                 console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
                 aiResponse = await fetch(apiUrl, {
                     method: 'POST',
