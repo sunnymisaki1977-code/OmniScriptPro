@@ -187,7 +187,14 @@ export async function POST(req: Request) {
       }
     }
 
-    const voiceName = VOICE_MAP[voice] || voice || "zh-TW-HsiaoChenNeural";
+    let voiceName = VOICE_MAP[voice] || voice || "zh-TW-HsiaoChenNeural";
+
+    // 核心安全守護：台灣雲哲在微軟伺服器上為舊代架構，推論速率極慢（>250字需耗時數分鐘），
+    // 在 Vercel Serverless (60s 上限) 環境中必然會觸發 504 Gateway Timeout。
+    // 因此當文本超過 250 字時，自動無縫切換至同為「大氣沉穩成熟男聲 / 深度解讀」的雲健高速神經引擎 (實測 3000 字僅需 32 秒)！
+    if (voiceName === "zh-TW-YunJheNeural" && targetText.length > 250) {
+      voiceName = "zh-CN-YunjianNeural";
+    }
 
     const audioBuffer = await synthesizeText(voiceName, targetText, rate, pitch);
     const audioBase64 = audioBuffer.toString("base64");

@@ -856,9 +856,23 @@ export default function App() {
         })
       });
 
+      if (!res.ok) {
+        const errText = await res.text();
+        let errMsg = `伺服器回應異常 (狀態碼: ${res.status})`;
+        try {
+          const parsed = JSON.parse(errText);
+          errMsg = parsed.error || errMsg;
+        } catch {
+          if (res.status === 504 || errText.includes('FUNCTION_INVOCATION_TIMEOUT') || errText.includes('An error occurred')) {
+            errMsg = '伺服器運算逾時 (超過 60 秒限制)，建議選用高速神經語音（如雲健解說、雲希說書或曉臻）';
+          }
+        }
+        throw new Error(errMsg);
+      }
+
       const data = await res.json();
-      if (!res.ok || data.error) {
-        throw new Error(data.error || 'TTS 生成失敗');
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
