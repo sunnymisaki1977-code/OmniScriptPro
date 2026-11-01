@@ -573,13 +573,20 @@ export default function App() {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${engineConfig.id}:generateContent?key=${activeApiKey}`;
 
       let flashPrompt = finalPromptWithStyle;        
-      if (includeVoiceoverInImage && (mainTitle || subTitle || poetry)) {
+      // 畫面字卡必定繪入圖像，長篇旁白則由開關控制
+      const effectiveCaption = subTitle || (prompt.match(/畫面字卡[：:]\s*(.*?)(?=\n|$)/)?.[1]?.trim()) || "";
+      const textTitle = effectiveCaption || mainTitle;
+
+      if (textTitle || (includeVoiceoverInImage && poetry)) {
         flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
-        if (mainTitle) flashPrompt += `\nMain Title: ${mainTitle}`;
-        if (subTitle) flashPrompt += `\nSubtitle: ${subTitle}`;
-        if (poetry) flashPrompt += `\nPoetry (vertical layout preferred): ${poetry.replace(/\s+/g, ' ')}`;
-      } else if (!includeVoiceoverInImage) {
-        flashPrompt += `\n\n(IMPORTANT: Pure cinematic visual scene only. DO NOT generate or overlay any text, words, Chinese characters, subtitles, captions, or watermarks on the image. Clean background composition.)`;
+        if (textTitle) {
+          flashPrompt += `\nGraphic Caption / Title (畫面字卡): ${textTitle}`;
+        }
+        if (includeVoiceoverInImage && poetry) {
+          flashPrompt += `\nVoiceover / Spoken Script (旁白台詞): ${poetry.replace(/\s+/g, ' ')}`;
+        } else {
+          flashPrompt += `\n(IMPORTANT: Explicitly render only the Graphic Caption/Title above on the image. DO NOT write out the long spoken voiceover script, body speech paragraphs, or full dialogue.)`;
+        }
       }
       
       const finalPrompt = `${flashPrompt}\n(Please generate image with aspect ratio ${aspectRatio})`;
@@ -3253,18 +3260,18 @@ const handleLogin = async (e: React.FormEvent) => {
                               : 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/20'
                           }`}
                           title={includeVoiceoverInImage 
-                            ? "目前模式：【含旁白字卡】將標題與旁白文字融入圖片排版繪製" 
-                            : "目前模式：【純淨畫面 (無字)】不繪製字幕文字，產出乾淨分鏡背景（推薦剪輯使用）"}
+                            ? "目前模式：【含長篇旁白】畫面字卡 + 完整旁白台詞皆繪入圖片排版" 
+                            : "目前模式：【僅畫面字卡】畫面字卡一併生成，不繪入長篇旁白台詞（版面精美大氣，推薦！）"}
                         >
                           {includeVoiceoverInImage ? (
                             <>
                               <Type className="w-4 h-4 text-amber-600" />
-                              <span>繪入文字：含旁白字卡 (開)</span>
+                              <span>旁白排版：含旁白台詞 (開)</span>
                             </>
                           ) : (
                             <>
                               <Sparkles className="w-4 h-4 text-emerald-600" />
-                              <span>圖像模式：純淨畫面 (無字)</span>
+                              <span>旁白排版：僅畫面字卡 (推薦)</span>
                             </>
                           )}
                         </button>
