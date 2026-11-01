@@ -204,7 +204,7 @@ export const AUDIENCE_THEMES = {
   fintech: {
     id: 'fintech',
     ambientGlow: 'bg-blue-600',
-    title: '7. AI 宏觀風控與選股決策引擎',
+    title: 'FinTech 財經知識・AI 解析',
     subtitle: 'Bloomberg Blue 彭博終端藍',
     desc: '專業客觀、科技感的深藍與金色高光。專為全球總經、金融市場與量化分析視覺設計。',
     gradient: 'from-[#1E3A8A] to-[#0D9488]',
@@ -228,7 +228,7 @@ export const AUDIENCE_THEMES = {
     focusRing: 'focus:border-blue-500/50',
     actionBtn: 'bg-blue-600 hover:bg-blue-500 text-white',
     actionBtnOutline: 'bg-blue-500/10 text-blue-600 hover:text-blue-700 border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/20',
-    themeLogMessage: '[Theme] 已切換至「7. AI 宏觀風控與選股決策引擎 (Bloomberg Blue)」模式。啟動玉山 AI CUP D-Plan 量化風控工作流 🟢'
+    themeLogMessage: '[Theme] 已切換至「FinTech 財經知識 (Bloomberg Blue)」模式。啟動量化金融圖表渲染，調適金藍彭博終端視覺 🟢'
   },
   "fairy tales": {
     id: 'fairy tales',
@@ -477,4 +477,3 @@ export const THEME_STEPS = {
     { id: 10, name: '全平台社群推播文案', icon: 'Facebook', category: 'Distribution', desc: '一鍵生成專案亮點圖卡提示詞與拉票社群正文', type: 'social', language: 'markdown', dependsOn: ['theme', 'step1'] }
   ]
 };
-
