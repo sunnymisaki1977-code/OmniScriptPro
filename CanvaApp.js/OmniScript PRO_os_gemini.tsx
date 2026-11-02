@@ -1171,7 +1171,7 @@ export default function App() {
         // 💡 依據環境決定生成方式
         let outputText = "";
 
-        if (isCanvasEnv && localPromptFunctions) {
+        if (isCanvasEnv && localPromptFunctions && activeApiKey && activeApiKey.trim()) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
             const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");

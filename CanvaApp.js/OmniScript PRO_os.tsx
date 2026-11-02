@@ -116,7 +116,7 @@ const geminiPayload = {
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
     let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : (isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash');
-    let finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
+    let finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
 
     let aiResponse = await fetch(finalApiUrl, {
         method: 'POST',
@@ -129,7 +129,7 @@ const geminiPayload = {
 
     if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
         console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
-        if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`; }
+        if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`; }
         delete geminiPayload.tools;
         aiResponse = await fetch(finalApiUrl, {
             method: 'POST',
@@ -1220,7 +1220,7 @@ export default function App() {
         // 💡 依據環境決定生成方式
         let outputText = "";
 
-        if (isCanvasEnv && localPromptFunctions) {
+        if (isCanvasEnv && localPromptFunctions && activeApiKey && activeApiKey.trim()) {
             // [Canvas 環境]：完全在前端端點執行，省去不斷與 Vercel 溝通
             const promptFunc = localPromptFunctions[i];
             const safeTheme = startTheme.replace(/<USER_DATA>|<\/USER_DATA>/gi, "");
@@ -1248,7 +1248,7 @@ export default function App() {
             const isSearchStep = (i === 1 && !safeStep1);
             const isFintech = audienceTheme === 'fintech';
             let targetModel = isFintech ? 'gemini-3-flash-thinking' : (isSearchStep ? 'gemini-2.5-flash' : 'gemini-3-flash-preview');
-            let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
+            let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 
@@ -1267,7 +1267,7 @@ export default function App() {
 
             // ⚠️ 如果 Step 1 因為 Google Search (403/400) 權限不足失敗，自動拔除 tools 並重試
             if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
-                if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`; }
+                if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`; }
                 console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
                 aiResponse = await fetch(apiUrl, {
                     method: 'POST',

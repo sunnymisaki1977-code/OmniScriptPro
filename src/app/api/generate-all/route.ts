@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       }
       
       const targetModel = isFintech ? (attempt === 1 ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash') : (isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite');
-      const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
+      const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKeys[currentKeyIndex]}`;
 
       try {
         console.log(`[後端日誌] 正在使用 ${targetModel} 生成步驟 ${step.id}...`);
@@ -119,7 +119,12 @@ export async function POST(req: Request) {
         }
         
         const data = await aiResponse.json();
-        let outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        let outputText = parts.find((p: any) => p.text && !p.thought)?.text
+            || parts[parts.length - 1]?.text
+            || parts[0]?.text
+            || data.candidates?.[0]?.text
+            || "";
 
         // 💡 優化 5：防呆機制，若模型還是手癢輸出了 JSON (Markdown 程式碼區塊)，則將其剝除
         outputText = outputText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```$/i, "").trim();
