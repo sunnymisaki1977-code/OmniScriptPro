@@ -116,7 +116,7 @@ const geminiPayload = {
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
     let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : (isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash');
-    const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
+    let finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
 
     let aiResponse = await fetch(finalApiUrl, {
         method: 'POST',
@@ -151,7 +151,12 @@ const geminiPayload = {
     }
     
     const data = await aiResponse.json();
-    let cleanText = data.candidates[0]?.content?.parts[0]?.text || "{}";
+    const callParts = data.candidates?.[0]?.content?.parts || [];
+    let cleanText = callParts.find((p: any) => p.text && !p.thought)?.text
+        || callParts[callParts.length - 1]?.text
+        || callParts[0]?.text
+        || data.candidates?.[0]?.text
+        || "{}";
     
     // 🛡️ 強健版 JSON 解析器
     const cleanAndParseJSON = (rawText, stepId) => {
@@ -1243,7 +1248,7 @@ export default function App() {
             const isSearchStep = (i === 1 && !safeStep1);
             const isFintech = audienceTheme === 'fintech';
             let targetModel = isFintech ? 'gemini-3-flash-thinking' : (isSearchStep ? 'gemini-2.5-flash' : 'gemini-3-flash-preview');
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
+            let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 
@@ -1288,7 +1293,17 @@ export default function App() {
                 throw new Error(`Google API 錯誤: ${aiResponse.status} ${errDetail}`);
             }
             const data = await aiResponse.json();
-            outputText = data.candidates[0].content.parts[0].text;
+            const parts = data.candidates?.[0]?.content?.parts || [];
+            const textPart = parts.find((p: any) => p.text && !p.thought)?.text 
+                || parts[parts.length - 1]?.text 
+                || parts[0]?.text 
+                || data.candidates?.[0]?.text 
+                || "";
+            if (!textPart && (!data.candidates || data.candidates.length === 0)) {
+                const blockReason = data.promptFeedback?.blockReason || data.error?.message || "無候選回應";
+                throw new Error(`Google API 未回傳有效候選內容 (${blockReason})`);
+            }
+            outputText = textPart;
             
         } else {
             // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
