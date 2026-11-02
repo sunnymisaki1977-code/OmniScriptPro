@@ -1,0 +1,330 @@
+{
+  "schema_version": "4.3",
+  "doc_type": "D-Plan",
+  "team_id": "TEAM_12006",
+  "trade_date": "2026-10-30",
+  "sources": [
+    {
+      "source_id": "S1",
+      "authority": "twse",
+      "url": "https://www.twse.com.tw",
+      "content_as_of": "2026-10-29T13:30:00+08:00"
+    },
+    {
+      "source_id": "S2",
+      "authority": "taifex",
+      "url": "https://www.taifex.com.tw",
+      "content_as_of": "2026-10-30T05:00:00+08:00"
+    },
+    {
+      "source_id": "S3",
+      "authority": "vendor",
+      "url": "https://finance.yahoo.com",
+      "content_as_of": "2026-10-30T04:00:00+08:00"
+    }
+  ],
+  "observations": [
+    {
+      "obs_id": "O1",
+      "source_ref": [
+        "S3"
+      ],
+      "statement": "美股四大指數強勢收漲，費城半導體指數大漲 +3.36% 正式收盤於 11,455.47 點（美東時間 04:00 定案）。輝達 (NVDA) 勁揚 +2.98% 收 137.03 美元；台積電 ADR (TSM) 走高 +1.07% 收 218.31 美元，全球 AI 算力投資多頭架構強勁確立。",
+      "values": {
+        "sox_close": 11455.47,
+        "sox_change_pct": 0.0336,
+        "nvda_close": 137.03,
+        "nvda_change_pct": 0.0298,
+        "tsm_adr_close": 218.31,
+        "tsm_adr_change_pct": 0.0107
+      }
+    },
+    {
+      "obs_id": "O2",
+      "source_ref": [
+        "S1",
+        "S2"
+      ],
+      "statement": "台指期夜盤於今日 05:00 正式收盤，收 45,654 點 (+0.51%)，全面反應費半大漲訊號，電子權值股普遍強勢。美國 10 年期公債殖利率定案收 4.32%，遠低於 5.0% 宏觀防禦閾值，流動性環境維持正常寬鬆，操作姿態維持標準多頭。",
+      "values": {
+        "tx_night_close": 45654,
+        "tx_night_change_pct": 0.0051,
+        "us10y_yield": 4.32,
+        "defensive_triggered": 0
+      }
+    },
+    {
+      "obs_id": "O3",
+      "source_ref": [
+        "S1"
+      ],
+      "statement": "DataPack_596_2026-10-30 顯示 2330 台積電持股 104,000 股，以昨收 2,415 元計算組合權重 25.1351%，已超過大會 25.0% 單一持股上限，觸發 single_stock_cap 合規 Notice 警示。依 SKILL 硬性規定，今日第一優先強制 TRIM 至 24.20% 以下。",
+      "values": {
+        "tsmc_current_shares": 104000,
+        "tsmc_current_weight": 0.251351,
+        "tsmc_weight_cap": 0.25,
+        "tsmc_target_weight": 0.2417
+      }
+    }
+  ],
+  "market_view": {
+    "basis_refs": [
+      "O1",
+      "O2",
+      "O3"
+    ],
+    "logic": "美股 04:00 正式收盤與台指期夜盤 05:00 定案數據同步確認：費半 +3.36% 強勢、美債 4.32% 無防禦觸發。今日三軸決策：（一）合規優先：TRIM 台積電 4,000 股，消除 25.1351% 超標警示，降至 24.17%，回收 9,660,000 元；（二）費半多頭加碼：BUY ASMedia（3711）4,000 股，受惠 USB4 Gen4/PCIe5.0 算力互連需求；（三）AI 電源微增：BUY 台達電（2308）1,000 股，鞏固核心倉位。結算現金 5.49%，金融三保險（2881/2882/2886）全數 HOLD。",
+    "regime": "risk_on",
+    "stance": "neutral",
+    "posture": {
+      "net_exposure_intent": "reduce",
+      "target_cash_pct_range": [
+        0.03,
+        0.08
+      ]
+    },
+    "counter_evidence": "台積電強制降權重產生部分摩擦成本；費半急漲後存在短線整固風險，已藉現金防禦水位 5.49% 預留緩衝。"
+  },
+  "inferences": [
+    {
+      "inf_id": "I1",
+      "premise_refs": [
+        "O3"
+      ],
+      "logic": "台積電組合權重 25.1351% 超過大會 25.0% 上限，觸發官方合規 Notice。依 SKILL 強制規定，今日必須優先 SELL 4,000 股，持股降至 100,000 股（權重 24.17%），徹底消除警示並回收 9,660,000 元現金。",
+      "counter_evidence": null
+    },
+    {
+      "inf_id": "I2",
+      "premise_refs": [
+        "O1",
+        "O2"
+      ],
+      "logic": "費半 +3.36% 強勢大漲（05:30 最終定案），USB4 Gen4 與 PCIe 5.0 算力互連晶片需求在 AI 資料中心建置加速下強勁爆發；ASMedia（3711）為全球 USB4 控制器龍頭，加碼 4,000 股提升 Alpha 與 Active Share。",
+      "counter_evidence": "費半急漲後有短線回調風險；3711 加碼後權重約 3.89%，遠低於 10% 上限。"
+    },
+    {
+      "inf_id": "I3",
+      "premise_refs": [
+        "O1"
+      ],
+      "logic": "台達電（2308）AI 電源供應器出貨量持續攀升，費半多頭環境明確利多，微增 1,000 股耗資 1,480,000 元，鞏固 AI 基礎設施電源供應鏈核心配置，現金影響極小。",
+      "counter_evidence": null
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "D1",
+      "ticker": "2330",
+      "action": "TRIM",
+      "target_weight": 0.2417,
+      "inference_refs": [
+        "I1"
+      ]
+    },
+    {
+      "decision_id": "D2",
+      "ticker": "3711",
+      "action": "ADD",
+      "target_weight": 0.0389,
+      "inference_refs": [
+        "I2"
+      ]
+    },
+    {
+      "decision_id": "D3",
+      "ticker": "2308",
+      "action": "ADD",
+      "target_weight": 0.0499,
+      "inference_refs": [
+        "I3"
+      ]
+    }
+  ],
+  "no_trade_decisions": [
+    {
+      "ticker": "1101",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "台泥配置適中，市況穩定，維持原部位"
+    },
+    {
+      "ticker": "1216",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "統一民生消費防禦配置穩固，維持原部位"
+    },
+    {
+      "ticker": "2002",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "中鋼部位已調節至低持股，維持原部位觀察"
+    },
+    {
+      "ticker": "2303",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "聯電成熟製程持股穩定，維持原部位"
+    },
+    {
+      "ticker": "2317",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "鴻海 AI 伺服器組裝主要受惠者，部位適中續抱"
+    },
+    {
+      "ticker": "2345",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "智邦 800G 網通配置續抱，權重已達目標區間"
+    },
+    {
+      "ticker": "2357",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "華碩品牌與板卡配置部位均衡，續抱"
+    },
+    {
+      "ticker": "2382",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "廣達 AI 伺服器核心代工部位已達目標，續抱"
+    },
+    {
+      "ticker": "2412",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "中華電信高股息防禦型電信股，配置穩健，續抱"
+    },
+    {
+      "ticker": "2454",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "聯發科旗艦晶片與邊緣 AI 核心標的，部位飽足，續抱"
+    },
+    {
+      "ticker": "2603",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "長榮航運運價高檔震盪，維持既有配置觀察"
+    },
+    {
+      "ticker": "2881",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "富邦金控獲利龍頭，依金融防禦雙保險原則堅守 HOLD"
+    },
+    {
+      "ticker": "2882",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "國泰金大型金控，依金融防禦雙保險原則堅守 HOLD"
+    },
+    {
+      "ticker": "2884",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "玉山金優質民營銀行股配置穩定，續抱"
+    },
+    {
+      "ticker": "2886",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "兆豐金公股龍頭，依金融防禦雙保險原則堅守 HOLD，不因加碼科技股而犧牲防禦城池"
+    },
+    {
+      "ticker": "2892",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "第一金官股金控，防禦性配置穩健，續抱"
+    },
+    {
+      "ticker": "2912",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "統一超零售超商內需防禦配置，現金流穩定，續抱"
+    },
+    {
+      "ticker": "3008",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "大立光高階光學鏡頭指標，高毛利護城河續抱"
+    },
+    {
+      "ticker": "3231",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "緯創伺服器代工板塊配置適中，續抱"
+    },
+    {
+      "ticker": "5876",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "上海商銀利差表現穩健，防禦性配置，續抱"
+    },
+    {
+      "ticker": "5880",
+      "reason_refs": [
+        "I1"
+      ],
+      "reason": "合庫金官股配置，防禦性續抱，暫無調整必要"
+    },
+    {
+      "ticker": "6669",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "緯穎 ASIC 伺服器代工部位配置適中，費半多頭維持原部位"
+    }
+  ],
+  "orders": [
+    {
+      "ticker": "2330",
+      "side": "SELL",
+      "shares": 4000,
+      "decision_ref": "D1",
+      "derivation_detail": "floor(0.2417 × 999240061.60 ÷ 2415 ÷ 1000) × 1000 = floor(100.01) × 1000 = 100000 股；原持有 104000 股；差額 SELL 4000 股（回收 9,660,000 元）"
+    },
+    {
+      "ticker": "3711",
+      "side": "BUY",
+      "shares": 3000,
+      "decision_ref": "D2",
+      "derivation_detail": "floor(0.0389 × 999240061.60 ÷ 683 ÷ 1000) × 1000 = floor(57.01) × 1000 = 56000 股；原持有 53000 股；差額 BUY 3000 股（耗資 2,049,000 元）"
+    },
+    {
+      "ticker": "2308",
+      "side": "BUY",
+      "shares": 1000,
+      "decision_ref": "D3",
+      "derivation_detail": "floor(0.0499 × 999240061.60 ÷ 1480 ÷ 1000) × 1000 = floor(33.69) × 1000 = 33000 股；原持有 32000 股；差額 BUY 1000 股（耗資 1,480,000 元）"
+    }
+  ],
+  "agent_metadata": {
+    "model_provider": "google",
+    "model_version": "gemini-pro-antigravity",
+    "run_started_at": "2026-10-30T05:29:28+08:00",
+    "run_completed_at": "2026-10-30T05:30:38+08:00",
+    "code_version": "v4.3"
+  }
+}
