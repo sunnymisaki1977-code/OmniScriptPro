@@ -1416,14 +1416,6 @@ export default function App() {
   const [selectedNotionDb, setSelectedNotionDb] = useState("");
   const [notionDbFiles, setNotionDbFiles] = useState<any[]>([]);
   const [isLoadingNotionDb, setIsLoadingNotionDb] = useState(false);
-  // ====== TTS 語音發控中心狀態 ======
-  const [ttsText, setTtsText] = useState('');
-  const [ttsVoice, setTtsVoice] = useState('tw-female');
-  const [ttsRate, setTtsRate] = useState('+0%');
-  const [ttsPitch, setTtsPitch] = useState('+0Hz');
-  const [ttsAutoExtract, setTtsAutoExtract] = useState(true);
-  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
-  const [ttsAudioUrl, setTtsAudioUrl] = useState('');
  
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -311,27 +310,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // 容錯支援舊版 msedge-tts 呼叫
-    if (body.text && body.voice) {
-      const tts = new MsEdgeTTS();
-      await tts.setMetadata(body.voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
-      const { audioStream } = tts.toStream(body.text, {
-        rate: body.rate || 0,
-        pitch: body.pitch || 0
-      });
-      const chunks: Buffer[] = [];
-      for await (const chunk of audioStream) {
-        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
-      }
-      const audioBuffer = Buffer.concat(chunks);
-      return new NextResponse(audioBuffer, {
-        status: 200,
-        headers: {
-          "Content-Type": "audio/mpeg",
-          "Content-Disposition": 'attachment; filename="speech.mp3"'
-        }
-      });
-    }
 
     return NextResponse.json({ error: "請指定 action (如 get_story, extract_chapters) 或使用前端 Gemini TTS API" }, { status: 400 });
   } catch (error: any) {

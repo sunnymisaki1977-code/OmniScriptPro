@@ -1391,14 +1391,6 @@ export default function App() {
   const [selectedNotionDb, setSelectedNotionDb] = useState("");
   const [notionDbFiles, setNotionDbFiles] = useState<any[]>([]);
   const [isLoadingNotionDb, setIsLoadingNotionDb] = useState(false);
-  // ====== TTS 語音發控中心狀態 ======
-  const [ttsText, setTtsText] = useState('');
-  const [ttsVoice, setTtsVoice] = useState('tw-female');
-  const [ttsRate, setTtsRate] = useState('+0%');
-  const [ttsPitch, setTtsPitch] = useState('+0Hz');
-  const [ttsAutoExtract, setTtsAutoExtract] = useState(true);
-  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
-  const [ttsAudioUrl, setTtsAudioUrl] = useState('');
  
 
  // ====== 核心狀態管理 (加上 SSR 防護) ======
@@ -2002,60 +1994,7 @@ export default function App() {
 
   
 
-  const handleGenerateTts = async (customText) => {
-    const textToUse = typeof customText === 'string' ? customText : ttsText;
-    if (!textToUse || !textToUse.trim()) {
-      addLog('❌ 請提供要合成語音的腳本或旁白內容', 'error');
-      return;
-    }
 
-    setIsGeneratingTts(true);
-    const charCount = textToUse.trim().length;
-    addLog(`🎙️ 正在呼叫 Microsoft 自然神經語音引擎合成音訊（共 ${charCount} 字，極速並行處理中）...`, 'info');
-    const startTime = Date.now();
-
-    try {
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToUse,
-          voice: ttsVoice,
-          rate: ttsRate,
-          pitch: ttsPitch,
-          autoExtract: ttsAutoExtract
-        })
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        let errMsg = `伺服器回應異常 (狀態碼: ${res.status})`;
-        try {
-          const parsed = JSON.parse(errText);
-          errMsg = parsed.error || errMsg;
-        } catch {
-          if (res.status === 504 || errText.includes('FUNCTION_INVOCATION_TIMEOUT') || errText.includes('An error occurred')) {
-            errMsg = '伺服器運算逾時 (超過 60 秒限制)，建議選用高速神經語音（如雲健解說、雲希說書或曉臻）';
-          }
-        }
-        throw new Error(errMsg);
-      }
-
-      const data = await res.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      setTtsAudioUrl(data.audioBase64);
-      addLog(`✅ TTS 語音合成成功！耗時 ${elapsed} 秒，音訊大小: ${(data.byteSize / 1024).toFixed(1)} KB`, 'success');
-    } catch (err: any) {
-      console.error(err);
-      addLog(`❌ TTS 生成錯誤: ${err.message}`, 'error');
-    } finally {
-      setIsGeneratingTts(false);
-    }
-  };
 
   const handleThemeChange = (newThemeId) => {
     setAudienceTheme(newThemeId);
