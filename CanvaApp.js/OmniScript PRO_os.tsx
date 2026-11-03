@@ -484,6 +484,8 @@ function TtsStudio({
   // 快取佇列
   const audioQueueRef = useRef<Record<number, string>>({});
   const pcmDataQueueRef = useRef<Record<number, Int16Array>>({});
+  const pcmTextCacheRef = useRef<Record<number, string>>({});
+  const pcmVoiceCacheRef = useRef<Record<number, string>>({});
   const fetchPromisesRef = useRef<Record<number, Promise<string | null>>>({});
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const currentSampleRateRef = useRef<number>(24000);
@@ -631,6 +633,8 @@ function TtsStudio({
               }
 
               pcmDataQueueRef.current[index] = pcm16;
+              pcmTextCacheRef.current[index] = cleanedText;
+              pcmVoiceCacheRef.current[index] = chunkVoiceName;
               currentSampleRateRef.current = sampleRate;
 
               const wavBlob = pcmToWav(pcm16, sampleRate);
@@ -760,6 +764,13 @@ function TtsStudio({
       return false;
     }
 
+    // 重新分段時清空舊音訊快取，防止文字與快取錯位
+    audioQueueRef.current = {};
+    pcmDataQueueRef.current = {};
+    fetchPromisesRef.current = {};
+    pcmTextCacheRef.current = {};
+    pcmVoiceCacheRef.current = {};
+
     const newChunks: string[] = [];
     let current = '';
     const TARGET_LENGTH = 500;
@@ -803,8 +814,10 @@ function TtsStudio({
 
     if (startIndex === 0 && !keepPrepared) {
       audioQueueRef.current = {};
-      pcmDataQueueRef.current = {};
-      fetchPromisesRef.current = {};
+    pcmDataQueueRef.current = {};
+    fetchPromisesRef.current = {};
+    pcmTextCacheRef.current = {};
+    pcmVoiceCacheRef.current = {};
       currentFetchIndexRef.current = 0;
     } else {
       currentFetchIndexRef.current = startIndex;
@@ -846,6 +859,11 @@ function TtsStudio({
   const switchToEdit = () => {
     stopStory();
     setIsEditMode(true);
+    audioQueueRef.current = {};
+    pcmDataQueueRef.current = {};
+    fetchPromisesRef.current = {};
+    pcmTextCacheRef.current = {};
+    pcmVoiceCacheRef.current = {};
   };
 
   const jumpToChunk = (index: number) => {
@@ -872,6 +890,8 @@ function TtsStudio({
     audioQueueRef.current = {};
     pcmDataQueueRef.current = {};
     fetchPromisesRef.current = {};
+    pcmTextCacheRef.current = {};
+    pcmVoiceCacheRef.current = {};
 
     if (!isStoppedRef.current) {
       const currentIdx = currentPlayIndex;
@@ -892,6 +912,8 @@ function TtsStudio({
     delete audioQueueRef.current[index];
     delete pcmDataQueueRef.current[index];
     delete fetchPromisesRef.current[index];
+    delete pcmTextCacheRef.current[index];
+    delete pcmVoiceCacheRef.current[index];
     showToast(`段落 ${index + 1} 已切換為 ${newVoice}`);
 
     if (!isStoppedRef.current) {
@@ -909,6 +931,8 @@ function TtsStudio({
     audioQueueRef.current = {};
     pcmDataQueueRef.current = {};
     fetchPromisesRef.current = {};
+    pcmTextCacheRef.current = {};
+    pcmVoiceCacheRef.current = {};
     if (!isStoppedRef.current) {
       currentFetchIndexRef.current = currentPlayIndex;
       prefetchLoop();
@@ -922,7 +946,21 @@ function TtsStudio({
     setIsExporting(true);
     showToast(`正在生成第 ${index + 1} 段音檔...`);
     try {
-      if (!pcmDataQueueRef.current[index] || (pcmDataQueueRef.current[index] as any) === 'error') {
+      const cleanedText = cleanTextForTTS(chunks[index]);
+      const chunkVoiceName = chunkVoices[index] || globalVoice;
+      const isCacheValid =
+        pcmDataQueueRef.current[index] &&
+        (pcmDataQueueRef.current[index] as any) !== 'error' &&
+        pcmTextCacheRef.current[index] === cleanedText &&
+        pcmVoiceCacheRef.current[index] === chunkVoiceName;
+
+      if (!isCacheValid) {
+        delete pcmDataQueueRef.current[index];
+        delete audioQueueRef.current[index];
+        delete fetchPromisesRef.current[index];
+        delete pcmTextCacheRef.current[index];
+        delete pcmVoiceCacheRef.current[index];
+
         const url = await fetchAudioForChunk(chunks[index], index);
         if (url === 'auth_error') {
           showToast('⚠️ 偵測到 API 憑證失效 (401)，請在上方「Gemini API Key」輸入金鑰！');
@@ -953,7 +991,7 @@ function TtsStudio({
         setTimeout(() => {
           URL.revokeObjectURL(downloadUrl);
           document.body.removeChild(a);
-        }, 200);
+        }, 800);
         showToast(`✅ 第 ${index + 1} 段音檔下載成功！`);
       }
     } catch (err: any) {
@@ -984,7 +1022,20 @@ function TtsStudio({
           continue;
         }
 
-        if (!pcmDataQueueRef.current[i] || (pcmDataQueueRef.current[i] as any) === 'error') {
+        const cleanedText = cleanTextForTTS(chunks[i]);
+        const chunkVoiceName = chunkVoices[i] || globalVoice;
+        const isCacheValid =
+          pcmDataQueueRef.current[i] &&
+          (pcmDataQueueRef.current[i] as any) !== 'error' &&
+          pcmTextCacheRef.current[i] === cleanedText &&
+          pcmVoiceCacheRef.current[i] === chunkVoiceName;
+
+        if (!isCacheValid) {
+          delete pcmDataQueueRef.current[i];
+          delete audioQueueRef.current[i];
+          delete fetchPromisesRef.current[i];
+          delete pcmTextCacheRef.current[i];
+          delete pcmVoiceCacheRef.current[i];
           setStatusText(`獲取未緩衝音檔 (${i + 1}/${chunks.length})...`);
           setShowWave(true);
           const url = await fetchAudioForChunk(chunks[i], i);
@@ -1051,8 +1102,8 @@ function TtsStudio({
 
       setTimeout(() => {
         URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-      }, 200);
+          document.body.removeChild(a);
+        }, 800);
 
       showToast('🎉 完整音檔下載成功！');
       setHasExportError(false);
