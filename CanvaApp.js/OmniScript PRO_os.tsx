@@ -365,6 +365,7 @@ function TtsStudio({
   const [showWave, setShowWave] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string>('');
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [downloadingChunkIndex, setDownloadingChunkIndex] = useState<number | null>(null);
 
   // 快取佇列
   const audioQueueRef = useRef<Record<number, string>>({});
@@ -743,6 +744,7 @@ function TtsStudio({
   };
 
   const exportSingleChunk = async (index: number) => {
+    setDownloadingChunkIndex(index);
     setIsExporting(true);
     showToast(`正在生成第 ${index + 1} 段音檔...`);
     try {
@@ -771,6 +773,7 @@ function TtsStudio({
       }
     } finally {
       setIsExporting(false);
+      setDownloadingChunkIndex(null);
     }
   };
 
@@ -1303,14 +1306,28 @@ function TtsStudio({
                           朗讀此段
                         </button>
                         <button
+                          disabled={downloadingChunkIndex === index}
                           onClick={(e) => {
                             e.stopPropagation();
                             exportSingleChunk(index);
                           }}
-                          className="bg-slate-800 hover:bg-slate-700 text-stone-300 border border-slate-700 px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1 transition-all ${
+                            downloadingChunkIndex === index
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 cursor-wait animate-pulse'
+                              : 'bg-slate-800 hover:bg-slate-700 text-stone-300 border border-slate-700'
+                          }`}
                         >
-                          <Download className="w-3 h-3" />
-                          下載單段
+                          {downloadingChunkIndex === index ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
+                              <span>進行中...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-3 h-3" />
+                              <span>下載單段</span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
