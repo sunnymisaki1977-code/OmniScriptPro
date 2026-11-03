@@ -334,6 +334,117 @@ function cleanTextForTTS(text: string): string {
     .trim();
 }
 
+const VoiceSelectOptions = () => (
+  <>
+    <optgroup label="原始設定">
+      <option value="Gacrux">成熟說書人 (Gacrux)</option>
+      <option value="Charon">知識長者 (Charon)</option>
+      <option value="Zephyr">明亮生動 (Zephyr)</option>
+      <option value="Aoede">溫柔婉約 (Aoede)</option>
+      <option value="Puck">活潑說書 (Puck)</option>
+      <option value="Kore">沉穩中性 (Kore)</option>
+      <option value="Fenrir">熱情激昂 (Fenrir)</option>
+      <option value="Leda">年輕活力 (Leda)</option>
+      <option value="Orus">堅定有力 (Orus)</option>
+    </optgroup>
+
+    <optgroup label="1. 明亮與活潑 (Bright & Upbeat)">
+      <option value="Zephyr">Zephyr (女)：輕快、年輕且明亮</option>
+      <option value="Puck">Puck (男)：台灣口語俏皮、具備靈動與跳躍感</option>
+      <option value="Leda">Leda (女)：親切、帶點稚嫩感</option>
+      <option value="Autonoe">Autonoe (女)：外向且活潑</option>
+      <option value="Sadachbia">Sadachbia (男)：台灣口語生動、充滿活力</option>
+    </optgroup>
+
+    <optgroup label="2. 穩重與專業 (Firm & Informative)">
+      <option value="Charon">Charon (男)：台灣口語沉穩的男性低音，資訊傳遞感強</option>
+      <option value="Kore">Kore (女)：咬字清晰、語氣堅定專業</option>
+      <option value="Iapetus">Iapetus (男)：台灣口語穩重、具備權威感且口齒清晰</option>
+      <option value="Sadaltager">Sadaltager (男)：台灣口語聽起來博學且具備專業知識感</option>
+      <option value="Schedar">Schedar (男)：台灣口語沉著、平穩、可靠</option>
+    </optgroup>
+
+    <optgroup label="3. 順暢與隨和 (Smooth & Easygoing)">
+      <option value="Callirrhoe">Callirrhoe (女)：極度流暢、自然的日常語氣</option>
+      <option value="Despina">Despina (女)：輕鬆、友善、平滑</option>
+      <option value="Umbriel">Umbriel (男)：台灣口語溫和、柔順且隨和</option>
+      <option value="Achird">Achird (男)：台灣口語極具親切感與友好度</option>
+      <option value="Zubenelgenubi">Zubenelgenubi (男)：台灣口語隨意、像朋友聊天般的輕鬆感</option>
+    </optgroup>
+
+    <optgroup label="4. 特色與高表現力 (Expressive & Unique)">
+      <option value="Fenrir">Fenrir (男)：台灣口語容易興奮、充滿熱情與爆發力</option>
+      <option value="Enceladus">Enceladus (男)：台灣口語帶有明顯氣音，聽感極度溫柔</option>
+      <option value="Algenib">Algenib (男)：台灣口語帶有沙啞的磁性嗓音</option>
+      <option value="Aoede">Aoede (女)：具備微歌唱感，語調起伏如微風般輕盈</option>
+      <option value="Gacrux">Gacrux (女)：成熟、歷練豐富的穩重女聲</option>
+    </optgroup>
+
+    <optgroup label="📖 書籍推薦 1：知識、商管與歷史">
+      <option value="Sadaltager">Sadaltager (男)：台灣口語博學專業，適合知識點密集的書</option>
+      <option value="Charon">Charon (男)：台灣口語沉穩低音，適合嚴肅歷史與傳記</option>
+      <option value="Kore">Kore (女)：咬字清晰，適合財經企管與邏輯書</option>
+    </optgroup>
+
+    <optgroup label="📖 書籍推薦 2：文學、心靈與散文">
+      <option value="Gacrux">Gacrux (女)：成熟穩重，帶出年代感與深度</option>
+      <option value="Callirrhoe">Callirrhoe (女)：流暢自然，像知性編輯為你朗讀</option>
+      <option value="Enceladus">Enceladus (男)：台灣口語溫柔氣音，適合浪漫小說或療癒書</option>
+    </optgroup>
+
+    <optgroup label="📖 書籍推薦 3：輕鬆選書與 YouTuber 感">
+      <option value="Zubenelgenubi">Zubenelgenubi (男)：台灣口語朋友聊天般的輕鬆感</option>
+      <option value="Achird">Achird (男)：台灣口語極具親切感與友好度的導讀人</option>
+      <option value="Despina">Despina (女)：輕鬆、友善、拉近聽眾距離</option>
+    </optgroup>
+
+    <optgroup label="📖 書籍推薦 4：童書、輕小說與動漫">
+      <option value="Zephyr">Zephyr (女)：輕快明亮，適合兒童繪本或 YA 小說</option>
+      <option value="Puck">Puck (男)：台灣口語俏皮跳躍，完美帶出奇幻冒險趣味</option>
+    </optgroup>
+
+    <optgroup label="📱 短影音 1：高能破冰與娛樂搞笑">
+      <option value="Fenrir">Fenrir (男)：台灣口語熱情爆發力，適合大喊誇張開場</option>
+      <option value="Zephyr">Zephyr (女)：輕快明亮，自帶年輕網紅濾鏡感</option>
+      <option value="Puck">Puck (男)：台灣口語俏皮跳躍，自帶無厘頭喜劇節奏</option>
+    </optgroup>
+
+    <optgroup label="📱 短影音 2：乾貨速報與冷知識快評">
+      <option value="Kore">Kore (女)：咬字結實清晰，調快語速依然粒粒分明</option>
+      <option value="Sadachbia">Sadachbia (男)：台灣口語生動充滿活力，適合緊湊科技速報</option>
+    </optgroup>
+
+    <optgroup label="📱 短影音 3：日常 Vlog 與生活共鳴">
+      <option value="Zubenelgenubi">Zubenelgenubi (男)：台灣口語急迫的隨意感，適合對鏡頭碎碎念</option>
+      <option value="Autonoe">Autonoe (女)：外向活潑親切，適合探店打卡開箱</option>
+    </optgroup>
+
+    <optgroup label="🇯🇵 日文旁白 1：知識解說與紀錄片風 (NHK style)">
+      <option value="Sadaltager">Sadaltager (男)：知性條理分明，適合知識型頻道 (サラタメ風)</option>
+      <option value="Charon">Charon (男)：低沉磁性大叔嗓音，宛如 NHK 歷史紀錄片旁白</option>
+      <option value="Kore">Kore (女)：咬字極端清晰，標準日本專業女主播 (女子アナ) 風格</option>
+    </optgroup>
+
+    <optgroup label="🇯🇵 日文旁白 2：文學療癒與日劇獨白風">
+      <option value="Enceladus">Enceladus (男)：帶有溫柔空氣感氣音，適合深夜廣播或村上春樹獨白</option>
+      <option value="Callirrhoe">Callirrhoe (女)：流暢知性，像日劇女主角的日常旁白散文朗讀</option>
+      <option value="Aoede">Aoede (女)：日系透明感，語調微幅起伏如微風般輕盈</option>
+      <option value="Gacrux">Gacrux (女)：成熟穩重，適合東野圭吾等懸疑推理小說旁白</option>
+    </optgroup>
+
+    <optgroup label="🇯🇵 日文旁白 3：動漫輕小說與短影音風 (Anime/VTuber)">
+      <option value="Leda">Leda (女)：年輕可愛萌系聲線，完美對應日本聲優與 VTuber 氣場</option>
+      <option value="Zephyr">Zephyr (女)：明亮充滿活力，適合流行文化與時尚短片</option>
+      <option value="Fenrir">Fenrir (男)：熱血爆發力，標準少年動漫主角或高能 Shorts 風格</option>
+    </optgroup>
+
+    <optgroup label="🇯🇵 日文旁白 4：日常 Vlog 與旅遊探店風">
+      <option value="Zubenelgenubi">Zubenelgenubi (男)：朋友間輕鬆聊天感，適合東京旅遊探店雜談</option>
+      <option value="Despina">Despina (女)：親切友善，適合日本藥妝好物開箱分享</option>
+    </optgroup>
+  </>
+);
+
 function TtsStudio({
   step2Content = '',
   step4Content = '',
@@ -886,66 +997,15 @@ function TtsStudio({
               onChange={(e) => {
                 const val = e.target.value;
                 setGlobalVoice(val);
-                setChunkVoices((prev) => prev.map(() => val));
+                setChunkVoices((prev) => chunks.length > 0 ? chunks.map(() => val) : prev.map(() => val));
                 audioQueueRef.current = {};
                 pcmDataQueueRef.current = {};
                 fetchPromisesRef.current = {};
-                showToast(`已切換全域聲音為: ${val}`);
+                showToast(`已切換全域聲音為: ${val}，所有段落已同步！`);
               }}
               className="bg-slate-700 text-white text-xs md:text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer max-w-[260px] md:max-w-xs truncate border border-slate-600"
             >
-              <optgroup label="原始推薦設定">
-                <option value="Sadaltager">Sadaltager (男)：台灣口語博學且具備專業知識感 (預設)</option>
-                <option value="Charon">Charon (男)：台灣口語沉穩低音，資訊傳遞感強</option>
-                <option value="Zephyr">Zephyr (女)：輕快、年輕且明亮</option>
-                <option value="Aoede">Aoede (女)：溫柔婉約，微歌唱感輕盈起伏</option>
-                <option value="Puck">Puck (男)：台灣口語俏皮跳躍，冒險喜劇節奏</option>
-                <option value="Kore">Kore (女)：咬字清晰堅定，標準播報女聲</option>
-                <option value="Fenrir">Fenrir (男)：熱情激昂爆發力，熱血高能</option>
-                <option value="Leda">Leda (女)：年輕活力、親切帶點稚嫩感</option>
-                <option value="Gacrux">Gacrux (女)：成熟穩重女聲，歷練豐富</option>
-              </optgroup>
-
-              <optgroup label="1. 明亮與活潑 (Bright & Upbeat)">
-                <option value="Zephyr">Zephyr (女)：輕快明亮，網紅感十足</option>
-                <option value="Puck">Puck (男)：俏皮靈動與跳躍感</option>
-                <option value="Leda">Leda (女)：親切、帶點稚嫩感</option>
-                <option value="Autonoe">Autonoe (女)：外向活潑、探店打卡開箱</option>
-                <option value="Sadachbia">Sadachbia (男)：台灣口語生動、充滿活力</option>
-              </optgroup>
-
-              <optgroup label="2. 穩重與專業 (Firm & Informative)">
-                <option value="Charon">Charon (男)：沉穩男性低音，適合歷史傳記</option>
-                <option value="Kore">Kore (女)：咬字清晰堅定，財經企管首選</option>
-                <option value="Iapetus">Iapetus (男)：穩重具權威感，口齒清晰</option>
-                <option value="Sadaltager">Sadaltager (男)：博學專業，知識點密集推薦</option>
-                <option value="Schedar">Schedar (男)：沉著平穩可靠，大氣厚重</option>
-              </optgroup>
-
-              <optgroup label="3. 順暢與隨和 (Smooth & Easygoing)">
-                <option value="Callirrhoe">Callirrhoe (女)：流暢自然，知性編輯導讀</option>
-                <option value="Despina">Despina (女)：輕鬆友善，拉近聽眾距離</option>
-                <option value="Umbriel">Umbriel (男)：溫和柔順隨和</option>
-                <option value="Achird">Achird (男)：極具親切感與友好度</option>
-                <option value="Zubenelgenubi">Zubenelgenubi (男)：朋友聊天般的隨意輕鬆感</option>
-              </optgroup>
-
-              <optgroup label="4. 特色與高表現力 (Expressive & Unique)">
-                <option value="Fenrir">Fenrir (男)：熱情爆發力，適合高能大喊破冰</option>
-                <option value="Enceladus">Enceladus (男)：溫柔氣音，浪漫小說療癒首選</option>
-                <option value="Algenib">Algenib (男)：磁性沙啞嗓音</option>
-                <option value="Aoede">Aoede (女)：日系透明感與微歌唱感</option>
-                <option value="Gacrux">Gacrux (女)：成熟歷練豐富穩重女聲</option>
-              </optgroup>
-
-              <optgroup label="🇯🇵 日文旁白推薦專區">
-                <option value="Sadaltager">Sadaltager (男)：知性條理 (サラタメ風)</option>
-                <option value="Charon">Charon (男)：低沉磁性 (NHK 歷史紀錄片風)</option>
-                <option value="Kore">Kore (女)：咬字極清 (日本女子アナ主播風)</option>
-                <option value="Enceladus">Enceladus (男)：溫柔空氣感 (村上春樹獨白風)</option>
-                <option value="Leda">Leda (女)：萌系聲線 (日本聲優與 VTuber 氣場)</option>
-                <option value="Fenrir">Fenrir (男)：熱血爆發 (少年熱血動漫主角風)</option>
-              </optgroup>
+              <VoiceSelectOptions />
             </select>
           </div>
         </div>
@@ -1268,7 +1328,7 @@ function TtsStudio({
                             e.stopPropagation();
                             const newVoice = e.target.value;
                             setChunkVoices((prev) => {
-                              const updated = [...prev];
+                              const updated = chunks.map((_, i) => prev[i] || globalVoice);
                               updated[index] = newVoice;
                               return updated;
                             });
@@ -1277,20 +1337,9 @@ function TtsStudio({
                             delete fetchPromisesRef.current[index];
                             showToast(`段落 ${index + 1} 已切換為 ${newVoice}`);
                           }}
-                          className="bg-slate-800 text-stone-200 border border-slate-700 rounded-md px-2 py-1 text-xs outline-none focus:border-amber-500 cursor-pointer max-w-[220px] truncate"
+                          className="bg-slate-800 text-stone-200 border border-slate-700 rounded-md px-2 py-1 text-xs outline-none focus:border-amber-500 cursor-pointer max-w-[260px] md:max-w-xs truncate"
                         >
-                          <option value="Sadaltager">Sadaltager (博學男)</option>
-                          <option value="Charon">Charon (沉穩低音男)</option>
-                          <option value="Zephyr">Zephyr (輕快明亮女)</option>
-                          <option value="Aoede">Aoede (溫柔婉約女)</option>
-                          <option value="Puck">Puck (俏皮活潑男)</option>
-                          <option value="Kore">Kore (播報清晰女)</option>
-                          <option value="Fenrir">Fenrir (熱血爆發男)</option>
-                          <option value="Leda">Leda (可愛萌系女)</option>
-                          <option value="Enceladus">Enceladus (溫柔氣音男)</option>
-                          <option value="Callirrhoe">Callirrhoe (知性女編輯)</option>
-                          <option value="Gacrux">Gacrux (成熟歷練女)</option>
-                          <option value="Zubenelgenubi">Zubenelgenubi (輕鬆聊天男)</option>
+                          <VoiceSelectOptions />
                         </select>
                       </div>
 
