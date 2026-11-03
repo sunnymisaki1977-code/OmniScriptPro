@@ -881,7 +881,7 @@ function TtsStudio({
                         <option value="Charon">Charon (男)：台灣口語沉穩的男性低音，資訊傳遞感強</option>
                         <option value="Kore">Kore (女)：咬字清晰、語氣堅定專業</option>
                         <option value="Iapetus">Iapetus (男)：台灣口語穩重、具備權威感且口齒清晰</option>
-                        <option value="Sadaltager" selected>Sadaltager (男)：台灣口語聽起來博學且具備專業知識感</option>
+                        <option value="Sadaltager">Sadaltager (男)：台灣口語聽起來博學且具備專業知識感</option>
                         <option value="Schedar">Schedar (男)：台灣口語沉著、平穩、可靠</option>
                     </optgroup>
 
