@@ -437,6 +437,9 @@ function TtsStudio({
   const [showWave, setShowWave] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string>('');
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [exportProgress, setExportProgress] = useState<number | null>(null);
+  const [exportStatusText, setExportStatusText] = useState<string>('');
+  const [hasExportError, setHasExportError] = useState<boolean>(false);
   const [downloadingChunkIndex, setDownloadingChunkIndex] = useState<number | null>(null);
 
   // 快取佇列
@@ -742,12 +745,15 @@ function TtsStudio({
     if (current) newChunks.push(current);
 
     setChunks(newChunks);
-    setChunkVoices(newChunks.map(() => globalVoice));
+    setChunkVoices((prev) => {
+      if (prev.length === newChunks.length) return prev;
+      return newChunks.map((_, i) => prev[i] || globalVoice);
+    });
     return true;
   };
 
-  const startStory = (startIndex = 0) => {
-    if (chunks.length === 0 || isEditMode) {
+  const startStory = (startIndex = 0, keepPrepared = false) => {
+    if (!keepPrepared || chunks.length === 0 || isEditMode) {
       if (!prepareStory()) return;
     }
     setIsEditMode(false);
@@ -756,7 +762,7 @@ function TtsStudio({
     setIsPaused(false);
     setCurrentPlayIndex(startIndex);
 
-    if (startIndex === 0) {
+    if (startIndex === 0 && !keepPrepared) {
       audioQueueRef.current = {};
       pcmDataQueueRef.current = {};
       fetchPromisesRef.current = {};
@@ -780,7 +786,8 @@ function TtsStudio({
       currentAudioRef.current.play();
       setIsPlaying(true);
       setIsPaused(false);
-      setStatusText(`正在朗讀 (第 ${currentPlayIndex + 1}/${chunks.length} 段)...`);
+      const activeVoice = chunkVoices[currentPlayIndex] || globalVoice;
+      setStatusText(`正在朗讀 (第 ${currentPlayIndex + 1}/${chunks.length} 段 - ${activeVoice})...`);
       setShowWave(true);
     }
   };
@@ -797,9 +804,14 @@ function TtsStudio({
     setShowWave(false);
   };
 
+  const switchToEdit = () => {
+    stopStory();
+    setIsEditMode(true);
+  };
+
   const jumpToChunk = (index: number) => {
     if (isStoppedRef.current) {
-      startStory(index);
+      startStory(index, true);
     } else {
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
@@ -815,18 +827,80 @@ function TtsStudio({
     }
   };
 
+  const handleGlobalVoiceChange = (val: string) => {
+    setGlobalVoice(val);
+    setChunkVoices((prev) => (chunks.length > 0 ? chunks.map(() => val) : prev.map(() => val)));
+    audioQueueRef.current = {};
+    pcmDataQueueRef.current = {};
+    fetchPromisesRef.current = {};
+
+    if (!isStoppedRef.current) {
+      const currentIdx = currentPlayIndex;
+      stopStory();
+      showToast(`已切換全域聲音為: ${val}，重新為您朗讀...`);
+      setTimeout(() => startStory(currentIdx, true), 300);
+    } else {
+      showToast(`已切換全域聲音為: ${val}，所有段落已同步！`);
+    }
+  };
+
+  const handleChunkVoiceChange = (index: number, newVoice: string) => {
+    setChunkVoices((prev) => {
+      const updated = chunks.map((_, i) => prev[i] || globalVoice);
+      updated[index] = newVoice;
+      return updated;
+    });
+    delete audioQueueRef.current[index];
+    delete pcmDataQueueRef.current[index];
+    delete fetchPromisesRef.current[index];
+    showToast(`段落 ${index + 1} 已切換為 ${newVoice}`);
+
+    if (!isStoppedRef.current) {
+      if (currentPlayIndex === index) {
+        jumpToChunk(index);
+      } else {
+        currentFetchIndexRef.current = Math.min(currentFetchIndexRef.current, index);
+        prefetchLoop();
+      }
+    }
+  };
+
+  const handleSettingChange = (updateFn: () => void) => {
+    updateFn();
+    audioQueueRef.current = {};
+    pcmDataQueueRef.current = {};
+    fetchPromisesRef.current = {};
+    if (!isStoppedRef.current) {
+      currentFetchIndexRef.current = currentPlayIndex;
+      prefetchLoop();
+    }
+    showToast('已更新聲音一致性設定！');
+  };
+
   const exportSingleChunk = async (index: number) => {
+    if (downloadingChunkIndex === index) return;
     setDownloadingChunkIndex(index);
     setIsExporting(true);
     showToast(`正在生成第 ${index + 1} 段音檔...`);
     try {
-      if (!pcmDataQueueRef.current[index]) {
+      if (!pcmDataQueueRef.current[index] || (pcmDataQueueRef.current[index] as any) === 'error') {
         const url = await fetchAudioForChunk(chunks[index], index);
-        if (url && url !== 'error' && url !== 'auth_error' && url !== 'empty') {
-          audioQueueRef.current[index] = url;
+        if (url === 'auth_error') {
+          showToast('⚠️ 偵測到 API 憑證失效 (401)，請在上方「Gemini API Key」輸入金鑰！');
+          return;
         }
+        if (url === 'empty') {
+          showToast('該段落無實際文字內容。');
+          return;
+        }
+        if (!url || url === 'error') {
+          showToast(`⚠️ 第 ${index + 1} 段音檔產生失敗，請稍候重試。`);
+          return;
+        }
+        audioQueueRef.current[index] = url;
       }
-      if (pcmDataQueueRef.current[index]) {
+
+      if (pcmDataQueueRef.current[index] && (pcmDataQueueRef.current[index] as any) !== 'error') {
         const wavBlob = pcmToWav(pcmDataQueueRef.current[index], currentSampleRateRef.current);
         const downloadUrl = URL.createObjectURL(wavBlob);
         const voiceName = chunkVoices[index] || globalVoice;
@@ -843,6 +917,8 @@ function TtsStudio({
         }, 200);
         showToast(`✅ 第 ${index + 1} 段音檔下載成功！`);
       }
+    } catch (err: any) {
+      showToast(`下載單段失敗: ${err.message || err}`);
     } finally {
       setIsExporting(false);
       setDownloadingChunkIndex(null);
@@ -853,41 +929,69 @@ function TtsStudio({
     if (chunks.length === 0 && !prepareStory()) return;
 
     setIsExporting(true);
-    showToast('開始準備合併完整音檔，請稍候...');
+    setHasExportError(false);
+    setExportProgress(0);
+    setExportStatusText('');
+    showToast('開始準備完整音檔...');
 
     let totalLength = 0;
     let exportSuccess = true;
+    let processedCount = 0;
 
     try {
       for (let i = 0; i < chunks.length; i++) {
-        if (!pcmDataQueueRef.current[i]) {
-          setStatusText(`緩衝音檔 (${i + 1}/${chunks.length})...`);
+        if (audioQueueRef.current[i] === 'empty') {
+          processedCount++;
+          continue;
+        }
+
+        if (!pcmDataQueueRef.current[i] || (pcmDataQueueRef.current[i] as any) === 'error') {
+          setStatusText(`獲取未緩衝音檔 (${i + 1}/${chunks.length})...`);
           setShowWave(true);
           const url = await fetchAudioForChunk(chunks[i], i);
-          if (url === 'auth_error' || url === 'error' || !url) {
+          if (url === 'auth_error') {
+            exportSuccess = false;
+            showToast('⚠️ 偵測到 API 憑證失效 (401)，請在上方「Gemini API Key」輸入金鑰！');
+            break;
+          }
+          if (url === 'empty') {
+            audioQueueRef.current[i] = 'empty';
+            processedCount++;
+            continue;
+          }
+          if (url === 'error' || !url) {
             exportSuccess = false;
             break;
           }
-          if (url) audioQueueRef.current[i] = url;
+          audioQueueRef.current[i] = url;
           await new Promise((r) => setTimeout(r, 1200));
         }
-        if (pcmDataQueueRef.current[i]) {
+
+        if (pcmDataQueueRef.current[i] && (pcmDataQueueRef.current[i] as any) !== 'error') {
           totalLength += pcmDataQueueRef.current[i].length;
         }
+        processedCount++;
+        const pct = Math.floor((processedCount / chunks.length) * 100);
+        setExportProgress(pct);
       }
 
       if (!exportSuccess) {
-        showToast('部分段落尚未完成，請再次點擊「匯出完整音檔」重試！');
+        setHasExportError(true);
+        setStatusText('準備就緒');
+        setShowWave(false);
+        showToast('⚠️ 部分段落尚未完成，請點擊「繼續匯出」接續處理！');
         return;
       }
 
+      setExportStatusText('合併中...');
       setStatusText('正在合併完整音訊段落...');
+      setShowWave(true);
       await new Promise((r) => setTimeout(r, 60));
 
       const combinedPcm = new Int16Array(totalLength);
       let offset = 0;
       for (let i = 0; i < chunks.length; i++) {
-        if (pcmDataQueueRef.current[i]) {
+        if (pcmDataQueueRef.current[i] && (pcmDataQueueRef.current[i] as any) !== 'error') {
           combinedPcm.set(pcmDataQueueRef.current[i], offset);
           offset += pcmDataQueueRef.current[i].length;
         }
@@ -910,11 +1014,15 @@ function TtsStudio({
         URL.revokeObjectURL(downloadUrl);
         document.body.removeChild(a);
       }, 200);
+
       showToast('🎉 完整音檔下載成功！');
+      setHasExportError(false);
     } catch (e: any) {
       showToast(`合併失敗: ${e.message}`);
     } finally {
       setIsExporting(false);
+      setExportProgress(null);
+      setExportStatusText('');
       setStatusText('準備就緒');
       setShowWave(false);
     }
@@ -955,15 +1063,7 @@ function TtsStudio({
             <select
               id="voice-select-main"
               value={globalVoice}
-              onChange={(e) => {
-                const val = e.target.value;
-                setGlobalVoice(val);
-                setChunkVoices((prev) => chunks.length > 0 ? chunks.map(() => val) : prev.map(() => val));
-                audioQueueRef.current = {};
-                pcmDataQueueRef.current = {};
-                fetchPromisesRef.current = {};
-                showToast(`已切換全域聲音為: ${val}，所有段落已同步！`);
-              }}
+              onChange={(e) => handleGlobalVoiceChange(e.target.value)}
               className="bg-slate-700 text-white text-xs md:text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer max-w-[260px] md:max-w-xs truncate border border-slate-600"
             >
               <VoiceSelectOptions />
@@ -975,46 +1075,112 @@ function TtsStudio({
         <div className="border-b border-slate-800 p-4 bg-slate-900/90 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-20 backdrop-blur-md">
           <div className="flex flex-wrap gap-2.5">
             {isEditMode ? (
-              <button
-                onClick={() => startStory(0)}
-                className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg shadow-amber-600/20 active:scale-95 transition-all flex items-center gap-2"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                開始說書
-              </button>
-            ) : (
               <>
                 <button
-                  onClick={pauseStory}
-                  className="bg-slate-700 hover:bg-slate-600 text-stone-100 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
+                  onClick={() => startStory(0)}
+                  className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg shadow-amber-600/20 active:scale-95 transition-all flex items-center gap-2"
                 >
-                  {isPaused ? <Play className="w-4 h-4 fill-current text-green-400" /> : <Pause className="w-4 h-4 text-amber-400" />}
-                  {isPaused ? '繼續' : '暫停'}
+                  <Play className="w-4 h-4 fill-current" />
+                  開始說書
                 </button>
                 <button
-                  onClick={stopStory}
-                  className="bg-red-900/40 hover:bg-red-900/60 text-red-200 border border-red-800/60 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
+                  onClick={exportFullAudio}
+                  disabled={isExporting}
+                  className={`px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2 ${
+                    hasExportError
+                      ? 'bg-amber-600 hover:bg-amber-500 text-white animate-pulse'
+                      : 'bg-blue-600/80 hover:bg-blue-600 text-white disabled:opacity-60'
+                  }`}
                 >
-                  <Square className="w-4 h-4 text-red-400 fill-current" />
-                  停止
+                  {isExporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{exportStatusText || `處理中 ${exportProgress ?? 0}%`}</span>
+                    </>
+                  ) : hasExportError ? (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>繼續匯出 (.wav)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>匯出完整音檔 (.wav)</span>
+                    </>
+                  )}
                 </button>
+              </>
+            ) : (
+              <>
+                {isPlaying ? (
+                  <button
+                    onClick={pauseStory}
+                    className="bg-slate-700 hover:bg-slate-600 text-stone-100 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <Pause className="w-4 h-4 text-amber-400" />
+                    暫停
+                  </button>
+                ) : isPaused ? (
+                  <button
+                    onClick={pauseStory}
+                    className="bg-slate-700 hover:bg-slate-600 text-green-300 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <Play className="w-4 h-4 fill-current text-green-400" />
+                    繼續
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => startStory(currentPlayIndex, true)}
+                    className="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg shadow-amber-600/20 active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    {currentPlayIndex > 0 ? `繼續說書 (段落 ${currentPlayIndex + 1})` : '開始說書'}
+                  </button>
+                )}
+
+                {(isPlaying || isPaused) && (
+                  <button
+                    onClick={stopStory}
+                    className="bg-red-900/40 hover:bg-red-900/60 text-red-200 border border-red-800/60 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <Square className="w-4 h-4 text-red-400 fill-current" />
+                    停止
+                  </button>
+                )}
+
                 <button
-                  onClick={() => {
-                    stopStory();
-                    setIsEditMode(true);
-                  }}
+                  onClick={switchToEdit}
                   className="bg-slate-700 hover:bg-slate-600 text-stone-200 px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2"
                 >
                   <PenLine className="w-4 h-4 text-amber-400" />
                   修改故事
                 </button>
+
                 <button
                   onClick={exportFullAudio}
                   disabled={isExporting}
-                  className="bg-blue-600/80 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                  className={`px-4 py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center gap-2 ${
+                    hasExportError
+                      ? 'bg-amber-600 hover:bg-amber-500 text-white animate-pulse'
+                      : 'bg-blue-600/80 hover:bg-blue-600 text-white disabled:opacity-60'
+                  }`}
                 >
-                  {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  匯出完整音檔 (.wav)
+                  {isExporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{exportStatusText || `處理中 ${exportProgress ?? 0}%`}</span>
+                    </>
+                  ) : hasExportError ? (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>繼續匯出 (.wav)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>匯出完整音檔 (.wav)</span>
+                    </>
+                  )}
                 </button>
               </>
             )}
@@ -1053,7 +1219,7 @@ function TtsStudio({
               <input
                 type="checkbox"
                 checked={useDspNorm}
-                onChange={(e) => setUseDspNorm(e.target.checked)}
+                onChange={(e) => handleSettingChange(() => setUseDspNorm(e.target.checked))}
                 className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
               />
               <span>自動音量平衡與氣口對齊 (DSP)</span>
@@ -1063,7 +1229,7 @@ function TtsStudio({
               <input
                 type="checkbox"
                 checked={useConsistencyLock}
-                onChange={(e) => setUseConsistencyLock(e.target.checked)}
+                onChange={(e) => handleSettingChange(() => setUseConsistencyLock(e.target.checked))}
                 className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
               />
               <span>鎖定穩定語調與環境</span>
@@ -1077,7 +1243,7 @@ function TtsStudio({
             <select
               id="anchor-select-main"
               value={anchorPrompt}
-              onChange={(e) => setAnchorPrompt(e.target.value)}
+              onChange={(e) => handleSettingChange(() => setAnchorPrompt(e.target.value))}
               className="bg-slate-800 border border-slate-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 outline-none focus:border-amber-500 cursor-pointer"
             >
               <option value="Say in a natural Taiwanese Mandarin accent, studio recording, close mic, zero reverb, steady pace and consistent tone: ">
@@ -1261,11 +1427,15 @@ function TtsStudio({
                   <div
                     key={index}
                     id={`tts-chunk-${index}`}
-                    onClick={() => jumpToChunk(index)}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('select')) return;
+                      jumpToChunk(index);
+                    }}
+                    title="點擊從此段開始朗讀"
                     className={`p-4 rounded-xl relative group transition-all duration-300 border cursor-pointer ${
                       isCurrent
-                        ? 'bg-amber-950/30 border-amber-500/80 shadow-lg shadow-amber-500/10 scale-[1.01]'
-                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                        ? 'bg-amber-950/40 border-l-4 border-l-amber-500 border-amber-500/80 shadow-lg shadow-amber-500/10 scale-[1.01]'
+                        : 'bg-slate-900/60 border-l-4 border-l-transparent border-slate-800 hover:border-slate-700'
                     }`}
                   >
                     {/* 段落頭部選單 */}
@@ -1287,16 +1457,7 @@ function TtsStudio({
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => {
                             e.stopPropagation();
-                            const newVoice = e.target.value;
-                            setChunkVoices((prev) => {
-                              const updated = chunks.map((_, i) => prev[i] || globalVoice);
-                              updated[index] = newVoice;
-                              return updated;
-                            });
-                            delete audioQueueRef.current[index];
-                            delete pcmDataQueueRef.current[index];
-                            delete fetchPromisesRef.current[index];
-                            showToast(`段落 ${index + 1} 已切換為 ${newVoice}`);
+                            handleChunkVoiceChange(index, e.target.value);
                           }}
                           className="bg-slate-800 text-stone-200 border border-slate-700 rounded-md px-2 py-1 text-xs outline-none focus:border-amber-500 cursor-pointer max-w-[260px] md:max-w-xs truncate"
                         >
