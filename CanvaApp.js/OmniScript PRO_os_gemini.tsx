@@ -32,7 +32,7 @@ const IMAGE_ENGINES = [
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -2510,7 +2510,7 @@ export default function App() {
             const isSearchStep = (i === 1 && !safeStep1);
 
             const isFintech = audienceTheme === 'fintech';
-            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash';
+            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-3-flash-preview';
             let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -2527,8 +2527,8 @@ export default function App() {
                 })
             });
             if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400 || aiResponse.status === 401)) {
-                if (targetModel !== 'gemini-2.5-flash') {
-                    targetModel = 'gemini-2.5-flash';
+                if (targetModel !== 'gemini-3-flash-preview') {
+                    targetModel = 'gemini-3-flash-preview';
                     apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
                 }
                 const retryResponse = await fetch(apiUrl, {
@@ -4771,7 +4771,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             
                             addLog(`[諸神解碼] 正在考證: ${name} (${i + 1}/${names.length})...`, 'info');
                             
-                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+                            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeApiKey}`;
                             
                             const res = await fetch(geminiUrl, {
                                 method: 'POST',

@@ -2590,7 +2590,7 @@ export default function App() {
             // 🌟 恢復原搜尋設計：Step 1 與 Step 0 一律開啟 Google Search，掌握全球最新市場局勢
             const isSearchStep = (i === 1 && !safeStep1);
             const isFintech = audienceTheme === 'fintech';
-            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash';
+            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-3-flash-preview';
             let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -2611,7 +2611,7 @@ export default function App() {
             // ⚠️ 如果 Step 1 因為 Google Search (403/400) 權限不足失敗，自動拔除 tools 並重試
             if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400 || aiResponse.status === 401)) {
                 if (targetModel !== 'gemini-2.5-flash') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`; }
-                console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
+                console.warn(`[API 自動容錯] 模型請求返回 ${aiResponse.status}。自動無縫切換為穩定版 gemini-2.5-flash 重試...`);
                 aiResponse = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 
