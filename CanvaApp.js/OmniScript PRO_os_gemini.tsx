@@ -2521,7 +2521,7 @@ export default function App() {
                         parts: [{ text: `現在的真實時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                     },
                     contents: [{ parts: [{ text: masterPrompt }] }],
-                    generationConfig: { maxOutputTokens: isFintech ? 32768 : 8192, ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
+                    generationConfig: { maxOutputTokens: isFintech ? 32768 : (i === 2 ? 16384 : 8192), ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
                     // 🌟 修正：Gemini API 要求 tools 屬性必須是底線命名 google_search
                     tools: isSearchStep ? [{ google_search: {} }] : []
                 })

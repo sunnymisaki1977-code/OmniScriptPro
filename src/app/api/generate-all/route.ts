@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           },
           contents: [{ parts: [{ text: finalPrompt }] }], // finalPrompt 已經在前面加過 timeInjected 邏輯
           generationConfig: {
-              maxOutputTokens: isFintech ? 32768 : 8192,
+              maxOutputTokens: isFintech ? 32768 : (Number(step.id) === 2 ? 16384 : 8192),
               ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
           }
       };
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
           geminiPayload.tools = [{ "googleSearch": {} }];
       }
       
-      const targetModel = isFintech ? (attempt === 1 ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash') : (isSearchEnabled ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite');
+      const targetModel = isFintech ? (attempt === 1 ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash') : (isSearchEnabled ? 'gemini-2.5-flash' : (Number(step.id) === 2 ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite'));
       const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKeys[currentKeyIndex]}`;
 
       try {

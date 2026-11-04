@@ -99,7 +99,7 @@ const geminiPayload = {
     },
     contents: [{ parts: [{ text: finalPrompt }] }],
     generationConfig: {
-        maxOutputTokens: (audienceTheme === 'fintech') ? 32768 : 8192,
+        maxOutputTokens: (audienceTheme === 'fintech') ? 32768 : (stepId === 2 || stepId === '2' ? 16384 : 8192),
         ...((audienceTheme === 'fintech') ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
     }
 };
@@ -2603,7 +2603,7 @@ export default function App() {
                         parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                     },
                     contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }],
-                    generationConfig: { maxOutputTokens: isFintech ? 32768 : 8192, ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
+                    generationConfig: { maxOutputTokens: isFintech ? 32768 : (i === 2 ? 16384 : 8192), ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
                     tools: isSearchStep ? [{ googleSearch: {} }] : []
                 })
             });
