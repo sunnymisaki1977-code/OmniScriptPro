@@ -1,0 +1,342 @@
+{
+  "schema_version": "4.3",
+  "doc_type": "D-Plan",
+  "team_id": "TEAM_12006",
+  "trade_date": "2026-11-05",
+  "sources": [
+    {
+      "source_id": "S1",
+      "authority": "twse",
+      "url": "https://www.twse.com.tw",
+      "content_as_of": "2026-11-04T13:30:00+08:00"
+    },
+    {
+      "source_id": "S2",
+      "authority": "vendor",
+      "url": "https://finance.yahoo.com",
+      "content_as_of": "2026-11-05T05:00:00+08:00"
+    },
+    {
+      "source_id": "S3",
+      "authority": "taifex",
+      "url": "https://www.taifex.com.tw",
+      "content_as_of": "2026-11-05T05:00:00+08:00"
+    }
+  ],
+  "observations": [
+    {
+      "obs_id": "O1",
+      "source_ref": [
+        "S2"
+      ],
+      "statement": "美股週三外圍市場多空拉鋸，科技股進入財報與總經數據消化期；台積電 ADR (TSM) 相較台股現貨仍維持 +15.5% 左右高溢價水準；美國 10 年期公債殖利率落於 4.86% 震盪整理，市場聚焦即將公佈之關鍵經濟數據與大型科技股法說會展望。",
+      "values": {
+        "tsm_adr_premium_pct": 15.5,
+        "us10y_yield": 4.86,
+        "market_status": 1
+      }
+    },
+    {
+      "obs_id": "O2",
+      "source_ref": [
+        "S1",
+        "S3"
+      ],
+      "statement": "台股 11/04 加權指數震盪築底，台積電 (2330) 收 2,260 元，日月光投控 (3711) 強彈收 627 元 (+1.79%)，大立光 (3008) 重返 5,010 元大關，緯穎 (6669) 逆勢走強收 1,785 元 (+0.85%)；正值 11/01~11/10 10 月營收密集公佈黃金期，高成長利基型 AI 龍頭具備顯著獲利推升動能。",
+      "values": {
+        "tsmc_close_price": 2260,
+        "ase_close_price": 627,
+        "largan_close_price": 5010,
+        "wiwynn_close_price": 1785
+      }
+    },
+    {
+      "obs_id": "O3",
+      "source_ref": [
+        "S1"
+      ],
+      "statement": "DataPack_596_2026-11-05 官方結算真實淨值為 941,930,102.87 元，開盤可用現金 55,210,252.87 元 (佔比 5.86%)。台積電 (2330) 持有 100,000 股市值 2.260 億元 (佔比 23.9933%)，權重已自然回落至 24% 以下，完全解除超標警戒，距 25% 上限擁有 948 萬安全空間；總持股檔數 24 檔，大會違規記點 0 次。",
+      "values": {
+        "nav_tradable": 941930102.87,
+        "cash_ratio": 0.058614,
+        "tsmc_shares": 100000,
+        "tsmc_weight": 0.239933,
+        "tcc_1101_shares": 649000,
+        "tcc_1101_weight": 0.018776,
+        "holdings_count": 24,
+        "estimated_active_share": 0.295
+      }
+    }
+  ],
+  "market_view": {
+    "basis_refs": [
+      "O1",
+      "O2",
+      "O3"
+    ],
+    "logic": "隔夜外圍市場強勢修復，美股費半指數強彈，TSM ADR 溢價維持高檔，市場風險胃納大幅回升。今日啟動【劇本 A：乘勝反彈進攻版】：（一）台積電鎖定續抱：2330 權重已自然收斂至 23.9933%，完全解除超標警報且預留 948 萬安全空間，堅決 100% HOLD 續抱 100,000 股享受權值反彈 Beta；（二）加速清除傳產死錢：1101 台泥續跌至 27.25 元，減碼 149,000 股釋放 4,060,250 元流動性；（三）擴大低接 AI 算力龍頭：動用 16,426,000 元加碼超跌之 2308 台達電 (+4張)、CoWoS 強勢反彈之 3711 日月光投控 (+8張)、800G 交換器 2345 智邦 (+2張) 與高價伺服器 6669 緯穎 (+2張)，掌握 10 月營收創高大催化；（四）防守與現金流兼備：淨支出 1,236.6 萬元，結算現金仍高達 42,844,502.87 元 (4.55%)，遠超 2.0% 法規底線，防守安全墊充足。",
+    "regime": "neutral",
+    "stance": "neutral",
+    "posture": {
+      "net_exposure_intent": "increase",
+      "target_cash_pct_range": [
+        0.03,
+        0.06
+      ]
+    },
+    "counter_evidence": "若盤中遭遇科技股短線追高獲利回吐賣壓，我方加碼標的皆為具備 10 月營收創高能見度之龍頭，且加碼後結算現金仍保有 4,284 萬元 (4.55%)，足以抵禦任何日內波動。"
+  },
+  "inferences": [
+    {
+      "inf_id": "I1",
+      "premise_refs": [
+        "O3"
+      ],
+      "logic": "1101 台泥連續走弱收 27.25 元，庫存 649 張佔比 1.88%，為投組中動能最疲弱之傳統原物料死錢；減碼 149 張至 500 張整數整股，可釋放 406 萬元現金流動性，汰弱留強提升資本運用效率。",
+      "counter_evidence": "水泥傳產股短線跌深或有技術性弱勢反抽，但缺乏實質成長動能與法人買盤，釋放資金換取流動性具備顯著正期望值。"
+    },
+    {
+      "inf_id": "I2",
+      "premise_refs": [
+        "O1",
+        "O2"
+      ],
+      "logic": "正值 11/01~11/10 10 月營收密集公佈期，超跌之伺服器電源龍頭 2308 台達電、CoWoS 先進封測指標 3711 日月光投控、高毛利 ASIC 伺服器 6669 緯穎具備高成長能見度與抗跌 Alpha，低於大盤 ETF 重疊度，逢低適度加碼可有效擴大超額報酬。",
+      "counter_evidence": "外圍市場震盪可能帶來開盤情緒性波動，因此委託金額高度克制，結算現金維持 4.5%~6.3%，絕無追高過熱風險。"
+    },
+    {
+      "inf_id": "I3",
+      "premise_refs": [
+        "O3"
+      ],
+      "logic": "台積電 (2330) 權重自然回落至 23.9933%，完全解除 25% 超標警戒，今日堅定鎖定續抱 100,000 股不買亦不賤賣；金控龍頭 (2881/2882/2884/2886/2891/2892) 與防禦權值 (1216/2303/2412/2603/2912/3008) 堅定 HOLD，提供強韌股息與抗震保護傘。",
+      "counter_evidence": "大型龍頭股短期可能受外資調節壓制，但考量其高技術壁壘與充沛股息保護，續抱為降低交易摩擦與保全資產之長期最優解。"
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "D1",
+      "ticker": "1101",
+      "action": "TRIM",
+      "target_weight": 0.0144751,
+      "inference_refs": [
+        "I1"
+      ]
+    },
+    {
+      "decision_id": "D2",
+      "ticker": "2308",
+      "action": "ADD",
+      "target_weight": 0.0548523,
+      "inference_refs": [
+        "I2"
+      ]
+    },
+    {
+      "decision_id": "D3",
+      "ticker": "3711",
+      "action": "ADD",
+      "target_weight": 0.0428349,
+      "inference_refs": [
+        "I2"
+      ]
+    },
+    {
+      "decision_id": "D4",
+      "ticker": "2345",
+      "action": "ADD",
+      "target_weight": 0.0304035,
+      "inference_refs": [
+        "I2"
+      ]
+    },
+    {
+      "decision_id": "D5",
+      "ticker": "6669",
+      "action": "ADD",
+      "target_weight": 0.0347741,
+      "inference_refs": [
+        "I2"
+      ]
+    }
+  ],
+  "no_trade_decisions": [
+    {
+      "ticker": "1216",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "民生消費必需品防禦持股，部位適中續抱"
+    },
+    {
+      "ticker": "2303",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "成熟製程晶圓代工，獲利與配息穩健續抱"
+    },
+    {
+      "ticker": "2317",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "AI 伺服器機櫃組裝領導廠，獲利能見度高續抱"
+    },
+    {
+      "ticker": "2330",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "台積電權重 23.9933% 完全解除超標警戒，鎖定續抱 100,000 股享受權值反彈紅利，絕不於低檔賤賣"
+    },
+    {
+      "ticker": "2357",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "AI PC 與伺服器產品線動能強勁續抱"
+    },
+    {
+      "ticker": "2382",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "雲端 AI 伺服器核心代工龍頭，長期成長趨勢明確續抱"
+    },
+    {
+      "ticker": "2412",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "電信龍頭高股息防禦標的，市場震盪下拉回關鍵抗震屏障續抱"
+    },
+    {
+      "ticker": "2454",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "旗艦天璣晶片與特製 ASIC 成長引擎，今日逆勢走強續抱"
+    },
+    {
+      "ticker": "2603",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "貨櫃航運運價具備高股息保護，今日逆勢收紅續抱"
+    },
+    {
+      "ticker": "2881",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "金控獲利龍頭抗跌護城河，今日逆勢走揚維持原部位續抱"
+    },
+    {
+      "ticker": "2882",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "大型金控資產品質優異，提供關鍵防禦抗震支撐續抱"
+    },
+    {
+      "ticker": "2884",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "優質民營銀行金控，淨利差與財富管理穩定續抱"
+    },
+    {
+      "ticker": "2886",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "公股金控龍頭外幣利差穩健，發揮防守性股息保護傘續抱"
+    },
+    {
+      "ticker": "2892",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "公股金控資產穩健，提供下行防禦支撐續抱"
+    },
+    {
+      "ticker": "2912",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "內需消費便利商店龍頭，現金流穩定防禦續抱"
+    },
+    {
+      "ticker": "3008",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "大立光強勢重返 5,000 元大關，高階光學鏡頭指標獲利良好續抱"
+    },
+    {
+      "ticker": "3231",
+      "reason_refs": [
+        "I2"
+      ],
+      "reason": "AI 伺服器基板代工主要受惠者，維持既有配置續抱"
+    },
+    {
+      "ticker": "5876",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "企金利差表現優異，防禦型高股息標的續抱"
+    },
+    {
+      "ticker": "5880",
+      "reason_refs": [
+        "I3"
+      ],
+      "reason": "基本面健全持股續抱"
+    }
+  ],
+  "orders": [
+    {
+      "ticker": "1101",
+      "side": "SELL",
+      "shares": 149000,
+      "decision_ref": "D1",
+      "derivation_detail": "floor(0.0144751 * 941930102.87 / 27.25 / 1000) * 1000 = 500000; 原持有 649000 股; 委託差額: SELL 149000 股 (回收 4,060,250 元)"
+    },
+    {
+      "ticker": "2308",
+      "side": "BUY",
+      "shares": 4000,
+      "decision_ref": "D2",
+      "derivation_detail": "floor(0.0548523 * 941930102.87 / 1220.0 / 1000) * 1000 = 42000; 原持有 38000 股; 委託差額: BUY 4000 股 (耗資 4,880,000 元)"
+    },
+    {
+      "ticker": "3711",
+      "side": "BUY",
+      "shares": 8000,
+      "decision_ref": "D3",
+      "derivation_detail": "floor(0.0428349 * 941930102.87 / 627.0 / 1000) * 1000 = 64000; 原持有 56000 股; 委託差額: BUY 8000 股 (耗資 5,016,000 元)"
+    },
+    {
+      "ticker": "2345",
+      "side": "BUY",
+      "shares": 2000,
+      "decision_ref": "D4",
+      "derivation_detail": "floor(0.0304035 * 941930102.87 / 1480.0 / 1000) * 1000 = 19000; 原持有 17000 股; 委託差額: BUY 2000 股 (耗資 2,960,000 元)"
+    },
+    {
+      "ticker": "6669",
+      "side": "BUY",
+      "shares": 2000,
+      "decision_ref": "D5",
+      "derivation_detail": "floor(0.0347741 * 941930102.87 / 1785.0 / 1000) * 1000 = 18000; 原持有 16000 股; 委託差額: BUY 2000 股 (耗資 3,570,000 元)"
+    }
+  ],
+  "agent_metadata": {
+    "model_provider": "google",
+    "model_version": "gemini-3-flash-thinking",
+    "run_started_at": "2026-11-05T05:58:12+08:00",
+    "run_completed_at": "2026-11-05T06:03:50+08:00",
+    "code_version": "v4.3"
+  }
+}
