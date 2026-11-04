@@ -1,302 +1,5103 @@
-export interface StyleOption {
-  id: string;
-  name: string;
-  promptSuffix: string;
+export interface WorkflowStep {
+  id: number;
+  title: string;
+  description: string;
+  prompt: (context: any) => string;
+  type: "text" | "code" | "social";
+  language?: string;
+  dependsOn: string[];
+  tools?: string[];
 }
 
-export const AUDIENCE_STYLES: Record<string, StyleOption> = {
-  heritage: {
-    id: "style-heritage",
-    name: "東方古典美學 (水墨工筆)",
-    promptSuffix: ", colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
-  },
-  beauty: {
-    id: "style-beauty",
-    name: "高訂雜誌寫實 (微距極簡)",
-    promptSuffix: ", premium editorial beauty photography, macro shot, flawless skin texture, elegant studio softbox lighting, soft neutral background, minimalist makeup aesthetic, commercial cosmetics lighting, 8k resolution"
-  },
-  travelpreneur: {
-    id: "style-travel",
-    name: "電影級廣角紀實 (探索感)",
-    promptSuffix: ", cinematic travel photography, shot on 35mm lens, golden hour natural light, dynamic wide-angle landscape, national geographic style, high-contrast storytelling depth"
-  },
-  food: {
-    id: "style-food",
-    name: "頂級私廚攝影 (食慾感)",
-    promptSuffix: ", professional commercial food photography, macro shot, glistening texture, delicate steam, shallow depth of field, warm cozy bokeh background, dark moody table setting, hyper-realistic food styling"
-  },
-  historyMeme: {
-    id: "style-history",
-    name: "復古漫畫排版 (浮世迷因)",
-    promptSuffix: ", retro manga pop-art illustration style, bold ink outline, halftones patterns, dynamic movement lines, high-contrast vintage colors, graphic novel aesthetics, expressive and funny"
-  },
-  pet: {
-    id: "style-pet",
-    name: "溫暖居家療癒 (毛髮蓬鬆)",
-    promptSuffix: ", heartwarming interior pet photography, soft cozy lighting, high-key pastel color palette, fluffy dog fur details, joyful companion emotion, warm family atmosphere, 50mm lens f/1.8"
-  },
-  fintech: {
-    id: "style-fintech",
-    name: "FinTech 財經量化 (彭博全息)",
-    promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"
-  },
-  "fairy tales": {
-    id: "style-fairytales",
-    name: "奇幻童話繪本 (皮克斯 3D)",
-    promptSuffix: ", cute 3D animation style, Pixar and Disney style, vibrant colors, magical glowing effects, soft studio lighting, adorable characters, fairytale setting, highly detailed, beautiful children's book illustration"
-  },
-  proposal: {
-    id: "style-proposal",
-    name: "商業提案風格 (極簡專業)",
-    promptSuffix: ", sleek modern corporate presentation style, minimalist infographic, clean typography, soft emerald green and white palette, professional corporate branding, highly detailed, high-end commercial aesthetic"
-  },
-
-edtech: {
-    id: "style-edtech-flat",
-    name: "現代幾何圖解 (扁平化教育)",
-    promptSuffix: ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
-  },
-  edtech_isometric: {
-    id: "style-edtech-isometric",
-    name: "3D 等距微縮 (系統拆解)",
-    promptSuffix: ", 3D isometric illustration, stylized miniature diorama, clean bright studio lighting, soft pastel and corporate blue colors, educational tech aesthetic, intricate mechanical or structural details, octane render, clean line-art background configuration, 8k"
-  },
-  edtech_sketch: {
-    id: "style-edtech-sketch",
-    name: "學術手帳線稿 (筆記圖解)",
-    promptSuffix: ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere"
-  }
-};
-
-export const POPULAR_STYLES: StyleOption[] = [
-  {
-    id: "style-empty",
-    name: "無預設風格 (空白)",
-    promptSuffix: ""
-  },
-  {
-    id: "style-fintech",
-    name: "FinTech 財經量化 (彭博全息)",
-    promptSuffix: ", holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography,"
-  },
-  {
-    id: "style-heritage",
-    name: "東方古典美學 (水墨工筆)",
-    promptSuffix: ", colorful ink wash, vivid diffusion, translucent crystal texture, sheer silk, refraction, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed,"
-  },
-
-{
-    id: "style-golden-dawn-ink",
-    name: "Golden Dawn (晨曦金墨)",
-    promptSuffix: ", light and warm color ink wash, delicate line-art background composition, ethereal bright atmosphere, radiant morning glow, divine warm golden sunlight, glowing amber and peach energy flow, eastern fantasy, luminous gold accents, uplifting and hopeful mood, sheer silk, soft cinematic volumetric lighting, 8k resolution, ultra detailed"
-  },
+export const WORKFLOWS_REGISTRY: Record<string, WorkflowStep[]> = {
+  heritage: [
+    {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對主題進行定義釐清與客觀史料彙整",
+    type: "text",
+    dependsOn: ["theme"],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
 
+<search_protocol>
+【⚠️ 強制事實查核指令】
+在撰寫任何內容之前，你「必須」調用搜尋工具（Google Search）針對主題「${ctx.theme}」進行交叉比對查證。
+請特別針對以下高風險錯誤項目進行檢索與確認：
+1. 若為神佛：準確的歷史本名、朝代、地支排位、聖誕農曆日期。
+2. 若為宮廟：正確的建廟年份、開基祖廟位置、主祀與陪祀神明、文化資產登錄狀態。
+3. 若為節氣：準確的天文曆法定義與傳統習俗文獻。
+4. 若為活動：準確的舉辦日期、地點、主辦單位、核心重點與官方最新公告。
+5. 嚴格5000 字精確事實報告。絕對禁止 AI 自行腦補或編造史料。
+</search_protocol>
 
- {
-    id: "style-vivid-divine-ink",
-    name: "絢麗神輝彩墨",
-    // 移除了 high contrast 和 intense，加入 soft warm glow
-    promptSuffix: ", highly saturated color ink wash, vivid and bold warm color palette, brilliant pigment diffusion, glowing golden particles, gentle dynamic energy flow, eastern fantasy, luminous gold accents, eastern mythology, uplifting spiritual energy, vibrant cinematic volumetric lighting, soft warm glow, translucent crystal texture, ultra detailed, masterpiece"
-  },
-{
-    id: "style-radiant-dawn-ink", // 改個名字比較符合修改後的感覺
-    name: "晨曦流光水墨",
-    // 移除了 jewel-toned 和 neon-like，改為 warm pastel 和 divine light
-    promptSuffix: ", warm pastel-toned ink wash, layered transparency, delicate line-art background composition, ethereal translucent elements, glowing golden particles, divine light spiritual energy flow, eastern fantasy, crystal clear gold flowing accents, dynamic composition, vibrant but soft color saturation, cinematic volumetric lighting, radiant morning glow, 8k resolution, ultra detailed"
-  }, 
-  {
-    id: "style-luminous-nature-ink",
-    name: "萬物生機彩墨",
-    // 加入了 warm sunlight，並將對比改為柔和過渡
-    promptSuffix: ", highly saturated warm seasonal color palette, clear water-like ink, translucent dew, warm sunlight luminous lighting, vibrant dynamic ink wash, liquid flow, uplifting nature energy flow, soft environmental transition, ethereal beauty, cinematic depth of field, hopeful atmosphere, 8k"
-  },
- {
-    id: "style-cyber",
-    name: "3D 賽博龐克 (霓虹電競)",
-    promptSuffix: ", 3d render, octane render, cyberpunk, neon lighting, futuristic, highly detailed, 8k"
-  },
-  {
-    id: "style-anime",
-    name: "日系手繪動漫 (新海誠風)",
-    promptSuffix: ", makoto shinkai style, dramatic breathtaking sky, volumetric cumulonimbus clouds, vibrant saturated color palette, cinematic lens flare, crepuscular rays, crystal clear water reflections, highly detailed anime illustration, romantic and ethereal atmosphere, 8k resolution, masterpiece"
-  },
- {
-    id: "style-jianlai-3d",
-    name: "3D仙俠國漫 (劍來風)",
-    promptSuffix: ", 3D Donghua style, Chinese Xianxia animation, Unreal Engine 5 render, octane render, intricate traditional Chinese clothing, epic eastern fantasy, flying swords and magical energy, dramatic cinematic lighting, ray tracing, 8k resolution, ultra-detailed CGI"
-  },
-{
-    id: "style-xianxia-2d",
-    name: "2D唯美仙俠 (國風插畫)",
-    promptSuffix: ", gorgeous Chinese style illustration, wuxia anime style, flowing traditional clothes, epic eastern fantasy landscape, delicate facial features, vivid colors, ethereal lighting, masterpiece, high quality"
-  },
-{
-    id: "style-wushan-ink",
-    name: "狂草水墨武俠 (霧山風)",
-    promptSuffix: ", fierce Chinese ink wash painting style, bold brushstrokes, dynamic wuxia action, vivid splashes of color, traditional pigments, high contrast ink, epic battle atmosphere, masterpiece, 8k"
-  },
-{
-    id: "style-baimiao-lineart",
-    name: "國風白描線條 (純粹質感)",
-    promptSuffix: ", traditional Chinese Bai Miao style, delicate line-art background composition, elegant black ink lines, minimalist coloring, ethereal and clean atmosphere, focused on line weight and fluidity, serene mood, highly detailed line work"
-  }, 
-{
-    id: "style-dunhuang-mural",
-    name: "敦煌壁畫志怪 (奇譚風)",
-    promptSuffix: ", Dunhuang mural art style, traditional Chinese folk art, flat colors, ancient folklore atmosphere, textured paper background, oxidized mineral pigments, mysterious and mythical mood, 2D flat illustration"
-  },
-{
+<instructions>
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+1. 神佛/歷史人物
+2. 民俗/節氣
+3. 寺院宮廟
+4. 節慶活動/大型祭典
+5. 世界各地神話與節慶民俗
+6. 跨國神佛與信仰文化比較
 
-    id: "style-eastern-cyberpunk",
+請先輸出：
+- 主題分類：[填入分類]
+- 判斷原因：[填入原因]
+- 🔎 檢索查核軌跡：[請簡述你剛才透過搜尋確認了哪些關鍵史實與數據]
 
-    name: "東方神話龐克 (賽博風)",
-
-    promptSuffix: ", Eastern cyberpunk style, mythology meets sci-fi, neon lighting, futuristic traditional clothing, glowing mechanical parts, rich and dark cinematic atmosphere, intricate mechanical details, Unreal Engine 5 render, 8k"
-
-  }, 
-{
-    id: "style-chinese-ink-fairytale",
-    name: "新國風彩墨童話 (靈動唯美)",
-    promptSuffix: ", traditional Chinese color ink wash style, stylized folklore illustration, ethereal and magical atmosphere, flowing silk and clouds, rice paper texture, soft cinematic lighting, elegant linework, breathtaking eastern fantasy, masterpiece, 8k"
-  },
-  {
-    id: "style-donghua-3d-fantasy",
-    name: "國漫 3D 奇幻 (大片視覺)",
-    promptSuffix: ", modern Chinese 3D animation style, mythological high fantasy, vibrant and rich colors, glowing magical particles, elaborate traditional costumes, epic cinematic lighting, dynamic angle, Unreal Engine 5 render, highly detailed, 8k"
-  },
-  {
-    id: "style-chinese-storybook-lineart",
-    name: "東方繪本線稿 (圖文排版)",
-    promptSuffix: ", traditional Chinese stylized illustration, clean line-art background configuration, elegant decorative patterns, flat but vibrant color palette, whimsical fairy tale storytelling, warm ambient lighting, elegant composition, 8k"
-  },
+接著，請嚴格遵循下方對應的「詳細架構與撰寫指南」，撰寫一份 5000 字精確事實報告。
+</instructions>
 
 
-{
-    id: "style-minimal",
-    name: "北歐寫實極簡 (生活感)",
-    promptSuffix: ", Scandinavian minimalist photography, natural daylight, soft shadows, clean aesthetic, realistic, 8k"
-  },
-  {
-    id: "style-value-chain",
-    name: "商業模式圖解 (價值鏈風)",
-    promptSuffix: ", professional business model canvas style, supply chain infographic, clean structural diagram, tech corporate aesthetic, smiling curve visualization, layered data presentation, flat vector art style, minimalist background, highly detailed, 8k resolution"
-  },
- {
-    id: "style-market-strategy",
-    name: "市場博弈策略 (華爾街風)",
-    promptSuffix: ", premium institutional strategy poster, holographic global capital flow map, Wall Street financial aesthetic, dynamic data glowing lines, dramatic cinematic lighting, corporate typography layout, powerful market game concept, deep blue and gold tones, masterpiece, 8k"
-  }, 
-{
-    id: "style-consulting-mbb",
-    name: "MBB 頂尖顧問風 (高密邏輯)",
-    promptSuffix: ", professional McKinsey consulting style presentation, high information density, strict grid layout, MECE structure, waterfall charts, action titles, minimalist corporate navy and grey palette, structured data cards, highly detailed, 8k resolution"
-  },
-  {
-    id: "style-vc-pitch",
-    name: "矽谷創投募資風 (商業敘事)",
-    promptSuffix: ", Sequoia Capital startup pitch deck style, modern sleek design, high contrast before-after layout, business model canvas, bold traction metrics, dynamic startup aesthetic, vibrant accent colors on dark background, highly detailed, 8k"
-  },
-  {
-    id: "style-apple-keynote",
-    name: "極簡發布會風 (蘋果級視覺)",
-    promptSuffix: ", Apple keynote presentation style, ultra minimalist layout, massive bold typography, cinematic product isolation, negative space, dramatic soft spotlight, single key metric focus, high-end commercial aesthetic, masterpiece, 8k"
-  },
-  {
-    id: "style-b2b-corporate",
-    name: "B2B 企業級標準風 (沉穩專業)",
-    promptSuffix: ", professional B2B corporate presentation style, consistent brand identity, clean flat vector infographics, balanced text-to-image ratio, corporate blue and white theme, trustworthy and structured layout, high quality commercial design, 8k"
-  },
- 
+=========================================
+第一類：神佛/歷史人物
+=========================================
+請針對主題「${ctx.theme}」進行一份1500字精確事實報告。
+請注意，這類名詞常有字面誤導（姓氏不代表特定歷史名人）。
+
+請絕對基於搜尋到的客觀事實撰寫，嚴禁任何 AI 腦補。
+撰寫時請務必嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 詳細架構與撰寫指南
+
+### 一、 導言：與祂的初次見面
+   破題引言： 用一句話總結這位神佛在民間最深入人心的形象。
+   現代社會影響力： 簡述祂在現代社會、海內外信仰圈的普及程度與信仰人口分布。
+
+### 二、 神格定位與尊號系統
+   正式尊稱與歷代封號：官方或朝廷敕封、民間親切俗稱、不同宗教/派別的稱呼。
+   宗教職能與階級：屬於哪一個宗教體系？在神界行政體系中擔任什麼職位？
+
+### 三、 歷朝歷代加封與神格演變 (擴充章節)
+   強制要求依序寫出該神明在各朝代（如唐、宋、明、清）的發展，是因為政治加封還是民間需求？
+
+### 四、 凡人身世與成神傳奇
+> 💡 【防幻覺強制指令】：
+> 1. 嚴禁為了填寫欄位而自行拼湊朝代、本名、神蹟或通用神話模組。若網路搜尋查無客觀史料或明確的宮廟記載，對應欄位請直接填寫「史料無明確記載」。
+> 2. 若該神明為「先天神」，此段主標題請自動替換為「宇宙誕生、自然化育與神話源流」，並忽略下方凡人題目。
+> 3. 若為「王爺信仰」且無明確歷史身分，此段請直接填寫：「王爺信仰流派眾多，多屬代天巡狩之神格，真實身世依各地方宮廟沿革為主」。
+
+   降生背景與異象： 客觀史料（朝代、地理位置、本名或俗名）、民間傳說（專屬神異現象）。
+   凡間修持與人格特質： 祂在人間時展現了哪些具體的不凡特質或事蹟？
+   得道 / 昇天契機： 關鍵轉折與羽化登仙。
+
+### 五、 經典神蹟與民間傳說
+   核心神蹟（列出查到的所有項目）。
+   經典神蹟的底層社會邏輯 (擴充章節)：分析神話反映了當時什麼樣的社會資源匱乏或傳染病背景？
+   平定災難與庇護地方。
+   神魔鬥法或收服隨從。
+
+### 六、 學術爭議與民間誤區辯證 (擴充章節)
+   針對「同姓不同神」、「歷史人物與神話形象落差」，給出學術界的考證。
+
+### 七、 法相特徵與隨身法器
+   金身法相解析： 面容與神情、服飾與冠冕、坐騎。
+   法器與隨身物件的寓意： 這些物件背後代表什麼權力、願力或功能？
+   左右護法與隨從神將。
+
+### 八、 職能守護與信仰群體
+   主要掌管職務： 祈福範疇。
+   特定崇拜行業與群體。
+
+### 九、 現代信仰文化與祭祀儀式
+   重要聖誕及所屬節氣與重要節慶。
+   海內外代表性廟宇。
+   獨特民俗與宗教儀式。
+
+### 十、 小說演義 / 民間傳說 對比
+   正史《三國志》與小說《三國演義》的差異，具備學術公信力又充滿文學趣味。
+
+### 十一、 結語：神格精神的現代啟示
+   核心價值的現代轉化： 對現代人的生活、職場或道德操守有何指引？
+   文化傳承與反思： 如何跨越時代成為精神寄託。
+
+### 十二、 事實查核
+   請列出：✔ 已確認史實 ✔ 民間說法 ✔ 神話 / 小說演義 ✔ 現代研究觀點
+
+
+=========================================
+第二類：民俗/節氣
+=========================================  
+你是一位頂尖的「節氣、民俗專家」，專精於二十四節氣的天文曆法、民俗以及中醫養生食補。請務必優先使用 Google 搜尋查證最準確的文獻再回答。
+
+請針對主題「${ctx.theme}」撰寫一份5000字研究報告。
+
+【最高原則】
+1. 僅依據歷史文獻、民俗研究、文化資產資料與學術共識撰寫。
+2. 若存在不同流派、不同地方習俗，必須分別說明，不得混為一談。
+3. 不可自行創作神話、故事、儀式或禁忌。
+4. 民間傳說請明確標示為「民間傳說」、「地方說法」、「信仰觀點」。
+5. 若史料不足，請直接說明目前沒有一致定論。
+
+----------------------------------
+## 一、 主題定義
+名稱來源、字義、民俗分類、在台灣民俗文化中的定位。
+
+## 二、 歷史起源
+最早文獻紀錄、起源年代、發源地、傳入臺灣的歷史、歷史演變、不同朝代的重要變化。
+
+## 三、 文化背景
+形成原因：社會背景、宗教背景、農業背景、地理背景、生活需求、民間信仰因素。
+
+## 四、 中原曆法與台灣亞熱帶的氣候落差 (擴充章節)
+分析古書寫的節氣現象，在台灣的實際氣候表現為何？農漁業如何調整？
+
+## 五、 古籍醫理與五運六氣 (擴充章節)
+引入《黃帝內經》等典籍，深度解析經絡走向與食補底層邏輯。
+
+## 六、 主要民俗內容
+若屬於祭典：流程、科儀、供品、禁忌、象徵意義。
+若屬於節慶：日期、節令、習俗、飲食、活動。
+若屬於信仰：神明、神職、信仰內容、儀式、民間習俗。
+
+## 七、 地方差異
+北部、中部、南部、東部、離島，以及不同族群若存在差異請分別說明。
+
+## 八、 代表性文化活動
+最具代表性的祭典、民俗活動、傳統儀式、保存情形，並說明其文化意義。
+
+## 九、 文化資產與保存
+重要保存單位、無形文化資產、指定文化資產情形。
+
+## 十、 常見禁忌與民俗觀念
+常見禁忌、民間說法、信仰原因、是否具有歷史依據。
+禁忌的科學與心理學解碼 (擴充章節)：將傳統禁忌與現代心理或公衛對應。
+
+## 十一、 現代文化價值
+現代社會角色、文化保存、地方創生、宗教觀光、年輕世代參與、國際文化交流。
+
+## 十二、 研究參考依據
+正史文獻、地方志、民俗學研究、宗教研究。
+
+
+=========================================
+第三類 寺院宮廟
+=========================================
+你是一位頂尖的「寺院宮廟文史專家」，專精於台灣廟宇沿革、建築藝術（剪黏/石雕）、神像工藝與香火分靈網絡。請務必優先使用 Google 搜尋查證最準確的文獻再回答。
+
+請針對主題「${ctx.theme}」撰寫一份5000字研究報告。
+
+【最高原則】
+僅依據歷史文獻、廟誌、文化資產資料與學術共識撰寫。
+
+----------------------------------
+## 一、 主題定義與宮廟定位
+宮廟名稱與主祀神明、名稱來源與字義、宗教/信仰分類、在臺灣歷史定位。
+
+## 二、 建廟沿革與歷史傳奇
+最早文獻紀錄與開基年代、發跡傳奇、建廟沿革與重修事件、神明分靈與傳入歷史。
+
+## 三、 信仰成因與社會背景
+移民拓墾、分類械鬥、宗教背景、地理環境與產業因素、早期先民的生活需求。
+
+## 四、 主神神格與建築藝術
+主祀神格與陪祀網絡。
+建築符號學與匠師流派 (擴充章節)：拆解剪黏、交趾陶流派與隱藏的戲文密碼。
+
+## 五、 分靈網絡與信仰圈
+該宮廟的分靈體系分佈、聯庄或「角頭」信仰圈的劃分。
+交陪境與分靈網絡的政治經濟學 (擴充章節)：分析如何建立跨縣市的信仰經濟圈與社會權力。
+
+## 六、 核心科儀與微觀步驟 (擴充章節)
+挑選年度最大祭典，詳細拆解開香、請水、普度等具體時辰與科儀陣法。
+
+## 七、 代表性文化活動
+最具代表性的年度進香、遶境或大型法會，特殊陣頭或儀式。
+
+## 八、 文化資產與保存
+實體建築古蹟認定、祭典科儀無形文化資產登錄、保存現況。
+
+## 九、 常見禁忌與迷思查核
+參拜特殊禁忌或動線規範、當地流傳信仰禁忌、澄清常見迷思與神明身世誤傳。
+
+## 十、 現代文化價值
+宮廟在現代社會的轉型、結合地方創生、宗教觀光推廣、年輕世代參與情形。
+
+## 十一、 研究參考依據
+廟方官方文獻、歷史方志、宗教學與民俗學研究、文化資產資料。
 
 
 
-{
-    "id": "style-edtech-flat",
-    "name": "現代幾何圖解 (扁平化教育)",
-    "description": "色彩鮮明、線條乾淨，具備企業科技感與高度模組化的特色。適合呈現邏輯清晰的商業流程、軟體操作與基礎知識圖解。",
-    "promptSuffix": ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
+=========================================
+第四類：節慶活動/大型祭典
+=========================================
+你是一位頂尖的「文化活動策展人與地方文史專家」，專精於台灣各類宗教祭典、文化節慶與大型展會活動。請務必優先使用 Google 搜尋查證最準確的官方資訊與新聞稿再回答。
+
+請針對主題「${ctx.theme}」撰寫一份5000字研究報告。
+
+【最高原則】
+1. 僅依據主辦單位官方公告、新聞稿、歷史文獻與實際活動規劃撰寫。
+2. 若活動尚未舉辦（如未來年份的活動），必須基於現有的籌備資訊、前導預告或往年舉辦的慣例進行合理推估，並明確標示「籌備中/預計規劃」。
+3. 絕不可捏造活動流程或表演卡司。
+
+----------------------------------
+## 一、 活動定義與核心主旨
+活動全名與主題標語、活動性質、主辦單位、最核心目的與精神傳遞。
+
+## 二、 歷史沿革與舉辦背景
+活動起源與首屆舉辦年份、歷史演變與規模擴張過程、歷史典故與宗教成因。
+
+## 三、 時空資訊與場域規劃
+舉辦時間、舉辦地點、空間動線規劃與特色建築配置。
+
+## 四、 祭典時程的日夜微觀拆解 (擴充章節)
+將數天的祭典按「時辰」深度拆解，分析法器與祝文意義。
+
+## 五、 核心亮點與特色活動
+最具代表性的儀式、主燈、表演或踩街遊行。科儀流程與展演內容。
+
+## 六、 參與指南與實用資訊
+交通接駁建議、參與者禁忌與規範、給初次參與者的攻略。
+儀式禁忌的歷史演變 (擴充章節)：探討隨香、茹素等規範的形成歷史。
+
+## 七、 社會參與與信仰圈連結
+參與的群體、企業贊助與民間志工的動員情形。
+人群結構與社會動員 (擴充章節)：分析角頭、宗親會的權力結構與年輕世代回流現象。
+
+## 八、 現代價值與地方創生
+經濟效益與周邊產業發展、傳統文化的創新轉型、對年輕世代的吸引力。
+
+## 九、 研究與查核來源
+活動官方網站、新聞稿、歷年報導、相關學術研究。
+
+
+=========================================
+第五類：世界各地神話與節慶民俗
+=========================================
+你是一位頂尖的「世界文化遺產與跨文化神話專家」，專精於全球各地的傳統節慶、神話體系（如希臘、北歐、埃及神話）與跨人類學比較。請務必優先使用 Google 搜尋查證最準確的外文文獻或學術翻譯再回答。
+
+請針對主題「${ctx.theme}」撰寫一份5000字研究報告。
+
+【最高原則】
+1. 僅依據全球歷史文獻、人類學/神話學研究、聯合國教科文組織 (UNESCO) 資料與學術共識撰寫。
+2. 若涉及神話，請明確標示其所屬神話體系（如：凱爾特神話、阿茲特克神話）；若涉及節慶，請註明發源國家與盛行地區。
+3. 嚴禁用單一現代流行文化（如漫威電影、電玩遊戲）的設定來取代正統神話典籍。
+
+----------------------------------
+## 一、 主題定義與文化定位
+名稱來源與原文語源、所屬文化圈/神話體系、在文化遺產中的核心地位。
+
+## 二、 歷史起源與神話文本
+最早記載的史詩或口傳文學文獻、起源年代與發源地、歷史演變。
+原始文獻與語言學溯源 (擴充章節)：追溯最原始典籍與語源學演變。
+
+## 三、 文化背景與信仰成因
+自然環境與氣候因素、社會結構與政治背景、早期人類的宇宙觀與生死觀。
+
+## 四、 核心內容與象徵意義
+舉辦時間、核心儀式、職能掌管與神格位階、經典神話事蹟、專屬法器。
+
+## 五、 跨文化比較與區域差異
+在不同國家地區產生的變體。
+跨文化的人類學比較 (擴充章節)：探討人類共通的底層恐懼與宇宙觀。
+
+## 六、 當代文化資產與保存
+UNESCO 登錄情形、保護現況、保存危機。
+
+## 七、 流行文化轉化與現代價值
+對現代文學影視的影響、觀光商業價值、普世價值啟發。
+
+## 八、 研究參考依據
+正統神話典籍、人類學/民俗學期刊、聯合國教科文組織資料。
+
+
+=========================================
+第六類：跨國神佛與信仰文化比較
+=========================================
+你是一位頂尖的「跨國宗教學與比較神話學專家」，專精於神明在不同國家與文化圈的傳播路徑、造像藝術演變以及在地化融合（如：觀音在台灣的佛道融合 vs. 在日本的「神佛習合」）。請務必優先使用 Google 搜尋查證最準確的跨國文獻與外文學術翻譯再回答。
+
+請針對主題「${ctx.theme}」撰寫一份 5000 字跨文化深度研究報告。
+
+【最高原則】
+
+必須具備宏觀的「比較視角」，嚴禁僅使用單一地區的史料來涵蓋全球發展。
+
+必須清楚交代該神明從「原產地」傳播至「其他文化圈」時，在性別、法相、職能上發生的轉變。
+
+若涉及跨宗教融合（如：佛教神明與當地民間信仰結合），必須精確點出其融合機制與獨特變體。
+
+## 一、 主題定義與跨文化核心
+神明全名與各國主要稱呼、跨文化信仰核心價值、影響版圖。
+
+## 二、 神格溯源與原初典籍
+信仰發源地與最早記載、最原始的神格設定與性別、跨國傳播歷史契機。
+
+## 三、 信仰傳播路徑與在地化轉型
+不同區域的在地化過程。
+跨宗教融合的歷史現場 (擴充章節)：解析與當地信仰發生習合與妥協的具體過程。
+
+## 四、 跨文化法相與視覺藝術對比
+面容與性別的流變、服飾與造像風格差異。
+在地化的極度微觀對比 (擴充章節)：詳細對比服飾、法器、性別的轉變細節。
+
+## 五、 祭祀儀軌與職能變異
+守護職能的演變、各國祭祀儀軌差異。
+
+## 六、 代表性文化聖地與信仰網絡
+發源地遺跡、台灣代表性宮廟、海外指標性聖地。
+
+## 七、 現代社會價值與普世意義
+心靈療癒與跨宗教橋樑、流行文化轉化、全球化資產保護。
+
+## 八、 跨國研究與查核來源
+外文原始經典或權威譯本、國際宗教學期刊。
+💡 架構設計解析：
+這個第六類架構的最大優勢，在於它強迫 AI 使用「對比（Comparison）」的手法來鋪陳內容。它不會只單調地列出觀音的神話，而是會精準抓出「印度男相菩薩」如何轉變為「中國白衣大士」，再演變為「日本瑪利亞觀音」的歷史軌跡，能幫助您的讀者在單一篇文章中，看見信仰在不同民族手中揉捏、重塑的精彩過程。`;
+    }
+  },
+
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據基礎背景，產出 13 分鐘的 Vodcast 文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過專家查核的基礎背景資料】，為「${ctx.theme}」撰寫一份 13 分鐘的 Vodcast 腳本。
+
+【⚠️ 絕對嚴格真實性指令】：
+1.你在本腳本中提及的所有生平、神明、科儀名稱與神話，  必須 100% 遵守下方提供的背景資料，不可修改名詞定義  。
+2.嚴格遵守每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]
+
+## 🎬 Vodcast 腳本：
+請依據====================
+${ctx.step1}
+====================
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+ **旁白配音 (VO)**：請化身為台灣超人氣 Podcast 節目主持人。語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。絕對不要像在朗讀維基百科。
+
+【⚠️ 絕對嚴格真實性指令】：
+【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+
+
+### ⏱️ 引人入勝的開場 (Hook)
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15] 到 [00:45 - 01:00]：
+- 視覺畫面建議：[請描述開場畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡【中日雙語】文字編排變化]
+- 畫面字卡: [10字以內的【中日雙語】震撼標題]
+- 旁白配音 (VO)：[語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-115 字] 
+
+### ⏱️ 深度解析：歷史溯源與客觀文獻
+ (時間規劃：01:00 - 04:00，共 12 個節點)
+請依序產出 [01:00 - 01:15] 到 [03:45 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡【中日雙語】文字編排變化]
+- 畫面字卡: [10 個字以內的的【中日雙語】金句。]
+- 旁白配音 (VO)：[語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-115 字] 
+
+### ⏱️學術辯證與微觀田野
+ (時間規劃：04:00 - 07:00，共 12 個節點)
+請依序產出 [04:00 - 04:15] 到 [06:45 - 07:00]：
+- 視覺畫面建議：[請描述搭配畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡【中日雙語】文字編排變化]
+- 畫面字卡: [10 個字以內的的的【中日雙語】金句。]
+- 旁白配音 (VO)：[語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-115 字] 
+
+### ⏱️ 核心信仰與影響
+ (時間規劃：07:00 - 10:00，共 12 個節點)
+請依序產出 [07:00 - 07:15] 到 [09:45 - 10:00]：
+- 視覺畫面建議：[請描述搭配畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡【中日雙語】文字編排變化]
+- 畫面字卡: [10 個字以內的【中日雙語】古典金句。]
+- 旁白配音 (VO)：[生活風格，探討信仰在現代社會的心理療癒，中文旁白至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-115 字]
+
+### ⏱️  總結與互動引導 (Outro/CTA)
+(時間規劃：10:00 - 13:00，共 12 個節點)
+請依序產出 [10:00 - 10:15] 到 [12:45 - 13:00]：
+- 視覺畫面建議：[請描述結尾畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡【中日雙語】文字編排變化]
+- 畫面字卡: [10 個字以內的的的【中日雙語】金句。]
+- 旁白配音 (VO)：[語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」總結核心精神，並帶上宣言【本集考據若有未竟之處，歡迎留言區指正！】【解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承】【訂閱、按讚、開啟傳奇好運小鈴鐺】與CTA]
+- 旁白配音 (VO)：[日文旁白，至少 75-115 字] 
+`
   },
   {
-    "id": "style-edtech-isometric",
-    "name": "3D 等距微縮 (系統拆解)",
-    "description": "運用 3D 等距視角與精緻光影，呈現精密的立體結構與系統積木感。適合系統架構拆解、硬體設備、空間佈局與複雜運作機制。",
-    "promptSuffix": ", 3D isometric illustration, stylized miniature diorama, clean bright studio lighting, soft pastel and corporate blue colors, educational tech aesthetic, intricate mechanical or structural details, octane render, clean line-art background configuration, 8k"
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據以下長影音腳本，為主題「${ctx.step2}」生成 SEO 優化內容。
+你是一位頂尖的 YouTube SEO 優化專家。
+
+【核心任務】
+根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率（CTR）與搜尋排名的 SEO 內容。
+
+《長影音腳本》
+====================
+${ctx.step2}
+====================
+
+【輸出模板】請直接複製以下內容並填寫：
+
+### 🎯 爆款 Hook 標題 (請提供 5 個不同切角)
+1. [痛點/懸念型標題]
+2. [知識/解密型標題]
+3. [故事/傳奇型標題]
+4. [數據/震撼型標題]
+5. [共鳴/情感型標題]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ... (以此類推)
+
+### 📝 影片說明欄 (150字內，需包含關鍵字)
+[請撰寫一段吸引人的影片簡介，並自然融入主題關鍵字]
+
+### ⏳ 時間軸建議 (Timestamps)
+00:00 [段落一標題]
+01:00 [段落二標題]
+... (請依據腳本邏輯抓取 3-5 個時間軸)
+
+【日文輸出模板】：
+🎯 バズるタイトル（5つの切り口）
+1.[タイトル]
+
+2.[タイトル]
+
+3.[タイトル]
+
+4.[タイトル]
+
+5.[タイトル]
+
+🏷️ 人気ハッシュタグ（10個）
+#[タグ1] #[タグ2] ...
+
+📝 動画の概要欄（150文字以内、キーワード必須）
+[視聴者を惹きつける動画の紹介文を作成し、テーマのキーワードを自然に盛り込んでください]`
   },
   {
-    "id": "style-edtech-sketch-warm",
-    "name": "學術手帳線稿 (溫暖紙張)",
-    "description": "經典的手繪線稿搭配暖色紙張質感與微淡水彩，營造寧靜專注的個人筆記與研究氛圍。適合綜合知識整理、通用筆記與人文思維分析。",
-    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere, 8k"
-  },
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的精簡爆款短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.step1}」撰寫一份 180 秒內的 YouTube Shorts/TikTok 短影片腳本。
+你是一位專精於 TikTok / YouTube Shorts 的千萬流量短影音爆款編劇。
+
+【核心任務】
+根據下方的《基礎背景資料》，為主題「${ctx.step2}」撰寫一份 180 秒內的短影片腳本。節奏必須明快。
+
+《基礎背景資料》
+====================
+${ctx.step1}
+====================
+
+【輸出模板】請嚴格遵守以下腳本架構撰寫：
+請精準輸出以下格式，將括號與說明文字替換為實際生成的內容（每個30秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+## 📱 短影音腳本：${ctx.theme}
+### 💥 前 3 秒：黃金 Hook (抓眼球)
+請依據====================
+${ctx.step1}
+====================
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:15 - 00:30]、[00:30 - 00:45]、[00:45 - 01:00]：
+- 視覺畫面建議：[極具視覺衝擊力的畫面設計]
+- 視覺畫面：[極具視覺衝擊力的畫面設計]
+- 畫面字卡: [10字以內的震撼標題]
+- 旁白配音 (VO)：[台灣口吻，一句話點出最不可思議或最實用的亮點]
+
+### 📖 高能反轉或核心知識
+(時間規劃：01:00 - 02:00，共 4 個節點)
+請依序產出 [01:00 - 01:15]、[01:15 - 01:30]、[01:30 - 01:45]、[01:45 - 02:00]：
+- 視覺畫面建議：[請描述搭配畫面]
+- 畫面字卡：[必須精煉為 10 個字以內的核心金句]
+- 視覺畫面：[請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，精練挑出 1-2 個最精華的事實或神蹟，文字必須口語化]
+
+### 📢 總結及行動呼籲 (CTA)
+(時間規劃：02:00 - 03:00，共 4 個節點)
+請依序產出 [02:00 - 02:15]、[02:15 - 02:30]、[02:30 - 02:45]、[02:45 - 03:00]：
+- 視覺畫面建議：[請描述搭配畫面]
+- 畫面字卡：[必須精煉為 10 個字以內的核心金句，最後引導留言或點擊主頁的畫面]
+- 視覺畫面：[請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句，最後引導留言或點擊主頁的畫面]
+- 旁白配音 (VO)：[台灣口吻，總結精要，並帶上宣言【本集考據若有未竟之處，歡迎留言區指正！】【解碼台灣神佛，看懂世代相傳的信仰，銘印於心的文化傳承】【訂閱、按讚、開啟傳奇好運小鈴鐺】【點擊連結觀看完整影片】與留言分享經驗]]`  },
   {
-    "id": "style-edtech-sketch-grid",
-    "name": "學術手帳線稿 (網格/方格紙)",
-    "description": "微淡的藍色/灰色方格紙背景，帶來嚴謹的邏輯秩序感。適合數理邏輯、幾何圖解、資料結構與演算法推導。",
-    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, faint grid paper texture, subtle blue graph line pattern, technical notebook grid, educational diagram, precise spatial measurement aesthetic, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-sketch-dotgrid",
-    "name": "學術手帳線稿 (點陣手帳紙)",
-    "description": "極簡的 Bullet Journal 點陣背景，提供隱形的對齊輔助而不干擾視覺。適合思維導圖、視覺筆記 (Sketchnote) 與卡片盒筆記。",
-    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, minimalist bullet journal dot grid background, refined paper grain, clear visual hierarchy, clean educational diagram, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-sketch-parchment",
-    "name": "學術手帳線稿 (羊皮紙/古典)",
-    "description": "帶著歲月纖維感的古樸羊皮紙背景，散發典雅的文獻與歷史氣息。適合歷史事件時間軸、古典文學解析與生物分類學手稿。",
-    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, subtle antique parchment texture, aged fiber paper, vintage botanical print background, educational diagram, scholarly archival aesthetic, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-sketch-kraft",
-    "name": "學術手帳線稿 (牛皮紙/環保)",
-    "description": "有機且具手感的回收牛皮紙紋理，帶來自然永續與實作感。適合環境科學、地理生態學、手作工藝與永續議題推廣。",
-    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, recycled kraft paper texture, tactile paper grain, organic natural paper fibers, educational diagram, earthy organic style, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-sketch-blueprint",
-    "name": "學術手帳線稿 (藍圖/工程)",
-    "description": "深藍底色配上白色細線工程網格，呈現專業的架構規劃與工程圖樣感。適合機構拆解、軟體系統架構與程式底層模組圖解。",
-    "promptSuffix": ", elegant academic sketch style, white hairline technical grid, dark blue engineering blueprint paper, technical architectural layout, educational schematic diagram, precise structural analysis aesthetic, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-botanical",
-    "name": "復古科學圖鑑 (古典解剖/生物)",
-    "description": "融合古典銅板畫與細緻交叉陰影（Cross-hatching），具備極高的學術權威感與典雅質感。適合生物構造、醫學解剖、植物學與歷史科技。",
-    "promptSuffix": ", vintage scientific illustration, vintage botanical print, finely detailed copperplate engraving style, subtle cross-hatching, muted earthy color palette, parchment paper texture, labeled anatomical diagram aesthetic, elegant Latin calligraphy notes, highly detailed, 8k"
-  },
-  {
-    "id": "style-edtech-clay",
-    "name": "黏土微縮概念 (微觀/具象化)",
-    "description": "透過手作風格的溫暖觸感與柔軟質感，將抽象或生硬的概念具象化，降低學習門檻。適合微觀科學（如細胞、分子）、幼兒教育與故事演繹。",
-    "promptSuffix": ", stylized claymation plasticine diorama, soft clay texture, handcrafted educational miniature, bright rim lighting, vibrant clean colors, tactile depth of field, stop-motion animation art style, friendly interactive learning concept, 8k"
-  },
-  {
-    "id": "style-edtech-risograph",
-    "name": "雙色印刷圖解 (高對比概念)",
-    "description": "採用復古孔版印刷質感與高對比雙色調（Duotone），視覺衝擊力強且焦點極度明確。適合概念對比、重點流程圖與宣傳海報式圖解。",
-    "promptSuffix": ", risograph print illustration, duotone color palette, subtle halftone dot texture, distinct layered vector shapes, bold retro educational poster style, high visual impact, clean typography, tactile print aesthetic, 8k"
-  },
-  {
-    "id": "style-edtech-glassmorphism",
-    "name": "玻璃透視層次 (現代科技/數據流)",
-    "description": "運用半透明磨砂玻璃與霓虹光澤展現「內部構造」與「資料流動」。適合 AI 運算原理、程式架構、數據流轉與現代物理概念。",
-    "promptSuffix": ", modern glassmorphism style, translucent frosted glass layers, vibrant neon accents, clean white soft background, high-tech educational visualization, smooth depth blur, glossy reflective finish, elegant 3D diagram, octane render, 8k"
-  },
-  {
-    id: "style-oriental-colorink",
-    name: "現代彩墨琉璃 (靈性光影)",
-    promptSuffix: ", modern colorful ink wash painting style, translucent glass-like color accents, cinematic volumetric lighting, ethereal and profound atmosphere, spiritual awakening concept, any characters strictly from back-view perspective, subtle golden light rays, profound depth, 8k resolution"
-  },
-  {
-    id: "style-ancient-scripture",
-    name: "經卷古剎金石 (歷史沉澱)",
-    promptSuffix: ", ancient Chinese scripture aesthetic, floating golden calligraphy characters, weathered parchment and bamboo slip texture, traditional seal script elements, dimly lit ancient temple atmosphere, swirling incense smoke, rich warm amber and dark wood tones, traditional vertical text layout, cinematic composition, 8k"
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據以下短影音腳本，產出適合的 SEO 內容。
+你是一位短影音演算法精算師。
+
+【核心任務】
+根據下方的《短影音腳本》，產出衝擊力極強的短影音 SEO 內容。
+
+《短影音腳本》
+====================
+${ctx.step4}
+====================
+
+【輸出模板】請直接複製以下內容並填寫：
+
+### 🎯 衝擊力標題 (3 個)
+1. [文案內容，適合放在短影音封面上]
+2. [文案內容，適合放在短影音封面上]
+3. [文案內容，適合放在短影音封面上]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
   },
   
   {
-    id: "style-zen-minimalist",
-    name: "東方禪意極簡 (水墨留白)",
-    promptSuffix: ", Zen minimalist aesthetic, traditional oriental ink wash accents, soft muted earthy tones, ample negative space, peaceful and mindful atmosphere, subtle glowing natural light, profound spiritual vibe, elegant traditional typography layout, 8k resolution"
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[提供中日雙語]
+副標：[提供中日雙語]
+中文：[請填入 Prompt，運用（Typography Art / Calligram）技巧，設計主標及副標大而醒目的中日雙語文字編排變化]`,
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音 YouTube 縮圖設計 。
+參考背景：${ctx.step4}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt 必須包含：大而醒目藝術文字設計．
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容][請填入 Prompt，大而醒目藝術文字設計]`,
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 3 組 16:9 意象圖指令與搭配詩詞。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組 16:9 彩墨風格意象圖。
+視覺設計必須包含風格標籤 ，無人物、充滿禪意或史詩感的氛圍。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入意象圖名稱]
+詩詞（由上到下由右到左不要標點符號）：[請填入七言四句詩詞]
+中文：[請填入中文畫面描述]
+
+【日文輸出模板】：
+第1セット：[イメージ画像の名称を記入]
+詩歌（上から下へ、右から左へ縦書き、句読点なし）：[七言絶句（七言四句の漢詩）を記入]
+中国語：[中国語で画面の描写を記入]`,
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成 3 組符合主題氛圍的音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」生成 3 組 Suno AI 音樂生成 Prompt。
+場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo 。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：史詩感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第二組：敘事感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第三組：活力感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
+
+【⚠️ 絕對真實性指令】：
+所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，禁止腦補。
+
+【基礎背景史料】：
+${ctx.step1}
+
+請嚴格遵循以下二大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從${ctx.step1}萃取五個【蒙太奇資訊】。
+  視覺公式（必須包含）  ：
+畫面必須融合【動態分割構圖（Dynamic Segmented Layout）】、【美式漫畫跨頁插圖（Comic Book Splash Page with Insets）】與【蒙太奇資訊圖表（Montage Infographic）】三種視覺語言。
+整體風格採用 colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed。	
+
+### 任務二：撰寫社群發布正文
+使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
+
+---
+
+### 🎨 視覺 Prompt
+現在，請嚴格依照以下格式直接輸出（請保留所有 Markdown 符號與中括號內的英文特徵，請用你的創意補齊對應欄位）：
+
+#### 16:9 動態分割構圖提示詞
+**AI Prompt (中文):**
+[在此填入主角的全英文外觀特徵描述字串]，以這名主角為核心主角。運用【動態分割構圖（Dynamic Segmented Layout）】以及【跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：**[蒙太奇資訊名稱 1]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：**[蒙太奇資訊名稱 2]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：**[蒙太奇資訊名稱 3]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：**[蒙太奇資訊名稱 4]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：**[蒙太奇資訊名稱 5]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 16:9 --v 6.0
+
+#### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
+**AI Prompt (中文):**
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：**[蒙太奇資訊名稱 1]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：**[蒙太奇資訊名稱 2]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：**[蒙太奇資訊名稱 3]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：**[蒙太奇資訊名稱 4]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：**[蒙太奇資訊名稱 5]
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 9:16 --v 6.0
+
+
+
+### 📱 社群發布正文
+[請填入帶有 Emoji 的 Hook 開場白，製造懸念或情感共鳴]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，必須基於史料]
+
+[互動提問：請邀請粉絲留言分享經驗]
+
+#世代銘印 #${ctx.step2} [請再補充 3-5 個相關的 Hashtags]
+`,  },
+  ],
+  beauty: [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對保養成分或美妝趨勢進行定義釐清與科學/歷史文獻彙整",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位嚴謹的皮膚科學專家與國際美妝保養趨勢主編。請針對主題「${ctx.theme}」請務必優先使用 Google 搜尋查證最準確的 1500 字事實報告。
+請注意，網路上常有誇大的美妝謠言與行銷話術，請務必基於皮膚科學機轉、成分實證或發展史撰寫，嚴禁任何 AI 腦補。
+撰寫時請務必嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 詳細架構與撰寫指南
+
+### 一、 導言：現代人的肌膚痛點與流行風潮
+    破題引言：用一句話點出該主題解決了什麼現代人的容貌焦慮或引領了什麼新風尚（例如：「在換季時節，總有一款成分成為敏弱肌的救星，那就是...」）。
+    現代市場影響力：簡述此成分或風格在目前的普及程度與市場規模。
+
+### 二、 核心定義與分類系統
+    正式學名與常見俗稱：
+      官方/科學名稱：[例如：菸鹼醯胺、生育酚、A醇]
+      民間親切俗稱：[例如：維他命B3、抗老黃金、早C晚A]
+    機制定位與保養階級：屬於哪一類保養體系？在皮膚生理學中作用於哪一個層次？（例如：角質代謝、真皮層膠原協同）。
+
+### 三、 成分源流與研發傳奇（它從哪裡來？）
+> 💡 撰寫提示： 若該主題為「美妝風格」（如：Clean Girl），此段可調整為「風格起源、流行文化與美學源流」。
+
+    發現背景與契機：誕生於哪個年代、實驗室或歷史背景？最初是如何被發現有美妝/保養功效的？
+    研發痛點與技術突破：該成分有哪些不穩定性（如易氧化、具刺激性）？科學家後來用什麼技術（如包裹技術、微脂囊）克服？
+
+### 四、 核心功效與經典案例（它能做到什麼？）
+    核心實證功效（精選 1-2 則）：挑選最具科學實證的功效（如：抑制酪胺酸酶活性、促進細胞更新）。
+    視覺前後對比描述：臨床或實驗上，正確使用後會帶來什麼樣的膚質或妝效轉變？
+
+### 五、 質地特徵與包裝美學（它長什麼樣子？）
+    質地與觸感解析：外觀顏色、流動性、吸收速度與膚感（如：微乳化質地、清爽啞光、絲絨霧面、清透水光）。
+    包裝與活性保護：為了維持活性，通常需要什麼樣的包裝設計？（如：避光棕色瓶、真空壓泵、雙艙設計）。
+
+### 六、 適用膚質與精準搭配（誰最適合它？）
+    主要對症痛點：現代人遇到哪些肌膚問題（如：暗沉、初老、敏感、毛孔粗大）會特別需要它？
+    特定避雷與蜜糖群體：哪些膚質是天生蜜糖？哪些膚質需要建立耐受，或不可與什麼成分（如：高濃度酸類）疊加混搭？
+
+### 七、 現代日常保養/彩妝儀式
+    最佳使用時機與手法：應該在早晨還是夜晚使用？搭配什麼樣的按摩手法或疊擦順序能發揮最大功效？
+    經典代表產品：現今市場上以此為核心成分的指標性專櫃或平價產品。
+
+### 八、 專櫃品牌行銷話術 vs. 皮膚科正史對比
+    破解常見的「神話級」行銷話術，從科學角度告訴讀者哪些是必須的，哪些只是商家的概念炒作，建立專業公信力！
+
+### 九、 結語：悅己美學的現代啟示
+    核心價值的現代轉化：將複雜的保養/美妝昇華為一種「自我療癒與生活儀式感」，給予讀者日常護理的信心。
+    美學傳承與反思：總結它如何從實驗室數據或小眾趨勢，走入現代人的化妝台，成為跨越世代的美麗寄託。`,
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過專家查核的基礎科學資料】，為「${ctx.theme}」撰寫一份 5-10 分鐘的 YouTube 長影片腳本。
+
+【⚠️ 絕對真實性指令】：
+你在本腳本中提及的所有成分、機轉、專有名詞與護膚步驟，必須 100% 遵守下方提供的背景資料，不可修改名詞定義與功效宣稱。
+
+背景資料：
+${ctx.step1}
+
+腳本需求：包含引人入勝的痛點開場、深度成分與誤區解析、以及總結與互動引導。`,
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據以下長影音腳本，為主題「${ctx.theme}」生成 SEO 優化內容。
+腳本內容：
+${ctx.step2}
+
+請提供：5 個 Hook 標題（需帶有痛點解決或趨勢感）、10 個熱門美妝保養 Hasthtags、以及 150 字影片說明、時間軸建議。`,
+  },
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 60 秒內的精簡爆款短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.theme}」撰寫一份 60 秒內的 YouTube Shorts/TikTok 短影片腳本。
+背景資料：
+${ctx.step1}
+
+需求：節奏明快，前 3 秒必須有鉤子 (Hook，如「你以為的保養其實在毀容？」)，內容精簡有力，直擊痛點與解法。`,
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據以下短影音腳本，產出適合的 SEO 內容。
+腳本內容：
+${ctx.step4}
+
+請提供：3 個衝擊力強、適合短影音演算法的標題。`,
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 3 組 16:9 YouTube 縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step3"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 。
+參考背景：${ctx.step3}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入10字以內主標內容]
+副標：[請填入8字以內副標內容]
+中文：[請填入中文 Prompt，具體描述產品外觀、質地微距或膚質光澤]`,
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step5"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
+參考背景：${ctx.step5}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計
+。
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入	主標內容]
+中文：[請填入中文 Prompt，具體描述產品外觀、質地微距或膚質光澤]`,
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 3 組 9:16 高奢行銷海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 9:16 高奢行銷海報。
+視覺設計必須包含風格標籤 (high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed),大而醒目藝術文字設計充滿極簡美學與高級保養質地的氛圍。
+
+【格式絕對鎖定指令】：
+你現在是美妝保養行銷專家，
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
+AI Prompt (中文) 必須包含：high-end beauty editorial, minimalist luxury aesthetic, crisp studio lighting, soft shadows, macro product texture, clean girl aesthetic, high-end cosmetics branding, pastel neutral tones, cinematic lighting, ultra detailed,大而醒目藝術文字設計。 
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入高奢行銷海報名稱]
+核心文案：[請填入八字以內的頂級美妝文案]
+促銷副標：[請填入副標]
+中文Prompt：[美妝保養行銷專家設計中文 Prompt]`,
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成 3 組符合主題氛圍的音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+場景設計分別為：1. 秀場感（高級感與力量感開場）、2. 療癒感（沉浸式保養/日常放鬆）、3. 輕快感（美妝教學/短影片節奏）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：秀場感
+適用場景：[如：高奢穿搭/彩妝氣勢開場]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容，例如：Deep House, heavy bass, confident, 120 BPM]
+
+### 第二組：療癒感
+適用場景：[如：沉浸式夜間護膚、ASMR]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容，例如：Ambient, soft electric piano, relaxing, 80 BPM]
+
+### 第三組：輕快感
+適用場景：[如：快速出門妝容、OOTD 分享]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容，例如：Upbeat Indie Pop, bright synth, energetic, 115 BPM]`,
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是頂級美妝保養雜誌視覺總監與高轉化美妝社群文案主編。
+你的任務是根據下方的【基礎背景科學查核】，為主題「${ctx.theme}」打造一組「高奢雜誌風」社群圖文懶人包。
+
+【⚠️ 絕對真實性指令】：
+所有萃取的資訊，必須完全基於下方科學資料，禁止腦補。
+
+【基礎背景科學查核】：
+${ctx.step1}
+
+
+---
+### 任務：撰寫社群發布正文
+使用精緻、推心置腹且具專業公信力的語氣。將科學資料轉化為 3~5 點易讀的亮點或誤區解析，並以痛點提問開場，以產品導流收尾。
+
+---
+
+### 📱 社群發布正文
+[請填入帶有精緻 Emoji 的痛點 Hook 開場白，例如：妳以為的保養，其實是在虐肌？]
+
+[請條列 3-5 點核心亮點解析，每點包含一個精緻小標題與兩句科學解說，必須基於資料]
+
+[互動提問：邀請粉絲留言分享自己的膚質或使用經驗]
+精準護膚、拒絕盲從，點擊看更多皮膚科醫師推薦的無雷清單 ➔ [此處自動帶入品牌導購連結 / 讀者專屬優惠碼]
+
+#精準護膚 #${ctx.theme} [請再補充 3-5 個美妝保養熱門 Hashtags]
+`
   }
-];
+],
+    food: [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對美食主題進行分類定義、歷史淵源、美味秘密與客觀文獻彙整",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位台灣飲食文化、美食歷史研究與飲食人類學專家，請務必優先使用 Google 搜尋查證最準確的史料與文獻再回答。
+
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+
+1. 經典小吃/地方特色料理
+2. 傳統節慶美食/飲食文化/宮廷名菜
+
+請先輸出：
+主題分類：
+判斷原因：
+
+請絕對基於搜尋到的客觀事實與飲食歷史撰寫，嚴禁任何 AI 腦補。
+撰寫時請務必嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 詳細架構與撰寫指南
+
+### 一、 導言：與這道美食的初次遇見
+   破題引言：用一句話總結這道佳餚在民間最深入人心的印象與味覺記憶。
+   現代社會影響力：簡述它在現代飲食市場、觀光夜市或海內外饕客心中的知名度與普及程度。
+
+### 二、 美食定位與名號系譜
+   正式名稱與歷史別稱：官方登錄、民間俗稱或歷史典籍中的稱呼。
+   菜系與分類定位：屬於哪一個菜系體系？（如：台菜、客家菜、眷村菜、街頭小吃）。
+
+### 三、 料理起源與歷史演變（這道菜怎麼來的？）
+   歷史背景與地理發源：誕生於哪個朝代/年代、地理位置？創始人或原產地故事？
+   傳入與在地化過程：如何傳入台灣或推廣至各地？在不同時期進行了哪些食材或口味上的演變？
+
+### 四、 獨門工藝與美味秘密（為什麼這麼好吃？）
+   靈魂食材與揀選講究：關鍵食材、特調醬汁、靈魂高湯或獨門香料。
+   工序與獨門烹調技術：繁複的備料程序、火候控制（如：慢火煨燉、猛火爆炒、大鍋大滾）。
+
+### 五、 色香味視覺與口感解析
+   色澤與擺盤美學：上桌時的視覺呈現（油脂光澤、醬色深度、配料點綴）。
+   質地與口感體驗：入口後的層次感（脆口、軟嫩、綿密、爆汁、回甘）。
+
+### 六、 食客群體與食用時機
+   食用時機：節慶必吃、四季補品、深夜宵夜或日常庶民美食。
+   代表性食用文化：在地人的隱藏吃法、專屬沾醬搭配或隨餐茶飲。
+
+### 七、 現代飲食文化與代表店家
+   歷史悠久的老店/發源祖店：最具歷史代表性、香氣傳承數十年的指標性店家。
+   獨特食俗與慶典：與該美食緊密相關的民俗慶典活動（如：辦桌文化、牛肉麵節、米粉貢丸節）。
+
+🌟 視覺特徵與攝影指南（實地取景必備）
+【⚠️ 強制圖像查證指令】：請透過 Google 搜尋『${ctx.theme}』的相關報導與圖庫資料。
+請提供 3-5 組真實且有效的圖片網址（Image URL），作為後續 AI 圖像生成的墊圖參考：
+- 📸 真實參考圖片網址：[請列出 3-5 個有效的圖片網址，須包含料理成品特寫與店家烹調過程，並附說明]
+- 料理外觀與細節：成品的色澤、高湯透亮度、醬汁流動感與撒上的蔥花/配料。
+- 烹調場景與氛圍：大鍋蒸騰的白煙、師派甩麵/翻鍋的動態感、夜市或老店的燈光氛圍。
+
+### 八、 小說戲劇 / 民間傳承 對比
+歷史記載與民間故事（如：乾隆下江南、慈禧太后賜名）的差異與事實查核。
+
+### 九、 結語：舌尖上的文化傳承
+這道美食的核心精神（職人堅持、鄉愁記憶）對現代飲食文化的意義。
+
+### 十、 事實查核
+請列出：
+✔ 已確認史實
+✔ 民間傳承/店家傳說
+✔ 現代食品科學/飲食學觀點`
+  },
+
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據美食背景，產出 5-10 分鐘垂涎三尺的 YouTube 長影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過專家查核的美食背景資料】，為「${ctx.theme}」撰寫一份 5-10 分鐘的 YouTube 長影片腳本。
+
+【⚠️ 絕對真實性指令】：
+你在本腳本中提及的所有歷史、食材、工序與店家故事，必須 100% 遵守下方提供的背景資料。
+
+背景資料：
+${ctx.step1}
+
+【輸出模板】：
+## 🎬 YouTube 長影片腳本：${ctx.theme}
+
+### ⏱️ 引人入勝的開場 (Hook)
+(時間規劃：00:00 - 01:00，共 2 個節點)
+[00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述極具視覺衝擊的料理特寫，如高湯澆淋、熱氣蒸騰、酥脆聲響]
+- 畫面字卡: [10字以內的極致誘人標題]
+- 旁白配音 (VO)：[用令人垂涎的味覺描繪或驚人歷史懸念開場]
+
+### ⏱️ 深度解析：美味起源與職人工序
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]、[03:00 - 03:30]、[03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面，如食材挑選、慢火燉煮、靈魂醬汁調配]
+- 畫面字卡: [必須精煉為 10 個字以內的核心美味金句]
+- 旁白配音 (VO)：[講述美食背後的傳承故事與料理秘密]
+
+### ⏱️ 口感體驗與現代食俗
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出[04:00 - 04:30]、 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00] 、[06:00 - 06:30]、[06:30 - 07:00]：
+- 視覺画面建議：[請描述品嚐過程、夾起瞬間的爆汁/拉絲感、在地老饕吃法]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[解析其對在地飲食文化、老饕情感的影響]
+
+### ⏱️ 總結與互動引導 (Outro/CTA)
+(時間規劃：07:00 - 08:00，共 2 個節點)
+[07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[總結畫面，擺盤全景]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[帶上宣言【解碼台灣美食，看懂世代相傳的美味，銘印於舌尖的文化傳承】引導訂閱與留言口袋名單]`
+  },
+
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成美食影片的吸引點擊標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據長影音腳本，為美食主題「${ctx.theme}」生成 YouTube SEO 優化內容。
+
+《長影音腳本》：
+${ctx.step2}
+
+【輸出模板】：
+### 🎯 爆款 Hook 標題 (5 個切角)
+1. [味覺衝擊/食欲爆棚型標題]
+2. [獨門秘方/解密型標題]
+3. [老店傳承/故事型標題]
+4. [在地老饕/評測型標題]
+5. [情感共鳴/鄉愁型標題]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[美食標籤1] #[美食標籤2] ...
+
+### 📝 影片說明欄 (150字內，包含美味關鍵字)
+
+### ⏳ 時間軸建議 (Timestamps)
+00:00 美味開鍋引爆食欲
+01:00 靈魂秘方與起源...`
+  },
+
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的極速爆款美食短影片文案 (Shorts/Reels)。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.theme}」撰寫一份 180 秒內的短影片腳本。
+
+背景資料：
+${ctx.step1}
+
+【輸出模板】：
+## 📱 美食短影音腳本：${ctx.theme}
+### 💥 前 3 秒：黃金 Hook (刺激唾液分泌)
+(00:00 - 01:00，共 4 個節點)
+- 視覺畫面建議：[爆汁、淋醬、大火翻鍋或酥脆咀嚼聲特寫]
+- 畫面字卡: [10字以內的極致震撼標題]
+- 旁白配音 (VO)：[「你絕對沒吃過...」、「這家老店居然隱藏這種吃法...」]
+
+### 📖 靈魂秘方與美味高潮
+(01:00 - 02:00，共 4 個節點)
+- 視覺畫面建議：[醬汁熬煮、食材堆疊、老饕一口咬下]
+- 畫面字卡: [10字以內核心美味金句]
+- 旁白配音 (VO)：[精練講出 1-2 個最厲害的美味秘密]
+
+### 📢 總結及互動引導 (CTA)
+(02:00 - 03:00，共 4 個節點)
+- 視覺畫面建議：[最後完美呈盤與引導留言畫面]
+- 畫面字卡: [引導留言標題]
+- 旁白配音 (VO)：[拋出問題：「你最喜歡加什麼配料？」呼籲追蹤]`
+  },
+
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影音熱門標題與 Hashtags。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據短影音腳本，產出短影音 SEO 內容。
+
+《短影音腳本》：
+${ctx.step4}
+
+【輸出模板】：
+### 🎯 衝擊力封面標題 (3 個)
+1. [適合放在短影音封面上的大字]
+2. [適合放在短影音封面上的大字]
+3. [適合放在短影音封面上的大字]
+
+### 🏷️ 推薦 Hashtags
+#[台灣美食] #[必吃小吃] #[熱門標籤3] #[熱門標籤4] #[熱門標籤5]`
+  },
+
+  {
+    id:6,
+    title: "影音點擊率 (CTR) 圖像",
+    description:"生成16:9 YouTube縮圖。",
+    type:"code",
+    language:"markdown",
+    dependsOn:["theme","step3"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組長影音 YouTube 縮圖設計 。
+參考背景：${ctx.step3}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+
+AI Prompt (中文) 必須包含：
+
+high-end food photography,
+Michelin restaurant style,
+cinematic food lighting,
+warm natural light,
+macro food texture,
+luxury dining,
+steam effect,
+appetizing colors,
+premium plating,
+ultra detailed,
+大而醒目藝術文字設計
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填副標內容]
+中文：[請填入中文 Prompt]`,
+  },
+
+  {
+    id:7,
+    title: "擴散式影音吸睛圖像",
+    description:"生成9:16 Shorts封面。",
+    type:"code",
+    language:"markdown",
+    dependsOn:["theme","step5"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 。
+參考背景：${ctx.step5}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：
+
+high-end food photography,
+cinematic lighting,
+luxury restaurant,
+macro texture,
+golden crispy,
+fresh ingredients,
+steam,
+premium plating,
+ultra detailed,
+大而醒目藝術文字設計
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[請填入中文 Prompt]`,
+  },
+
+  {
+    id:8,
+    title: "風格化情境視覺",
+    description:"生成高質感餐飲行銷海報。",
+    type:"code",
+    language:"markdown",
+    dependsOn:["theme"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」設計三組品牌級美食海報。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：
+
+Michelin food photography,
+luxury restaurant branding,
+warm cinematic lighting,
+premium ingredients,
+macro texture,
+minimalist composition,
+editorial food magazine,
+ultra detailed,大而醒目藝術文字設計
+
+格式：
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+### 第一組：[請填入名稱]
+核心文案：
+促銷副標：
+中文：[請填入中文畫面描述]`,
+  },
+
+  {
+    id:9,
+    title: "Suno AI 情緒配樂",
+    description:"生成三組美食影片音樂。",
+    type:"code",
+    language:"markdown",
+    dependsOn:["theme","step1"],
+    prompt:(ctx)=>`請針對「${ctx.theme}」設計三組Suno AI音樂。
+
+場景：
+
+1. 高級餐廳
+2. 美食紀錄片
+3. 探店Vlog
+
+格式：
+
+### 第一組
+適用場景：
+Suno AI Prompt：
+
+Prompt須包含：
+
+Music Style
+Instruments
+Tempo`
+  },
+
+    {
+      id:10,
+      title: "全平台社群推播文案",
+      description:"生成Instagram、Facebook、小紅書貼文。",
+      type:"social",
+      language:"markdown",
+      dependsOn:["theme","step1"],
+      prompt:(ctx)=>`你是一位頂級美食雜誌總編輯與餐飲品牌社群行銷專家。
+
+根據以下資料：
+
+${ctx.step1}
+
+請製作一篇高互動社群貼文。
+
+內容包含：
+
+📍痛點Hook
+
+🍽️ 3~5個美食亮點
+• 食材特色
+• 料理特色
+• 必吃原因
+• 推薦搭配
+
+💬 留言互動
+
+📍店家資訊（可留空供後續填寫）
+
+📣 CTA
+
+
+#${ctx.theme}
+
+並補充5個熱門美食Hashtags。`
+    }
+  ],
+  travelpreneur: [
+    {
+      id: 1,
+      title: "核心企劃知識",
+      description: "蒐集目的地歷史、文化、景點、美食、交通與旅遊資訊，建立可信基礎資料。",
+      type: "text",
+      dependsOn: ["theme"],
+      prompt: (ctx: any) => `你是一位資深旅遊作家、旅遊規劃師與文化研究專家。
+
+請針對旅遊主題「${ctx.theme}」請務必優先使用 Google 搜尋查證最準確1500字的完整旅遊背景報告。
+
+請依照以下架構：
+
+## 一、目的地介紹
+- 國家／城市
+- 地理位置
+- 最佳旅遊季節
+- 氣候特色
+
+## 二、歷史文化
+- 發展歷史
+- 在地文化
+- 世界文化遺產
+- 節慶活動
+
+## 三、必去景點
+- Top 10 景點
+- 推薦理由
+- 建議停留時間
+- 最佳拍照時間
+
+## 四、在地美食
+- 必吃料理
+- 必喝飲品
+- 在地甜點
+- 夜市／市場推薦
+
+## 五、交通攻略
+- 國際交通
+- 市區交通
+- 一日券
+- IC卡
+- 租車建議
+
+## 六、住宿推薦
+- 豪華飯店
+- 商務飯店
+- 民宿
+- 青年旅館
+
+## 七、旅遊預算
+- 一日預算
+- 三天兩夜
+- 五天四夜
+
+## 八、旅遊注意事項
+- 簽證
+- 網路
+- 插座
+- 貨幣
+- 小費文化
+- 安全提醒
+
+## 九、推薦行程
+提供三種玩法：
+- 一日遊
+- 三日遊
+- 五日深度旅行
+
+最後總結此目的地最值得造訪的原因。`
+    },
+
+    {
+      id: 2,
+      title: "主軸腳本文案",
+      description: "產出8~12分鐘YouTube旅遊攻略影片。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `根據以下旅遊背景資料：
+
+${ctx.step1}
+
+請撰寫「${ctx.theme}」12分鐘YouTube旅遊攻略。
+
+內容包含：
+
+1. Hook (時間規劃：00:00 - 01:30，共 3 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]、[01:00 - 01:30]：
+- 視覺畫面建議：[請描述開場畫面，需具備強烈視覺衝擊力]
+- 畫面字卡: [10字以內的震撼標題]
+- 旁白配音 (VO)：[用強烈懸念或驚人事實開場，勾起觀眾好奇心]
+
+2. 地點介紹 (時間規劃：01:30 - 03:00，共 3 個節點)
+請依序產出 [01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]：
+- 視覺畫面建議：[請描述搭配的地圖動畫或當地環境畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[將背景資料轉化為流暢的故事敘述]
+
+3. 必去景點 (時間規劃：03:00 - 04:30，共 3 個節點)
+請依序產出 [03:00 - 03:30]、[03:30 - 04:00]、[04:00 - 04:30]：
+- 視覺畫面建議：[請描述該景點的招牌視角或特寫畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[生動描述景點特色與必看重點]
+
+4. 美食推薦 (時間規劃：04:30 - 06:00，共 3 個節點)
+請依序產出 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00]：
+- 視覺畫面建議：[請描述食物的誘人特寫或用餐氛圍]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[著重描述口感、味道與在地人推薦理由]
+
+5. 交通攻略 (時間規劃：06:00 - 07:30，共 3 個節點)
+請依序產出 [06:00 - 06:30]、[06:30 - 07:00]、[07:00 - 07:30]：
+- 視覺畫面建議：[請描述交通工具、車窗風景或導航示意畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[提供實用的交通方式、票券或自駕建議]
+
+6. 住宿推薦 (時間規劃：07:30 - 09:00，共 3 個節點)
+請依序產出 [07:30 - 08:00]、[08:00 - 08:30]、[08:30 - 09:00]：
+- 視覺畫面建議：[請描述飯店外觀、房間窗景或特色設施]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[分析住宿優缺點與適合的旅客族群]
+
+7. 花費公開 (時間規劃：09:00 - 10:00，共 2 個節點)
+請依序產出 [09:00 - 09:30]、[09:30 - 10:00]：
+- 視覺畫面建議：[請描述預算圖表、記帳畫面或省錢情境]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[公開各項花費比例與聰明省錢小撇步]
+
+8. 行程建議 (時間規劃：10:00 - 11:00，共 2 個節點)
+請依序產出 [10:00 - 10:30]、[10:30 - 11:00]：
+- 視覺畫面建議：[請描述路線圖動畫或精彩回顧蒙太奇]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[統整天數規劃與路線串聯的最佳方案]
+
+9. 結尾CTA (時間規劃：11:00 - 12:00，共 2 個節點)
+請依序產出 [11:00 - 11:30]、[11:30 - 12:00]：
+- 視覺畫面建議：[請描述夕陽絕景、觀眾互動畫面或訂閱圖示]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[總結旅行意義，並呼籲觀眾留言、按讚與訂閱]
+
+語氣要求：風格像專業旅遊YouTuber，語氣熱情、流暢且具備高度說服力。`    },
+
+    {
+      id: 3,
+      title: "影音 SEO 標題優化",
+      description: "產生YouTube SEO內容。",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `依據影片腳本：
+
+${ctx.step2}
+
+請提供：
+
+1. 五個高CTR標題
+2. 十個熱門Hashtags
+3. 約200字影片介紹
+4. YouTube Timestamp
+5. SEO關鍵字20組`
+    },
+
+    {
+      id: 4,
+      title: "擴散式影音文案",
+      description: "生成60秒旅遊Shorts腳本。",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `根據背景資料：
+
+${ctx.step1}
+
+請撰寫60秒Shorts腳本。
+
+需求：
+
+• 前3秒Hook
+• 景點快速介紹
+• 美食亮點
+• 必玩特色
+• CTA
+
+節奏快速，適合TikTok與YouTube Shorts。`
+    },
+
+    {
+      id: 5,
+      title: "擴散式 SEO 標籤優化",
+      description: "生成Shorts SEO。",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `根據以下Shorts：
+
+${ctx.step4}
+
+請提供：
+
+- 三個爆款標題
+- 五個熱門Hashtags
+- 一段Shorts說明。`
+    },
+
+    {
+      id: 6,
+      title: "影音點擊率 (CTR) 圖像",
+      description: "生成16:9縮圖Prompt。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `請針對「${ctx.theme}」生成三組YouTube縮圖。
+
+格式：
+
+### 第一組
+主標：
+副標：
+中文Prompt：
+
+Prompt需包含：
+
+travel photography,
+cinematic travel,
+golden hour,
+drone aerial,
+vibrant colors,
+luxury travel,
+editorial travel magazine,
+ultra detailed,,大而醒目藝術文字設計
+8k
+
+
+`
+    },
+
+    {
+      id: 7,
+      title: "擴散式影音吸睛圖像",
+      description: "生成9:16 Shorts封面。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `請生成三組 Shorts封面。
+
+格式：
+
+### 第一組
+標題：
+中文Prompt：
+
+Prompt需包含：
+
+travel photography,
+vacation mood,
+golden hour,
+drone shot,
+cinematic,
+ultra detailed,大而醒目藝術文字設計
+
+
+`
+    },
+
+    {
+      id: 8,
+      title: "風格化情境視覺",
+      description: "生成高質感旅遊宣傳海報。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `請設計三組旅遊品牌海報。
+
+格式：
+
+### 第一組
+主文案：
+副文案：
+中文Prompt：
+
+Prompt需包含：
+
+luxury travel poster,
+editorial travel,
+cinematic lighting,
+golden hour,
+drone view,
+vibrant colors,
+premium tourism,
+ultra detailed,大而醒目藝術文字設計
+
+
+`
+    },
+
+    {
+      id: 9,
+      title: "Suno AI 情緒配樂",
+      description: "生成旅遊影片背景音樂。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `請設計三組旅遊影片背景音樂。
+
+第一組：
+史詩旅行
+
+第二組：
+咖啡廳Vlog
+
+第三組：
+Road Trip
+
+格式：
+
+### 第一組
+適用場景：
+Suno AI Prompt：
+
+Prompt包含：
+
+Music Style
+Mood
+Instruments
+Tempo`
+    },
+
+    {
+      id: 10,
+      title: "全平台社群推播文案",
+      description: "生成IG、Facebook、Threads、小紅書旅遊貼文。",
+      type: "social",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `你是一位旅遊雜誌總編輯與旅遊品牌社群行銷專家。
+
+根據：
+
+${ctx.step1}
+
+請製作一篇完整社群貼文。
+
+內容包含：
+
+📍吸睛Hook
+
+✨ 3~5個旅遊亮點
+
+📸 最美拍照景點
+
+🍜 必吃美食
+
+🚆 交通小技巧
+
+💰 預算建議
+
+💬 留言互動
+
+📌 收藏CTA
+
+
+#${ctx.theme}
+
+以及5~10個熱門旅遊Hashtags。`
+    }
+  ],
+  pet: [
+    {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對寵物照護健康主題進行分類定義、生理機制、照護實操與客觀醫學知識彙整",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位資深獸醫師、寵物行為學與營養學專家，請務必優先使用 Google 搜尋查證最準確的獸醫學共識與權威期刊/衛教資料再回答。
+
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+
+1. 疾病預防/日常照護/行為解析
+2. 飲食營養/中毒急救/特殊時期照護（如老齡、幼寵）
+
+請先輸出：
+主題分類：
+判斷原因：
+
+請絕對基於搜尋到的客觀獸醫學事實撰寫，嚴禁任何 AI 腦補或無根據的民間偏方。
+撰寫時請務必嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 詳細架構與撰寫指南
+
+### 一、 導言：毛孩爸媽最常忽視的健康警訊
+   破題引言：用一句話總結這個健康議題在日常中最容易被忽視的早期徵兆。
+   現代寵物家庭影響：簡述此健康問題在犬貓族群中的常見程度與對毛孩生活品質的影響。
+
+### 二、 健康定位與常見誤區
+   正式學名與俗稱：獸醫學上的正式名稱、民間俗稱或常見行為表現。
+   常見迷思破除：飼主最容易誤解的觀念（例如：「貓咪吐毛膏吃多就好」、「狗吃骨頭能潔牙」等）。
+
+### 三、 生理機制與病因拆解（為什麼會這樣？）
+   發病/問題機制：器官機能、免疫反應、寄生蟲、飲食不當或環境壓力之影響。
+   高風險族群：哪些品種、年齡層、體型或生活習慣的寵物最容易面臨此問題？
+
+### 四、 症狀識別與日常觀察清單（怎麼及早發現？）
+   早期微小徵兆：活動力改變、食慾變化、排泄物異常、異常舔舐或姿勢變化。
+   中期與嚴重症狀：需要立即提高警覺的明確病徵。
+
+### 五、 照護實操與預防指南（在家該如何照顧？）
+   居家照顧步驟：環境調整、餵藥技巧、傷口/清潔維護或復健運動。
+   預防醫學措施：疫苗施打、定期健檢、日常清潔與補充品建議。
+
+### 六、 飲食營養與禁忌解析
+   推薦飲食方向：適合此狀況的營養成分（如蛋白質比例、特定維生素、水份補充）。
+   絕對禁忌食材：會加重病情或引發中毒的食物與藥物。
+
+### 七、 獸醫專業建議與就醫時機
+   就醫觀察點：出現哪些狀況時必須在 24 小時內送醫？哪些屬於黃金急救期？
+   診斷與治療簡述：獸醫通常會進行的檢查（血檢、X光、超音波）與常見治療方向。
+
+🌟 視覺特徵與觀察指南（衛教拍攝與記錄必備）
+【⚠️ 強制圖像查證指令】：請透過 Google 搜尋『${ctx.theme} 寵物』的相關報導與衛教圖庫。
+請提供 3-5 組真實且有效的圖片網址（Image URL），作為後續 AI 圖像生成的墊圖參考：
+- 📸 真實參考圖片網址：[請列出 3-5 個有效的圖片網址，須包含健康/異常特寫與照護動作，並附說明]
+- 外觀與特徵觀察：毛色光澤、眼睛/牙齦色澤、坐姿/睡姿異常、精神狀態。
+- 照護場景與氛圍：溫馨的居家照顧、餵藥/梳毛過程、安撫寵物時的互動光影。
+
+### 八、 網路謠言與醫學事實對比
+網路瘋傳偏方與獸醫學共識的事實查核。
+
+### 九、 結語：用正確知識守護毛孩的一生
+陪伴毛孩健康的責任與愛，建立良好醫病關係的重要性。
+
+### 十、 事實查核
+請列出：
+✔ 已確認之獸醫學共識
+✔ 尚待進一步研究之療法/補充品
+✔ 家長常見錯誤處置觀念`
+  },
+
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據寵物健康背景，產出 5-10 分鐘溫暖且專業的 YouTube 長影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過專家查核的寵物健康資料】，為「${ctx.theme}」撰寫一份 5-10 分鐘的 YouTube 長影片衛教腳本。
+
+【⚠️ 絕對真實性指令】：
+你在本腳本中提及的所有醫學知識、照護步驟與禁忌，必須 100% 遵守下方提供的背景資料。
+
+背景資料：
+${ctx.step1}
+
+【輸出模板】：
+## 🎬 YouTube 長影片腳本：${ctx.theme}
+
+### ⏱️ 引人入勝的開場 (Hook)
+(時間規劃：00:00 - 01:00，共 2 個節點)
+[00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述特寫毛孩微小異常動作的畫面，搭配溫暖但具警示感的字幕]
+- 畫面字卡: [10字以內的警示與關懷標題]
+- 旁白配音 (VO)：[用飼主日常最容易忽視的情境切入，帶出健康危機與關懷]
+
+### ⏱️ 深度解析：機制拆解與症狀識別
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]、[03:00 - 03:30]、[03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面，如解剖示意圖、日常行為觀察清單、飲食對比]
+- 畫面字卡: [必須精煉為 10 個字以內的核心照護金句]
+- 旁白配音 (VO)：[以通俗易懂的語言解釋病因與如何在家檢查毛孩]
+
+### ⏱️ 照護實操與就醫判斷
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出[04:00 - 04:30]、 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00] 、[06:00 - 06:30]、[06:30 - 07:00]：
+- 視覺畫面建議：[示範正確照護動作、按摩/餵藥/飲食準備、就醫指標條列]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[提供清晰手把手的居家照護指南與緊急送醫判斷]
+
+### ⏱️ 總結與互動引導 (Outro/CTA)
+(時間規劃：07:00 - 08:00，共 2 個節點)
+[07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[毛孩恢復健康、與飼主親密互動的溫馨全景]
+- 画面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[帶上宣言【用正確知識陪伴毛孩，守護健康每一刻】引導訂閱並分享給身邊毛爸毛媽]`
+  },
+
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成寵物健康影片的吸引點擊標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據長影音腳本，為寵物健康主題「${ctx.theme}」生成 YouTube SEO 優化內容。
+
+《長影音腳本》：
+${ctx.step2}
+
+【輸出模板】：
+### 🎯 爆款 Hook 標題 (5 個切角)
+1. [健康警訊/預防型標題]
+2. [迷因破除/觀念翻轉型標題]
+3. [手把手照護/實操型標題]
+4. [新手爸媽必看/避坑型標題]
+5. [情感共鳴/毛孩守護型標題]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[寵物照護] #[毛孩健康] ...
+
+### 📝 影片說明欄 (150字內，包含健康關鍵字與注意事項)
+
+### ⏳ 時間軸建議 (Timestamps)
+00:00 留意這些微小警訊
+01:00 為什麼會這樣？病因拆解...`
+  },
+
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的極速爆款寵物健康短影片文案 (Shorts/Reels)。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下背景資料，為「${ctx.theme}」撰寫一份 180 秒內的短影片腳本。
+
+背景資料：
+${ctx.step1}
+
+【輸出模板】：
+## 📱 寵物健康短影音腳本：${ctx.theme}
+### 💥 前 3 秒：黃金 Hook (抓住毛爸毛媽注意力)
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:15 - 00:30]、[00:30 - 00:45]、[00:45 - 01:00]：
+- 視覺畫面建議：[毛孩做某個異常動作的特寫或飼主錯誤操作畫面]
+- 畫面字卡: [10字以內的極致震撼標題]
+- 旁白配音 (VO)：[「千萬別再這樣做...」、「你家貓咪/狗狗如果這樣做，代表...」]
+
+### 📖 照護關鍵與實操避坑
+(時間規劃：01:00 - 02:00，共 4 個節點)
+請依序產出 [01:00 - 01:15]、[01:15 - 01:30]、[01:30 - 01:45]、[01:45 - 02:00]：
+- 視覺畫面建議：[快速對比正確 vs 錯誤照護方式、關鍵食材提示]
+- 畫面字卡: [10字以內核心照護金句]
+- 旁白配音 (VO)：[精練講出 1-2 個最關鍵的衛教細節或照護步驟]
+
+### 📢 總結及互動引導 (CTA)
+(時間規劃：02:00 - 03:00，共 4 個節點)
+請依序產出 [02:00 - 02:15]、[02:15 - 02:30]、[02:30 - 02:45]、[02:45 - 03:00]：
+- 視覺畫面建議：[毛孩健康活潑畫面、引導留言/收藏]
+- 畫面字卡: [引導互動字卡]
+- 旁白配音 (VO)：[拋出問題：「你家毛孩有這個習慣嗎？快留言交流！」呼籲追蹤]`
+  },
+
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影音熱門標題與 Hashtags。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據短影音腳本，產出短影音 SEO 內容。
+
+《短影音腳本》：
+${ctx.step4}
+
+【輸出模板】：
+### 🎯 衝擊力封面標題 (3 個)
+1. [適合放在短影音封面上的大字]
+2. [適合放在短影音封面上的大字]
+3. [適合放在短影音封面上的大字]
+
+### 🏷️ 推薦 Hashtags
+#[寵物健康] #[新手養寵] #[熱門標籤3] #[熱門標籤4] #[熱門標籤5]`
+  },
+
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 3 組 16:9 寵物健康 YouTube 縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step3"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組長影音寵物健康 16:9 縮圖設計。
+
+【格式絕對鎖定指令】：
+禁止任何開場白或解釋。嚴格拷貝 Markdown 模板。
+AI Prompt (中文) 必須包含：pet photography, close-up portrait of cute dog or cat, expressive eyes, warm indoor ambient lighting, subtle vibrant color ink wash accents in background, empathetic and professional vibe, ultra detailed, 8k, 大而醒目藝術文字設計。
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入中文 Prompt]`
+  },
+
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 3 組 9:16 短影音縮圖文案與 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step5"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音 9:16 縮圖設計。
+
+【格式絕對鎖定指令】：
+禁止任何開場白或解釋。嚴格拷貝 Markdown 模板。
+AI Prompt (中文) 必須包含：vertical pet portrait, macro detail on pet eyes or paws, cozy home environment, soft cinematic studio lighting, warm color scheme, ultra detailed, 大而醒目藝術文字設計。
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[請填入中文 Prompt]`
+  },
+
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 3 組 16:9 彩墨/溫馨風格寵物照護意象圖指令與搭配治癒短句。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 16:9 溫馨彩墨風格寵物意象圖。
+視覺設計必須包含風格標籤 (heartwarming color ink wash style, adorable pet portrait, soft golden sunlight, peaceful home atmosphere, rice paper texture, emotional bond, cinematic soft lighting, ultra detailed)。
+
+【格式絕對鎖定指令】：
+禁止任何開場白。嚴格拷貝 Markdown 模板。
+
+### 第一組：[請填入意象圖名稱]
+暖心短句（無標點符號的溫馨語錄）：[請填入陪伴毛孩的溫暖語錄]
+中文：[請填入中文畫面描述]`
+  },
+
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成 3 組符合寵物健康情境氛圍的 Suno AI 音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對寵物健康主題「${ctx.theme}」生成 3 組 Suno AI 音樂 Prompt。
+場景設計分別為：1. 溫馨治癒（日常陪伴/放鬆）、2. 衛教解惑（專業沉穩/清晰）、3. 活力日常（健康康復/輕快喜悅）。
+
+【格式絕對鎖定指令】：
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo。
+
+### 第一組：溫馨治癒
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt]
+
+### 第二組：衛教解惑
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt]
+
+### 第三組：活力日常
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt]`
+  },
+
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成寵物健康動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是首席寵物健康視覺總監與社群衛教主編。
+請根據下方的【寵物健康衛教資料】，為主題「${ctx.theme}」打造一組「寵物健康指南」社群圖文懶人包。
+
+【寵物健康衛教資料】：
+${ctx.step1}
+
+---
+### 🎨 視覺 Prompt (蒙太奇寵物健康資訊圖表)
+萃取五個【健康蒙太奇資訊】（例如：異常徵兆、飲食禁忌、居家照護、日常筆記、就醫指標）。
+畫面融合【動態分割構圖】、【美式漫畫/手繪風格跨頁插圖】與【蒙太奇衛教資訊圖表】。
+風格採用：pet photography, warm color ink wash, soft studio lighting, cute and clear infographics, high visual clarity, ultra detailed。
+
+現在，請嚴格依照以下格式直接輸出（請保留所有 Markdown 符號與中括號內的英文特徵，請用你的創意補齊對應欄位）：
+
+#### 16:9 動態分割構圖提示詞
+**AI Prompt (中文):**
+[在此填入主角的全英文外觀特徵描述字串]，以這名主角為核心主角。風格採用 pet photography, warm color ink wash, soft studio lighting, cute and clear infographics, high visual clarity, ultra detailed，運用【動態分割構圖（Dynamic Segmented Layout）】以及【美式漫畫/手繪風格跨頁插圖】組合併接成一張【蒙太奇衛教資訊圖表】。
+
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[資訊名稱 1]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[資訊名稱 2]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[資訊名稱 3]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[資訊名稱 4]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[資訊名稱 5]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 16:9 --v 6.0
+
+#### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
+**AI Prompt (中文):**
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[資訊名稱 1]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[資訊名稱 2]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[資訊名稱 3]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[資訊名稱 4]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[資訊名稱 5]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 9:16 --v 6.0
+
+---
+### 📱 社群發布正文
+[暖心又具提醒功能的開場白，點出飼主痛點]
+
+[條列 3-5 點核心照護指南，每點小標題+兩句清楚說明]
+
+[互動提問：邀請毛爸毛媽分享自家毛孩的狀況與經驗]
+用正確知識陪伴毛孩長大，為毛孩健康把關 ➔ [自動帶入寵物健康紀錄/健檢指南連結]
+
+#寵物照護 #${ctx.theme} #[毛孩健康Hashtags]`
+  }
+  ],
+  historyMeme: [
+{
+    id: 1,
+    title: "歷史人物硬核迷因大盤點",
+    description: "用現代迷因與幽默視角，盤點歷史人物的極限操作與趣事",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位幽默風趣、內建現代迷因梗，且擅長用垃圾話講歷史故事的說書人。
+
+請針對歷史人物「${ctx.theme}」撰寫一篇風格輕鬆、噴飯且帶有吐槽點的趣事大盤點。
+請完全拋棄死板的教科書語氣，結合現代職場、網路迷因或遊戲用語來重新詮釋他/她的歷史事蹟。
+撰寫時請務必嚴格遵循以下「搞笑結構與撰寫指南」進行結構化輸出：
+
+## 🗂️ 搞笑結構與撰寫指南
+
+### 一、 導言：如果「${ctx.theme}」活在現代...
+   * 破題引言：用一句話吐槽大家對「${ctx.theme}」的歷史刻板印象。
+   * 現代人設：形容如果${ctx.theme}活在現代，會是什麼樣的「超強斜槓青年」或「職場奇葩」？（例如：最強慣老闆、極限公關大師、武力值點滿的角頭等）。
+
+### 二、 盤點「${ctx.theme}」的極限操作（請挑選 5 個經典事蹟）
+   * 撰寫要求：根據「${ctx.theme}」的真實歷史或演義故事，挑選最具代表性的事件。
+   * 小標題設定：將事件標題改成現代迷因風格（例如：「史上傳統白嫖現場」、「只要我不尷尬尷尬的就是對手」）。
+   * 內容風格：用吐槽、搞笑、現代職場或遊戲視角（如：開外掛、滿級大老屠新手村）來描述。描述情境時要生動，加入人物的內心小劇場，把嚴肅的歷史講成荒謬喜劇。
+
+### 三、 感情狀態 / 社交關係 / 裝備分析（請根據人物特質擇一發揮）
+   * 內容要求：挑選「${ctx.theme}」的擇偶標準、奇葩的交友狀況（如兄弟情），或是專屬招牌裝備/坐騎/隨侍（如關羽的赤兔馬、孔明的羽扇與童子）。
+   * 現代揭密：用現代角度「瞎掰/揭密」背後的搞笑真相（例如：赤兔馬其實是吃油的頂級超跑、隨身帶道具是為了表情管理）。
+
+### 四、 結語：來自「${ctx.theme}」的人生金句
+   * 總結${ctx.theme}的一生，並用他的經典事蹟，給飽受壓力的現代人一句溫馨又好笑的「毒雞湯」或生存啟示（例如：遇到困難沒關係，大霧散了自然就有箭了 / 只要跑得比老闆快，鍋就輪不到我背）。`
+  },
+
+  {
+    id: 2,
+    title: "短影音腳本撰寫",
+    description: "產出 180 秒內的精簡爆款短影片文案，並鎖定角色視覺 consistency。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `為「${ctx.theme}」撰寫短影片腳本。
+背景資料：
+${ctx.step1}
+
+【⚠️ 角色與神獸/坐騎/隨侍圖像一致性強力指令 (極度重要)】：
+為了確保後續 AI 繪圖能保持「歷史主角」與「其專屬坐騎/神獸/隨侍/招牌裝備」長相絕對一致，請你先為這個人物定義一串「全英文固定外觀特徵字串」。
+英文特徵必須包含：年齡/性別、五官髮型、招牌服飾與配色、專屬武器/裝備，以及隨侍或坐騎的外觀描述（若無坐騎或隨侍請著重於招牌法寶或特色背景）。
+(例如: Guan Yu, a legendary majestic warrior, long black beard, intense piercing eyes, wearing elaborate green and gold ornate armor, holding a massive Green Dragon Crescent Blade, beside a powerful fiery red steed horse).
+
+由於本腳本的所有 [視覺畫面建議] 將直接用於生成圖像，你必須嚴格遵守：
+1. 在接下來的每一個畫格中，你必須「一字不漏地完整複製貼上」這串全英文特徵字串於開頭。
+2. 【絕對禁止】使用「...」、「(同上)」、「(主角特徵略)」等任何簡寫偷懶行為。
+
+【輸出模板】請嚴格遵守以下腳本架構撰寫：
+
+## 🎬 YouTube 短影音腳本：${ctx.theme}
+
+### 🧑 角色與裝備/隨侍固定外觀設定 (全英文)
+[請在此寫下為${ctx.theme}設計的全英文固定外觀特徵字串]
+
+### 第一組：[請填入短影音名稱]
+腳本：
+ (時間規劃：00:00 - 03:00，共 6 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]、[01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]：
+- 視覺畫面建議：[[在此完整複製貼上上述全英文外觀特徵，嚴禁寫"同上"或省略], 接著用中文描述該鏡頭的動態動作與場景細節]
+- 畫面字卡: [10字以內的震撼標題]
+- 旁白配音 (VO)：[用強烈懸念或驚人事實，勾起觀眾好奇心]
+
+### 第二組：[請填入短影音名稱]
+(依此類推，每個畫格必須包含全英文外觀特徵)
+
+### 第三組：[請填入短影音名稱]
+(依此類推，每個畫格必須包含全英文外觀特徵)`,
+  },
+
+  {
+    id: 3,
+    title: "短影音 SEO 優化",
+    description: "生成短影片標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據以下短影音腳本，產出適合的 SEO 內容。
+腳本內容：
+${ctx.step2}
+
+請提供：6 個 Hook 標題、10 個熱門 Hasthtags，以及 150 字影片說明。`,
+  },
+
+  {
+    id: 4,
+    title: "短影音縮圖設計",
+    description: "生成 3 組 9:16 短影音縮圖文案與高一致性 AI 繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組短影音 YouTube 縮圖設計 (9:16)。
+參考腳本與角色設定：
+${ctx.step2}
+
+【⚠️ 角色一致性與格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請務必從上方的《參考腳本與角色設定》中擷取【🧑 角色與裝備/隨侍固定外觀設定】的全英文特徵字串，並「強制」將該字串完整放在每一組「中文 Prompt」的最開頭，不得省略。
+
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱：
+
+AI Prompt (中文) 必須包含：[完整複製貼上角色全英文外觀特徵], colorful ink wash, vivid diffusion, golden particles, energy flow, eastern fantasy, gold flowing accents, rice paper texture, eastern mythology, spiritual energy, cinematic lighting, ultra detailed, 大而醒目藝術文字設計, [描述動態動作與張力]
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[在此填入包含全英文角色特徵與視覺風格參數的完整中文/混合 Prompt，嚴禁寫"同上"]
+
+### 第二組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[在此填入包含全英文角色特徵與視覺風格參數的完整中文/混合 Prompt，嚴禁寫"同上"]
+
+### 第三組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[在此填入包含全英文角色特徵與視覺風格參數的完整中文/混合 Prompt，嚴禁寫"同上"]`,
+  },
+
+  {
+    id: 5,
+    title: "Suno AI 配樂設計",
+    description: "生成 3 組符合主題氛圍的音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「${ctx.theme}」生成 3 組 Suno AI 音樂生成 Prompt。
+場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo 。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：史詩感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第二組：敘事感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第三組：活力感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`,
+  }
+  ],
+  fintech: [
+  {
+    id: "0_1" as any as number,
+    title: "Step 0: 主題選題器 (半導體與 AI 科技股 - 雙軌選題法)",
+    description: "自動搜尋熱門新聞，同時提煉『主流熱點』與『反常識黑馬』共 4 個主題供您挑選。",
+    type: "text",
+    dependsOn: [],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球與台灣半導體產業的最新消息。
+
+你是一位極具策略眼光的財經主編。為了平衡頻道的『大眾流量』與『深度鐵粉』，請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
+
+【🅰️ 主流熱點組 (產出 4 個)】（目標：蹭最大流量，迎合散戶直覺）
+- 切角：聚焦當天佔據最大版面的巨頭企業（如台積電、輝達）與最直觀的利多/利空消息。
+- 格式：『[熱門公司/技術] + [當前重大事件] + 對台股供應鏈與股價的影響』
+
+【🅱️ 反常識黑馬組 (產出 4 個)】（目標：建立專業權威，打破市場盲點）
+- 切角：避開頭條新聞。請尋找巨頭背後的隱憂、二三線被忽略的供應鏈，或是「看似利多實則出貨」的矛盾現象。
+- 格式：『[被忽略的公司/現象] + [反常識的重大轉折] + 散戶沒看懂的隱藏風險與機會』
+
+要求：
+請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
+    }
+  },
+  {
+    id: "0_2" as any as number,
+    title: "Step 0: 主題選題器 (總經變數與降息預期 - 雙軌選題法)",
+    description: "自動搜尋總經數據，同時提煉『直觀解讀』與『預期落差』共 4 個主題供您挑選。",
+    type: "text",
+    dependsOn: [],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）全球總體經濟與央行政策最新數據。
+
+你是一位極具策略眼光的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
+
+【🅰️ 主流熱點組 (產出 4 個)】（目標：解答大眾最焦慮的總經問題）
+- 切角：直接播報最新的通膨、降息數據或央行決議，並給出最直觀的資產配置建議。
+- 格式：『[降息/通膨數據事件] + [關鍵利率/殖利率點位] + 股債匯資產配置全攻略』
+
+【🅱️ 反常識黑馬組 (產出 4 個)】（目標：揭露數據背後的矛盾點）
+- 切角：尋找數據與市場走勢的「背離現象」（如：明明降息美債卻跌、明明數據大好股市卻崩）。
+- 格式：『[表面數據現象] VS [實際資產走勢的矛盾] + 背後隱藏的真相與資金避險指南』
+
+要求：
+請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
+    }
+  },
+  {
+    id: "0_3" as any as number,
+    title: "Step 0: 主題選題器 (市場籌碼與資金流向 - 雙軌選題法)",
+    description: "自動搜尋盤後籌碼，同時提煉『順勢跟單』與『主力陷阱』共 4 個主題供您挑選。",
+    type: "text",
+    dependsOn: [],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
+
+你是一位深諳法人操盤手法的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
+
+【🅰️ 主流熱點組 (產出 4 個)】（目標：順勢交易，跟隨大資金風口）
+- 切角：找出三大法人同步買超、外資大舉進場的強勢族群與大盤關鍵支撐/壓力位。
+- 格式：『[三大法人/籌碼轉折] + [大盤關鍵點位] + 散戶如何跟對資金風口』
+
+【🅱️ 反常識黑馬組 (產出 4 個)】（目標：避開狙擊，抓出洗盤陷阱）
+- 切角：尋找極端的籌碼現象，如土洋對作、技術面誘多殺空、或是融資大增但法人大賣的危險訊號。
+- 格式：『[異常籌碼現象/主力假動作] + [關鍵洗盤訊號] + 散戶如何避開狙擊並反向操作』
+
+要求：
+請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
+    }
+  },
+  {
+    id: "0_4" as any as number,
+    title: "Step 0: 主題選題器 (商業模式與產業拆解 - 雙軌選題法)",
+    description: "自動搜尋產業動態，同時提煉『熱門財報』與『跨界降維打擊』共 4 個主題供您挑選。",
+    type: "text",
+    dependsOn: [],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+ const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的熱門商業話題或企業財報。
+
+你是一位專精於商業模式拆解的財經主編。請幫我提煉出 4 個影音主題名稱（ctx.theme），並嚴格分為以下兩組：
+
+【🅰️ 主流熱點組 (產出 4 個)】（目標：解析當紅炸子雞的獲利護城河）
+- 切角：針對當天發布亮眼財報或聲量最高的企業，白話文拆解它為何能賺錢。
+- 格式：『[知名企業/當紅產業] + [最新財報/現象] + 護城河與未來估值邏輯』
+
+【🅱️ 反常識黑馬組 (產出 4 個)】（目標：發掘顛覆性商業模式與巨頭危機）
+- 切角：尋找「看似虧錢實則暴利」、「傳統巨頭面臨轉型危機」或「羊毛出在豬身上」的跨界顛覆案例。
+- 格式：『[知名企業/傳統產業] + [打破常規的獲利手法/生存危機] + 鮮為人知的底層商業邏輯』
+
+要求：
+請為這 4 個主題各附上 1 句選題理由，並明確標示它屬於哪一組。`;
+
+    }
+  },
+
+
+
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對財經主題進行定義釐清、歷史數據比對與市場影響評估",
+    type: "text",
+    dependsOn: ["theme"],
+tools: ["google_search"],
+    prompt: (ctx: any) => {
+const now = new Date(); 
+      const currentDate = now.toLocaleDateString('zh-TW', { 
+  timeZone: 'Asia/Taipei', 
+  year: 'numeric', 
+  month: 'long', 
+  day: 'numeric' 
+});
+      const isoTimestamp = new Date().toISOString();
+      const today = now.toLocaleDateString('en-CA', { 
+  timeZone: 'Asia/Taipei' 
+});    
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新消息。
+
+
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+1. 總經指標與數據發布 (如：CPI、非農就業、PMI)
+2. 重大財經事件與央行政策 (如：FOMC 會議、降息/升息循環、地緣政治影響)
+3. 市場籌碼與交易結構 (如：融資融券增減、三大法人動向、選擇權未平倉) // 💡 增加這個選項
+4. 商業模式與產業拆解
+5. 盤前觀戰與全球市場極速晨報
+6. 盤後籌碼與強勢族群解析日報
+7. AI 宏觀風控與選股決策引擎
+8. 企業拜訪與法說會深度提問訪綱
+請先輸出：
+主題分類：
+判斷原因：
+
+
+### 📌 若分類為【1. 總經指標與數據發布 2. 重大財經事件與央行政策】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
+- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️  [日期] 總經深度解析報告架構
+
+### 一、 執行摘要 (TL;DR)
+   市場痛點破題： 用一句話總結這個主題為何現在最受全球市場關注。
+   當前數據/政策現況： 簡述最新的數值、公布日期或政策決議結果。
+
+### 二、 指標定義與底層邏輯
+   白話文解釋： 這個財經名詞/事件到底是什麼？（請用一般大眾能聽懂的比喻）。
+   計算方式或決策機制： 它是怎麼算出來的？或是央行是看哪些因素來做這個決策？
+   在經濟循環中的定位： 它屬於領先、同時，還是落後指標？它反映了景氣循環的哪一個階段？
+
+### 三、 歷史回測與相似週期 (History Doesn't Repeat, But It Rhymes)
+   過去相似情境盤點： 尋找歷史上發生過類似數據或政策的 1-2 個關鍵時期。
+   當時的市場反應： 在那些歷史節點，股、債、匯市或原物料出現了什麼樣的趨勢性變化？
+   本次的異同比較： 這次的宏觀環境與歷史情境有何根本上的不同？
+
+### 四、 跨資產市場影響力評估
+   對貨幣政策的推力： 這個事件將如何影響各國央行（特別是 FED）接下來的動作？
+   資產板塊連動分析： 
+      - 股市 (成長股 vs 價值股、特定板塊)
+      - 債市 (長短天期殖利率變化)
+      - 匯市 (美元指數及主要非美貨幣)
+      - 原物料 (金、銅、油等)
+
+### 五、 財經數據圖表建議 (實作視覺化必備)
+【⚠️ 強制圖像查證指令】：請搜尋與『${ctx.theme}』最相關的財經官方圖表名稱，或全球權威機構發布的圖表。
+請列出 3-5 組可以用來佐證上述觀點的圖表名稱與重點描述，作為後續影片 B-roll 或社群圖卡的墊圖參考。
+- 📊 建議圖表 1：[圖表名稱，例如：美國-消費者物價指數(CPI)] - [描述該圖表應凸顯哪一段時間的趨勢]
+- 📊 建議圖表 2：...
+- 📊 建議圖表 3：...
+
+### 六、 事實查核與免責聲明
+請列出：
+✔ 引用數據來源機構 (如 BLS, BEA, FED)
+✔ 數據截至日期
+✔ 免責聲明：本文所載之資訊僅供參考，不代表任何形式之投資建議。
+
+
+---
+### 📌 分類為【3. 市場籌碼與交易結構】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。
+1. 為避免證交所/期交所盤後數據索引延遲，請擴大搜尋範圍至更新最快的財經媒體與資料庫，
+限縮於：site:cnyes.com (鉅亨網)、site:moneydj.com、site:ctee.com.tw (工商時報)、site:money.udn.com (經濟日報)、site:histock.tw (嗨投資)。
+2. 關鍵字精確化：請使用具體關鍵字搜尋以觸發最新新聞與數據表，例如：「三大法人買賣超 ${today}」、「外資 期貨 未平倉 ${today}」、「融資餘額 增減 ${today}」、「加權指數 收盤」。
+3. 報價零容忍原則：所有指數點位、買賣超金額、未平倉口數必須 100% 照抄真實搜尋結果。若查無近三日確切數字，直接填寫「N/A (無最新數據)」，嚴禁使用「常理推估」或「情境捏造」來填補數字。
+
+【🧠 強制前置作業：動態數據定錨 (Chain of Thought)】
+請在報告正文最頂端，建立「🗂️ 籌碼數據基準」區塊。你必須強制檢索並以條列式印出以下 4 項核心數據。
+⚠️ 格式要求：每一項數據後方，必須強制括號標註你查到的「(真實資料日期：YYYY-MM-DD)」，用以自我檢核是否抓到舊年份資料。若找不到今日數據，請取最近一個交易日之數據並標註日期。
+
+台灣加權指數 (TAIEX) 最新收盤點位：[點位] ([漲跌幅% / 漲跌點數]) (資料日期：)
+三大法人現貨買賣超：
+外資及陸資：[買/賣超 X 億元] (資料日期：)
+投信：[買/賣超 X 億元] (資料日期：)
+自營商：[買/賣超 X 億元] (資料日期：)
+三大法人合計：[買/賣超 X 億元] (資料日期：)
+外資台指期未平倉部位：[淨多/空單 X 口] (較前日增減 X 口) (資料日期：)
+信用交易籌碼：
+融資餘額：[總餘額 X 億元] (較前日增減 X 億元) (資料日期：)
+
+【⚖️ 動態敘事指令 (嚴禁預設立場)】
+請根據上述「🗂️ 籌碼數據基準」的真實狀況，動態決定報告的基調：
+偏多/軋空劇本：若「外資/投信同步買超」或「外資空單大幅回補」，敘事應聚焦於資金共識與突破動能。
+偏空/殺多劇本：若「外資大賣且期貨空單大增」或「法人大賣但融資大增(散戶接刀)」，敘事應聚焦於籌碼凌亂與防禦策略。
+震盪/換手劇本：若「土洋對作(外資賣/投信買)」，敘事應聚焦於籌碼換手與內外資角力。
+❌ 絕對禁止在無數據支撐下，預設「致命危機」、「泡沫破裂」等極端情緒化敘事。
+
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ [填入最新資料日期]籌碼與技術盤勢深度報告架構
+
+### 一、 執行摘要 (TL;DR)
+盤勢核心解析：用一句話總結目前大盤的籌碼結構（例如：土洋對作、外資回補引發軋空、或籌碼流向散戶的警戒訊號），必須與你剛剛檢索的數據邏輯一致。
+當前籌碼現況：簡述最新的三大法人合計買賣超金額、外資未平倉空/多單口數，以及大盤關鍵支撐/壓力位。
+### 二、 籌碼結構與主力動向分析
+資金流向拆解：外資、投信、自營商目前的對立或共識態勢為何？資金是否出現明顯的板塊輪動（例如從電子撤出轉入金融/傳產）？
+關鍵數據解讀：融資餘額的增減透露了什麼散戶心態？外資期貨淨部位的變化暗示了什麼避險或投機意圖？
+### 三、 支撐與壓力：根據最新收盤價，目前最重要的頸線、均線（如月線/季線）或整數關卡落在哪裡？
+型態學解讀：目前的 K 線型態搭配籌碼變化，暗示著洗盤、誘多、築底還是軋空？
+### 四、 短線實戰推演與劇本
+   樂觀劇本 (軋空/突破)：若突破關鍵點位，資金可能輪動到哪些板塊？外資空單停損將帶來什麼影響？
+   悲觀劇本 (殺多/破線)：若關鍵防線失守，加上籌碼鬆動，投資人應關注哪些避險資產（如反向 ETF）、高息防禦股或停損訊號？
+### 五、 財經數據圖表建議 (實作視覺化必備)
+📊 建議圖表 1：[大盤 K 線與外資買賣超疊加圖] - [簡述該圖表能凸顯什麼籌碼背離或共識趨勢]
+📊 建議圖表 2：[外資台指期未平倉部位走勢圖] - [簡述該圖表如何警示多空轉折]
+📊 建議圖表 3：[融資餘額與大盤指數對照圖] - [簡述該圖表對散戶籌碼安定度的意義]
+### 六、 事實查核與免責聲明
+   ✔ 引用數據來源機構 (如 證交所、期交所)
+   ✔ 免責聲明：本文所載之資訊僅供參考，不代表任何形式之投資建議。
+
+---
+### 📌 分類為【4. 商業模式與產業拆解】，
+【⚠️ 終極資料源鎖定與強制搜尋指令】：
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。在構建搜尋關鍵字 (Query) 時，必須強制遵守以下白名單網域限制（使用 site: 指令）：
+- 總經與政策：限縮於 site:federalreserve.gov、site:bls.gov、site:bloomberg.com、site:cnbc.com
+- 台股盤勢與籌碼：限縮於 site:twse.com.tw、site:taifex.com.tw、site:cnyes.com (鉅亨網)、site:moneydj.com
+- 美股與即時殖利率報價：限縮於 site:finance.yahoo.com、site:investing.com
+
+【⚠️ 最高合規與真實性指令】：
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價
+1. 無資料處置：若搜尋 API 無法從白名單中找到今日（${today}）的確切數值，請直接填寫「N/A (無最新數據)」，【絕對禁止】AI 腦補、推估或用歷史舊資料填補。
+2. 報價零容忍原則：針對大盤指數點位、個股收盤價/漲跌幅、美債殖利率與匯率，必須 100% 照抄真實搜尋結果。嚴禁使用「情境推演」或「常理推估」來捏造數字。
+3. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+4. 若無確切總體經濟數據（如 GDP、CPI），請明言尚未公布，切勿虛構。
+5. 任何歷史回測與市場推演，必須基於真實發生的客觀事件。
+
+
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 🗂️ [日期] 產業趨勢與商業模式深度報告架構
+
+### 一、 執行摘要 (TL;DR)
+   商業痛點破題：用一句話點出該企業或產業目前的「反常識」獲利現象。
+   當前財報/產業現況：簡述最新一季的關鍵財報數據（如毛利率、營收成長）或產業重大里程碑。
+### 二、 商業模式與獲利底層邏輯
+   白話文解釋：這家公司真正賺錢的秘密是什麼？（打破一般人的表面認知）。
+   護城河分析：它憑什麼能維持高毛利或高市占？（技術壟斷、規模經濟、網絡效應等）。
+### 三、 產業價值鏈與競爭格局
+   上下游擠壓效應：這家公司的強勢，對其供應商或下游代工廠造成了什麼利潤排擠？
+   競爭對手動態：市場上的老二或潛在挑戰者正在做什麼？
+### 四、 估值邏輯與成長潛力
+   市場定價邏輯：目前資本市場是給予它硬體製造商的本益比，還是軟體/AI 公司的本益比？
+   未來隱憂與風險：有哪些地緣政治、成本上升或技術迭代的風險可能破壞其商業模式？
+### 五、 財經數據圖表建議 (實作視覺化必備)
+   - 📊 建議圖表 1：[企業營收與毛利率走勢對照圖] - [描述重點]
+   - 📊 建議圖表 2：[全球產業市占率分佈圖] - [描述重點]
+   - 📊 建議圖表 3：[產業鏈微笑曲線/利潤分佈圖] - [描述重點]
+### 六、 事實查核與免責聲明
+   ✔ 引用數據來源機構 (如 企業 IR 財報、Bloomberg、研究機構)
+   ✔ 免責聲明：本文所載之資訊僅供參考，不代表任何形式之投資建議。
+
+---
+### 📌 分類為【5. 盤前觀戰與全球市場極速晨報】，
+
+【🚨 最高優先級：終極連網與零幻覺指令】
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+${ctx.customContext ? `【系統預載之真實盤前數據】：
+==================================================
+${ctx.customContext}
+==================================================
+⚠️ 數據絕對鎖定原則：以上為系統透過金融 API 抓取的最新真實盤前數據。所有點位、收盤價、漲跌幅必須 100% 照抄上方真實數據！` : `請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。
+1. 關鍵字精確化：請使用具體代碼搜尋以觸發 Google 財經面板，例如：「DJIA index close」、「S&P 500 index close」、「Nasdaq index close」、「NVDA stock price」、「TSM stock price」、「US 10 year treasury yield」、「DXY index」。
+2. 報價零容忍原則：所有點位、收盤價、漲跌幅必須 100% 照抄真實搜尋結果。若查無近三日確切數字，直接填寫「N/A (無最新數據)」，嚴禁使用「常理推估」、「依漲幅回推」或「情境捏造」來填補數字。
+3. 獨立查核警告：請獨立核對每一檔個股報價，切勿發生數值錯置（例如將 NVDA 的價格寫給 TSM）。所有市場推演必須基於真實發生的客觀事件。`}
+
+【🧠 強制前置作業：動態數據定錨 (Chain of Thought)】
+請在報告正文最頂端，建立「🗂️ 盤前數據基準」區塊。你必須強制以條列式印出以下核心數據。
+⚠️ 格式要求：每一項數據後方，必須強制括號標註「(真實資料日期：YYYY-MM-DD)」，用以自我檢核是否抓到舊年份資料。
+${ctx.customContext ? `(請直接完整引用上方【系統預載之真實盤前數據】之內容)` : `1. 隔夜美股四大指數最新收盤點位與漲跌幅：
+   - 道瓊 (DJIA)：[點位] ([漲跌幅%]) (資料日期：)
+   - 標普 (S&P 500)：[點位] ([漲跌幅%]) (資料日期：)
+   - 那斯達克 (Nasdaq)：[點位] ([漲跌幅%]) (資料日期：)
+   - 費半 (SOX)：[點位] ([漲跌幅%]) (資料日期：)
+2. 關鍵科技巨頭最新收盤價與漲跌幅：
+   - 輝達 (NVDA)：$[報價] ([漲跌幅%]) (資料日期：)
+   - 台積電 ADR (TSM)：$[報價] ([漲跌幅%]) (資料日期：)
+   - 蘋果 (AAPL)：$[報價] ([漲跌幅%]) (資料日期：)
+3. 台灣加權指數 (TAIEX) 與台指期夜盤最新收盤點位：
+   - 台灣加權指數 (TAIEX)：[點位] ([漲跌幅%]) (資料日期：)
+   - 台指期夜盤最新收盤點位：[點位] ([漲跌幅%]) (資料日期：)
+4. 全球資金指標：
+   - 美國 10 年期國債殖利率：[%] (資料日期：)
+   - 美元指數 (DXY)：[報價] (資料日期：)`}
+
+--- (完成上述 CoT 數據定錨，並確認數值無誤後，請嚴格遵循以下架構撰寫報告) ---
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+
+## ☀️ [請填入 ${today} 日期] 券商盤前策略晨報
+
+### 一、 隔夜國際市場與夜盤定錨
+* **美股與科技股動向：** [一言以蔽之隔夜美股氛圍與關鍵個股表現]
+* **台指夜盤與 ADR：** [台指夜盤終場點位與台積電 ADR 表現，預估台股開盤傾向]
+* **總經與資金指標：** [10年期美債殖利率與美元指數走勢之影響]
+
+### 二、 今日大盤關鍵攻防與觀戰焦點
+* **關鍵支撐與壓力位：** [給出大盤或期貨當日關鍵支撐與壓力點位]
+* **聚焦族群與資金流向：** [點名今日最受矚目的 2-3 個族群與關鍵觀察個股]
+
+### 三、 短線操作策略建議
+* [一句話給予營業員/客戶或短線投資人的應對方向]
+
+
+---
+### 📌 分類為【6. 盤後籌碼與強勢族群解析日報】，
+【⚠️ 資料源與搜尋策略】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+注意：若執行當天為週末、國定假日或台股收盤前（13:30 前），請自動將「今日」調整為「最近一個台股實際交易日」。
+請務必強制調用 Google 搜尋工具，檢索該交易日的台股加權指數收盤點位、三大法人買賣超金額與強勢領漲族群。
+請優先利用 Google 搜尋查證各大主流財經媒體（如鉅亨網 site:cnyes.com、MoneyDJ site:moneydj.com 等）盤後所發布的當日台股戰報與籌碼統計數據，以避開交易所官方網站深層結構不易被即時抓取的問題。
+
+【⚠️ 最高合規與真實性指令】：
+1. 數據日期核對：必須在 Chain of Thought 中明確標註該筆數據所屬的「實際交易日期」，嚴禁將歷史舊資料包裝為當日。
+2. 報價零容忍原則：針對大盤指數點位、漲跌幅與三大法人買賣超金額，必須 100% 照抄真實搜尋結果。絕對禁止 AI 進行「情境推演」或「常理推估」來捏造數字。
+3. 若搜尋 API 無法取得該交易日的確切數據，請直接填寫「N/A (無最新數據)」。
+4. 本內容僅供總經知識探討，必須在結語加上「免責聲明：本文僅供參考，不代表任何投資建議」。
+
+【強制前置作業：動態數據定錨 (Chain of Thought)】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+
+請先強制搜尋並依序條列：
+1. 外資台指期未平倉（Net Position）口數與今日增減
+2. 該交易日台股加權指數收盤點位與漲跌。
+3. 三大法人（外資、投信、自營商）合計買賣超金額。
+4. 盤面最強勢領漲的 1-2 個產業族群名稱。
+5. 今日成交比重最高、表現最強勢的族群與個股
+6. 融資融券增減金額與大盤維持率
+（嚴禁捏造）
+
+
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+
+## 📊 [日期] 盤後籌碼與強勢族群解析
+
+### 一、 今日大盤綜述與資金動向
+* **大盤收盤概況：** [指數收盤點位、成交量金額、漲跌點數與幅度]
+* **三大法人進出：** [外資、投信、自營商各自買賣超金額與合計]
+
+### 二、 期貨與選擇權籌碼多空解讀
+* **外資期貨淨部位：** [目前淨空單/淨多單口數，今日增加/減少口數]
+* **散戶與融資動態：** [融資增減金額與市場散戶籌碼沉澱狀況]
+* **籌碼多空綜合評估：** [判斷主力目前屬於避險、洗盤還是實質轉向]
+
+### 三、 今日強勢族群與領漲邏輯拆解
+* **領漲族群：** [族群名稱，如：矽光子、散熱、重電、CoWoS]
+* **領漲邏輯：** [白話拆解該族群今日大漲是因題材發酵、營收利多還是技術面反彈]
+* **法人進駐狀況：** [外資與投信是否同步買超該族群個股]
+
+---
+
+### 📌 分類為【7. AI 宏觀風控與選股決策引擎】，
+【🚨 最高優先級：數據定錨與 D-Plan 規格指令】
+【當前系統即時時間】：${currentDate} (${isoTimestamp})
+
+${ctx.customContext ? `【系統預載之真實盤前數據與庫存現況】：
+==================================================
+${ctx.customContext}
+==================================================
+⚠️ 數據絕對鎖定原則：以上為系統透過金融 API 抓取的最新真實盤前數據與昨日庫存。所有點位、收盤價、漲跌幅、可用現金與持股明細，必須 100% 照抄上方真實數據，嚴禁自行變更或使用過期歷史資料！` : `請務必優先使用 Google 搜尋查證截至 ${today} 為止最新的官方數據與市場報價。所有點位與收盤價必須 100% 照抄真實搜尋結果。`}
+
+【🧠 強制前置作業：動態數據定錨 (Chain of Thought)】
+請在報告最上方建立「🗂️ 盤前數據基準」區塊。嚴禁斷行，數值必須緊接在冒號後面的同一行，日期請強制標註 ${today}。
+${ctx.customContext ? `【⚠️ 絕對鎖定指令】：你必須 100% 逐字原樣照抄以下系統預載之 1~6 項完整內容，嚴禁自行重算或更動任何一個數字，嚴禁將 NAV 縮水為 1 億，嚴禁捏造 12,450,000 元現金：
+${ctx.customContext}` : `1. 隔夜美股四大指數 (DJIA, S&P 500, Nasdaq, SOX) 點位與漲跌幅
+2. 科技巨頭 (NVDA, TSM ADR, AAPL) 報價與漲跌幅
+3. 台灣加權指數 (TAIEX) 與台指期夜盤最新收盤點位
+4. 美國 10 年期國債殖利率與美元指數 (DXY)
+5. 今日決策個股即時報價 (限 150 大標的池真實 T-1 收盤價與最高價)
+6. 歷史庫存狀態：
+   - 今日總資產淨值 (NAV_tradable)：{current_nav} 元
+   - 今日初始可用現金：{current_cash} 元
+   - 昨日持股明細：{current_portfolio}`}
+
+你是一位嚴謹的 AI ETF 基金經理人。請依據玉山 AI CUP 最新《D-Plan 撰寫指南 v4.3》，產出包含報告與 JSON 的決策內容。
+【🚨 最高⚠️ 競賽絕對限制（違反將記警告並取消資格）】：
+0. 【🚨 資金池與 NAV 絕對鎖定（生死線）】：
+   - 今日總資產淨值 (NAV_tradable)：必須 100% 嚴格照抄第 6 項所提供之真實數值（例如 981,280,165 元），推導公式之乘數必須採用該真實 NAV_tradable 數值以確保推導股數與大會驗證系統完全吻合！嚴禁自行四捨五入為整數 10 億！
+   - ⚠️ 嚴禁幻覺縮水：絕對不准寫成 100,000,000 元 (1 億)！
+   - 今日初始可用現金：必須 100% 嚴格照抄第 6 項所提供之真實可用現金數值（例如 55,502,265 元），絕對嚴禁自行編造虛構數字！
+1. 交易標的池限制：投資組合內的個股，【絕對只能】從以下官方指定的 150 檔代碼中挑選。嚴禁買進任何不在本名單內的股票！
+   - 官方合法 150 檔代碼及 T-1 日的「真實高價」：
+     "2330, 2454, 2308, 2317, 3711, 2881, 2383, 2303, 2882, 3037, 2891, 1303, 2345, 2382, 2408, 7769, 2412, 2327, 6669, 3017, 2885, 2887, 2360, 2886, 2059, 6505, 2884, 2880, 2357, 2890, 8046, 2344, 3231, 2892, 3008, 2356, 2404, 6515, 3533, 2313, 2337, 5871, 3044, 3702, 1101, 2409, 6239, 2609, 2834, 6139, 2883, 3443, 3653, 2395, 2301, 6446, 4958, 2603, 5880, 1216, 3045, 2368, 3665, 4904, 3481, 2379, 1301, 1326, 3189, 3034, 2207, 2002, 2801, 2449, 1590, 3661, 6770, 3036, 2615, 2618, 2912, 4938, 2376, 5876, 1519, 6415, 6919, 2324, 2347, 1504, 7750, 1402, 1605, 2610, 6789, 1802, 8210, 2451, 2812, 2377, 5274, 6223, 6488, 8299, 6274, 5347, 3293, 8069, 3529, 3081, 3260, 3105, 5289, 5536, 5483, 6147, 7734, 6187, 3264, 3324, 6510, 8358, 3374, 3131, 4749, 3491, 6121, 6548, 1785, 3363, 7828, 4979, 6182, 3163, 3211, 4966, 4991, 5903, 1815, 3680, 8415, 6290, 7751, 6023, 4772, 8932, 6584, 3227, 4123, 3718"
+
+2. Active Share (主動投資比率) 限制：你的投資組合前 15 大持股，必須與大會指定的 30 檔「主動型 ETF」之前 15 大持股有顯著差異（Active Share 絕對不得小於 15%）。
+   - 需迴避過度重疊的主動型 ETF 代碼名單（30檔）：
+     "00980A, 00982A, 00981A, 00983A, 00984A, 00985A, 00986A, 00989A, 00988A, 00991A, 00990A, 00987A, 00992A, 00994A, 00995A, 00993A, 00996A, 00400A, 00401A, 00997A, 00999A, 00403A, 00402A, 00404A, 00405A, 00406A, 00407A, 00408A, 00410A, 00409A"
+   - 指令：在決策時，請主動降低與上述 ETF 常見重倉股（如權值電子股）的完全重疊，並透過配置利基型個股來提高 Active Share，確保 > 20% 的安全水位。
+3. 【🚨 生死線：嚴格持股檔數】：結算持股必須、絕對、強制維持在 20 檔到 30 檔之間！
+   - 首日建倉：直接建倉 20~30 檔。
+   - 非首日已有持股：今日結算後持股檔數（昨日持有 - 全數出清 + 新建倉）亦必須維持在 20~30 檔！
+4. 權重上限與台積電降溫：2330 台積電 ≤ 25%，其餘個股 ≤ 10%。(💡請保留 0.5%~0.8% 緩衝)。若昨日持股因大盤波動被動導致 2330 權重 > 25.0%，今日必須強制第一優先執行 TRIM 減碼至 24.20% 以下，徹底消除大會 Notice 警報並回收充裕現金！
+5. 【🛡️ 宏觀風控精度升級（三大硬核防禦閥值）】：
+   - 美債殖利率 ≥ 5.0% 強制降溫：當 10 年期美債殖利率 ≥ 5.0% 時，操作姿態 (stance) 強制轉為 defensive，嚴禁加碼 PE > 25 倍之高估值科技股。
+   - 現金防衛水位彈性調高：遭遇美債殖利率突破 5% 或全球資金緊縮日，目標現金水位區間從 3%~8% 動態調高至 6%~10%，保留買力。
+   - 金融防禦雙保險：市場動盪時，金融獲利龍頭（富邦金 2881、國泰金 2882、兆豐金 2886）維持堅定 HOLD，不輕易為了加碼科技股而犧牲防禦城池。
+6. 【🚨 絕對現金守恆與買進購買力限制（防透支鐵律）】：
+   - 最大可買預算上限 (Buying Power) = 今日初始可用現金 + 今日賣出套現總額 - 20,000,000 元 (最低安全現金儲備)。
+   - 🚨 嚴禁超買透支：今日所有買進委託（BUY / ADD）所耗費的總金額，【絕對不得超過】上述最大可買預算上限！
+   - 若可用現金不足以加碼目標標的：
+     * 策略 A (先賣後買)：必須先在 TRIM / SELL_ALL 中賣出足額的現有持股變現，再進行加碼！
+     * 策略 B (縮小加碼)：直接調降該檔買進目標股數與權重，嚴禁在沒有賣出足夠持股的情況下任意設定高目標權重（所有加碼股票的耗資總和不可超過最大可用購買力上限）！
+   - 結算現金部位：必須維持在 2% ~ 10% (約 2,000 萬 ~ 1 億元整)，絕對不可買到變負數！
+6. 交易單位：委託股數必須是 1,000 的正整數倍 (整股交易)。
+ 
+請嚴格遵循以下「詳細架構與撰寫指南」進行輸出：
+
+## 🗂️ ${today} AI CUP D-Plan 決策戰情室
+
+### 一、 市場觀點與操作姿態 (Market View)
+[基於數據，給出明確的 regime (risk_on/neutral/risk_off) 與 stance (aggressive/neutral/defensive)，並說明今日的淨曝險意圖 (increase/hold/decrease) 與目標現金區間。]
+
+### 二、 個股推論與資金調度 (Inferences & Decisions)
+【⚠️ 已有持股時的再平衡規則與資金預算】：
+- **資金預算前置試算：** [列出：今日開盤可用現金 X 元 + 預計賣出套現 Y 元 = 今日總購買力上限 Z 元。買進總耗資嚴禁超過 (Z - 20,000,000) 元！]
+- **賣出與減碼策略 (TRIM / SELL_ALL)：** [若昨日有持股需調度資金，列出對象、釋放現金的原因與估計套現金額；若無調節填無]
+- **買進與加碼策略 (BUY / ADD)：** [列出對象與建倉/加碼邏輯。昨無庫存為 BUY，已有庫存為 ADD。每檔加碼必須符合可用預算，買進耗資總額嚴禁超過可用購買力！]
+- **續抱不交易持股 (HOLD)：** [昨日庫存中未異動的標的，必須全數逐一列出並說明維持原因，缺一不可！]
+
+### 三、 D-Plan 委託精算 (Order Derivation)
+【⚠️ 官方強制換算公式】：目標股數 = floor( 目標權重 × 今日總資產淨值(NAV_tradable) ÷ 今日收盤價 ÷ 1000 ) × 1000。委託股數 = |目標股數 − 目前持有股數|。（註：NAV 乘數請優先採用第 6 項所提供之真實 NAV_tradable，例如 999,338,312.86，若未提供則使用 1,000,000,000）。
+【⚠️ 報價與精算來源】：計算目標股數時所使用之「今日收盤價」，必須嚴格直接引用上方第 5 項「今日決策個股即時報價」所載之真實收盤價，嚴禁自行捏造股價！
+【⚠️ 原持有股數來源】：算式中的「原持有股數」，必須嚴格對照上方第 6 項「昨日持股明細」中該檔股票真實持有的股數，嚴禁亂猜！
+請列出今日有異動的標的算式，例如：
+*   [股票代號]：目標權重 X% → floor(X% × 1000000000 ÷ [收盤價] ÷ 1000)×1000 = [目標股數] 股。原持有 [昨日持股真實股數] 股 → 委託差額：[BUY/SELL] [差額股數] 股 (估計耗資/套現：約 X 元)。
+
+【🚨 強制：現金流平衡檢驗表（必須精確計算，嚴禁透支）】：
+- (A) 今日開盤初始可用現金：[數值] 元 (嚴格引用第 6 項)
+- (B) 今日賣出成交回收現金：[賣出委託股數 × 收盤價 加總] 元
+- (C) 今日最大可動用資金 (A + B)：[數值] 元
+- (D) 今日買進成交支出現金：[買進委託股數 × 收盤價 加總] 元
+- (E) 今日結算剩餘現金 (C - D)：[數值] 元 (必須介於 2,000 萬至 1 億元之間，佔比 2%~10%，嚴禁為負數！若 D > C，必須立刻回頭調降買進張數或增加賣出標的！)
+
+### 四、 帳戶真實庫存結算 (Portfolio State)
+- **今日結算總資產淨值 (NAV)：** 1,000,000,000 元 (官方唯一標準 10 億元整，絕對嚴禁寫成 1 億或 100,000,000 元)
+- **今日結算剩餘現金：** [必須 100% 等於上方第三節現金流平衡表之 (E) 結算剩餘現金] 元 (嚴禁隨意編造，必須等於 初始現金 + 賣出總額 - 買進總額！)
+- **【🚨 今日最新持股明細 (共 20~30 檔，逐一完整列出，嚴禁省略)】：**
+  1. [股票代碼 名稱]：[最新總股數] 股 (現值約 X 元，權重 Y%)
+  ...
+
+### 五、 JSON 格式交易書 (D-Plan API Payload)
+【🚨 API 嚴格格式警告 - 攸關晉級資格】：請輸出符合 D-Plan schema v4.3 的完整 JSON。
+1. IDs 必須嚴格對應：orders 需引用 decisions (decision_ref)，decisions 需引用 inferences (inference_refs)，inferences 需引用 observations (premise_refs)。
+2. 【🚨 極度警告：decisions 的 action 限制】：
+   - 新建倉 (昨無庫存) 填 BUY
+   - 加碼既有持股 (昨已有庫存且增加股數) 填 ADD
+   - 減碼既有持股 (昨已有庫存且減少股數) 填 TRIM
+   - 全數出清 (昨已有庫存且持股歸零) 填 SELL_ALL
+   - **絕對不可填 SELL 作為 action！**
+3. 【🚨 極度警告：no_trade_decisions 絕不可偷懶】：
+   昨天所有的持股（在「昨日持股明細」中的每一檔股票），只要今天沒有在 decisions 中進行買賣，**強制、逐一寫進 no_trade_decisions 陣列**！漏掉任何一檔會直接退件！
+   格式：{"ticker": "代碼", "reason_refs": ["I1"], "reason": "續抱理由..."}
+4. 【🚨 極度警告：orders 陣列完整性】：
+   在 decisions 中做了幾筆交易決定，orders 陣列就必須產出幾筆對應委託單！
+   - side: 買進/加碼填 "BUY"，減碼/出清填 "SELL"
+   - shares: 差額股數 (|目標股數 - 目前持有股數|，必須是 1,000 的整數倍)
+   - derivation_detail: 差額精算推導過程
+5. 【持股檔數限制】：結算後總持股檔數必須維持在 20-30 檔。
+6. 【🚨 全局時間格式與 sources 官方白名單嚴格限制】：
+   - authority 必須【只能是】下列其中之一：twse / tpex / taifex / mops / fininst / media / vendor / other（例如 Yahoo Finance、Bloomberg、財經新聞請填 "vendor" 或 "media"，絕對嚴禁自創 "yahoo_finance"！）。
+   - content_as_of 以及 agent_metadata.run_started_at、agent_metadata.run_completed_at 之所有時間格式，必須強制為台灣時間且結尾為 "+08:00"，嚴格符合正規表達式 ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?\+08:00$！絕對嚴禁使用 -04:00 或 UTC 的 "Z"！
+7. 【🚨 嚴禁輸出官方規格未定義之根欄位（生死線）】：JSON 最外層【絕對嚴禁】包含官方 schema 以外的自創欄位（例如最外層絕對不可輸出 settled_holdings，否則官方驗證器會直接報錯退件：✕ $root — 含規格未定義的欄位 settled_holdings）！
+8. JSON 請直接從左大括號開始輸出，確保可被程式解析。絕對禁止加上任何 markdown 語法如 code block 標籤！
+   - 【🚨 鍵名與屬性單行安全】：嚴格遵守標準 JSON 規範，所有鍵名（如 "reason_refs", "derivation_detail"）及字串值內部絕對嚴禁換行（禁止拆成 "reason_r\n\nefs"）！所有數字與標點符號緊密連接，嚴禁空行斷裂！
+
+{
+  "schema_version": "4.3",
+  "doc_type": "D-Plan",
+  "team_id": "TEAM_12006",
+  "trade_date": "${today}",
+  "sources": [ 
+    { "source_id": "S1", "authority": "twse", "url": "https://www.twse.com.tw", "content_as_of": "${today}T05:00:00+08:00" } 
+  ],
+  "observations": [ 
+    { "obs_id": "O1", "source_ref": ["S1"], "statement": "市場總結與流動性觀測", "values": { "market_status": 1 } } 
+  ],
+  "market_view": {
+    "basis_refs": ["O1"],
+    "logic": "總體市場動能判斷...",
+    "regime": "neutral",
+    "stance": "neutral",
+    "posture": { "net_exposure_intent": "hold", "target_cash_pct_range": [0.03, 0.08] },
+    "counter_evidence": "若10年期美債殖利率回落破4.15%且外資期貨空單顯著回補，將於T+1盤前轉為積極姿態回補科技權值股。"
+  },
+  "inferences": [ 
+    { "inf_id": "I1", "premise_refs": ["O1"], "logic": "產業配置與選股推論", "counter_evidence": "若10年期美債殖利率回落破4.15%且外資期貨空單顯著回補，將於T+1盤前轉為積極姿態回補科技權值股。" } 
+  ],
+  "decisions": [ 
+    { "decision_id": "D1", "ticker": "2330", "action": "ADD", "target_weight": 0.249, "inference_refs": ["I1"] } 
+  ],
+  "no_trade_decisions": [ 
+    { "ticker": "2317", "reason_refs": ["I1"], "reason": "維持核心電子配置，部位適中續抱" } 
+  ],
+  "orders": [
+    { "ticker": "2330", "side": "BUY", "shares": 6000, "decision_ref": "D1", "derivation_detail": "floor(0.249 * 1000000000 / 2385 / 1000) * 1000 = 104000; 原持有 98000 股; 委託差額: BUY 6000 股" }
+  ],
+  "agent_metadata": {
+    "model_provider": "google",
+    "model_version": "gemini-pro",
+    "run_started_at": "${today}T08:00:00+08:00",
+    "run_completed_at": "${today}T08:05:00+08:00",
+    "code_version": "v4.3"
+  }
+}
+
+---
+### 📌 分類為【8. 企業拜訪與法說會深度提問訪綱】，
+接著依照對應模板撰寫。請針對主題「${ctx.theme}」進行一份 1500 字精確數據報告，嚴格遵循以下「詳細架構與撰寫指南」進行結構化輸出：
+## 🏢   [日期]企業拜訪與法說會深度訪綱
+
+### 一、 營運狀況與財報數據追蹤
+1. [針對最新一季毛利率/營業利益率變化的關鍵提問]
+2. [針對當前產能利用率（Capacity Utilization）與擴產進度的提問]
+
+### 二、 上下游供應鏈與訂單能見度
+1. [針對客戶拉貨動能與訂單能見度（Order Visibility）的提問]
+2. [針對上游原材料成本或代工產能排擠效應的提問]
+
+### 三、 商業模式護城河與競爭格局
+1. [針對主要競爭對手價格戰或市占率消長對應策略的提問]
+2. [針對關鍵技術迭代或轉型瓶頸的實質效益提問]
+
+
+
+
+`;
+}
+    },
+
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據總經背景，產出 8 分鐘的長影片文案與程式化輸出。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【經過查核的總經背景資料】，為「${ctx.step1}」撰寫一份 8 分鐘的 YouTube 長影片腳本。
+
+背景資料：
+====================
+${ctx.step1}
+====================
+
+【⚠️ 絕對真實性智慧判斷與口吻鎖定指令】：
+請先閱讀上述《背景資料》，判斷其屬於以下哪一種分類，並嚴格套用對應的「旁白配音 (VO)」進行撰寫：
+1. [總經指標與數據發布]：台灣口吻，口吻需【冷靜客觀、權威解讀】，像央行研究員，多用「這份數據顯示...」、「底層邏輯在於...」。
+2. [重大財經事件與央行政策]：台灣口吻，口吻需【宏觀推演、懸疑緊湊】，像資深政經觀察家，多用「市場忽略的關鍵是...」、「接下來的連鎖反應...」。
+3. [市場籌碼與交易結構]：台灣口吻，口吻需【犀利敏銳、實戰拆解】，像一線主力操盤手，多用「注意這個異常買盤...」、「散戶在這裡被洗掉了...」。
+4. [商業模式與產業拆解]：台灣口吻，口吻需【洞察本質、商業拆解】，像頂級創投合夥人，多用「這家公司的護城河其實是...」、「真正的變現邏輯在於...」。
+5. [盤前觀戰晨報]：台灣口吻，口吻需【極速明快、行動導向】，像券商早會晨訊，多用「今日開盤重點...」、「短線操作建議...」。
+6. [盤後籌碼解析日報]：台灣口吻，口吻需【覆盤總結、抽絲剝繭】，像交易室覆盤報告，多用「今日強勢族群的共通點...」、「法人悄悄佈局了...」。
+7. [AI 宏觀風控與選股引擎]：台灣口吻，口吻需【量化理性、紀律嚴明】，像 AI 系統播報員，多用「觸發風控機制...」、「演算法調整權重至...」。
+8. [企業拜訪深度訪綱]：台灣口吻，口吻需【尖銳直擊、深度探究】，像資深外資分析師，多用「我們必須追問管理層...」、「財報沒說的隱憂是...」。
+【輸出模板】請嚴格遵守以下腳本架構撰寫：
+請精準輸出以下格式，將括號與說明文字替換為實際生成的內容（每個30秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+## 🎬 YouTube 長影片腳本：${ctx.step1}
+（目前套用口吻分類：[填入您判斷的分類名稱與口吻風格]）
+請精準輸出以下格式，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+
+## 🎬 YouTube 財經深度解析：${ctx.step1}
+
+### ⏱️ 開場 (Hook)：直擊市場痛點
+ (時間規劃：00:00 - 01:00，共 2 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述開場畫面，需具備專業財經感]
+- 畫面字卡: [10字以內的震撼財經標題]
+- 旁白配音 (VO)：[台灣口吻，嚴格使用上述指定的口吻，用強烈市場懸念或驚人數據開場，勾起投資人好奇心]
+
+### ⏱️ 深度解析：數據背後的真相
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30]、[01:30 - 02:00]、[02:00 - 02:30]、[02:30 - 03:00]、[03:00 - 03:30]、[03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配畫面，帶入 Step 1 的建議圖表]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，嚴格使用上述指定的口吻，將生硬的總經資料轉化為流暢的邏輯推演，口吻需專業且具說服力]
+
+### ⏱️ 歷史回測與跨資產影響
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出[04:00 - 04:30]、 [04:30 - 05:00]、[05:00 - 05:30]、[05:30 - 06:00] 、[06:00 - 06:30]、[06:30 - 07:00]：
+- 視覺畫面建議：[走勢圖對比、歷史新聞畫面、資產板塊示意圖]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，嚴格使用上述指定的口吻，解析其對股、債、匯市的潛在影響與策略應對，並強調歷史不一定重演]
+
+### ⏱️ 總結與互動引導 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 2 個節點)
+請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[財經網站 Dashboard 畫面，並搭配本集提及之企業 Logo 或個股走勢組合]
+- 畫面字卡: [明確條列出本集提及的重點個股清單，例如：本日觀察名單 - 台積電、ASML 等，並加上：為自己的投資負責，看見數據背後的趨勢]
+- 旁白配音 (VO)：[台灣口吻，嚴格使用上述指定的口吻，總結核心觀點，並強制盤點本集報告中提及的所有「關鍵個股與供應鏈名稱」，提醒投資人納入觀察名單。接著引導觀眾：「投資不是靠感覺，而是靠數據。點擊下方入群，看懂最新總經趨勢！記得按讚訂閱，我們下次見。」]`
+  },
+
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊財經標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.step2}」產出能極大化點擊率的財經類 SEO 內容。
+
+《長影音腳本》：${ctx.step2}
+
+【輸出模板】請直接複製填寫：
+### 🎯 爆款財經標題 (5 個切角)
+1. [痛點/恐慌型標題，如：崩盤前兆？...]
+2. [知識/解密型標題，如：看懂 FED 決策背後的...]
+3. [歷史/回測型標題，如：歷史重演！回顧 2008...]
+4. [數據/震撼型標題，如：驚人數據公布！...]
+5. [趨勢/前瞻型標題，如：下半年資產配置必看...]
+
+### 🏷️ 熱門 Hashtags 
+#[財經M平方] [#Bloomberg] #[鉅亨網] #[華爾街日報] #[商業周刊] #[總體經濟] #[經濟日報] #[工商時報] #[天下雜誌] #[今周刊] #[商業周刊] #[財訊] #[Smart智富月刊] #[Money錢雜誌] [補充 5 個相關標籤]
+
+
+### 📝 影片說明欄
+[150字財經簡介，自然融入關鍵字]`
+
+  },
+
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的精簡財經爆款短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《基礎背景資料》，撰寫一份 180 秒內的 TikTok / YouTube Shorts 財經短影片腳本。節奏明快。
+資料：${ctx.step1}
+
+## 📱 財經短影音腳本：${ctx.step1}
+### 💥 前 3 秒：黃金 Hook
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:15 - 00:30]、[00:30 - 00:45]、[00:45 - 01:00]：
+- 視覺畫面：[極具衝擊力的暴跌/暴漲圖表或新聞頭條]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，一句話點出市場最關心的痛點]
+
+### 📖 高能數據解析
+(時間規劃：01:00 - 02:00，共 4 個節點)
+請依序產出 [01:00 - 01:15]、[01:15 - 01:30]、[01:30 - 01:45]、[01:45 - 02:00]：
+- 視覺畫面：[快節奏切換的數據字卡與重點標示]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，精練挑出 1-2 個最核心的數據變化與市場影響]
+
+### 📢總結及行動呼籲 (CTA)
+(時間規劃：02:00 - 03:00，共 4 個節點)
+請依序產出 [02:00 - 02:15]、[02:15 - 02:30]、[02:30 - 02:45]、[02:45 - 03:00]：
+- 視覺畫面：[搜尋財經]
+- 畫面字卡: [精煉為 10 字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，行動呼籲 (CTA)]`
+  },
+
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出衝擊力極強的財經短影音 SEO 內容。
+
+### 🎯 衝擊力財經標題 (3 個，適合放封面)
+1. [如：通膨爆表！下殺警訊？]
+2. [如：一分鐘看懂非農！]
+3. [如：FED 態度大轉彎？]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+
+  },
+
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 縮圖文案與 FinTech 風格繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對主題「${ctx.step2}」生成 3 組財經 YouTube 縮圖設計 (16:9)。參考：${ctx.step3}
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請【完全且嚴格】拷貝下方模板。AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography.
+
+### 第一組：[縮圖名稱]
+主標：[震撼財經主標]
+副標：[補充痛點副標]
+中文：[中文 Prompt 畫面描述，如：一隻發光的機械牛衝破紅色下降趨勢線...]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音縮圖文案與 FinTech 風格繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對主題「${ctx.step4}」生成 3 組財經短影音縮圖設計 (9:16)。參考：${ctx.step5}
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+AI Prompt 必須包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, ultra detailed, large bold financial typography, extreme vertical composition.
+
+### 第一組：[縮圖名稱]
+高點擊文案：[痛點主標]
+中文：[中文 Prompt 畫面描述]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 財經意象行銷海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對「${ctx.step2}」生成 3 組 16:9 財經行銷海報。
+視覺設計包含：holographic stock charts, neon glowing lines, professional Bloomberg terminal aesthetic, corporate blue and gold accents, data visualization, cinematic lighting, cyberpunk finance。需充滿市場博弈與專業數據感。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+### 第一組：[行銷海報名稱]
+華爾街名言：[與該主題相關的投資大師名言，如巴菲特、索羅斯語錄]
+中文：[中文 Prompt 畫面描述，例如：虛擬全息投影的地球，被密集的交易數據流環繞]
+（請重複輸出第二組、第三組）`
+  },
+
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成符合市場氛圍的音樂指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請直接輸出以下格式：
+
+### 第一組：危機感 (市場恐慌/衰退)
+適用場景：解析暴跌數據或經濟危機
+Suno AI Prompt：[包含 Music Style, Instruments, Tempo。例如：Tense electronic thriller, deep bass pulses, ticking clock tempo, dark synth, suspenseful]
+
+### 第二組：專業感 (深度數據分析)
+適用場景：冷靜客觀的歷史回測
+Suno AI Prompt：[例如：Corporate lo-fi chill, crisp tech beats, ambient synth, steady tempo, professional]
+
+### 第三組：活力感 (牛市/經濟復甦)
+適用場景：利多消息公布或經濟強勁
+Suno AI Prompt：[例如：Upbeat synthwave, driving electronic bass, energetic tech pop, fast tempo, optimistic]`
+  },
+
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成數據圖卡提示詞與財經社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是首席財經資訊設計總監與社群主編。根據下方的【總經史料】，為主題「${ctx.step1}」打造一組 IG 財經圖卡懶人包。
+史料：${ctx.step1}
+
+### 任務一：生成財經資訊圖卡 Prompt (1:1 或 4:5 構圖)
+請萃取五個【數據亮點】。
+
+請直接輸出：
+AI Prompt (中文):
+以「${ctx.step1}」為核心，採用 professional corporate infographic, Bloomberg terminal aesthetic。生成一套包含 5 個資訊區塊的財經圖表排版。
+區塊 1 數據：[填寫亮點1]
+區塊 2 數據：[填寫亮點2]
+區塊 3 數據：[填寫亮點3]
+區塊 4 數據：[填寫亮點4]
+區塊 5 數據：[填寫亮點5]
+
+
+### 任務二：社群發布正文
+[帶有 Emoji 的時事痛點開場白]
+[條列 4 點核心數據解析，用白話文解釋對投資人的影響]
+[互動提問：詢問粉絲對後市的看法]
+掌握全球總經趨勢，為自己的投資負責 
+#[財經M平方] [#Bloomberg] #[鉅亨網] #[華爾街日報] #[商業周刊] #[總體經濟] #[經濟日報] #[工商時報] #[天下雜誌] #[今周刊] #[商業周刊] #[財訊] #[Smart智富月刊] #[Money錢雜誌] [補充 5 個相關標籤]`
+  }
+]  ,
+
+  story: [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "基於知名著作，撰寫 1500 字具備起承轉合的沉浸式故事",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一位深諳東方古典文學、神話史詩與民間傳說的「首席說書人」。請優先使用 Google 搜尋查證主題「${ctx.theme}」相關的【知名古典著作、正史或權威文獻】。
+
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+1. 神佛/歷史人物
+2. 民俗/節氣/宮廟
+3. 動漫/小說/影視 IP
+
+【檢索與取材指令】：
+請自行找出最契合該主題的經典著作（包含但不限於《西遊記》、《封神演義》、《北遊記》、《山海經》、《三教搜神大全》或地方鄉野文獻）。
+
+請先輸出：
+主題分類：
+判斷原因：
+本篇/本集重點：(用一句話總結核心事件)
+故事取材來源：(請明確列出你參照了哪一本書、文獻或影視集數)
+
+【撰寫指令】：
+請打破生硬的條列式與幕次框架，扮演一位青年說書人，為主題「${ctx.theme}」撰寫一篇親民接地氣約 1500 字的沉浸式傳奇故事。
+- 語氣必須是引人入勝、極具畫面感的口吻。
+- 故事需自然包含：
+  1. 破題開場（令人震撼的出場、降生或情境交代）
+  2. 劇情推進（凡塵的考驗、人性的掙扎或遭遇強敵）
+  3. 核心高潮（驚天動地的降妖伏魔、大招對決或驚天轉折）
+  ${ctx.theme ? '4. 強烈懸念（精準停在本集結尾的斷點，勾起看下一集的渴望）' : '4. 最終昇華（成神或流傳後世的昇華）'}
+- 結語請巧妙總結${ctx.theme ? '本集主角的心境變化與局勢' : '這份精神如何延續至今，說明信仰與文化傳承'}。
+
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+故事撰寫完畢後，為了確保後續 AI 繪圖能保持主角長相一致，請你在文章最末端，獨立輸出一個區塊，為這個故事的主角定義一串「全英文的固定外觀特徵字串」（包含年齡、髮型、服飾、特徵配件）。
+
+請開始結構化輸出：
+（...前方為 1500 字故事...）
+
+### 🧑 主角固定外觀設定
+[在此輸出純英文的外觀特徵字串]
+
+### 🧑 說書人固定外觀設定 (Main Character: Youthful Storyteller)
+[Young male storyteller, late 20s, sharp and spirited eyes, wearing a modern-styled traditional Hanfu robe in deep navy blue with subtle golden embroidery of clouds and cranes, hair tied back in a short neat ponytail, holding a vintage sandalwood folding fan, a pair of light-framed round glasses resting on his nose, standing behind a dark mahogany tea table with a classic white porcelain teacup,動漫系]`
+  },
+  {
+id: 2,
+    title: "主軸腳本文案",
+    description: "根據故事文本，產出沉浸式說書腳本",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【故事文本】，為主題「${ctx.step1}」撰寫一份純粹的沉浸式視覺展演腳本。
+
+《故事文本》：
+${ctx.step1}
+
+【⚠️ API 串接防偷懶與強制輸出指令 (最高優先級)】：
+請從上方的《故事文本》最末端，找出【🧑 主角固定外觀設定】及【🧑 說書人固定外觀設定】的純英文字串。
+由於本腳本將直接送入自動化繪圖 API，任何字串縮減都會導致系統崩潰，因此你必須嚴格遵守以下規則：
+1. 在接下來的「每一個」[視覺畫面建議] 中，你必須「一字不漏地完整複製貼上」這串全英文特徵。
+2. 【絕對禁止】使用「...」、「(後略)」、「(同上)」、「(後略同上)」等任何偷懶寫法。
+3. 即使同樣的英文設定要重複輸出數十次，你也必須完整印出，絕對不可自行縮寫或發想新外觀。
+
+【⚠️ 旁白配音 (VO) 字數強制指令 (解決影片過短問題)】：
+請依序產出各時間節點的內容。注意：為了符合真實配音長度並撐起完整的 8 分鐘沉浸感，『每一個 15 秒區塊的旁白配音 (VO)』必須至少包含 40 到 50 個中文字。
+請「直接沿用」原故事文本中的豐富細節、對話與情緒描述，絕對不可為了排版精簡而過度濃縮故事內容。
+
+【輸出模板】請嚴格遵守以下腳本架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+
+## 🎬 銘印說書：${ctx.step1}
+### ⏱️ 開場懸念 (Hook)
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:45 - 01:00]：
+- 視覺畫面建議：[[請完整複製貼上全英文外觀，嚴禁寫"後略同上"] + 請描述開場畫面]
+- 畫面字卡: [10字以內的震撼標題]
+- 旁白配音 (VO)：[台灣口吻，至少 40-50 字，直接使用故事文本中引人入勝的口吻進行破題敘述，緊抓眼球]
+
+### ⏱️ 傳奇展開：宿命與風暴
+ (時間規劃：01:00 - 04:00，共 12 個節點)
+請依序產出 [01:00 - 01:15] 到 [03:45 - 04:00]：
+- 視覺畫面建議：[[請完整複製貼上全英文外觀，嚴禁寫"後略同上"] + 請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，至少 40-50 字，直接使用故事文本轉化為跌宕起伏的流暢旁白]
+
+### ⏱️ 史詩高潮：神魔交鋒與昇華
+ (時間規劃：04:00 - 07:00，共 12 個節點)
+請依序產出 [04:00 - 04:15] 到 [06:45 - 07:00]：
+- 視覺畫面建議：[[請完整複製貼上全英文外觀，嚴禁寫"後略同上"] + 請描述搭配畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，至少 40-50 字，直接使用故事文本配合高潮情節，輸出激昂且充滿張力的敘事旁白]
+
+### ⏱️ 歲月迴響與結尾 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 4 個節點)
+請依序產出 [07:00 - 07:15]、[07:45 - 08:00]：
+- 視覺畫面建議：[[請完整複製貼上全英文外觀，嚴禁寫"後略同上"] + 請描述結尾畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的核心金句]
+- 旁白配音 (VO)：[台灣口吻，至少 40-50 字，總結核心精神，【訂閱、按讚、開啟小鈴鐺】與留言]`  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成吸引故事愛好者與信仰群眾的標題與說明",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請根據以下的說書腳本，為主題「${ctx.step2}」生成 YouTube SEO 優化內容。重點在於激發觀眾對「神話故事」與「未解之謎」的好奇心。
+
+《說書腳本》
+====================
+${ctx.step2}
+====================
+
+### 🎯 爆款 Hook 標題 (請提供 5 個不同切角)
+1. [懸疑解密型：強調不為人知的原典秘密]
+2. [神話史詩型：強調戰鬥、收妖或神威]
+3. [民間共鳴型：連結現代人最常求的願望與傳說]
+4. [奇幻獵奇型：強調不可思議的神異現象]
+5. [經典翻轉型：打破一般人的既定印象]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ... (需包含神明名稱、著作名稱、台灣信仰等)
+
+### 📝 影片說明欄 (150字內，需包含關鍵字)
+[撰寫一段充滿神秘感與故事張力的簡介，吸引點擊]
+
+### ⏳ 故事時間軸 (Timestamps)
+00:00 [懸念標題]
+... (依據腳本邏輯抓取 3-5 個時間軸)`
+  },
+  {
+    id: 4,
+    title: "擴散式短影音文案",
+    description: "產出 180 秒內的極快節奏爆款短片腳本",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下腳本，為主題「${ctx.step1}」提取最精華、反轉的情節，撰寫 180 秒內的 Shorts/TikTok 短影片腳本。節奏必須極快，爆點前置。
+
+《說書腳本》
+====================
+${ctx.step2}
+====================
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請從上方的腳本中提取原本已經設定好的「主角全英文固定外觀字串」及「說書人全英文固定外觀字串」。在接下來的「每一個」[視覺畫面建議] 中，你必須「強制」將這串字串放在開頭，再接著描述場景。
+
+## 📱 短影片腳本：${ctx.theme}
+### 💥 黃金前 3 秒：視覺與認知衝擊
+- [00:00 - 00:05] 畫面：[(強制帶入主角及說書人英文外觀) + 極具衝擊力的視覺] / 字卡: [打破認知的標題] / 旁白 (VO)：[台灣口吻，拋出一個驚人的冷知識或神話反轉]
+
+### 📖 高能說書：核心傳奇
+- [00:05 - 01:30] 畫面：[(強制帶入主角及說書人英文外觀) + 配合語音快速切換動態分鏡] / 字卡：[短小精悍的關鍵字] / 旁白 (VO)：[台灣口吻，濃縮原著中最精彩瞬間]
+
+### 📢 精彩收尾與互動 (CTA)
+- [01:30 - 03:00] 畫面：[(強制帶入主角及說書人英文外觀) ] / 字卡：[引導留言] / 旁白 (VO)：[台灣口吻，精彩收尾]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片封面的衝擊力文案與標籤",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請根據以下短影音腳本，產出適合的 SEO 內容。
+
+《短影音腳本》
+====================
+${ctx.step4}
+====================
+
+### 🎯 短影片封面暴力字卡 (3 個，字數極少，懸念極大)
+1. [例如：真身竟然是它？！]
+2. [例如：原著這段太狠了！]
+3. [例如：拜錯了？真正的守護神]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 縮圖文案與 AI 繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step2}」的故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+
+《說書腳本》
+====================
+${ctx.step2}
+====================
+
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請提取文本中既有的「主角全英文固定外觀字串」及「說書人全英文固定外觀字串」，並「強制」將其放置在每一個的視覺描述最開頭。絕對不可重新發想。
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入 Prompt， (強制帶入主角及說書人英文外觀) ，具體的故事場景描述，大而醒目藝術文字設計]`
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音縮圖文案與 AI 繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step4}」生成 3 組短影音縮圖設計 (9:16)。
+
+《短影音腳本》
+====================
+${ctx.step4}
+====================
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請提取文本中既有的「主角全英文固定外觀字串」及「說書人全英文固定外觀字串」，並「強制」將其放置在每一個的視覺描述最開頭。絕對不可重新發想。
+
+### 第一組：[短影音縮圖名稱]
+高點擊文案：[封面暴力字卡，(強制帶入主角及說書人英文外觀)， 視覺張力極大的場景描述、主體置中、大而醒目藝術文字設計]`
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 意象圖指令與搭配詩詞",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 彩墨風格意象圖。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt 必須包含：無人物、充滿禪意或史詩感的氛圍。
+
+### 第一組：[意象圖名稱]
+詩詞（由上到下由右到左不要標點符號）：[七言四句詩詞]中文畫面描述，例如深山古廟、雲海法器等]`
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成 3 組符合主題氛圍的音樂生成指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+場景設計分別為：1. 史詩感（神話開場）、2. 敘事感（溫暖歷史）、3. 活力感（現代節奏）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments、Tempo 。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：史詩感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第二組：敘事感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第三組：活力感
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成動態視覺提示詞、圖卡排版字卡與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `你現在是首席視覺藝術總監與頂級社群文案主編。
+你的任務是根據下方的【基礎背景史料】，為主題「${ctx.step1}」打造一組「新國風彩墨」社群圖文懶人包。
+
+【基礎背景史料】：
+${ctx.step1}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請從上方的史料文本中提取原本已經設定好的「主角全英文固定外觀字串」及「說書人全英文固定外觀字串」。在接下來的「每一個」[視覺描述] 中，你必須「強制」將這串字串放在開頭，再接著描述場景。絕對不可重新發想。
+
+請嚴格遵循以下二大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從史料中萃取五個【蒙太奇資訊】。
+	
+
+### 任務二：撰寫社群發布正文
+使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
+
+---
+### 🎨 視覺 Prompt
+現在，請嚴格依照以下格式直接輸出（請保留所有 Markdown 符號與中括號內的英文特徵，請用你的創意補齊對應欄位）：
+
+#### 16:9 動態分割構圖提示詞
+**AI Prompt (中文):**
+[在此填入主角及說書人的全英文外觀特徵描述字串]，以這名主角為核心主角。運用【動態分割構圖（Dynamic Segmented Layout）】以及【漫畫跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[蒙太奇資訊名稱 1]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[蒙太奇資訊名稱 2]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[蒙太奇資訊名稱 3]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[蒙太奇資訊名稱 4]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[蒙太奇資訊名稱 5]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 16:9 --v 6.0
+
+#### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
+**AI Prompt (中文):**
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[蒙太奇資訊名稱 1]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[蒙太奇資訊名稱 2]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[蒙太奇資訊名稱 3]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[蒙太奇資訊名稱 4]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[蒙太奇資訊名稱 5]**
+   視覺描述：[[在此填入主角及說書人的全英文外觀特徵描述字串]] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 9:16 --v 6.0
+### 📱 社群發布正文
+[請填入帶有 Emoji 的 Hook 開場白，製造懸念或情感共鳴]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，必須基於史料]
+
+[互動提問：請邀請粉絲留言分享經驗]
+
+#世代銘印 #${ctx.step1} [請再補充 3-5 個相關的 Hashtags]`
+  }
+
+
+  ],
+  "fairy tales": [
+    {
+      id: 1,
+      title: "核心企劃知識",
+      description: "基於知名著作，撰寫適合兒童聆聽的 1500 字奇幻童話故事",
+      type: "text",
+      dependsOn: ["theme"],
+      prompt: (ctx: any) => `你是一位深諳東方神話與民間傳說，且非常受小朋友歡迎的「兒童故事大王」。請優先使用 Google 搜尋查證主題「${ctx.theme}」相關的【知名古典著作、正史或權威文獻】。
+
+【檢索與取材指令】：
+請找出最契合該主題的經典著作，並將其轉化為適合 5-10 歲兒童閱讀的內容。
+
+請先判斷主題「${ctx.theme}」屬於哪一種類型：
+1. 神仙/歷史英雄
+2. 節慶/民俗活動
+3. 動漫
+
+
+請先輸出：
+主題分類：
+判斷原因：
+故事取材經典著作：(請明確列出你參照了哪一本書或文獻)
+
+【撰寫指令】：
+請為主題「${ctx.theme}」撰寫一篇約 1500 字，充滿愛、勇氣與魔法的兒童奇幻故事。
+- 語氣必須是溫柔、生動、充滿畫面感的「說故事哥哥/姊姊」口吻。請適當加入生動的擬聲詞（如：呼嚕嚕、咻——、叮咚）與對小朋友的互動問候（如：小朋友，你們猜猜看發生了什麼事？）。
+- 故事需自然包含：神奇酷炫的登場、遇到困難時的勇敢表現、精彩有趣的魔法挑戰或機智解決問題的過程，以及最後充滿正能量的溫馨大結局。
+- 結語請巧妙連結至小朋友的日常生活，帶出一個簡單的優良品格（如勇敢、善良、分享），並鼓勵他們。
+
+請開始結構化輸出，撰寫你的兒童故事：`
+    },
+    {
+      id: 2,
+      title: "主軸腳本文案",
+      description: "根據故事文本，產出兒童繪本風格的動畫配音腳本",
+      type: "text",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `請根據以下【故事文本】，為「${ctx.theme}」撰寫一份充滿童趣的兒童動畫視覺展演腳本。
+
+故事文本：
+${ctx.step1}
+
+【⚠️ 絕對真實性與兒童友善指令】：
+請確保內容無血腥、無暴力，將所有戰鬥或可怕的元素轉化為「魔法挑戰」或「機智闖關」。
+
+【⚠️ 雙角色一致性強力指令與防偷懶機制 (極度重要)】：
+為了確保後續 AI 繪圖能保持「主角」與其「神獸/隨侍」的長相絕對一致，請你先為這個故事發想具體的角色設定，並將其外觀定義為「全英文的固定外觀特徵字串」。
+1. 【🧑 主角固定外觀設定】：包含年齡/性別、髮型髮色、五官特徵、主色調鮮明的服裝，以及魔法配件。(例如: A 7-year-old cute boy, messy brown hair, big sparkling green eyes, wearing a bright yellow oversized hoodie...).
+2. 【🐾 神獸/隨侍固定外觀設定】(若故事中有此角色)：包含物種/身型、毛髮鱗片材質、顏色特徵與特殊配件。(例如: A small fluffy floating baby dragon, shimmering pearlescent scales, big golden eyes, emitting soft sparkling starlight...).
+
+由於本腳本的所有 [視覺畫面建議] 將直接送入自動化繪圖 API，任何字串縮減都會導致系統崩潰，你必須嚴格遵守：
+1. 在接下來的「每一個」畫格中，你必須「一字不漏地完整複製貼上」這【兩串】全英文特徵（主角 + 神獸）。
+2. 【絕對禁止】使用「...」、「(後略)」、「(主角同上)」、「(神獸同上)」等任何偷懶寫法。
+
+
+【輸出模板】請嚴格遵守以下腳本架構撰寫，每個 15 秒產出 [視覺畫面建議][畫面字卡][旁白配音 (VO)]：
+## 🎬 銘印童話：${ctx.theme}
+
+### 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+### 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+
+### 🎈 奇妙開場 (Hook)
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:45 - 01:00]：
+- 視覺畫面建議：[[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+, 描述充滿魔法光影、可愛生動的開場畫面]
+- 畫面字卡: [10字以內的趣味大而醒目藝術文字標題]
+- 旁白配音 (VO)：[用充滿朝氣與神秘感的語氣開場，吸引小朋友的注意力]
+
+### 🌟 冒險出發：神奇的相遇
+ (時間規劃：01:00 - 04:00，共 12 個節點)
+請依序產出 [01:00 - 01:15] 到 [03:45 - 04:00]：
+- 視覺畫面建議：[[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+, 描述可愛角色互動、色彩鮮豔的場景]
+- 畫面字卡: [必須精煉為 10 個字以內的大而醒目藝術文字可愛短句]
+- 旁白配音 (VO)：[用生動活潑的語氣講述主角遇到的挑戰與冒險]
+
+### ✨ 魔法挑戰：機智與勇氣
+ (時間規劃：04:00 - 07:00，共 12 個節點)
+請依序產出 [04:00 - 04:15] 到 [06:45 - 07:00]：
+- 視覺畫面建議：[[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+, 描述充滿閃亮魔法特效、活潑有趣的闖關畫面]
+- 畫面字卡: [必須精煉為 10 個字以內的大而醒目藝術文字加油金句]
+- 旁白配音 (VO)：[語氣轉為緊張但充滿希望，描述主角如何用勇氣與愛克服困難]
+
+### 💖 溫馨結尾 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 4 個節點)
+請依序產出 [07:00 - 07:15]、[07:45 - 08:00]：
+- 視覺畫面建議：[[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+, 描述大家開懷大笑、溫暖和諧的快樂結局畫面]
+- 畫面字卡: [大而醒目藝術文字，總結故事的正面精神，如「勇敢做自己」]
+- 旁白配音 (VO)：[語氣溫柔地總結故事道理，並帶上宣言【跟著我們一起聽故事，發現世界的大奇妙】，引導家長與小朋友按讚、訂閱並分享他們的想法]`
+    },
+    {
+      id: 3,
+      title: "影音 SEO 標題優化",
+      description: "生成吸引家長與小朋友點擊的親子童話題與說明",
+      type: "text",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `請根據以下的兒童動畫腳本，為主題「${ctx.theme}」生成 YouTube 親子頻道的 SEO 優化內容。重點在於吸引家長為孩子點擊，並激發小朋友的想像力。
+
+《說書腳本》
+====================
+${ctx.step2}
+====================
+
+### 🎯 親子爆款標題 (請提供 5 個不同切角)
+1. [睡前故事型：強調溫馨、適合安撫情緒]
+2. [趣味奇幻型：強調魔法、神仙與不可思議的冒險]
+3. [品格教育型：強調故事帶來的勇敢、善良等正面影響]
+4. [民間傳說型：用小朋友聽得懂的方式包裝傳統文化]
+5. [親子互動型：適合爸爸媽媽跟孩子一起討論的標題]
+
+### 🏷️ 熱門 Hashtags 
+#親子天下 #上誼文化 #格林文化 #東方出版社 #小魯文化 #小天下 #國語日報社 #青林國際出版 #未來親子 [請再補充 3-5 個相關的 Hashtags]
+### 📝 影片說明欄 (150字內，需包含關鍵字)
+[撰寫一段給家長看的簡介，強調故事的趣味性與教育意義]
+
+### ⏳ 故事時間軸 (Timestamps)
+00:00 [趣味標題]
+... (依據腳本邏輯抓取 3-5 個時間軸，使用可愛的 Emoji)`
+    },
+    {
+      id: 4,
+      title: "擴散式短影音文案",
+      description: "產出 60-90 秒節奏輕快、充滿童趣的短片腳本",
+      type: "text",
+      dependsOn: ["theme", "step1", "step2"],
+      prompt: (ctx: any) => `請根據以下故事文本，為「${ctx.theme}」提取最有趣、最魔幻的情節，撰寫 90 秒內的 Shorts/TikTok 短影片腳本。節奏需輕快，適合小朋友與家長一起觀看。
+
+《故事文本》
+====================
+${ctx.step1}
+====================
+
+《主軸腳本 (Step2)》
+====================
+${ctx.step2}
+====================
+
+【⚠️ 角色一致性強力指令】：
+請先從上方的《主軸腳本 (Step2)》中找出 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+ 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+的全英文特徵字串。在下方的「每一個」畫面描述中，你必須「強制」將這串全英文特徵字串放在開頭。
+
+## 📱 兒童短影片腳本：${ctx.theme}
+### 💥 黃金前 3 秒：視覺與好奇心衝擊
+- [00:00 - 00:05] 畫面：[極度可愛或閃亮的視覺衝擊] / 字卡: [小朋友，你知道嗎？] / 旁白 (VO)：[拋出一個關於該主題最有趣的小秘密，例如「你以為他是普通的小男孩？其實他會飛喔！」]
+
+### 📖 高能童話：核心魔法瞬間
+- [00:05 - 01:10] 畫面：[配合語音快速切換可愛的動畫分鏡] / 字卡：[短小精悍的圖文與 Emoji] / 旁白 (VO)：[濃縮故事中最精彩的魔法變身或幫助別人的瞬間。語速輕快，情緒歡樂]
+
+### 📢 互動問答 (CTA)
+- [01:10 - 01:30] 畫面：[主角開心揮手的畫面] / 字卡：[引導家長留言] / 旁白 (VO)：[點出故事的正面含意，並提問「如果你也有魔法，你想變出什麼呢？留言告訴我吧！」呼籲訂閱]`
+    },
+    {
+      id: 5,
+      title: "擴散式 SEO 標籤優化",
+      description: "生成短影片封面的可愛吸睛文案與標籤",
+      type: "text",
+      dependsOn: ["theme", "step4"],
+      prompt: (ctx: any) => `請根據以下短影音腳本，產出適合親子頻道的 SEO 內容。
+
+《短影音腳本》
+====================
+${ctx.step4}
+====================
+
+### 🎯 短影片封面趣味字卡 (3 個，字數極少，配上大問號或驚嘆號)
+1. [例如：哇！太神奇了✨]
+2. [例如：他的秘密武器是這個？！]
+3. [例如：一起去冒險吧！🚀]
+
+### 🏷️ 推薦 Hashtags
+#[親子共讀] #[兒童故事] #[標籤3] #[標籤4] #[標籤5]`
+    },
+    {
+      id: 6,
+      title: "影音點擊率 (CTR) 圖像",
+      description: "生成 16:9 YouTube 縮圖文案與 3D 動畫風格 AI 繪圖指令",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step2"],
+      prompt: (ctx: any) => `請針對主題故事核心，生成 3 組長影音 YouTube 縮圖設計 (16:9)。
+參考腳本：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考腳本》 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+ 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+的全英文特徵字串，並且「強制」將它放在每一組「AI Prompt (中文)最開頭，然後才接著描述動作與場景。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+，溫馨且大而醒目的藝術文字設計。
+
+### 第一組：[縮圖名稱]
+主標：[主標內容，需充滿童趣]
+副標：[副標內容]
+AI Prompt (中文)：[[請填寫上述的全英文特徵字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+，溫馨且大而醒目的藝術文字設計。
+，需描述具體的可愛動作或魔法特寫]`
+    },
+    {
+      id: 7,
+      title: "擴散式影音吸睛圖像",
+      description: "生成 9:16 短影音縮圖文案與 3D 動畫風格 AI 繪圖指令",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step4", "step2"],
+      prompt: (ctx: any) => `請針對短影音腳本生成 3 組短影音縮圖設計 (9:16)。
+參考短影音腳本：${ctx.step4}
+參考角色設定 (來自Step2)：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考角色設定》 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+ 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+的全英文特徵字串，並且「強制」將它放在每一組「中文：[中文 Prompt]」的最開頭，然後才接著描述動作與場景。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：[請填寫上述的全英文特徵字串]，溫馨且大而醒目的藝術文字設計。
+
+### 第一組：[短影音縮圖名稱]
+高點擊文案：[封面趣味字卡]
+AI Prompt (中文)：[[請在此寫下你為主角設計的全英文固定外觀特徵][請在此寫下你為主角設計的全英文固定外觀特徵]
+，視覺張力極大、角色表情誇張可愛、主體置中]`
+    },
+    {
+      id: 8,
+      title: "風格化情境視覺",
+      description: "生成 16:9 兒童繪本插畫指令與搭配童謠",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1", "step2"],
+      prompt: (ctx: any) => `請針對主題「${ctx.step1}」的故事意境，生成 3 組 16:9 兒童繪本風格意象圖。
+參考故事：${ctx.step1}
+參考角色設定 (來自Step2)：${ctx.step2}
+
+【⚠️ 角色一致性強力指令 (極度重要)】：
+請務必從上方的《參考角色設定》🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+ 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+的全英文特徵字串，並且「強制」將它放在每一組 AI Prompt (中文)的最開頭。
+
+【格式絕對鎖定指令】：只輸出 Markdown 模板內容。
+AI Prompt (中文) 必須包含：[請在此寫下你為主角設計的全英文固定外觀特徵][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+，充滿溫馨與童話史詩感的氛圍。
+
+### 第一組：[意象圖名稱]
+童謠順口溜（四句簡單好記的兒歌歌詞，適合幼兒）：[[請填寫童謠][請在此寫下你為主角設計的全英文固定外觀特徵][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+，畫面描述，例如奇幻森林、閃亮的糖果屋或溫馨古廟等]`
+    },
+    {
+      id: 9,
+      title: "Suno AI 情緒配樂",
+      description: "生成 3 組符合兒童故事氛圍的音樂生成指令。",
+      type: "code",
+      language: "markdown",
+      dependsOn: ["theme", "step1"],
+      prompt: (ctx: any) => `請針對主題「${ctx.step1}」生成 3 組 Suno AI 音樂生成 Prompt。
+參考背景：${ctx.step1}
+場景設計分別為：1. 歡樂奇幻（探險開場）、2. 溫馨平靜（睡前說書）、3. 活潑跳躍（機智過關）。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+Suno AI 中文 Prompt 必須包含 Music Style、Instruments (如 glockenspiel, acoustic guitar, soft piano 等童趣樂器)、Tempo 。
+
+請直接輸出以下格式，依照三種場景順序生成：
+
+### 第一組：歡樂奇幻
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第二組：溫馨平靜
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]
+
+### 第三組：活潑跳躍
+適用場景：[請填入適用場景說明]
+Suno AI Prompt：[請填入包含參數的中文 Prompt 內容]`
+    },
+    {
+      id: 10,
+      title: "親子社群推播文案",
+      description: "一鍵生成可愛視覺提示詞、知識圖卡排版字卡與社群正文",
+      type: "social",
+      language: "markdown",
+      dependsOn: ["theme", "step1", "step2"],
+      prompt: (ctx: any) => `你現在是首席兒童讀物編輯與親子社群小編。
+你的任務是根據下方的【基礎童話文本】，為主題「${ctx.step1}」打造一組「奇幻童話繪本」社群圖文懶人包，適合家長滑給小朋友看。
+
+【⚠️ 絕對真實性指令】：
+所有萃取的資訊、排版字卡內容與社群正文，必須完全基於下方史料，但請轉化為兒童能理解的趣味冷知識，禁止腦補。
+
+【基礎童話文本】：
+${ctx.step1}
+
+【⚠️ 角色一致性指令】：
+參考角色設定 (來自Step2)：${ctx.step2}
+請務必從上方的《參考角色設定》中找出 🧑 主角固定外觀設定
+[請在此寫下你為主角設計的全英文固定外觀特徵]
+
+ 🐾 神獸/隨侍固定外觀設定 (若故事無此安排請寫 None)
+[請在此寫下神獸或隨侍的全英文固定外觀特徵]
+的全英文特徵字串，並且「強制」將它放在每一組「視覺描述」或「AI Prompt (中文)」的最開頭。
+
+請嚴格遵循以下二大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從${ctx.step1}萃取五個【趣味圖卡資訊】。
+ 視覺公式（必須包含）  ：
+畫面必須融合【動態分割構圖（Dynamic Segmented Layout）】、【兒童繪本跨頁插圖（Children's book Splash Page with Insets）】與【趣味知識圖表（Fun Fact Infographic）】三種視覺語言。
+整體風格採用 cute 3D Pixar style, vibrant colors, magical glowing effects, adorable characters, soft lighting, whimsical, highly detailed。
+
+### 任務二：撰寫社群發布正文
+使用親切、能引起家長共鳴的語氣。將知識轉化為 3~5 點適合親子共讀的亮點解析，並以提問開場，以分享給更多寶貝收尾。
+
+---
+
+### 🎨 視覺 Prompt
+現在，請嚴格依照以下格式直接輸出（請保留所有 Markdown 符號與中括號內的英文特徵，請用你的創意補齊對應欄位）：
+
+#### 16:9 動態分割構圖提示詞
+**AI Prompt (中文):**
+[在此填入主角的全英文外觀特徵描述字串]，以這名主角為核心主角。風格採用 cute 3D Pixar style, vibrant colors, magical glowing effects, adorable characters, soft lighting, whimsical, highly detailed，運用【動態分割構圖（Dynamic Segmented Layout）】以及【兒童繪本跨頁插圖（Children's book Splash Page with Insets）】組合併接成一張【趣味知識圖表（Fun Fact Infographic）】。
+
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[趣味資訊名稱 1]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[趣味資訊名稱 2]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[趣味資訊名稱 3]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[趣味資訊名稱 4]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[趣味資訊名稱 5]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 16:9 --v 6.0
+
+#### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
+**AI Prompt (中文):**
+**主標題：** 《[請填入主標題]》
+
+1. **畫格 1：[趣味資訊名稱 1]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+2. **畫格 2：[趣味資訊名稱 2]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+3. **畫格 3：[趣味資訊名稱 3]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+4. **畫格 4：[趣味資訊名稱 4]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+5. **畫格 5：[趣味資訊名稱 5]**
+   視覺描述：[[在此填入主角的全英文外觀特徵描述字串][請在此寫下神獸或隨侍的全英文固定外觀特徵]
+] [接著用中文描述該畫格中主角的動作與場景]。
+
+--ar 9:16 --v 6.0
+
+
+
+### 📱 親子社群發布正文
+[請填入帶有大量可愛 Emoji 的開場白，例如：「各位爸爸媽媽晚安！今晚的床邊故事準備好了嗎？🛌✨」]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，用詞需適合 5-10 歲兒童理解]
+
+[互動提問：請邀請家長在留言區寫下孩子的反應]
+把這份溫暖與勇氣分享出去，讓更多小朋友一起聽故事 
+#親子天下 #上誼文化 #格林文化 #東方出版社 #小魯文化 #小天下 #國語日報社 #青林國際出版 #未來親子 #${ctx.theme} [請再補充 3-5 個相關的 Hashtags]
+`
+    }
+  ],
+  "proposal": [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "接收使用者輸入的文章，自動判斷領域並萃取結構化知識底稿",
+    type: "text",
+    dependsOn: ["theme"],
+    prompt: (ctx: any) => `你是一個「全領域知識萃取專家」。請閱讀以下使用者提供的原始文章或主題：「${ctx.theme}」。
+
+【分析與判斷指令】：
+請先判斷這篇文章屬於以下哪一種領域：
+1. 科技與財經市場 (Tech & Finance)
+2. 歷史、神話與民俗 (History & Folklore)
+3. 懸疑、奇案與解密 (Mystery & True Crime)
+4. 生活百科、教育與心理 (Lifestyle & Education)
+5. 其他綜合類型
+
+【輸出格式】：
+請先輸出：
+[文章領域分類]：
+[核心受眾痛點]：這篇文章能解決觀眾什麼好奇心或需求？
+
+接著，請將原始文章重新梳理，萃取成 1000-1500 字的「結構化底稿」，包含：
+一、 執行摘要 (一句話總結核心)
+二、 背景與底層邏輯 (名詞解釋或事件起因)
+三、 核心發展/高潮事件 (數據變化、情節轉折)
+四、 總結與影響 (對現代人或未來的啟發)
+（若使用者提供的文章資訊不足，請利用你既有的知識庫進行合理擴充，確保結構完整。）`
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據文章內容動態判斷敘事風格，產出 8 分鐘長影片腳本",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `【角色設定】
+你是一位充滿創意、極具幽默感的「商業簡報說書人」與「全能型金牌編劇」。你的任務是把生硬的商業內容轉化為引人入勝、幽默好笑的故事腳本。
+
+【變數設定】
+- 故事主軸：請將腳本情境設定為「${ctx.theme}」。
+- 基礎文章資料：
+====================
+${ctx.step1}
+====================
+
+【寫作規則】
+1. 風格基調：幽默、好笑、生動。請用《故事主軸》來包裝原本的商業內容，讓觀眾覺得像在聽一場精彩的脫口秀或喜劇故事。
+2. 保留核心商業邏輯：你可以盡情發揮創意與搞笑，但絕對不能改變《基礎文章資料》中的核心產品價值、數據與商業名詞。必須將這些概念合理且巧妙地融入故事劇情中。
+3. 節奏對應：請依照開場(Hook)、深度展開、高潮反轉與總結的節奏，將故事發展與商業邏輯互相呼應。
+
+【格式限制】
+請嚴格遵守以下腳本架構產出 8 分鐘長影片腳本，每個 30 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+
+## 🎬 YouTube 商業提案深度解析腳本：${ctx.theme}
+[當前套用敘事人設]：(請填寫你選擇的語氣風格)
+
+### ⏱️ 開場 (Hook)：直擊核心痛點/懸念
+ (時間規劃：00:00 - 01:00，共 2 個節點)
+請依序產出 [00:00 - 00:30]、[00:30 - 01:00]：
+- 視覺畫面建議：[請描述具衝擊力的開場畫面]
+- 畫面字卡: [10字以內的震撼標題][請填入副標內容]
+- 旁白配音 (VO)：[台灣口吻，用符合故事主軸的強烈懸念或提問開場，勾起好奇心]
+
+### ⏱️ 深度展開：知識與故事的核心
+ (時間規劃：01:00 - 04:00，共 6 個節點)
+請依序產出 [01:00 - 01:30] 等每 30 秒一個節點直至 [03:30 - 04:00]：
+- 視覺畫面建議：[請描述搭配的具體視覺/圖表/情境]
+- 畫面字卡: [精煉為 10 字以內的核心金句][請填入副標內容]
+- 旁白配音 (VO)：[台灣口吻，流暢的故事邏輯推演，並將商業概念幽默融入情節]
+
+### ⏱️ 高潮與反轉：關鍵影響力
+ (時間規劃：04:00 - 07:00，共 6 個節點)
+請依序產出 [04:00 - 04:30] 等每 30 秒一個節點直至 [06:30 - 07:00]：
+- 視覺畫面建議：[情境對比、歷史畫面、或重點數據解析]
+- 畫面字卡: [精煉為 10 字以內的核心金句][請填入副標內容]
+- 旁白配音 (VO)：[台灣口吻，帶出文章中最精彩的反轉、解答或故事高潮，展現商業影響力]
+
+### ⏱️ 總結與互動引導 (Outro/CTA)
+ (時間規劃：07:00 - 08:00，共 2 個節點)
+請依序產出 [07:00 - 07:30]、[07:30 - 08:00]：
+- 視覺畫面建議：[結尾收束畫面]
+- 畫面字卡: [用一句強而有力、能濃縮整場簡報核心價值的話作為總結]
+- 旁白配音 (VO)：[台灣口吻，故事幽默收尾，總結觀點，並帶出明確的商業行動呼籲]`
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "動態適應各類文章，生成高點擊標題與說明",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《長影音腳本》，為主題「${ctx.theme}」產出能極大化點擊率的 YouTube SEO 內容。
+
+《長影音腳本》：
+${ctx.step2}
+
+【輸出模板】請直接複製填寫：
+### 🎯 爆款點擊標題 (請提供 5 個不同切角)
+1. [痛點/恐慌型：放大觀眾的焦慮或未知]
+2. [知識/解密型：強調看完就能懂的深度解析]
+3. [故事/獵奇型：強調不可思議的情節或歷史]
+4. [數據/震撼型：強調驚人事實或反轉]
+5. [實用/利益型：強調這件事與觀眾的切身關係]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[核心主題] #[相關領域] #[次要關鍵字] ...
+
+### 📝 影片說明欄
+[150字簡介，需充滿張力並自然融入關鍵字，吸引點擊]`
+  },
+  {
+    id: 4,
+    title: "擴散式短影音文案",
+    description: "萃取文章最精華片段，產出 180 秒極快節奏爆款短片腳本",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據《長影音腳本》，撰寫一份 180 秒內的 TikTok / YouTube Shorts 短影片腳本。節奏必須極快，爆點前置。
+資料：${ctx.step2}
+
+## 📱 動態短影音腳本：${ctx.theme}
+### 💥 前 3 秒：黃金 Hook (視覺與認知衝擊)
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15] 到 [00:45 - 01:00]：
+- 視覺畫面：[極具衝擊力的視覺]
+- 畫面字卡: [打破認知的標題]
+- 旁白配音 (VO)：[一句話拋出文章中最驚人的冷知識或痛點]
+
+### 📖 高能精華解析
+(時間規劃：01:00 - 02:00，共 4 個節點)
+請依序產出 [01:00 - 01:15] 到 [01:45 - 02:00]：
+- 視覺畫面：[快節奏切換的動態分鏡]
+- 畫面字卡: [短小精悍的關鍵字]
+- 旁白配音 (VO)：[濃縮文章中最核心的發展或解答。語速快，情緒高昂]
+
+### 📢 總結與行動呼籲 (CTA)
+(時間規劃：02:00 - 03:00，共 4 個節點)
+請依序產出 [02:00 - 02:15] 到 [02:45 - 03:00]：
+- 視覺畫面：[社群互動引導畫面]
+- 畫面字卡: [引導留言]
+- 旁白配音 (VO)：[拋出一個二選一的問題，呼籲觀眾留言討論並追蹤]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成短影片封面字卡與標籤",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出適合短影音演算法的 SEO 內容。
+
+### 🎯 衝擊力短影片封面字卡 (3 個，字數極少，懸念極大)
+1. [例如：竟然是這樣？！ / 歷史大反轉 / 數據暴跌的真相]
+2. [填寫字卡 2]
+3. [填寫字卡 3]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "自動判斷文章視覺，生成 16:9 YouTube 縮圖繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組 YouTube 縮圖設計 (16:9)。參考腳本：${ctx.step2}
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入中文 Prompt]`,
+
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "自動判斷文章視覺風格，生成 9:16 短影音縮圖繪圖指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對主題「${ctx.theme}」生成 3 組短影音縮圖設計 (9:16)。參考腳本：${ctx.step4}
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[請填入主標內容]
+中文：[請填入中文 Prompt]`,
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "自動判斷文章視覺，生成 16:9 情境視覺海報",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對「${ctx.theme}」生成 3 組 16:9 情境意象行銷海報。
+
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[請填入主標內容]
+副標：[請填入副標內容]
+中文：[請填入中文 Prompt]`,
+
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "動態分析文章情緒起伏，生成 3 組 Suno AI 音樂指令",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對腳本內容：${ctx.step2}，生成 3 組 Suno AI 音樂生成 Prompt。
+
+【動態音樂流派選擇】：請根據文章類型自行調配 Music Style (如：Epic orchestral, Cyberpunk synthwave, Lofi chill, Tense thriller 等)。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。請直接輸出以下格式：
+
+### 第一組：開場/懸念感 (Hook)
+適用場景：[說明此配樂適合腳本的哪個情境]
+Suno AI Prompt：[包含 Music Style, Instruments, Tempo 的純英文指令]
+
+### 第二組：敘事/解析感 (Storytelling)
+適用場景：[說明此配樂適合腳本的哪個情境]
+Suno AI Prompt：[包含 Music Style, Instruments, Tempo 的純英文指令]
+
+### 第三組：高潮/活力感 (Climax)
+適用場景：[說明此配樂適合腳本的哪個情境]
+Suno AI Prompt：[包含 Music Style, Instruments, Tempo 的純英文指令]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成多風格圖卡提示詞與社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `你現在是首席資訊設計總監與社群主編。根據下方的【基礎文章資料】，為主題「${ctx.theme}」打造一組跨領域適應的社群圖卡懶人包。
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt (中文) 必須包含：大而醒目藝術文字設計。
+
+
+### 任務一：生成動態風格圖卡 Prompt
+請萃取四個【核心亮點資訊】。並依據文章領域（科技/歷史/生活/懸疑）自動決定圖卡的視覺。
+
+請直接輸出：
+AI Prompt (中文):
+以「${ctx.step2}」為核心，採用 [請自動填入契合該文章的視覺風格英文關鍵字] 進行設計。生成一套包含 5 個資訊區塊的排版，呈現蒙太奇資訊圖表。
+區塊 1 資訊：[填寫亮點1與具體視覺描述]
+區塊 2 資訊：[填寫亮點2與具體視覺描述]
+區塊 3 資訊：[填寫亮點3與具體視覺描述]
+區塊 4 資訊：[填寫亮點4與具體視覺描述]
+區塊 5 資訊：[填寫亮點4與具體視覺描述]
+
+### 任務二：社群發布正文
+[帶有 Emoji 的時事/懸念痛點開場白]
+
+[條列 3-4 點核心精華解析，用白話文解釋]
+
+[互動提問：拋出一個與現代人切身相關的問題，引發共鳴]
+
+
+#深度解析 #${ctx.step2}[請再補充 3-5 個相關的 Hashtags]`
+  }
+],
+  "edtech": [
+        {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對主題進行多維度企劃，支援線上課程、書籍導讀與商業矩陣策略專題",
+    type: "text",
+    dependsOn: ["theme"],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+你是一位擁有豐富教學經驗與商業思維的「頂尖內容策展人與策略總監」。
+
+<instructions>
+請先判斷主題「${ctx.theme}」最適合採用以下哪一種類型的輸出模版：
+1. 第一類：線上課程/核心企劃模版（適合技能教學、知識點拆解）
+2. 第二類：書籍模版（適合書摘、讀書心得、書籍大綱或導讀）
+3. 第三類：矩陣模版（適合多個專案/產品的資源分配、麥肯錫矩陣策略分析）
+4. 第四類：3. 動漫/小說/影視 IP
+5. 第五類：世代銘印古典修心版
+6. 第六類：日常生活模版（適合民生時事、災後影響、生活指南，極度貼近普羅大眾與小市民視角）
+
+請先輸出：
+- 🏷️ 主題分類：[填入分類名稱]
+- 💡 判斷原因：[填入為何此主題適合該模版的簡短原因]
+-     取材來源：(請明確列出你參照了哪一本書、文獻或影視集數)
+
+
+接著，請嚴格遵循下方對應的「詳細架構與模板」，撰寫一份約 1500 字、具備極高含金量的深度報告。
+</instructions>
+
+=========================================
+第一類：線上課程/核心企劃模版
+=========================================
+【撰寫原則】：
+1. 去蕪存菁：將複雜的學術背景轉化為底層邏輯，為學生拆解出最核心的知識點。
+2. 白話文與生活化：嚴禁堆砌艱澀名詞，每個核心概念都必須附帶一個「生活化比喻（Analogy）」。
+
+【輸出模板】請嚴格遵循以下架構：
+### 一、 執行摘要與學習痛點 (TL;DR)
+* **痛點破題**：[一句話點出：這堂課解決學生什麼痛點或焦慮？]
+* **學習目標**：[條列 3 點學完本堂課後，學生能具備的具體能力與認知升級]
+
+### 二、 核心知識點與底層邏輯 (強制拆解為 4~5 個重點解析)
+* ** 1：[填寫知識模組名稱]**
+  * **定義解釋**：[精煉說明該知識點的本質與學術定義]
+  * **生活化比喻**：[用日常事物來舉例說明，讓新手秒懂]
+  * **底層邏輯**：[說明這個知識點為什麼重要？]
+(請依序完成 4~5 個深度解析)
+
+### 三、 常見迷思與學習盲點
+* ❌ **迷思 1**：[學生的錯誤認知]
+* 💡 **正確觀念**：[你的破解與糾正，給出清晰的辨識方法]
+(請依序完成 3 個迷思破解)
+
+### 四、 實戰應用場景
+* **場景解析**：[學完這些底層邏輯後，在真實場景中可以如何應用？]
+
+### 五、 隨堂測驗與檢核
+* **Q1：[題目設計，必須是情境應用題而非死背題]**
+  * **解答與解析**：[給出正確答案，並說明為何其他選項是錯的]
+
+=========================================
+第二類：書籍模版
+=========================================
+【撰寫原則】：把生硬的說教變成「朋友間的深度閒聊」。先戳中痛點 ➡️ 給出神解方 ➡️ 白話文拆解 ➡️ 打臉舊觀念 ➡️ 告訴你明天怎麼做。確保內容像老朋友的叮嚀，聽得進去、馬上能用。
+
+【輸出模板】請嚴格遵循以下架構：
+
+一、 戳中痛點：說出觀眾心裡的 OS (Hook)
+生活抓拍：[用一個大家昨天才剛經歷過的超真實情境開場]
+
+靈魂拷問：[直接把觀眾心裡的無力感問出來]
+
+救星登場（帶出書籍）：[順勢帶出這本書]
+
+二、 這本書到底神在哪？ (Core Thesis)
+一句話神總結：[用最白話、最接地氣的方式說出這本書的賣點]
+
+作者是何方神聖：[用一句話建立作者的「神人」或「過來人」人設，讓觀眾覺得「聽他這個老司機的準沒錯」。]
+
+三、 幫你畫重點：3~5 個改變人生的神觀念
+[填寫白話文的觀念名稱，如：別再當爛好人]
+
+白話文解釋：[別丟專有名詞！用跟朋友聊天的語氣，把書裡的大道理說得像常識。]
+
+人間清醒金句：[挑出書裡那種會讓人想截圖當桌布、瞬間被打醒的狠話或暖心話。]
+
+神比喻秒懂：[把書裡的理論變成日常小事。]
+(請依序完成 3~5 個神觀念的深度解析)
+
+四、 打臉舊觀念：原來我們一直都想錯了！
+❌ 我們以前以為：[點出大家習以為常，但其實超瞎的舊觀念]
+
+💡 其實真相是：[把書裡最顛覆認知的那巴掌打出來]
+
+五、 明天就能用的生存小撇步 (Actionable Steps)
+超真實情境：[設定事件]
+
+跟著這樣做：[給出 1 到 3 個無腦可執行的超簡單動作]
+
+六、 走心總結與互動交心 (Conclusion & CTA)
+幫你記憶：[用三句短節奏的話，把今天的重點再敲黑板一次，加深印象。]
+
+暖心收尾：[把層次拉高，給觀眾一個溫暖的擁抱或一句有力量的打氣，像老朋友在耳邊的叮嚀。]
+
+交給你了 (留言引導)：[問一個超有帶入感的問題，讓人忍不住想在留言區吐苦水或分享]
+
+
+
+
+=========================================
+第三類：矩陣模版（麥肯錫矩陣資源分配）
+=========================================
+【撰寫原則】：運用「GE-McKinsey 九宮格矩陣」邏輯，客觀評估多項業務或觀點，給出明確的資源分配建議。
+
+【輸出模板】請嚴格遵循以下架構：
+### 一、 專題背景與評估目的
+* **專題名稱**：${ctx.theme} 的麥肯錫矩陣策略分析
+* **評估目的**：[說明為何需要針對此主題進行資源盤點與策略評估]
+
+### 二、 評估指標定義
+* **Y軸 (產業吸引力 / 外部市場潛力)**：[列出 3 個評估此主題外部環境的指標，如：市場規模、成長趨勢、利潤率]
+* **X軸 (企業競爭優勢 / 內部實力)**：[列出 3 個評估自身或該主題內部實力的指標，如：核心技術、品牌渠道、執行力]
+
+### 三、 核心子項目落點分析 (強制列舉 3~5 個子專案或子業務)
+* **專案/業務 1：[填寫名稱]**
+  * **落點評估**：[Y軸：高/中/低] × [X軸：強/中/弱]
+  * **策略建議**：[投資與成長 (Invest) / 選擇性投資 (Hold) / 收割或撤資 (Divest)]
+  * **行動方案**：[基於落點，給出具體的執行作法與資源分配比例]
+(請依序完成 3~5 個子項目的評估)
+
+### 四、 矩陣總結與戰略宣告
+* **⭐️ 明星業務 (主力投資)**：[總結應該把多數資源集中在哪個項目，並說明原因]
+* **🛑 撤退/防禦業務**：[總結應該放棄、維持現狀或榨取現金流的項目]
+* **🚀 下一步行動 (Next Steps)**：[立即該做的 3 件具體行動]
+
+
+=========================================
+第四類：3. 動漫/小說/影視 IP
+=========================================
+請打破生硬的條列式與幕次框架，扮演一位青年說書人，為主題撰寫一篇親民接地氣約 1500 字的沉浸式傳奇故事。
+- 語氣必須是引人入勝、極具畫面感的口吻。
+- 故事需自然包含：
+  1. 破題開場（令人震撼的出場、情境交代）
+  2. 劇情推進（考驗、人性的掙扎或遭遇強敵）
+  3. 核心高潮（驚天動地的大招對決或驚天轉折）
+  ${ctx.theme ? '4. 強烈懸念（精準停在本集結尾的斷點，勾起看下一集的渴望）' : '4. 結局餘波（核心精神）'}
+- 結語請巧妙總結${ctx.theme ? '本集主角的心境變化與局勢' : '這份精神如何延續'}。
+ 5、 精神內核與現代啟示 (Theme & Modern Takeaway)
+* **底層邏輯**：[提煉這個故事背後隱藏的人性真相或文化哲學底蘊]
+* **現代折射**：[將這段故事與現代人的生活焦慮作連結，給予具體啟發]
+
+
+=========================================
+第五類：世代銘印古典修心版
+=========================================
+
+【撰寫原則】：將生硬的現代書摘，昇華為「紅塵修心的點撥」。
+
+語氣充滿希望：智者的口吻，歲月雖有滄桑但人生充滿希望與光明。
+
+佛道哲理轉譯：將書中的心理學或現代觀念，用「禪意」、「執念」、「定靜」、「放下」等具備東方哲學底蘊的詞彙重新包裝。
+
+痛點共鳴：針對中年人肩負重擔、人際內耗的真實處境進行描繪，給予不說教的溫暖同理。
+
+【輸出模板】請嚴格遵循以下架構：
+
+一、 觀心破題：道出紅塵無奈 (Hook)
+
+歲月抓拍：
+
+靈魂叩問：
+
+卷宗指路：
+
+二、 卷宗核心：這本書的處世之道 (Core Thesis)
+
+大道至簡（一句話總結）：[用最具底蘊的文字總結書籍核心]
+
+作者底蘊：[用一句話建立作者的修為或人生歷練，讓觀眾產生敬意。]
+
+三、 抽絲剝繭：處世心法 (3~5 個核心觀念)
+
+[填寫具備古風的觀念名稱]
+
+哲理釋義：[用文雅的語氣，將書中的現代觀念說得通透。]
+
+醒世金句：[挑出書中那種能讓人醍醐灌頂、瞬間被打醒的哲理名言。]
+
+借境修心：[用自然萬物或傳統事物來比喻]
+(請依序完成 3~5 個深度解析)
+
+四、 破除無明：顛覆習以為常的枷鎖
+
+❌ 世俗之見（舊觀念）：[點出大眾習以為常、卻讓人痛苦的執念]
+
+💡 覺知真相（新觀念）：[帶出書中顛覆性的禪意解讀]
+
+五、 落地修行：紅塵中的定靜之道 (Actionable Steps)
+
+現實考驗：[設定一個職場或生活中必然遇到的考驗]
+
+修心之法：[給出 1 到 3 個內心轉念或具體應對的修心步驟]
+
+六、 結語與迴響：銘印於心 (Conclusion & CTA)
+
+法語總結：[用三句短節奏、富有詩意的文字，將今日的修心重點再次銘刻於心。]
+
+定靜收尾：[把層次拉高，給觀眾一個溫暖且具備禪意的祝福。]
+
+留言引導：[問一個觸動人心的問題，引導觀眾留言。]
+
+=========================================
+第六類：日常生活模版（平民知識科普與時事解密）
+=========================================
+請扮演一位說話風格是：語氣親切、像朋友在客廳深度閒聊、邏輯清晰，最厲害的技能是「把極度艱澀的底層邏輯，包裝在小市民最在意的日常痛點裡」。
+
+請針對我提供的【今日時事/主題：填入你的主題】，嚴格遵循以下優化後的腳本架構撰寫。
+
+---
+
+### 一、 痛點共鳴與生活抓拍 (The Relatable Hook) - 預估 0-2 分鐘
+* 🎬【畫面與語氣提示】：(請用括號寫出主持人的動作、表情，語氣要像在跟螢幕前的觀眾說悄悄話，營造極強的臨場感)
+* 💡【日常痛點】：
+* ❓【靈魂拷問】：
+
+### 二、 萬物皆有理：背後的隱形推手 (The Hidden Mechanism) - 預估 2-7 分鐘
+* ⚠️【硬核轉譯限制】：請挑選與此時事最核心的 3 個[學術/商業/經濟/科學名詞]。在解釋時，禁止直接使用名詞定義！必須「強制使用生活中的實體物品或常見現象」做白話類比。
+* ⚙️【「看破手腳」 1 (超接地氣翻譯)】：[名詞]：[白話解說與日常類比]
+* ⚙️【「看破手腳」 2 (超接地氣翻譯)】：[名詞]：[白話解說與日常類比]
+* ⚙️【「看破手腳」 3 (超接地氣翻譯)】：[名詞]：[白話解說與日常類比]
+
+### 三、 打臉直覺：那些我們誤會的事 (Myth Busting) - 預估 7-10 分鐘
+* 🎬【畫面與語氣提示】：(主持人稍微往前傾，語氣轉為神秘或揭密調性)
+* ❌【直覺以為】：
+* 💡【殘酷真相】：
+
+### 四、 平民生存經濟學：我們能怎麼做？ (Civilian Survival Guide) - 預估 10-13 分鐘
+* 🛠【生存決策限制】：禁止提出「企業轉型、政府政策、宏觀調控」等平民無法執行的口號。請完全站在「月薪 3-5 萬的小市民」視角，給出真正能保護荷包、改變生活決策、或立即避險的具體行動指南。
+* 💰【撇步 1】：
+* 💰【撇步 2】：
+
+### 五、 總結與開放思考 (Conclusion & CTA) - 預估 13-15 分鐘
+* ✍️【一句話神總結】：[用一句帶有溫度、金句感、能被借鏡到人生哲學的話，為這個時事定調。]
+* 💬【換你來說 (留言引導)】：[不要問「你贊不贊成」，而是拋出一個「高共鳴的情境抉擇題」，讓觀眾忍不住想在留言區分享自己的經驗。]
+`
+  }
+},
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據課程企劃，產出雙語教學文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `請根據以下【核心企劃】，撰寫一份雙語影音長腳本。每 15 秒為一個節點。
+
+資料來源：
+====================
+${ctx.step1}
+====================
+
+<instructions>
+請先輸出「${ctx.step1}」：
+- 🏷️ 主題分類：[填入分類名稱]
+
+接著，請嚴格遵循下方對應的「主題分類」，強制套用對應的旁白口吻：
+</instructions>
+你是一位專精於 TikTok / YouTube Shorts 的千萬流量短影音爆款編劇。
+
+1. 若為「第一類：線上課程/核心企劃模版」：
+   - 旁白口吻：台灣口吻，專業、清晰、具備引導性。像是一位熱情的頂尖導師，語氣充滿鼓勵與啟發，善用生活化比喻。
+   - 視覺氛圍：現代教育科技感，明快的動態圖表與拆解步驟。
+
+2. 若為「第二類：書籍模版」：
+   - 旁白口吻：台灣口吻，「朋友間的深度閒聊」。先戳中痛點 ➡️ 給出神解方 ➡️ 白話文拆解 ➡️ 打臉舊觀念 ➡️ 告訴你明天怎麼做。確保內容像老朋友的叮嚀，聽得進去、馬上能用。
+   - 視覺氛圍：生活化、溫暖、共鳴感強的意象畫面，避免過度生硬的說教圖表。
+   
+3. 若為「第三類：矩陣模版」（商業策略、資源分配）：
+   - 旁白口吻：台灣口吻，客觀、犀利、具備權威感。像是一位麥肯錫高級顧問，語氣冷靜且注重邏輯推演與數據佐證。
+   - 視覺氛圍：專業的商業簡報風格、數據儀表板與高質感的企業情境。
+
+4. 若為「第四類：動漫/小說/影視 IP：
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+
+5. 若為「第五類：世代銘印古典修心版」
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+
+6. 若為「第六類：日常生活模版（平民知識科普與時事解密）」
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+
+【⚠️ 「文字圖像化 (Typography Art)」指令】：
+1. **字卡即畫面**：中日文字卡【絕對禁止】死板的並列排版。請運用（Typography Art / Calligram）。
+2. **排版底蘊**：由 AI 自由發揮極致的視覺創意。
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][圖像化字卡][旁白配音 (VO)]：
+## 🎬 影音深度解析：${ctx.theme}
+
+### ⏱️ 開場 (Hook)：
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15] 到 [00:45 - 01:00]：
+- 視覺畫面：[描述合適的開場意象，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] 
+### ⏱️ 核心概念拆解 (01:00 - 04:00)
+ (時間規劃：01:00 - 04:00，共 12 個節點)
+請依序產出 [01:00 - 01:15] 到 [03:45 - 04:00]：
+- 視覺畫面：[描述符合設定的意象解說，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] 
+
+### ⏱️ 實戰推演與應用 (04:00 - 07:00)
+ (時間規劃：04:00 - 07:00，共 12 個節點)
+請依序產出 [04:00 - 04:15] 到 [06:45 - 07:00]：
+- 視覺畫面：[帶領觀眾進行情境模擬的畫面指示，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] 
+
+### ⏱️ 總結與互動引導 (07:00 - 08:00)
+ (時間規劃：07:00 - 08:00，共 4 個節點)
+請依序產出 [07:00 - 07:15] 到 [07:45 - 08:00]：
+- 視覺畫面：[描述重點與結尾的畫面，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] `
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊的教學影片標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據下方的《教學長影音腳本》，產出能極大化點擊率的教育類 SEO 內容。
+
+腳本內容：
+====================
+${ctx.step2}
+====================
+
+【中文輸出模板】：
+### 🎯 爆款標題 (5 個切角)
+1. [標題]
+2. [標題]
+3. [標題]
+4. [標題]
+5. [標題]
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ...
+
+### 📝 影片說明欄 (150字內，需包含關鍵字)
+[請撰寫一段吸引人的影片簡介，並自然融入主題關鍵字]
+
+【日文輸出模板】：
+🎯 バズるタイトル（5つの切り口）
+1.[タイトル]
+
+2.[タイトル]
+
+3.[タイトル]
+
+4.[タイトル]
+
+5.[タイトル]
+
+🏷️ 人気ハッシュタグ（10個）
+#[タグ1] #[タグ2] ...
+
+📝 動画の概要欄（150文字以内、キーワード必須）
+[視聴者を惹きつける動画の紹介文を作成し、テーマのキーワードを自然に盛り込んでください]`
+  },
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 180 秒內的精簡微學習短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《課程核心企劃》：${ctx.step1}，撰寫一份 180 秒內的 YouTube Shorts / IG Reels 短影片腳本。節奏需極度明快。
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+
+【輸出模板】：
+### 💥 前 3 秒：黃金 Hook 
+ (時間規劃：00:00 - 01:00，共 4 個節點)
+請依序產出 [00:00 - 00:15]、[00:15 - 00:30]、[00:30 - 00:45]、[00:45 - 01:00]：
+- 視覺畫面：[極具衝擊力描述，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[精煉痛點字卡]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] 
+
+### 📖 高能知識濃縮 (00:15 - 02:00)
+(時間規劃：01:00 - 02:00，共 4 個節點)
+請依序產出 [01:00 - 01:15]、[01:15 - 01:30]、[01:30 - 01:45]、[01:45 - 02:00]：
+- 視覺畫面：[快節奏切換的知識圖解，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] 
+
+### 📢 總結與行動呼籲 (02:00 - 03:00)
+(時間規劃：02:00 - 03:00，共 4 個節點)
+請依序產出 [02:00 - 02:15]、[02:15 - 02:30]、[02:30 - 02:45]、[02:45 - 03:00]：
+- 視覺畫面：[引導至資訊欄或主頁，運用（Typography Art / Calligram）技巧，設計畫面字卡中日雙語文字編排變化]
+- 畫面字卡：[10 字以內的中日雙語金句。]
+- 旁白配音 (VO)：[中文旁白，至少 40-50 字] 
+- 旁白配音 (VO)：[日文旁白，至少 75-120 字] `
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成教學短影片封面標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出短影音專屬 SEO。
+
+【中文輸出模板】：
+### 🎯 衝擊力短影音標題 (3 個)
+1. [標題]
+2. [標題]
+3. [標題]
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]
+
+
+【日文輸出模板】：
+🎯 衝擊力タイトル（3つの切り口）
+1.[タイトル]
+
+2.[タイトル]
+
+3.[タイトル]
+
+
+
+🏷️ 人気ハッシュタグ（5個）
+#[タグ1] #[タグ2] ...
+
+`
+  },
+  {
+    id: 6,
+    title: "影音點擊率 (CTR) 圖像",
+    description: "生成 16:9 YouTube 教學縮圖文案與高質感繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對腳本「${ctx.step2}」生成 3 組 YouTube 教學縮圖文案與 AI 繪圖指令 (16:9)。
+參考背景：${ctx.step2}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入縮圖名稱]
+主標：[提供中日雙語]
+副標：[提供中日雙語]
+中文：[請填入 Prompt，運用（Typography Art / Calligram）技巧，設計主標及副標中日雙語文字編排變化]`,
+
+  },
+  {
+    id: 7,
+    title: "擴散式影音吸睛圖像",
+    description: "生成 9:16 短影音封面文案與繪圖指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `針對腳本「${ctx.step4}」生成 3 組 9:16 短影音縮圖設計。
+
+參考背景：${ctx.step4}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt 必須包含：大而醒目藝術文字設計．
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入短影音縮圖名稱]
+高點擊文案：[十字以內中日雙語][請填入 Prompt，運用（Typography Art / Calligram）技巧，設計高點擊文案中日雙語文字編排變化]`,
+  },
+  {
+    id: 8,
+    title: "風格化情境視覺",
+    description: "生成 16:9 課程宣傳意象海報。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對「${ctx.step1}」生成 3 組 16:9 課程宣傳意象海報。
+參考背景：${ctx.step1}
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[請填入名稱]
+中文：[請填入中文畫面描述，知識啟發的意象人文氛圍，設計主題核心精神中日雙語名人語錄且以（Typography Art / Calligram）技巧，設計雙語排版變化]`,
+  },
+  {
+    id: 9,
+    title: "Suno AI 情緒配樂",
+    description: "生成適合學習與專注的音樂指令。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對課程內容「${ctx.step1}」，生成 3 組 Suno AI 音樂生成 Prompt。
+
+【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
+請直接輸出以下格式：
+
+### 第一組：專注學習 (Lo-Fi Study)
+適用場景：解析複雜理論或概念
+Suno AI Prompt：[如：Lofi hip hop beats, chill ambient, soft piano, relaxing study tempo, clean production]
+
+### 第二組：深度思考 (Ambient Focus)
+適用場景：歷史回顧或底層邏輯探討
+Suno AI Prompt：[如：Deep ambient, binaural beats, minimal drone, atmospheric, concentration]
+
+### 第三組：激勵解惑 (Upbeat Motivation)
+適用場景：解題成功、實作應用或課程總結
+Suno AI Prompt：[如：Light acoustic pop, inspiring, cheerful, steady rhythm, optimistic]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成知識懶人包圖卡提示詞與教學社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據【課程核心企劃】：${ctx.step1}，打造一組社群知識懶人包（Carousel）與貼文。
+
+
+【基礎背景】：
+${ctx.step1}
+
+請嚴格遵循以下二大任務與格式要求：
+
+---
+### 任務一：生成動態視覺 Prompt (Midjourney / Imagen)
+請從${ctx.step1}萃取五個【蒙太奇資訊】。
+  視覺公式（必須包含）  ：
+畫面必須融合【動態分割構圖（Dynamic Segmented Layout）】、【跨頁插圖（Comic Book Splash Page with Insets）】與【蒙太奇資訊圖表（Montage Infographic）】三種視覺語言。
+
+### 任務二：撰寫社群發布正文
+使用生動、能引起現代人共鳴的語氣。將史料轉化為 3~5 點易讀的亮點解析，並以提問開場，以祈福導流收尾。
+
+---
+
+### 🎨 視覺 Prompt
+現在，請嚴格依照以下格式直接輸出（請保留所有 Markdown 符號與中括號內的英文特徵，請用你的創意補齊對應欄位）：
+
+#### 16:9 動態分割構圖提示詞
+**AI Prompt (中文):**
+運用【動態分割構圖（Dynamic Segmented Layout）】以及【跨頁插圖（Comic Book Splash Page with Insets）】組合併接成一張【蒙太奇資訊圖表（Montage Infographic）】。
+
+**主標題：** 《[請填入主標題]》
+**畫格 1 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 2 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 3 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 4 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 5 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+
+
+#### 9:16 動態分割構圖提示詞（適合手機全螢幕瀏覽）
+**AI Prompt (中文):**
+**主標題：** 《[請填入主標題]》
+**畫格 1 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 2 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 3 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 4 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+**畫格 5 ：**[中日雙語標題][視覺描述，運用（Typography Art / Calligram）技巧，設計中日雙語文字編排變化]
+
+
+### 任務二：📱 社群發布正文
+
+【中文輸出模板】：
+[請填入帶有 Emoji 的 Hook 開場白，製造懸念或情感共鳴]
+
+[請條列 3-5 點核心亮點解析，每點包含一個小標題與兩句精簡解說，必須基於史料]
+
+[互動提問：請邀請粉絲留言分享經驗]
+
+ #${ctx.step2} [請再補充 3-5 個相關的 Hashtags]
+
+
+
+【日本語出力テンプレート】：
+📱 SNS投稿文
+[絵文字を使ったフックとなる冒頭文を記入し、興味を惹きつけるか共感を呼んでください]
+
+[3〜5つの核心となる見どころを箇条書きで解説してください。各項目には小見出しと2文の簡潔な説明を含め、必ず史料に基づいた内容にしてください]
+
+[インタラクティブな質問：フォロワーにコメント欄で経験や意見をシェアするよう呼びかけてください]
+
+#${ctx.step2} [さらに関連するハッシュタグを3〜5個追加してください]`
+  }
+
+  ]
+,
+  "competition": [
+  {
+    id: 1,
+    title: "核心企劃知識",
+    description: "針對競賽主題進行市場定義、痛點釐清與架構生成",
+    type: "text",
+    dependsOn: ["theme"],
+    tools: ["google_search"],
+    prompt: (ctx: any) => {
+      const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+      const isoTimestamp = new Date().toISOString();
+      const today = new Date().toISOString().split('T')[0];      
+      return `【絕對時間定錨與強制搜尋指令】：
+系統精確時間戳記：${isoTimestamp}
+今天是 ${currentDate}（標準格式：${today}）。
+請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
+你是一位擁有豐富獲獎經驗的競賽導師與視覺企劃專家，我們正在準備「南投縣政府稅務局115年度 AI玩創意」徵件比賽。
+
+<instructions>
+為了讓你擁有最真實且完整的官方稅務資訊進行企劃，以下是本次競賽（社會組）二個主題內的所有事項全文，請作為唯一的事實基準：
+
+【一、租稅圖卡組-社會組 完整徵件主題與參考資料】
+(一) 節稅報報~非都市土地供公共設施使用移轉免徵土地增值稅[cite: 44]
+必備三大核心要點:
+1. 非都市土地供公共設施使用(經需用土地人開闢完成或依計畫核定)。
+2. 依法完成使用地編定。
+3. 尚未被徵收前之移轉,經需用土地人證明者。
+*檢附文件:非都市土地供公共設施使用證明書(由需用土地人核發)。
+*貼心提醒:若日後變更為非公共設施使用後再移轉,將就該土地第一次免徵土地增值稅前之原規定地價或最近一次課徵土地增值稅時核定之申報移轉現值為原地價,計算漲價總數額,課徵土地增值稅。
+
+(二) 自己權益自己顧~土地增值稅一生一次自用住宅用地優惠稅率省很大[cite: 45]
+適用10%條件:
+• 土地上的房屋為土地所有權人或其配偶、直系親屬所有。
+• 土地所有權人或其配偶、直系親屬於該地辦竣戶籍登記。
+• 出售前一年內未曾供營業使用或出租。
+• 都市土地面積未超過300平方公尺或非都市土地面積未超過700平方公尺。
+• 一人一生享用1次為限。
+• 自用住宅建築完成未逾1年者,其房屋評定現值須達所占基地土地公告現值10%。
+
+(三) 別讓權益睡著了~土地增值稅自用住宅用地重購退稅報恁知![cite: 46]
+適用條件:
+• 土地所有權人於「2年內」,先買後賣或先賣後買供自用住宅使用之土地。
+• 出售及重購土地所有權人均為同一人。
+• 出售及重購土地地上房屋須為土地所有權人或其配偶、直系親屬所有,並且在該地辦竣戶籍登記。
+• 出售土地於出售前1年內未曾供營業使用或出租行為。
+• 如為先購後售案件,應於重購土地時,已持有供自用住宅使用之土地為適用範圍。
+• 重購自用住宅用地面積都市內土地面積未超過300平方公尺或非都市土地面積未超過700平方公尺。
+◇退稅範圍:重購土地地價超過原出售土地地價扣除土地增值稅後之餘額,得就已繳納土地增值稅額範圍內,退還不足支付重購土地地價數額。
+
+(四) 申請使用牌照稅定期開徵繳款書歸戶,簡政便民又節能減碳。[cite: 47]
+1. 為簡政便民並響應節能減碳且避免漏收繳款書,在同一縣(市)內名下有2輛以上車輛,原每1車輛1張繳款書,可申請歸戶在1張繳款書(每張最多5輛),並以紙本寄送或以電子(email)傳送。已辦理長期約定轉帳繳納者,亦可申請轉帳繳納通知歸戶。
+2. 請歸戶後有新增車輛,將自動歸戶,免再申請。有移出車輛,免再申請終止歸戶。
+3. 車主應於開徵前2個月申請,逾期申請自次年(期)開始適用。
+4. 車主可登入地方稅網路申報作業入口網(需用憑證)或本局網站(免用憑證)或填寫紙本申請書申辦。
+
+(五) 自用小客(貨)車領用小貨車號牌加裝座椅,未向監理站辦理車種變更手續,小心被補稅並處罰。[cite: 48]
+1. 有些民眾購買自用小客(貨)車,為節省使用牌照稅而領用自用小貨車牌照,嗣後可能因工作或其他需求擅自加裝座椅當成自用小客(貨)車使用,因車種不同,使用牌照稅稅額也有差別。
+2. 以汽缸排氣量1,800立方公分為例,領用自用小貨車牌照稅額是2,700元,領用自用小客(貨)車牌照稅額則為7,120元,按使用牌照稅法第31條規定,交通工具使用牌照有轉賣、移用者,處以相同汽缸總排氣量自用小客(貨)車應納稅額2倍以下之罰鍰。
+3. 上揭自用小貨車如要加裝座椅作為自用小客(貨)車使用,應先向監理機關辦理車種變更及補稅手續,如未辦理變更手續,車輛直接加裝座椅使用公共道路,會被視為「移用牌照」處罰。
+
+(六) 車輛使用牌照請勿轉賣、移用,以免被查獲受罰[cite: 49]
+1. 每輛車領用之牌照專屬該車所有,不能供借他車使用,也不能懸掛其他車輛號牌,一經查獲,依使用牌照稅法第20條規定,車輛使用牌照不得轉賣、移用,或逾期使用。如有轉賣、移用者,移用及被移用牌照之車輛,按同法第31條規定皆應處以全年應納稅額2倍以下之罰鍰。
+2. 例如車輛牌照經監理機關吊銷或吊扣期間,懸掛另外一輛車的號牌使用公共道路(含行駛或停放路邊),該移用號牌的行為,將處以全年應納稅額2倍以下之罰鍰。
+3. 車主千萬不要貪圖一時之便或心存僥倖,將車牌借供他車或懸掛他車車牌使用公共道路,以免被查獲受罰,造成荷包大失血。
+
+(七) 多元化繳稅管道[cite: 50]
+■臨櫃繳納:各代收稅款之金融機構。
+■便利商店繳稅:稅額3萬以下案件,可至統一、全家、萊爾富、OK等便利商店繳納。
+■便利商店多媒體事務機列印小白單繳稅。
+■自動櫃員機(ATM)轉帳納稅:至貼有「跨行:提款+轉帳+繳稅」標誌之自動櫃員機繳納。
+■信用卡繳稅:透過電話語音4121366或至網路繳稅服務網站。
+■活期(儲蓄)存款帳戶轉帳繳稅 / 晶片金融卡網際網路繳稅 / 約定帳戶轉帳納稅。
+■行動支付/電子支付繳稅:透過APP掃描繳款書正面中之 QR-Code 行動條碼進行繳納。
+
+(八) 遭不可抗力災害 災損減稅3步驟![cite: 51]
+申請步驟: 1.拍照存證(先拍照記錄,後清理現場) 2.檢附文件 3.申請減免。
+• 房屋稅: 房屋毀損三成以上 (房屋稅開徵40日以前或災害發生後30日內申請)。
+• 地價稅: 土地因流失等環境限制及技術上無法使用 (地價稅開徵40日以前或災害發生後30日內申請)。
+• 使用牌照稅: 汽、機車(151c.c.以上)停駛/報廢 (災害發生之日起1個月內申請)。
+• 娛樂稅: 查定課徵業者扣除未營業天數 (災害發生後申請)。
+
+(九) 雲端視訊發證服務-電子稅務文件辦理申請新管道[cite: 52]
+• 申請對象:南投縣納稅義務人本人。應備證件:國民身分證。服務時間:上班日8點至下午5點。
+• 服務項目(9項): 房屋稅/地價稅稅籍證明與課稅明細表、使用牌照稅/房屋稅/地價稅繳納證明書及補發當期繳款書。
+• 手機須允許相機與麥克風權限(Android用Chrome，iPhone用Safari)。
+
+(十) 稅務自動化服務機自助申辦 Easy Go![cite: 53, 54]
+▶4種身分驗證方式:身分證、自然人憑證、工商憑證及已註冊健保卡。共提供16項服務：
+包含使用牌照稅/房屋稅/地價稅補發當期繳款書與繳納證明、契稅證明、土增稅自住用地稅率查詢、全國財產總歸戶清單查調、綜稅所得資料查調、無違章欠稅證明書等。
+
+【二、四格漫畫組-社會組 完整徵件主題與參考資料】
+(一) 地價稅節稅知識[cite: 55]
+1. 自用住宅用地: 一般稅率10%起→優惠稅率2%,至少省4倍。9月22日前提出申請,逾期申請次年適用。已核准若土地未移轉或用途未變更,免再申請。
+條件: 辦竣戶籍登記、無出租無營業、房屋為本人或配偶直系親屬所有。面積限制(都市300平方公尺/非都市700平方公尺)、自用住宅以一處為限。
+2. 農地: 農業用地作農業使用課徵田賦(免徵地價稅)。若違規(施設水泥鋪面或填廢棄土方)未作農業使用,應課徵地價稅。
+
+(二) 3月1日起至6月30日止新建、增建或改建房屋併入次期課徵,最多可能達16個月[cite: 56]
+• 納稅義務基準日: 每年2月末日。
+• 房屋稅課稅期間: 上一年7月1日至當年6月30日。
+• 貼心提醒: 2月末日建物登記所有人繳納上年7/1至當年6/30止之房屋稅(12個月)。若在3/1至6/30新建或改建完成，已過基準日，該期間房屋稅併入次期課徵，最多可能達16個月。
+
+(三) 出租閒置餘屋符合一定條件輕鬆節省房屋稅[cite: 57]
+南投縣非自住之住家用房屋稅率:
+• 公益出租/社宅代管: 1.2% (單一稅率)。
+• 委託包租代管業者(1年以上租約且達租金標準): 1.5% (單一稅率)。
+• 一般出租住宅(出租達租金標準/繼承共有): 1戶1.5%; 2-4戶2.0%; 5-6戶2.4%。
+• 未出租-多屋族: 1戶2.6%; 2-4戶3.2%; 5-6戶3.8%; 7戶以上4.8%。
+
+(四) 供持有身心障礙證明者使用車輛可以申請免徵使用牌照稅[cite: 58]
+1. 有駕照: 每人限1輛本人車輛。無車輛者可比照無駕照者以配偶或同戶籍二親等內親屬車輛申請。
+2. 無駕照: 其本人、配偶或同一戶籍二親等以內親屬所有。車籍地(或監理系統登載之住居所地址)與身障者戶籍地需相同。
+3. 免稅上限: 排氣量超過2400cc者,免徵金額以2400cc稅額為限,超過部分不予免徵(須繳納差額)。車輛無逾檢註銷、停駛或繳銷等情形。本人名下有車由稅務局主動核定，其他車輛須提出申請。
+
+(五) 逾滯納期未完納使用牌照稅或停駛、繳銷、註銷牌照之車輛,勿行駛或停放路邊[cite: 59]
+1. 逾滯納期未完稅使用公共道路被查獲，除補稅外，處應納稅額1倍以下罰鍰；停駛、繳銷、註銷牌照之車輛處以2倍以下罰鍰。
+2. 「使用」公共道路包含動態行駛及靜態停放(路邊、巷弄、供公共通行之騎樓)。恢復使用前應重新申領牌照繳納稅款。
+
+(六) 以繳款書繳納印花稅取代印花稅票,方便快速,節能減碳[cite: 60]
+• 實貼印花稅票需購買且逐張蓋章銷花，易因未銷花完全被罰。
+• 稅務局提供多管道(臨櫃/網路/傳真/email)申請印花稅繳款書,不論金額多寡皆可開立，一張繳款書取代稅票，免除貼花銷花不便。
+
+(七) 投中彰「便捷稅務通」跨區服務 財稅生活圈一處即通[cite: 61, 62]
+• 跨區輔導線上申辦及代收代轉(20項): 含牌照稅/房屋稅/地價稅減免、變更、退稅及電子傳送申請等。
+• 地方稅全功能服務櫃臺跨機關發證(27項): 退稅查詢、各類補發繳款書、課稅明細表、各稅繳納證明、財產清單及土增稅自住稅率查詢等。
+
+(八) 稅務到宅服務-貼心您的不便利,服務到宅安您心[cite: 63]
+• 服務對象(限南投縣): 65歲以上長者、持身障證明/行動不便者、遭逢重大變故/照顧重症家屬外出不便者、產婦(產後兩個月內)。
+• 申請方式: 電話/傳真向服務科或分局申請。
+• 服務項目: 牌照/房屋/地價稅繳納證明及補發繳款書、全國財產總歸戶清單、綜稅所得資料等8項。
+
+(九) 稅籍、地籍異動即時通,一手掌握不動產異動資訊![cite: 64]
+• 稅籍申請: 線上(網路申報作業網站,自然人憑證等)或臨櫃。完成後,申報土增稅或契稅(移轉)時,系統自動簡訊/email通知原所有權人。
+• 地籍申請: 線上(地政司數位櫃臺)或臨櫃/隨案申請。買賣、拍賣、贈與、信託、設定、查封等異動收件及完成時,自動通知申請人。防詐更安心。
+
+- 🔎 檢索查核軌跡：[請詳細列出你剛才確認了以上哪一項官方比賽說明或最新稅法關鍵資料]AI 才能有真實資訊進行企劃。
+
+【任務指令】
+請從上述【一、租稅圖卡組】中挑選出 3 個最具宣導視覺張力的主題；並從【二、四格漫畫組】中挑選出 3 個最具故事性的主題（共計 6 個主題）。
+請產出一份總字數約 1500 字的結構化競賽企劃書。
+
+請嚴格依照以下結構進行長篇幅輸出：
+</instructions>
+
+# 🏆 南投縣稅務局 AI 玩創意競賽：六大核心作品企劃書
+
+## 壹、 整體策展與視覺定調 (約 250 字)
+- 策展主軸：說明這 6 件作品如何串聯成一個具備說服力的參賽系列。
+- 目標受眾 (TA) 輪廓：精準定義這系列宣導圖文最想打動的族群。
+
+## 貳、 租稅圖卡組：精選三項主題企劃 (每項約 250 字)
+請針對挑選出的 3 個主題，逐一詳細論述：
+### 1. [圖卡主題名稱]
+- 🎯 痛點與受眾：[民眾常犯什麼錯或錯失什麼權益？]
+- 💡 視覺轉化策略：[具體描述畫面構圖、意象譬喻，以及文字設計]
+- 📜 核心稅法知識點：[嚴格提取上述文件中的 3 項關鍵條件/期限/罰則]
+
+### 2. [圖卡主題名稱]
+(依上述格式進行深度企劃)
+
+### 3. [圖卡主題名稱]
+(依上述格式進行深度企劃)
+
+## 參、 四格漫畫組：精選三項主題企劃 (每項約 250 字)
+請針對挑選出的 3 個主題，逐一詳細論述：
+### 1. [漫畫主題名稱]
+- 🎯 痛點與受眾：[針對什麼樣的生活情境發想？]
+- 💡 漫畫情境與分鏡策略：[設計起、承、轉、合的劇情大綱，並說明角色視角與互動]
+- 📜 核心稅法知識點：[嚴格提取上述文件中的 3 項關鍵條件/期限/罰則]
+
+### 2. [漫畫主題名稱]
+(依上述格式進行深度企劃)
+
+### 3. [漫畫主題名稱]
+(依上述格式進行深度企劃)`  
+    }
+  },
+  {
+    id: 2,
+    title: "主軸腳本文案",
+    description: "根據專案企劃，產出競賽作品的創作理念與 Demo 提案影音腳本。",
+    type: "text",
+    dependsOn: ["theme","step1"],
+    prompt: (ctx: any) => `請根據以下【專案核心企劃】，撰寫一份 3 分鐘的 Pitch (提案/創作理念解析) 影音腳本。每 15 秒為一個節點。
+這份腳本將用於展示我們的 AI 圖像作品是如何構思並符合南投稅務局的宣導目標。
+
+資料來源：
+====================
+${ctx.step1}
+====================
+
+【⚠️ 旁白配音 (VO) 字數強制指令】：
+請依序產出各時間節點的內容。為了符合真實配音長度，『每一個 15 秒區塊的旁白配音 (VO)』必須至少包含 40 到 50 個中文字。
+請將技術或概念轉化為適合「${ctx.competition_type}」競賽的說服力簡報口吻。
+
+【輸出模板】請嚴格遵守以下架構撰寫，每個 15 秒產出 [畫面節點][畫面字卡][旁白配音 (VO)]：
+## 🎬 競賽提案深度解析：
+
+### ⏱️ 開場與痛點 (Hook & Problem)：(00:00 - 00:45)
+- 視覺畫面：[描述開場畫面，例如民眾對稅務的迷思]
+- 畫面字卡：[10字以內的破題標題]
+- 旁白配音 (VO)：[至少 40-50 字]
+
+### ⏱️ 核心創新與視覺轉化 (Solution) (00:45 - 01:45)
+- 視覺畫面：[描述 AI 圖像的生成過程與核心視覺意象]
+- 畫面字卡：[10字以內的核心亮點]
+- 旁白配音 (VO)：[至少 40-50 字]
+
+### ⏱️ 作品展示與 AI 詠唱技巧 (Traction/Demo) (01:45 - 02:30)
+- 視覺畫面：[展示最終圖卡/漫畫，並標示出必須包含的 Logo 與字樣]
+- 畫面字卡：[情境步驟或 Prompt 解析]
+- 旁白配音 (VO)：[至少 40-50 字]
+
+### ⏱️ 總結與稅務宣導願景 (Vision & Call to Action) (02:30 - 03:00)
+- 視覺畫面：[未來願景意象，如雲端發票帶來的便利生活]
+- 畫面字卡：[專案口號]
+- 旁白配音 (VO)：[至少 40-50 字]`
+  },
+  {
+    id: 3,
+    title: "影音 SEO 標題優化",
+    description: "生成高點擊的創作歷程展示影片標題、標籤與說明欄內容。",
+    type: "text",
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `根據《提案影音腳本》：${ctx.step2}，產出能極大化點擊率的專案展示類 SEO 內容。
+
+【輸出模板】：
+### 🎯 爆款專案標題 (5 個切角，需結合 AI 繪圖與稅務創意)
+
+
+### 🏷️ 熱門 Hashtags (10 個)
+#[標籤1] #[標籤2] ... 
+
+### 📝 影片說明欄
+[150字專案簡介，說明我們如何用 AI 挑戰南投稅務局徵件，並呼籲觀眾支持]`
+  },
+  {
+    id: 4,
+    title: "擴散式影音文案",
+    description: "產出 60 秒內的精簡 Elevator Pitch (電梯簡報) 短影片文案。",
+    type: "text",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `根據《專案核心企劃》：${ctx.step1}，撰寫 60 秒內的短影片腳本。節奏需極度明快，適合 Reels/Shorts 平台展示 AI 繪圖成果。
+
+【輸出模板】：
+### 💥 前 3 秒：黃金 Hook (00:00 - 00:05)
+- 視覺畫面：[衝擊力的場景，例如一張超美的 AI 縮時生成畫面]
+- 畫面字卡：[精煉字卡，如：AI竟然能畫出這個？]
+- 旁白配音 (VO)：[點出痛點]
+
+### 📖 高能解法濃縮 (00:05 - 00:45)
+- 視覺畫面：[快節奏展示解法與稅務知識的結合]
+- 畫面字卡：[核心創新]
+- 旁白配音 (VO)：[給出核心價值]
+
+### 📢 總結與行動呼籲 (00:45 - 00:60)
+- 視覺畫面：[專案作品完稿/呼籲行動]
+- 畫面字卡：[請支持我們]
+- 旁白配音 (VO)：[引導支持]`
+  },
+  {
+    id: 5,
+    title: "擴散式 SEO 標籤優化",
+    description: "生成電梯簡報短影片封面標題與標籤。",
+    type: "text",
+    dependsOn: ["theme", "step4"],
+    prompt: (ctx: any) => `根據《短影音腳本》：${ctx.step4}，產出專屬 SEO。
+
+【輸出模板】：
+### 🎯 衝擊力短影音標題 (3 個)
+
+
+### 🏷️ 推薦 Hashtags
+#[標籤1] #[標籤2] #[標籤3] #[標籤4] #[標籤5]`
+  },
+  {
+    id: 6,
+title: "競賽主題 ：四格漫畫設計提案",
+    description: "依據競賽主題 A（四格漫畫），生成故事分鏡與 AI 繪圖指令 (Prompt)。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme", "step1"],
+    prompt: (ctx: any) => `針對競賽的主題 A「四格漫畫」生成 3 組核心提案。
+參考背景：${ctx.step1}   參、 四格漫畫組
+
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[主視覺概念名稱]
+宣導主題：[選擇一項稅務宣導重點]
+設計理念：[說明此視覺如何扣合稅務主題，並發揮宣導渲染力]
+核心視覺元素：[具體描述畫面中的關鍵物件或意象]
+圖卡主標：[填入適合壓在圖卡上的文案標題]
+中文提示詞解析：[解釋上述 Prompt 的各個元素]
+接著，請輸出
+### 第一組：[漫畫劇本名稱]
+宣導主題：[選擇一項稅務宣導重點]
+故事大綱：[簡述四格漫畫的起、承、轉、合]
+
+分鏡與 AI 繪圖指令：
+【第一格：起】
+- 畫面描述：[場景與人物動作]
+- 對白/旁白：[文字內容]
+- 英文繪圖提示詞 (Prompt)：[生成第一格畫面的英文指令，需保持角色一致性]
+
+【第二格：承】
+- 畫面描述：[場景與人物動作]
+- 對白/旁白：[文字內容]
+- 英文繪圖提示詞 (Prompt)：[生成第二格畫面的英文指令]
+
+【第三格：轉】
+- 畫面描述：[場景與人物動作，帶入稅務衝突或解法]
+- 對白/旁白：[文字內容]
+- 英文繪圖提示詞 (Prompt)：[生成第三格畫面的英文指令]
+
+【第四格：合】
+- 畫面描述：[完美結局，帶出宣導主軸]
+- 對白/旁白：[文字內容]
+- 英文繪圖提示詞 (Prompt)：[生成第四格畫面的英文指令]`
+  },
+  {
+    id: 7,
+title: "競賽主題 B：租稅圖卡設計提案",
+    description: "依據競賽主題 B（租稅圖卡），生成概念與 AI 繪圖指令 (Prompt)。",
+    type: "code",
+    language: "markdown",
+    dependsOn: ["theme","step1"],
+    prompt: (ctx: any) => `針對競賽主題 B「租稅圖卡」生成 3 組核心提案。
+
+參考背景：${ctx.step1}  貳、 租稅圖卡組
+【格式絕對鎖定指令】：
+你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
+請【完全且嚴格】拷貝下方的 Markdown 模板進行填寫，不可新增任何標籤、不可改變欄位名稱、不可隨意加上粗體符號（  ）。
+AI Prompt  必須包含：大而醒目藝術文字設計。
+
+
+請直接輸出以下格式，重複三次（第一組、第二組、第三組）：
+
+### 第一組：[主視覺概念名稱]
+宣導主題：[選擇一項稅務宣導重點]
+設計理念：[說明此視覺如何扣合稅務主題，並發揮宣導渲染力]
+核心視覺元素：[具體描述畫面中的關鍵物件或意象]
+圖卡主標：[填入適合壓在圖卡上的文案標題]
+中文提示詞解析：[解釋上述 Prompt 的各個元素，大而醒目藝術文字設計]`
+  },
+  {
+    id: 10,
+    title: "全平台社群推播文案",
+    description: "一鍵生成專案亮點圖卡提示詞與拉票社群正文",
+    type: "social",
+    language: "markdown",
+    dependsOn: ["theme", "competition_type", "step1"],
+    prompt: (ctx: any) => `根據【專案核心企劃】：${ctx.step1}，針對「南投縣政府稅務局AI徵件比賽」打造一組社群展示懶人包（Carousel）與貼文。這可以用來記錄創作歷程或為作品拉票。
+
+### 任務一：生成專案亮點圖卡 Prompt (4:5 構圖)
+請直接輸出：
+AI Prompt (中文):
+以「${ctx.theme} 稅務宣導」為核心，採用符合該賽事主題的視覺風格。生成一套包含 5 個資訊區塊的圖表排版。必須使用清晰的文字層級 (clean typography layout) 與極簡背景，避免沉重色塊。
+圖卡 1 封面/靈感：[填寫亮點1：為什麼選這個稅務主題]
+圖卡 2 AI 創作挑戰：[填寫亮點2：下指令(Prompt)時遇到的困難]
+圖卡 3 核心解法：[填寫亮點3：如何克服困難產出完美畫面]
+圖卡 4 宣導理念：[填寫亮點4：希望傳達給大眾的稅務觀念]
+圖卡 5 團隊/呼籲：[填寫亮點5：歡迎大家去獎金獵人平台看我們的作品]
+
+### 任務二：社群發布正文
+[帶有 Emoji 的痛點或願景開場白，吸引目光]
+[條列 3-4 點專案核心亮點，用白話文解釋你們的創新之處以及 AI 生成過程的趣事]
+[互動與行動呼籲：邀請大家提供回饋，或關注南投稅務局的宣導活動]
+💬 覺得這個 AI 創作酷嗎？留言告訴我們你的看法，一起把雲端發票用起來！
+#南投縣政府稅務局 #AI玩創意發揮你的想像力 #雲端發票 #${ctx.theme} [補充2個相關標籤]`
+  } ] };
+
+export const WORKFLOW_STEPS = WORKFLOWS_REGISTRY['heritage'];
+export const STEPS = WORKFLOWS_REGISTRY['heritage'];
+export const getWorkflowSteps = (theme: keyof typeof WORKFLOWS_REGISTRY): WorkflowStep[] => { return WORKFLOWS_REGISTRY[theme] || []; };
