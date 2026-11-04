@@ -350,8 +350,8 @@ export const AUDIENCE_THEMES = {
 
 export const THEME_STEPS = {
   heritage: [
-    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對主題進行定義釐清與客觀史料彙整', type: "text", dependsOn: ["theme"] },
-    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 5-10 分鐘的 YouTube 長影片文案。", type: "text", dependsOn: ["theme", "step1"] },
+    { id: 1, name: '核心企劃知識', icon: 'Database', category: 'Research', desc: '針對主題進行定義釐清與 5000 字精確史料彙整', type: "text", dependsOn: ["theme"] },
+    { id: 2, name: '主軸腳本文案', icon: 'FileText', category: 'Content', desc: "根據基礎背景，產出 13 分鐘的 Vodcast 長影音文案。", type: "text", dependsOn: ["theme", "step1"] },
     { id: 3, name: '影音 SEO 標題優化', icon: 'Search', category: 'Optimization', desc: "生成標題、標籤與說明欄內容。", type: "text", dependsOn: ["theme", "step2"] },
     { id: 4, name: '擴散式影音文案', icon: 'Video', category: 'Content', desc: "產出 60 秒內的精簡爆款短影片文案。", type: "text", dependsOn: ["theme", "step1"] },
     { id: 5, name: '擴散式 SEO 標籤優化', icon: 'Search', category: 'Optimization', desc: "生成短影片標題與標籤。", type: "text", dependsOn: ["theme", "step4"] },
