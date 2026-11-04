@@ -10,7 +10,7 @@ console.log(`--- ${dplan.trade_date} D-Plan 官方 Schema 零容忍自檢 ---`);
 console.log('1. schema_version:', dplan.schema_version === '4.3');
 console.log('2. doc_type:', dplan.doc_type === 'D-Plan');
 console.log('3. team_id:', dplan.team_id === 'TEAM_12006');
-console.log('4. trade_date:', dplan.trade_date === '2026-11-04');
+console.log('4. trade_date:', dplan.trade_date === dp.trade_date);
 
 // 檢查根節點
 const allowedRootKeys = ['schema_version', 'doc_type', 'team_id', 'trade_date', 'sources', 'observations', 'market_view', 'inferences', 'decisions', 'no_trade_decisions', 'orders', 'agent_metadata'];

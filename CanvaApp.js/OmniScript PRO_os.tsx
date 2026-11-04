@@ -32,7 +32,7 @@ const IMAGE_ENGINES = [
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -115,7 +115,7 @@ const geminiPayload = {
     }
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
-    let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : (isSearchEnabled ? 'gemini-3.1-flash' : 'gemini-2.5-flash');
+    let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash';
     let finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
 
     let aiResponse = await fetch(finalApiUrl, {
@@ -2590,7 +2590,7 @@ export default function App() {
             // 🌟 恢復原搜尋設計：Step 1 與 Step 0 一律開啟 Google Search，掌握全球最新市場局勢
             const isSearchStep = (i === 1 && !safeStep1);
             const isFintech = audienceTheme === 'fintech';
-            let targetModel = isFintech ? 'gemini-3-flash-thinking' : (isSearchStep ? 'gemini-2.5-flash' : 'gemini-3-flash-preview');
+            let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash';
             let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
             let aiResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -2609,8 +2609,8 @@ export default function App() {
             });
 
             // ⚠️ 如果 Step 1 因為 Google Search (403/400) 權限不足失敗，自動拔除 tools 並重試
-            if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
-                if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`; }
+            if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400 || aiResponse.status === 401)) {
+                if (targetModel !== 'gemini-2.5-flash') { targetModel = 'gemini-2.5-flash'; apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`; }
                 console.warn(`[API 警告] 您的 API Key 可能不支援 Google Search (403/400)。自動關閉 Search 重試 Step 1...`);
                 aiResponse = await fetch(apiUrl, {
                     method: 'POST',
@@ -2622,7 +2622,8 @@ export default function App() {
                         systemInstruction: {
                             parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
                         },
-                        contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }]
+                        contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }],
+                        generationConfig: { maxOutputTokens: isFintech ? 32768 : (i === 2 ? 16384 : 8192) }
                     })
                 });
             }
@@ -4881,7 +4882,7 @@ const handleLogin = async (e: React.FormEvent) => {
                             const useProxy = !activeApiKey;
                             const geminiUrl = useProxy 
                               ? (process.env.NODE_ENV === 'production' ? 'https://omni-script-pro.vercel.app/api/proxy-generate' : '/api/proxy-generate')
-                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${activeApiKey}`;
+                              : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
                             
                             const payload = useProxy
                               ? { prompt: prompt }
