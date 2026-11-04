@@ -212,19 +212,76 @@ export const POPULAR_STYLES: StyleOption[] = [
 
 
 {
-    id: "style-edtech-flat",
-    name: "現代幾何圖解 (扁平化教育)",
-    promptSuffix: ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
+    "id": "style-edtech-flat",
+    "name": "現代幾何圖解 (扁平化教育)",
+    "description": "色彩鮮明、線條乾淨，具備企業科技感與高度模組化的特色。適合呈現邏輯清晰的商業流程、軟體操作與基礎知識圖解。",
+    "promptSuffix": ", modern flat vector illustration, clean geometric shapes, bold and vibrant color palette, minimalist educational infographic style, smooth gradients, no outlines, corporate tech aesthetic, clean sans-serif typography layout, highly detailed, 8k resolution"
   },
   {
-    id: "style-edtech-isometric",
-    name: "3D 等距微縮 (系統拆解)",
-    promptSuffix: ", 3D isometric illustration, stylized miniature diorama, clean bright studio lighting, soft pastel and corporate blue colors, educational tech aesthetic, intricate mechanical or structural details, octane render, clean line-art background configuration, 8k"
+    "id": "style-edtech-isometric",
+    "name": "3D 等距微縮 (系統拆解)",
+    "description": "運用 3D 等距視角與精緻光影，呈現精密的立體結構與系統積木感。適合系統架構拆解、硬體設備、空間佈局與複雜運作機制。",
+    "promptSuffix": ", 3D isometric illustration, stylized miniature diorama, clean bright studio lighting, soft pastel and corporate blue colors, educational tech aesthetic, intricate mechanical or structural details, octane render, clean line-art background configuration, 8k"
   },
   {
-    id: "style-edtech-sketch",
-    name: "學術手帳線稿 (筆記圖解)",
-    promptSuffix: ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere"
+    "id": "style-edtech-sketch-warm",
+    "name": "學術手帳線稿 (溫暖紙張)",
+    "description": "經典的手繪線稿搭配暖色紙張質感與微淡水彩，營造寧靜專注的個人筆記與研究氛圍。適合綜合知識整理、通用筆記與人文思維分析。",
+    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, blueprint or sketchbook aesthetic, minimal soft watercolor accents, warm paper texture, educational diagram, clear visual hierarchy, highly detailed, serene study atmosphere, 8k"
+  },
+  {
+    "id": "style-edtech-sketch-grid",
+    "name": "學術手帳線稿 (網格/方格紙)",
+    "description": "微淡的藍色/灰色方格紙背景，帶來嚴謹的邏輯秩序感。適合數理邏輯、幾何圖解、資料結構與演算法推導。",
+    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, faint grid paper texture, subtle blue graph line pattern, technical notebook grid, educational diagram, precise spatial measurement aesthetic, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-sketch-dotgrid",
+    "name": "學術手帳線稿 (點陣手帳紙)",
+    "description": "極簡的 Bullet Journal 點陣背景，提供隱形的對齊輔助而不干擾視覺。適合思維導圖、視覺筆記 (Sketchnote) 與卡片盒筆記。",
+    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, minimalist bullet journal dot grid background, refined paper grain, clear visual hierarchy, clean educational diagram, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-sketch-parchment",
+    "name": "學術手帳線稿 (羊皮紙/古典)",
+    "description": "帶著歲月纖維感的古樸羊皮紙背景，散發典雅的文獻與歷史氣息。適合歷史事件時間軸、古典文學解析與生物分類學手稿。",
+    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, subtle antique parchment texture, aged fiber paper, vintage botanical print background, educational diagram, scholarly archival aesthetic, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-sketch-kraft",
+    "name": "學術手帳線稿 (牛皮紙/環保)",
+    "description": "有機且具手感的回收牛皮紙紋理，帶來自然永續與實作感。適合環境科學、地理生態學、手作工藝與永續議題推廣。",
+    "promptSuffix": ", elegant academic sketch style, delicate clean line-art layout, recycled kraft paper texture, tactile paper grain, organic natural paper fibers, educational diagram, earthy organic style, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-sketch-blueprint",
+    "name": "學術手帳線稿 (藍圖/工程)",
+    "description": "深藍底色配上白色細線工程網格，呈現專業的架構規劃與工程圖樣感。適合機構拆解、軟體系統架構與程式底層模組圖解。",
+    "promptSuffix": ", elegant academic sketch style, white hairline technical grid, dark blue engineering blueprint paper, technical architectural layout, educational schematic diagram, precise structural analysis aesthetic, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-botanical",
+    "name": "復古科學圖鑑 (古典解剖/生物)",
+    "description": "融合古典銅板畫與細緻交叉陰影（Cross-hatching），具備極高的學術權威感與典雅質感。適合生物構造、醫學解剖、植物學與歷史科技。",
+    "promptSuffix": ", vintage scientific illustration, vintage botanical print, finely detailed copperplate engraving style, subtle cross-hatching, muted earthy color palette, parchment paper texture, labeled anatomical diagram aesthetic, elegant Latin calligraphy notes, highly detailed, 8k"
+  },
+  {
+    "id": "style-edtech-clay",
+    "name": "黏土微縮概念 (微觀/具象化)",
+    "description": "透過手作風格的溫暖觸感與柔軟質感，將抽象或生硬的概念具象化，降低學習門檻。適合微觀科學（如細胞、分子）、幼兒教育與故事演繹。",
+    "promptSuffix": ", stylized claymation plasticine diorama, soft clay texture, handcrafted educational miniature, bright rim lighting, vibrant clean colors, tactile depth of field, stop-motion animation art style, friendly interactive learning concept, 8k"
+  },
+  {
+    "id": "style-edtech-risograph",
+    "name": "雙色印刷圖解 (高對比概念)",
+    "description": "採用復古孔版印刷質感與高對比雙色調（Duotone），視覺衝擊力強且焦點極度明確。適合概念對比、重點流程圖與宣傳海報式圖解。",
+    "promptSuffix": ", risograph print illustration, duotone color palette, subtle halftone dot texture, distinct layered vector shapes, bold retro educational poster style, high visual impact, clean typography, tactile print aesthetic, 8k"
+  },
+  {
+    "id": "style-edtech-glassmorphism",
+    "name": "玻璃透視層次 (現代科技/數據流)",
+    "description": "運用半透明磨砂玻璃與霓虹光澤展現「內部構造」與「資料流動」。適合 AI 運算原理、程式架構、數據流轉與現代物理概念。",
+    "promptSuffix": ", modern glassmorphism style, translucent frosted glass layers, vibrant neon accents, clean white soft background, high-tech educational visualization, smooth depth blur, glossy reflective finish, elegant 3D diagram, octane render, 8k"
   },
   {
     id: "style-oriental-colorink",
