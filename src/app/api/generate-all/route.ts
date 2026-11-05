@@ -48,15 +48,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `找不到步驟編號 ${currentStepId}` }, { status: 400 });
     }
 
-    let verifiedContext = customDocText || existingData.step1 || existingData['1'] || "";
+    let verifiedContext = customDocText 
+      || existingData.step1 
+      || existingData['1'] 
+      || existingData.customContext 
+      || "";
+
+    // 寬容抽取：若依然為空，嘗試從 existingData 中搜尋長度大於 30 字的長文字作為背景
+    if (!verifiedContext && typeof existingData === 'object' && existingData !== null) {
+      for (const val of Object.values(existingData)) {
+        if (typeof val === 'string' && val.length > 50 && !val.includes('等待從 Vercel')) {
+          verifiedContext = val;
+          break;
+        }
+      }
+    }
+
     const invalidPlaceholders = ["等待從 Vercel 伺服器獲取資料", "Loading", "載入中"];
     if (invalidPlaceholders.some(text => verifiedContext.includes(text))) {
       verifiedContext = ""; 
     }
 
-    if (Number(currentStepId) !== 1 && !String(currentStepId).startsWith('0') && !verifiedContext) {
+    // 只有在真正缺乏任何背景文字時才阻擋，且若為 2.1 或 2.2 時更寬容
+    if (Number(currentStepId) !== 1 && !String(currentStepId).startsWith('0') && !verifiedContext && !existingData.step2Part1) {
       return NextResponse.json(
-        { error: "Step 1 基礎資料尚未載入完成，請等待資料獲取後再執行此步驟。" }, 
+        { error: "Step 1 基礎資料尚未載入完成 (或格式未正確傳遞)，請確認 Step 1 內容後再執行此步驟。" }, 
         { status: 400 }
       );
     }
@@ -103,7 +119,7 @@ export async function POST(req: Request) {
           },
           contents: [{ parts: [{ text: finalPrompt }] }], // finalPrompt 已經在前面加過 timeInjected 邏輯
           generationConfig: {
-              maxOutputTokens: isFintech ? 32768 : (Number(step.id) === 2 ? 16384 : 8192),
+              maxOutputTokens: isFintech ? 32768 : (String(step.id).startsWith('2') ? 16384 : 8192),
               ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
           }
       };
@@ -113,7 +129,7 @@ export async function POST(req: Request) {
           geminiPayload.tools = [{ "googleSearch": {} }];
       }
       
-      const targetModel = isFintech ? (attempt === 1 ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash') : (isSearchEnabled ? 'gemini-2.5-flash' : (Number(step.id) === 2 ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite'));
+      const targetModel = isFintech ? (attempt === 1 ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash') : (isSearchEnabled ? 'gemini-2.5-flash' : (String(step.id).startsWith('2') ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite'));
       const finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKeys[currentKeyIndex]}`;
 
       try {

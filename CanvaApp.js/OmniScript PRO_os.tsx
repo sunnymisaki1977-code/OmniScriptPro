@@ -30,12 +30,17 @@ const IMAGE_ENGINES = [
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+    const safeContext = {
+        ...context,
+        step1: context.step1 || context['1'] || "",
+        '1': context.step1 || context['1'] || ""
+    };
     if ((stepId === 2 || stepId === '2') && audienceTheme === 'heritage') {
-        const part1 = await callVercelApiSingleStep('2.1', context, audienceTheme, userApiKey);
-        const part2 = await callVercelApiSingleStep('2.2', { ...context, step2Part1: part1 }, audienceTheme, userApiKey);
+        const part1 = await callVercelApiSingleStep('2.1', safeContext, audienceTheme, userApiKey);
+        const part2 = await callVercelApiSingleStep('2.2', { ...safeContext, step2Part1: part1 }, audienceTheme, userApiKey);
         return part1.trim() + "\n\n" + part2.trim();
     }
-    return await callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey);
+    return await callVercelApiSingleStep(stepId, safeContext, audienceTheme, userApiKey);
 }
 
 async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey = "") {
@@ -64,8 +69,13 @@ async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKe
         })
     });
 
-    if (!promptResponse.ok) {
-        throw new Error(`Vercel API 請求失敗：${promptResponse.status}`);
+        if (!promptResponse.ok) {
+        let errDetail = "";
+        try {
+            const errData = await promptResponse.json();
+            errDetail = errData.error || "";
+        } catch(e) {}
+        throw new Error(`Vercel API 請求失敗：${promptResponse.status} ${errDetail}`);
     }
 
     const vercelData = await promptResponse.json();
@@ -108,7 +118,7 @@ const geminiPayload = {
     },
     contents: [{ parts: [{ text: finalPrompt }] }],
     generationConfig: {
-        maxOutputTokens: (audienceTheme === 'fintech') ? 32768 : (stepId === 2 || stepId === '2' ? 16384 : 8192),
+        maxOutputTokens: (audienceTheme === 'fintech') ? 32768 : (String(stepId).startsWith('2') ? 16384 : 8192),
         ...((audienceTheme === 'fintech') ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
     }
 };
@@ -2609,7 +2619,7 @@ export default function App() {
                     body: JSON.stringify({
                         systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
                         contents: [{ parts: [{ text: timeInjected2_1 }] }],
-                        generationConfig: { maxOutputTokens: 8192 }
+                        generationConfig: { maxOutputTokens: 16384 }
                     })
                 });
 
@@ -2622,7 +2632,7 @@ export default function App() {
                         body: JSON.stringify({
                             systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
                             contents: [{ parts: [{ text: timeInjected2_1 }] }],
-                            generationConfig: { maxOutputTokens: 8192 }
+                            generationConfig: { maxOutputTokens: 16384 }
                         })
                     });
                 }
@@ -2646,7 +2656,7 @@ export default function App() {
                     body: JSON.stringify({
                         systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
                         contents: [{ parts: [{ text: timeInjected2_2 }] }],
-                        generationConfig: { maxOutputTokens: 8192 }
+                        generationConfig: { maxOutputTokens: 16384 }
                     })
                 });
 
@@ -2659,7 +2669,7 @@ export default function App() {
                         body: JSON.stringify({
                             systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
                             contents: [{ parts: [{ text: timeInjected2_2 }] }],
-                            generationConfig: { maxOutputTokens: 8192 }
+                            generationConfig: { maxOutputTokens: 16384 }
                         })
                     });
                 }
