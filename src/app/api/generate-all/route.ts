@@ -28,7 +28,22 @@ export async function POST(req: Request) {
     const MODELS = ["gemini-2.5-flash",  "gemini-2.5-flash-lite"];
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
     
-    const step = WORKFLOW_STEPS.find(s => String(s.id) === String(currentStepId) || s.id === Number(currentStepId));
+    let step: any = WORKFLOW_STEPS.find(s => String(s.id) === String(currentStepId) || s.id === Number(currentStepId));
+    if (!step) {
+      for (const s of WORKFLOW_STEPS) {
+        if ((s as any).subParts) {
+          const sub = (s as any).subParts.find((sp: any) => String(sp.id) === String(currentStepId));
+          if (sub) {
+            step = {
+              ...sub,
+              type: s.type,
+              dependsOn: sub.dependsOn || s.dependsOn
+            };
+            break;
+          }
+        }
+      }
+    }
     if (!step) {
       return NextResponse.json({ error: `找不到步驟編號 ${currentStepId}` }, { status: 400 });
     }

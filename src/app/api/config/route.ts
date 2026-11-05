@@ -27,7 +27,14 @@ export async function POST(req: Request) {
       title: step.title,
       description: step.description,
       dependsOn: step.dependsOn,
-      promptStr: step.prompt.toString() // 關鍵：將 JS function 序列化
+      promptStr: step.prompt.toString(), // 關鍵：將 JS function 序列化
+      subParts: step.subParts ? step.subParts.map(sp => ({
+        id: sp.id,
+        title: sp.title,
+        description: sp.description,
+        dependsOn: sp.dependsOn,
+        promptStr: sp.prompt.toString()
+      })) : undefined
     }));
 
     // 回傳 configs 與 prompt (相容舊版寫法)
