@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getWorkflowSteps } from "@/utils/promptConfigs";
-import { GoogleGenAI } from "@google/genai";
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 120; // 允許足夠時間支援長影音與接力生成
 
 function setCorsHeaders(res: NextResponse) {
   res.headers.set('Access-Control-Allow-Origin', '*');
@@ -16,6 +14,7 @@ export async function OPTIONS() {
   return setCorsHeaders(new NextResponse(null, { status: 200 }));
 }
 
+// GET: 回傳指定主題的 Prompt Configs (包含 subParts)，供前端 Canvas 初始化
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
@@ -47,6 +46,9 @@ export async function GET(req: Request) {
   }
 }
 
+// POST:
+// 1. 若傳入 currentStepId：只負責組裝 Prompt 字串回傳給前端 (Gemini Canvas 環境由前端直接向 Google API 發出請求)
+// 2. 若未傳入 currentStepId：回傳整套 Prompt Configs (序列化 function 字串，包含 subParts)
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -55,16 +57,14 @@ export async function POST(req: Request) {
       currentStepId, 
       existingData = {}, 
       audienceTheme = 'heritage', 
-      customDocText,
-      apiKey,
-      returnPromptOnly = true
+      customDocText 
     } = body;
 
     const WORKFLOW_STEPS = getWorkflowSteps(audienceTheme || 'heritage');
 
-    // 🌟 若請求包含 currentStepId，代表前端要求組裝特定步驟的 Prompt (供 OmniScript PRO_os_gemini 使用)
+    // 情況 A：前端請求單一步驟（或子步驟，如 2.1, 2.2）組裝好的 Prompt
     if (currentStepId !== undefined && currentStepId !== null) {
-      // 1. 支援查找主步驟或子步驟 (如 2.1, 2.2)
+      // 支援查找主步驟或 subParts (例如 2.1, 2.2)
       let step: any = WORKFLOW_STEPS.find(s => String(s.id) === String(currentStepId) || s.id === Number(currentStepId));
       if (!step) {
         for (const s of WORKFLOW_STEPS) {
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         return setCorsHeaders(NextResponse.json({ error: `找不到步驟編號 ${currentStepId}` }, { status: 400 }));
       }
 
-      // 2. 深度且寬容的背景資料萃取
+      // 提取前置背景資料
       let verifiedContext = customDocText 
         || existingData.step1 
         || existingData['1'] 
@@ -107,15 +107,6 @@ export async function POST(req: Request) {
         verifiedContext = ""; 
       }
 
-      // 如果是子步驟 2.2，允許從 step2Part1 或現有資料中獲取上下文
-      const hasPreviousContext = verifiedContext || existingData.step2Part1 || existingData['step2Part1'];
-      if (Number(currentStepId) !== 1 && !String(currentStepId).startsWith('0') && !hasPreviousContext) {
-        return setCorsHeaders(NextResponse.json(
-          { error: "Step 1 基礎資料尚未載入完成 (或格式未正確傳遞)，請確認 Step 1 內容後再執行此步驟。" }, 
-          { status: 400 }
-        ));
-      }
-
       const stepContext = {
         theme: theme || "未命名企劃主題",
         step1: verifiedContext || "【缺乏 Step 1 背景資料】",
@@ -127,7 +118,7 @@ export async function POST(req: Request) {
         customContext: existingData.customContext || customDocText || verifiedContext || "",
       };
 
-      // 3. 尊重 promptConfigs.ts 的專屬角色與規格設計，以 step.prompt(stepContext) 為核心
+      // 依據 promptConfigs 核心定義組裝 Prompt
       let finalPrompt = step.prompt(stepContext);
       if (Number(step.id) > 1 && verifiedContext && !finalPrompt.includes(verifiedContext.slice(0, 30))) {
         finalPrompt = `【⚠️ 絕對真實性指令】：以下是前置步驟已查核之「基礎背景文獻」，後續產出請以此為基準：\n---\n${verifiedContext}\n---\n\n${finalPrompt}`;
@@ -139,72 +130,16 @@ export async function POST(req: Request) {
         finalPrompt += `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
       }
 
-      // 4. 若前端只要求組裝好的 Prompt (Canva App 模式)
-      if (returnPromptOnly) {
-        return setCorsHeaders(NextResponse.json({
-          success: true,
-          stepId: step.id,
-          title: step.title,
-          prompt: finalPrompt,
-          isSearchEnabled: Number(step.id) === 1 || String(step.id).startsWith('0')
-        }));
-      }
-
-      // 5. 若前端要求後端代為生成 (例如使用者未設定個人金鑰)
-      const apiKeyRaw = req.headers.get("x-gemini-api-key") || apiKey || process.env.GEMINI_API_KEY;
-      if (!apiKeyRaw) {
-        return setCorsHeaders(NextResponse.json({ error: "未設定 Gemini API 金鑰。" }, { status: 500 }));
-      }
-
-      const apiKeys = apiKeyRaw.split(",").map((k: string) => k.trim()).filter((k: string) => k.length > 0);
-      const chosenKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
-      const isFintech = audienceTheme === 'fintech';
-      const isStep2 = String(step.id).startsWith('2');
-
-      const targetModel = isFintech 
-        ? 'gemini-3-flash-thinking' 
-        : (isStep2 ? 'gemini-2.5-flash' : 'gemini-2.5-flash-lite');
-
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${chosenKey}`;
-      const payload: any = {
-        systemInstruction: {
-          parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }]
-        },
-        contents: [{ parts: [{ text: finalPrompt }] }],
-        generationConfig: {
-          maxOutputTokens: isFintech ? 32768 : (isStep2 ? 16384 : 8192),
-          ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {})
-        }
-      };
-
-      if (Number(step.id) === 1 && !verifiedContext) {
-        payload.tools = [{ googleSearch: {} }];
-      }
-
-      const aiResponse = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chosenKey },
-        body: JSON.stringify(payload)
-      });
-
-      if (!aiResponse.ok) {
-        const errData = await aiResponse.json().catch(() => ({}));
-        throw new Error(`Google API 錯誤: ${aiResponse.status} - ${errData.error?.message || JSON.stringify(errData)}`);
-      }
-
-      const data = await aiResponse.json();
-      const parts = data.candidates?.[0]?.content?.parts || [];
-      const outputText = parts.find((p: any) => p.text && !p.thought)?.text || parts[parts.length - 1]?.text || parts[0]?.text || data.candidates?.[0]?.text || "";
-
       return setCorsHeaders(NextResponse.json({
         success: true,
         stepId: step.id,
-        output: outputText,
-        modelUsed: targetModel
+        title: step.title,
+        prompt: finalPrompt,
+        isSearchEnabled: Number(step.id) === 1 || String(step.id).startsWith('0')
       }));
     }
 
-    // 🌟 相容舊版邏輯：若無 currentStepId，序列化所有 steps
+    // 情況 B：回傳整套 Prompt Configs (序列化 function 字串，包含 subParts)
     const promptConfigs = WORKFLOW_STEPS.map(step => ({
       id: step.id,
       title: step.title,

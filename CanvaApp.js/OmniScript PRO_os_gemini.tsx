@@ -46,7 +46,6 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
 async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey = "") {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     // ==========================================
     // 階段 1：向 Vercel 請求「組裝好的 Prompt」
@@ -125,14 +124,28 @@ const geminiPayload = {
         geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    const aiResponse = await fetch(apiUrl, {
+    let targetModel = 'gemini-3-flash-preview';
+    let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+    let aiResponse = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify(geminiPayload)
     });
 
+    if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400 || aiResponse.status === 401)) {
+        targetModel = 'gemini-2.5-flash';
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+        aiResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify(geminiPayload)
+        });
+    }
+
     if (!aiResponse.ok) {
-        throw new Error(`Google API 錯誤: ${aiResponse.status}`);
+        let errDetail = "";
+        try { const errData = await aiResponse.json(); errDetail = errData.error?.message || ""; } catch(e) {}
+        throw new Error(`Google API 錯誤: ${aiResponse.status} ${errDetail}`);
     }
     
     const data = await aiResponse.json();
