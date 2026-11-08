@@ -172,6 +172,86 @@ export const POPULAR_STYLES: StyleOption[] = [
     promptSuffix: ", traditional Chinese stylized illustration, clean line-art background configuration, elegant decorative patterns, flat but vibrant color palette, whimsical fairy tale storytelling, warm ambient lighting, elegant composition, 8k"
   },
 
+// 1. 台灣風格
+  {
+    id: "style-taiwan-nostalgic",
+    name: "台灣懷旧復古 (煙火氣息)",
+    promptSuffix: ", Taiwanese retro cinema style, golden hour warm lighting, nostalgic film grain, subtropical atmosphere, authentic street life, rich shadows, 8k, photorealistic"
+  },
+  {
+    id: "style-taiwan-modern-zen",
+    name: "台灣現代人文 (茶禪美學)",
+    promptSuffix: ", Taiwanese modern tea house aesthetic, natural light through wooden blinds, minimalist stone and wood textures, calm and earthy tones, elegant atmosphere, high resolution photography"
+  },
+
+// 1. 台灣日常煙火氣 (台味復古電影感)
+  {
+    id: "style-taiwan-nostalgic-life",
+    name: "台灣日常煙火氣 (懷舊電影感)",
+    promptSuffix: ", Taiwanese everyday life style, warm retro cinema lighting, nostalgic 35mm film grain, subtle humidity atmosphere, rich shadow details, authentic local vibes, 8k, photorealistic"
+  },
+
+  // 2. 台灣都市街角 (日夜霓虹與鐵花窗)
+  {
+    id: "style-taiwan-urban-street",
+    name: "台灣都市街角 (鐵花窗與騎樓)",
+    promptSuffix: ", Taiwanese street corner aesthetic, retro iron window grilles, mottled arcade buildings, colorful shop signboards, soft ambient light, realistic texture, cinematic composition"
+  },
+
+  // 3. 台灣島嶼明亮 (陽光與青綠植栽)
+  {
+    id: "style-taiwan-sunny-breeze",
+    name: "台灣微風陽光 (島嶼日常美學)",
+    promptSuffix: ", Taiwanese bright sunny day, lush green monstera and ferns on balcony, soft daylight filtering through frosted glass, cozy home warmth, natural colors, high quality lifestyle photo"
+  },
+
+  // 4. 台灣當代人文 (茶禪與木質老宅)
+  {
+    id: "style-taiwan-modern-craft",
+    name: "台灣人文茶韻 (老宅文青風)",
+    promptSuffix: ", Taiwanese modern tea house aesthetic, dark wood and terrazzo floor, minimalist pottery, warm sunlight shadows, serene and earthy atmosphere, refined interior photography"
+  },
+
+// 2. 日本風格
+  {
+    id: "style-japan-wabi-sabi",
+    name: "日本侘寂靜謐 (Wabi-Sabi)",
+    promptSuffix: ", Japanese Wabi-sabi aesthetic, raw textures, low key muted colors, subtle daylight, serene ambiance, organic shapes, minimalist photography, 8k"
+  },
+  {
+    id: "style-japan-city-pop",
+    name: "日本都市膠卷 (City Pop / 80s 昭和感)",
+    promptSuffix: ", 1980s Japanese City Pop aesthetic, vintage 35mm film photo, retro neon glow, vibrant yet faded colors, nostalgic urban night atmosphere, cinematic"
+  },
+  {
+    id: "style-japan-muji-clean",
+    name: "日本日系明亮 (日雜生活感)",
+    promptSuffix: ", Japanese clean lifestyle photography, airy soft lighting, light wood accents, pastel palette, clear background, cozy and peaceful mood, high quality"
+  },
+
+  // 3. 亞洲其他風格
+  {
+    id: "style-new-chinese",
+    name: "新中式東方美學 (意境墨韻)",
+    promptSuffix: ", New Chinese style, ink wash aesthetic, subtle gold accents, dramatic contrast, elegant silk and bamboo elements, ethereal foggy mood, cinematic lighting, 8k"
+  },
+  {
+    id: "style-korean-minimal",
+    name: "韓系奶油微甜 (Ins風格)",
+    promptSuffix: ", Korean cafe aesthetic, creamy warm tones, soft diffused light, aesthetic interior photography, gentle beige palette, clean composition, high-end lifestyle"
+  },
+
+  // 4. 西洋其他風格
+  {
+    id: "style-french-vintage",
+    name: "法式復古浪漫 (慵懶優雅)",
+    promptSuffix: ", French Parisian vintage aesthetic, soft window light, moody romantic ambiance, antique moldings, classic elegance, muted warm colors, 35mm photograph"
+  },
+  {
+    id: "style-american-midcentury",
+    name: "美式復古摩登 (Mid-Century Modern)",
+    promptSuffix: ", Mid-Century American retro photography, rich walnut wood, warm sunlight reflections, 1960s color palette, stylish architecture, vivid colors, photorealistic"
+  },
 
 {
     id: "style-minimal",
