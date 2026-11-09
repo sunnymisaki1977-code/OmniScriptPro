@@ -4438,14 +4438,13 @@ ${ctx.step1}
    - 視覺氛圍：專業的商業簡報風格、數據儀表板與高質感的企業情境。
 
 4. 若為「第四類：動漫/小說/影視 IP：
-   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
-   - 每一段視覺畫面強制加上 - ### 🧑 說書人固定外觀設定 (Main Character: Youthful Storyteller)
-[Young male storyteller, late 20s, sharp and spirited eyes, wearing a modern-styled traditional Hanfu robe in deep navy blue with subtle golden embroidery of clouds and cranes, hair tied back in a short neat ponytail, holding a vintage sandalwood folding fan, a pair of light-framed round glasses resting on his nose, standing behind a dark mahogany tea table with a classic white porcelain teacup,動漫系]
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+   
 5. 若為「第五類：世代銘印古典修心版」
-   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
 
 6. 若為「第六類：日常生活模版（平民知識科普與時事解密）」
-   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「極度生活化、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
+   - 旁白口吻：台灣口吻，請化身為台灣超人氣 Vodcast 節目主持人，語氣必須「生活風格、像跟好朋友在咖啡廳閒聊」，多使用口語化的發語詞。
 
 【⚠️ 「文字圖像化 (Typography Art)」指令】：
 1. **字卡即畫面**：中日文字卡【絕對禁止】死板的並列排版。請運用（Typography Art / Calligram）。
