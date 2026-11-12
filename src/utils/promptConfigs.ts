@@ -24,14 +24,14 @@ heritage: [
     description: "針對主題進行定義釐清與客觀史料彙整 (分為前篇與後篇產出以確保 3000 字底本)",
     type: "text",
     dependsOn: ["theme"],
-    subParts: [
+ tools: ["google_search"], // 保留在父層即可   
+subParts: [
       {
         id: "1.1",
         title: "核心企劃知識 (前篇：歷史起源與社會脈絡)",
         description: "負責產出前段章節，總字數 1500 字",
         dependsOn: ["theme"],
-        tools: ["google_search"],
-        prompt: (ctx: any) => {
+            prompt: (ctx: any) => {
           const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
           const today = new Date().toISOString().split('T')[0];      
           return `【絕對時間定錨與強制搜尋指令】：
@@ -105,7 +105,6 @@ heritage: [
         title: "核心企劃知識 (後篇：藝術科儀與現代轉型)",
         description: "負責產出後段章節，總字數 1500 字",
         dependsOn: ["theme"],
-        tools: ["google_search"],
         prompt: (ctx: any) => {
           return `【接續生成指令】：
 你是一位頂尖的「民俗文化與宗教史學家」。
