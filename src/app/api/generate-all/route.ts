@@ -115,7 +115,7 @@ export async function POST(req: Request) {
       
       const geminiPayload: any = {
           systemInstruction: {
-              parts: [{ text: `你是一位專業的資料分析師與企劃。現在真實台灣時間是 ${currentDate}。請嚴格以這個時間點作為基準。` }]
+              parts: [{ text: `你是一位專業的文史與企劃分析師。現在參考時間是 ${currentDate}。請嚴格以目標主題【${theme}】為唯一核心進行客觀史實文獻查核與內容撰寫，切勿偏離主題！` }]
           },
           contents: [{ parts: [{ text: finalPrompt }] }], // finalPrompt 已經在前面加過 timeInjected 邏輯
           generationConfig: {

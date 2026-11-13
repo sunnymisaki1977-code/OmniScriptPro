@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { syncDPlanToNotion } = require('./sync_dplan_notion');
 
 function getTaiwanIsoString(d = new Date()) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -24,7 +25,7 @@ async function executeDPlanWorkflow() {
   };
 
   log('================================================================');
-  log('🚀 啟動清晨 06:00 自動 D-Plan 定錨與決策執行工作流程...');
+  log('🚀 啟動自動 D-Plan 定錨、國際局勢風控與決策執行工作流程...');
 
   // 1. 尋找並讀取最新 DataPack
   const files = fs.readdirSync(baseDir);
@@ -41,15 +42,41 @@ async function executeDPlanWorkflow() {
   const dataPackRaw = fs.readFileSync(targetDataPackFile, 'utf8');
   const dataPack = JSON.parse(dataPackRaw);
 
-  const tradeDate = dataPack.trade_date || '2026-11-05';
+  const tradeDate = dataPack.trade_date || '2026-11-06';
   const teamId = dataPack.team_id || 'TEAM_12006';
-  const openingCash = Math.floor(dataPack.account?.cash || 55210252);
-  const currentNav = dataPack.account?.nav_tradable || 941930102.87;
+  const openingCash = Math.floor(dataPack.account?.cash || 43857976);
+  const currentNav = dataPack.account?.nav_tradable || 918273426.29;
   const initialHoldings = dataPack.holdings || [];
 
   log(`📊 開盤持股檔數: ${initialHoldings.length} 檔，初始可用現金: ${openingCash.toLocaleString()} 元，官方結算淨值 NAV: ${currentNav.toLocaleString()} 元`);
 
-  // 2. 判斷劇本（支援命令列傳入 --scenario，若無則依隔夜行情或預設為 B 穩健版）
+  // 2. 啟動 AI 國際地緣與宏觀風控雷達 (fintech_radar.py)
+  log('🌍 [Step 1/5] 啟動 AI 國際地緣與宏觀風控雷達掃描...');
+  let radarSignal = null;
+  const radarScript = path.join(__dirname, 'fintech_radar', 'fintech_radar.py');
+  const radarSignalFile = path.join(__dirname, 'fintech_radar', 'latest_radar_signal.json');
+
+  if (fs.existsSync(radarScript)) {
+    try {
+      log('📡 連線國際外電與地緣新聞庫，調用 Gemini 2.5 Flash 進行風控判讀...');
+      const radarOutput = execSync(`python "${radarScript}" --mode dplan`, { cwd: baseDir, encoding: 'utf8' });
+      log(`📄 雷達日誌:\n${radarOutput.trim()}`);
+    } catch (err) {
+      log(`⚠️ 雷達腳本執行異常 (${err.message})，檢查快取訊號...`);
+    }
+  }
+
+  if (fs.existsSync(radarSignalFile)) {
+    try {
+      const radarRaw = fs.readFileSync(radarSignalFile, 'utf8');
+      radarSignal = JSON.parse(radarRaw).signal;
+      log(`🎯 雷達指標就緒：地緣風險 [${radarSignal.geopolitical_risk_level.toUpperCase()}] | 宏觀偏向 [${radarSignal.macro_regime_bias}] | 總結: ${radarSignal.key_headline}`);
+    } catch (e) {
+      log(`⚠️ 讀取雷達訊號快取失敗: ${e.message}`);
+    }
+  }
+
+  // 3. 雙維度智慧劇本判定（量化行情 + 國際地緣局勢）
   const args = process.argv.slice(2);
   let scenario = 'B';
   const scenarioArgIndex = args.indexOf('--scenario');
@@ -57,39 +84,52 @@ async function executeDPlanWorkflow() {
     scenario = args[scenarioArgIndex + 1].toUpperCase();
     log(`🎯 使用者手動指定劇本: 【劇本 ${scenario}】`);
   } else {
-    // 嘗試連線抓取盤前行情以自動決策劇本
-    try {
-      log('🌐 正在連線檢查盤前行情指標 (費半/TSM ADR/美債殖利率)...');
-      // 若無外部連線，預設採用勝率最高之劇本 B (穩健汰弱換強版)
-      log('ℹ️ 外圍市場維持中性震盪築底格局，自動選定推薦首選：【劇本 B：穩健汰弱換強版】');
-    } catch (e) {
-      log(`⚠️ 盤前網路檢查異常 (${e.message})，自動採用預設【劇本 B】。`);
+    log('⚖️ [Step 2/5] 執行雙維度決策矩陣 (行情數據 + 國際地緣局勢)...');
+    const geoRisk = (radarSignal?.geopolitical_risk_level || 'medium').toLowerCase();
+    const macroBias = (radarSignal?.macro_regime_bias || 'neutral').toLowerCase();
+
+    if (geoRisk === 'high' || geoRisk === 'critical' || macroBias === 'risk_off') {
+      scenario = 'C';
+      log(`🚨 國際地緣風險高企 (等級: ${geoRisk.toUpperCase()}) 或市場進入 Risk-off！`);
+      log(`🛡️ 決策引擎自動切換至：【劇本 C：高現金減重防禦反擊版】（啟動防禦、拉高現金水位、0 盲目加碼）`);
+    } else if (geoRisk === 'low' && macroBias === 'risk_on') {
+      scenario = 'A';
+      log(`🟢 國際局勢平和且市場氣氛熱絡 (Risk-on)！`);
+      log(`🚀 決策引擎自動切換至：【劇本 A：全面反攻進攻版】（低接高營收成長龍頭）`);
+    } else {
+      scenario = 'B';
+      log(`🟡 國際局勢維持拉鋸整固 (等級: ${geoRisk.toUpperCase()})，板塊良性輪動。`);
+      log(`⚖️ 決策引擎自動選定推薦首選：【劇本 B：穩健汰弱換強輪動版】（以賣養買、鎖定業績成長標的）`);
     }
   }
 
-  // 3. 執行對應交易日專屬的產生腳本
+  // 4. 執行對應交易日專屬的產生腳本
   const tradeDateCompact = tradeDate.replace(/-/g, '');
-  const dayGeneratorScript = path.join(__dirname, `generate_dplan_${tradeDateCompact}.js`);
+  let dayGeneratorScript = path.join(__dirname, `generate_dplan_${tradeDateCompact}.js`);
   
-  if (fs.existsSync(dayGeneratorScript)) {
-    log(`⚙️ 執行專屬生成腳本: scripts/generate_dplan_${tradeDateCompact}.js --scenario ${scenario}`);
-    try {
-      const genOutput = execSync(`node "${dayGeneratorScript}" --scenario ${scenario}`, { cwd: baseDir, encoding: 'utf8' });
-      log(`📄 生成日誌:\n${genOutput.trim()}`);
-    } catch (err) {
-      log(`❌ 腳本執行錯誤: ${err.message}`);
-      return;
+  if (!fs.existsSync(dayGeneratorScript)) {
+    // 若無當天專屬腳本，自動尋找最新的 generate_dplan_*.js
+    const genFiles = files.filter(f => f.startsWith('generate_dplan_') && f.endsWith('.js')).sort().reverse();
+    if (genFiles.length > 0) {
+      dayGeneratorScript = path.join(baseDir, 'scripts', genFiles[0]);
+      log(`ℹ️ 採用最新可用生成引擎: ${path.basename(dayGeneratorScript)}`);
     }
-  } else {
-    log(`⚠️ 未找到專屬 generate_dplan_${tradeDateCompact}.js，請確認交易日檔案設定！`);
+  }
+
+  log(`⚙️ [Step 3/5] 執行交易書生成: ${path.basename(dayGeneratorScript)} --scenario ${scenario}`);
+  try {
+    const genOutput = execSync(`node "${dayGeneratorScript}" --scenario ${scenario}`, { cwd: baseDir, encoding: 'utf8' });
+    log(`📄 生成日誌:\n${genOutput.trim()}`);
+  } catch (err) {
+    log(`❌ 腳本執行錯誤: ${err.message}`);
     return;
   }
 
-  // 4. 執行官方 Schema 零容忍自檢
+  // 5. 執行官方 Schema 零容忍 13 項硬核自檢
   const targetDPlanFile = `DPlan_${tradeDateCompact}_${teamId}.json`;
   const validatorScript = path.join(__dirname, 'validate_dplan.js');
   if (fs.existsSync(validatorScript)) {
-    log(`🛡️ 啟動官方 Schema 13 項硬核驗證: ${targetDPlanFile}`);
+    log(`🛡️ [Step 4/5] 啟動官方 Schema 13 項硬核驗證: ${targetDPlanFile}`);
     try {
       const valOutput = execSync(`node "${validatorScript}" "${targetDPlanFile}" "${latestDataPackFileName}"`, { cwd: baseDir, encoding: 'utf8' });
       log(`✅ 驗證結果:\n${valOutput.trim()}`);
@@ -99,9 +139,21 @@ async function executeDPlanWorkflow() {
     }
   }
 
-  // 5. 檢核完成
+  // 6. 全自動同步至 Notion 資料庫
   const outputFullPath = path.join(baseDir, targetDPlanFile);
-  log(`🎉 正式交易書已成功生成並驗證通過: ${outputFullPath}`);
+  log(`☁️ [Step 5/5] 將今日交易書與國際局勢分析同步寫入 Notion...`);
+  try {
+    const notionUrl = await syncDPlanToNotion(outputFullPath);
+    if (notionUrl) {
+      log(`🎉 Notion 看板同步成功: ${notionUrl}`);
+    } else {
+      log(`ℹ️ Notion 同步已執行完畢。`);
+    }
+  } catch (notionErr) {
+    log(`⚠️ Notion 同步過程發生異常: ${notionErr.message}`);
+  }
+
+  log(`🏁 本日決策流程全部完成！正式交易書: ${outputFullPath}`);
   log('================================================================');
 }
 

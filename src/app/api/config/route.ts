@@ -27,13 +27,13 @@ export async function POST(req: Request) {
       title: step.title,
       description: step.description,
       dependsOn: step.dependsOn,
-      promptStr: step.prompt.toString(), // 關鍵：將 JS function 序列化
+      promptStr: typeof step.prompt === "function" ? step.prompt.toString() : (step.subParts && typeof step.subParts[0]?.prompt === "function" ? step.subParts[0].prompt.toString() : ""),
       subParts: step.subParts ? step.subParts.map(sp => ({
         id: sp.id,
         title: sp.title,
         description: sp.description,
         dependsOn: sp.dependsOn,
-        promptStr: sp.prompt.toString()
+        promptStr: typeof sp.prompt === "function" ? sp.prompt.toString() : "",
       })) : undefined
     }));
 

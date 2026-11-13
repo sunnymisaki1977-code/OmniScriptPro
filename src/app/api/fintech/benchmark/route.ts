@@ -412,10 +412,21 @@ async function generateBenchmarkResponse(options: {
 
       if (res.ok) {
         const html = await res.text();
-        const dateMatch = html.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
-        const dateStr = dateMatch
-          ? dateMatch[1]
+        const officialDateMatch = html.match(/name="queryDate"[^>]*value="([^"]+)"/i) || html.match(/(\d{4}\/\d{1,2}\/\d{1,2})/);
+        const officialDate = officialDateMatch
+          ? officialDateMatch[1]
           : new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
+
+        // 抓取實際盤後時段實際開跑日期 (例如 "2026/11/06 15:00~次日05:00")
+        const sessionMatch = html.match(/(\d{4}\/\d{1,2}\/\d{1,2})(?:&nbsp;|\s)*15:00~次日05:00/);
+        const actualDate = sessionMatch ? sessionMatch[1] : '';
+
+        let dateStr = officialDate;
+        if (actualDate && officialDate && actualDate !== officialDate) {
+          dateStr = `${actualDate} 夜盤 (期交所歸屬日: ${officialDate})`;
+        } else if (actualDate) {
+          dateStr = `${actualDate} 夜盤`;
+        }
 
         const rows = html.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi);
         let found = false;

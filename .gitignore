@@ -35,3 +35,6 @@ yarn-error.log*
 
 # generated audio / media output
 output/
+
+# scratch scripts
+scratch/

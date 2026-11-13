@@ -35,6 +35,11 @@ async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
         step1: context.step1 || context['1'] || "",
         '1': context.step1 || context['1'] || ""
     };
+    if ((stepId === 1 || stepId === '1') && audienceTheme === 'heritage') {
+        const part1 = await callVercelApiSingleStep('1.1', safeContext, audienceTheme, userApiKey);
+        const part2 = await callVercelApiSingleStep('1.2', { ...safeContext, step1Part1: part1 }, audienceTheme, userApiKey);
+        return part1.trim() + "\n\n---\n\n" + part2.trim();
+    }
     if ((stepId === 2 || stepId === '2') && audienceTheme === 'heritage') {
         const part1 = await callVercelApiSingleStep('2.1', safeContext, audienceTheme, userApiKey);
         const part2 = await callVercelApiSingleStep('2.2', { ...safeContext, step2Part1: part1 }, audienceTheme, userApiKey);
@@ -109,12 +114,14 @@ const now = new Date();
   timeZone: 'Asia/Taipei' 
 });    
 
+const isFintech = audienceTheme === 'fintech';
+const systemInstructionText = isFintech
+    ? `【絕對時間定錨與強制搜尋指令】：\n系統精確時間戳記：${isoTimestamp}\n今天是 ${currentDate}（標準格式：${today}）。\n請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。`
+    : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`;
+
 const geminiPayload = {
     systemInstruction: {
-        parts: [{ text: `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
-今天是 ${currentDate}（標準格式：${today}）。
-請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。` }]
+        parts: [{ text: systemInstructionText }]
     },
     contents: [{ parts: [{ text: finalPrompt }] }],
     generationConfig: {
@@ -2512,21 +2519,39 @@ export default function App() {
     if (isCanvasEnv) {
         addLog(`[Canvas] 正在向後端抓取 Prompt Configs...`, 'info');
         try {
-            const configRes = await fetch(`https://omni-script-pro.vercel.app/api/config`, {
+            const configApiUrl = (typeof window !== 'undefined' && window.location.origin) 
+                ? `${window.location.origin}/api/config` 
+                : '/api/config';
+            let configRes = await fetch(configApiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ audienceTheme })
             });
+            if (!configRes.ok) {
+                configRes = await fetch(`https://omni-script-pro.vercel.app/api/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ audienceTheme })
+                });
+            }
             if (!configRes.ok) throw new Error("獲取 Config 失敗");
             const { configs } = await configRes.json();
             
             // 轉換回前端 Function
                         localPromptFunctions = {};
             configs.forEach((c: any) => {
-                localPromptFunctions[c.id] = new Function('return (' + c.promptStr + ')')();
+                if (c.promptStr && c.promptStr.trim()) {
+                    try {
+                        localPromptFunctions[c.id] = new Function('return (' + c.promptStr + ')')();
+                    } catch(e) {}
+                }
                 if (c.subParts && Array.isArray(c.subParts)) {
                     c.subParts.forEach((sp: any) => {
-                        localPromptFunctions[sp.id] = new Function('return (' + sp.promptStr + ')')();
+                        if (sp.promptStr && sp.promptStr.trim()) {
+                            try {
+                                localPromptFunctions[sp.id] = new Function('return (' + sp.promptStr + ')')();
+                            } catch(e) {}
+                        }
                     });
                 }
             });
@@ -2605,7 +2630,90 @@ export default function App() {
             };
                         const localCurrentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
             
-            if (i === 2 && audienceTheme === 'heritage' && localPromptFunctions['2.1'] && localPromptFunctions['2.2']) {
+                        if (i === 1 && audienceTheme === 'heritage' && localPromptFunctions['1.1'] && localPromptFunctions['1.2']) {
+                // 🌟 Step 1 雙段式接力生成：前篇 (1.1 歷史起源與脈絡) + 後篇 (1.2 金身科儀與文資)
+                addLog(`▶️ [Process] 正在執行 Step 1.1: 核心企劃知識 (前篇：歷史起源與社會脈絡)...`, 'info');
+                const prompt1_1 = localPromptFunctions['1.1'](stepContext);
+                const timeInjected1_1 = prompt1_1 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以目標主題【${safeTheme}】為唯一核心查核對象，不可偏離！`;
+
+                let targetModel = 'gemini-3-flash-preview';
+                let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
+                let aiResponse1 = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請專注查核目標主題【${safeTheme}】之正史與客觀文獻。` }] },
+                        contents: [{ parts: [{ text: timeInjected1_1 }] }],
+                        generationConfig: { maxOutputTokens: 8192 },
+                        tools: [{ googleSearch: {} }]
+                    })
+                });
+
+                if (!aiResponse1.ok && (aiResponse1.status === 404 || aiResponse1.status === 403 || aiResponse1.status === 400 || aiResponse1.status === 401)) {
+                    targetModel = 'gemini-2.5-flash';
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
+                    aiResponse1 = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
+                        body: JSON.stringify({
+                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請專注查核目標主題【${safeTheme}】之正史與客觀文獻。` }] },
+                            contents: [{ parts: [{ text: timeInjected1_1 }] }],
+                            generationConfig: { maxOutputTokens: 8192 },
+                            tools: [{ googleSearch: {} }]
+                        })
+                    });
+                }
+                if (!aiResponse1.ok) {
+                    let errDetail = "";
+                    try { const errData = await aiResponse1.json(); errDetail = errData.error?.message || ""; } catch(e) {}
+                    throw new Error(`Google API 錯誤 (Step 1.1): ${aiResponse1.status} ${errDetail}`);
+                }
+                const data1 = await aiResponse1.json();
+                const parts1 = data1.candidates?.[0]?.content?.parts || [];
+                const part1Text = parts1.find((p: any) => p.text && !p.thought)?.text || parts1[parts1.length - 1]?.text || parts1[0]?.text || data1.candidates?.[0]?.text || "";
+                addLog(`✅ [AI] Step 1.1 前篇生成成功！`, 'success');
+
+                addLog(`▶️ [Process] 接續執行 Step 1.2: 核心企劃知識 (後篇：金身科儀與文資傳承)...`, 'info');
+                const prompt1_2 = localPromptFunctions['1.2']({ ...stepContext, step1Part1: part1Text });
+                const timeInjected1_2 = prompt1_2 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請接續前篇，專注完成目標主題【${safeTheme}】的後篇深入章節。`;
+
+                let aiResponse2 = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請接續前篇查核主題【${safeTheme}】。` }] },
+                        contents: [{ parts: [{ text: timeInjected1_2 }] }],
+                        generationConfig: { maxOutputTokens: 8192 },
+                        tools: [{ googleSearch: {} }]
+                    })
+                });
+
+                if (!aiResponse2.ok && (aiResponse2.status === 404 || aiResponse2.status === 403 || aiResponse2.status === 400 || aiResponse2.status === 401)) {
+                    targetModel = 'gemini-2.5-flash';
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
+                    aiResponse2 = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
+                        body: JSON.stringify({
+                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請接續前篇查核主題【${safeTheme}】。` }] },
+                            contents: [{ parts: [{ text: timeInjected1_2 }] }],
+                            generationConfig: { maxOutputTokens: 8192 },
+                            tools: [{ googleSearch: {} }]
+                        })
+                    });
+                }
+                if (!aiResponse2.ok) {
+                    let errDetail = "";
+                    try { const errData = await aiResponse2.json(); errDetail = errData.error?.message || ""; } catch(e) {}
+                    throw new Error(`Google API 錯誤 (Step 1.2): ${aiResponse2.status} ${errDetail}`);
+                }
+                const data2 = await aiResponse2.json();
+                const parts2 = data2.candidates?.[0]?.content?.parts || [];
+                const part2Text = parts2.find((p: any) => p.text && !p.thought)?.text || parts2[parts2.length - 1]?.text || parts2[0]?.text || data2.candidates?.[0]?.text || "";
+                addLog(`✅ [AI] Step 1.2 後篇生成成功！已自動組裝為完整 Step 1 企劃知識庫！`, 'success');
+
+                outputText = part1Text.trim() + "\n\n---\n\n" + part2Text.trim();
+            } else if (i === 2 && audienceTheme === 'heritage' && localPromptFunctions['2.1'] && localPromptFunctions['2.2']) {
                 // 🌟 方案 A：全自動接力組裝（2.1 + 2.2），徹底避免 60 秒逾時！
                 addLog(`▶️ [Process] 正在執行 Step 2.1: 主軸腳本 (前段 00:00 - 06:30，共 26 節點)...`, 'info');
                 const prompt2_1 = localPromptFunctions['2.1'](stepContext);
