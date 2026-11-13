@@ -35,7 +35,6 @@ subParts: [
           const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
           const today = new Date().toISOString().split('T')[0];      
           return `【絕對時間定錨與強制搜尋指令】：
-系統精確時間戳記：${isoTimestamp}
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
 你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
@@ -135,14 +134,14 @@ subParts: [
       },
       {
         id: "1.2",
-        title: "核心企劃知識 (後篇：藝術科儀與現代轉型)",
-        description: "負責產出後段章節，總字數 1500 字",
+        title: "核心企劃知識 (後篇)",
+        description: "負責產出後段章節",
         dependsOn: ["theme"],
         prompt: (ctx: any) => {
           return `【接續生成指令】：
-你是一位頂尖的「民俗文化與宗教史學家」。
+你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 本任務為【後篇】，請判斷主題「${ctx.theme}」所屬類別，並嚴格接續該類別的【後篇架構】撰寫。
-【⚠️ 強制指令】：絕對禁止回頭寫前篇已交代的「歷史起源與身世」。必須以具體的科儀步驟、建築流派特徵進行長篇幅敘事。
+【⚠️ 強制指令】：絕對禁止回頭寫前篇已完成的任務。
 
 ## 🗂️ 【後篇】詳細架構與撰寫指南
 
