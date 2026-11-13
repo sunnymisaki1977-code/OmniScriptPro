@@ -138,10 +138,14 @@ heritage: [
         description: "負責產出後段章節",
         dependsOn: ["theme"],
         prompt: (ctx: any) => {
+          const currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+          const today = new Date().toISOString().split('T')[0];      
           return `【接續生成指令】：
 今天是 ${currentDate}（標準格式：${today}）。
 請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）的最新消息。
 你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專家你是一位民俗文化頻道的專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。絕對禁止 AI 自行腦補或編造史料！
+
+
 
 <search_protocol>
 【⚠️ 強制事實查核指令】
