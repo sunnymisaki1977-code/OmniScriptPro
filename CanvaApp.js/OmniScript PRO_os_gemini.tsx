@@ -30,10 +30,30 @@ const IMAGE_ENGINES = [
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
+    const rawStep1 = context.step1 || context['1'] || "";
+    let p1 = context.step1Part1 || "";
+    let p2 = context.step1Part2 || "";
+    if ((!p1 || !p2) && rawStep1) {
+        if (rawStep1.includes('---')) {
+            const splitted = rawStep1.split('---');
+            p1 = splitted[0].trim();
+            p2 = splitted.slice(1).join('---').trim();
+        } else if (rawStep1.includes('### 六、') || rawStep1.includes('【後篇】')) {
+            const sIdx = rawStep1.indexOf('### 六、') !== -1 ? rawStep1.indexOf('### 六、') : rawStep1.indexOf('【後篇】');
+            p1 = rawStep1.slice(0, sIdx).trim();
+            p2 = rawStep1.slice(sIdx).trim();
+        } else {
+            p1 = rawStep1;
+            p2 = rawStep1;
+        }
+    }
+
     const safeContext = {
         ...context,
-        step1: context.step1 || context['1'] || "",
-        '1': context.step1 || context['1'] || ""
+        step1: rawStep1,
+        '1': rawStep1,
+        step1Part1: p1,
+        step1Part2: p2
     };
     if ((stepId === 1 || stepId === '1') && audienceTheme === 'heritage') {
         const part1 = await callVercelApiSingleStep('1.1', safeContext, audienceTheme, userApiKey);
@@ -2555,9 +2575,28 @@ export default function App() {
             const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
                                 ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
             
+            let part1Split = currentContextContents['step1Part1'] || "";
+            let part2Split = currentContextContents['step1Part2'] || "";
+            if ((!part1Split || !part2Split) && safeStep1) {
+                if (safeStep1.includes('---')) {
+                    const splitted = safeStep1.split('---');
+                    part1Split = splitted[0].trim();
+                    part2Split = splitted.slice(1).join('---').trim();
+                } else if (safeStep1.includes('### 六、') || safeStep1.includes('【後篇】')) {
+                    const sIdx = safeStep1.indexOf('### 六、') !== -1 ? safeStep1.indexOf('### 六、') : safeStep1.indexOf('【後篇】');
+                    part1Split = safeStep1.slice(0, sIdx).trim();
+                    part2Split = safeStep1.slice(sIdx).trim();
+                } else {
+                    part1Split = safeStep1;
+                    part2Split = safeStep1;
+                }
+            }
+
             const stepContext = {
                 theme: safeTheme || '自訂企劃 (未命名)',
                 step1: safeStep1 || "【缺乏 Step 1 背景資料】",
+                step1Part1: part1Split || safeStep1,
+                step1Part2: part2Split || safeStep1,
                 step2: currentContextContents[2] || "【缺乏 Step 2 資料】",
                 step3: currentContextContents[3] || "【缺乏 Step 3 資料】",
                 step4: currentContextContents[4] || "【缺乏 Step 4 資料】",
@@ -2649,6 +2688,8 @@ export default function App() {
                 addLog(`✅ [AI] Step 1.2 後篇生成成功！已自動組裝為完整 Step 1 企劃知識庫！`, 'success');
 
                 outputText = part1Text.trim() + "\n\n---\n\n" + part2Text.trim();
+                currentContextContents['step1Part1'] = part1Text.trim();
+                currentContextContents['step1Part2'] = part2Text.trim();
             } else if (i === 2 && audienceTheme === 'heritage' && localPromptFunctions['2.1'] && localPromptFunctions['2.2']) {
                 // 🌟 方案 A：全自動接力組裝（2.1 + 2.2），徹底避免 60 秒逾時！
                 addLog(`▶️ [Process] 正在執行 Step 2.1: 主軸腳本 (前段 00:00 - 06:30，共 26 節點)...`, 'info');

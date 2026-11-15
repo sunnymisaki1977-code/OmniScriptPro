@@ -77,8 +77,12 @@ export async function POST(req: Request) {
       );
     }
     const stepContext = {
+      ...existingData,
       theme: theme,
       step1: verifiedContext || "【缺乏 Step 1 背景資料】",
+      step1Part1: existingData.step1Part1 || existingData.step1_1 || "",
+      step1Part2: existingData.step1Part2 || existingData.step1_2 || "",
+      step2Part1: existingData.step2Part1 || "",
       step2: existingData.step2 || existingData['2'] || "【缺乏 Step 2 資料】",
       step3: existingData.step3 || existingData['3'] || "【缺乏 Step 3 資料】",
       step4: existingData.step4 || existingData['4'] || "【缺乏 Step 4 資料】",
@@ -88,7 +92,8 @@ export async function POST(req: Request) {
 
     // 尊重 promptConfigs.ts 的專屬角色與規格設計，以 step.prompt(stepContext) 為核心
     let finalPrompt = step.prompt(stepContext);
-    if (Number(step.id) > 1 && verifiedContext && !finalPrompt.includes(verifiedContext.slice(0, 30))) {
+    const isSubStep = String(step.id).includes('.');
+    if (!isSubStep && Number(step.id) > 1 && verifiedContext && !finalPrompt.includes(verifiedContext.slice(0, 30))) {
       finalPrompt = `【⚠️ 絕對真實性指令】：以下是前置步驟已查核之「基礎背景文獻」，後續產出請以此為基準：\n---\n${verifiedContext}\n---\n\n${finalPrompt}`;
     }
 
