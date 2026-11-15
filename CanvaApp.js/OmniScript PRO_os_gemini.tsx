@@ -30,42 +30,7 @@ const IMAGE_ENGINES = [
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
 async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
-    const rawStep1 = context.step1 || context['1'] || "";
-    let p1 = context.step1Part1 || "";
-    let p2 = context.step1Part2 || "";
-    if ((!p1 || !p2) && rawStep1) {
-        if (rawStep1.includes('---')) {
-            const splitted = rawStep1.split('---');
-            p1 = splitted[0].trim();
-            p2 = splitted.slice(1).join('---').trim();
-        } else if (rawStep1.includes('### 六、') || rawStep1.includes('【後篇】')) {
-            const sIdx = rawStep1.indexOf('### 六、') !== -1 ? rawStep1.indexOf('### 六、') : rawStep1.indexOf('【後篇】');
-            p1 = rawStep1.slice(0, sIdx).trim();
-            p2 = rawStep1.slice(sIdx).trim();
-        } else {
-            p1 = rawStep1;
-            p2 = rawStep1;
-        }
-    }
-
-    const safeContext = {
-        ...context,
-        step1: rawStep1,
-        '1': rawStep1,
-        step1Part1: p1,
-        step1Part2: p2
-    };
-    if ((stepId === 1 || stepId === '1') && audienceTheme === 'heritage') {
-        const part1 = await callVercelApiSingleStep('1.1', safeContext, audienceTheme, userApiKey);
-        const part2 = await callVercelApiSingleStep('1.2', { ...safeContext, step1Part1: part1 }, audienceTheme, userApiKey);
-        return part1.trim() + "\n\n---\n\n" + part2.trim();
-    }
-    if ((stepId === 2 || stepId === '2') && audienceTheme === 'heritage') {
-        const part1 = await callVercelApiSingleStep('2.1', safeContext, audienceTheme, userApiKey);
-        const part2 = await callVercelApiSingleStep('2.2', { ...safeContext, step2Part1: part1 }, audienceTheme, userApiKey);
-        return part1.trim() + "\n\n" + part2.trim();
-    }
-    return await callVercelApiSingleStep(stepId, safeContext, audienceTheme, userApiKey);
+    return await callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey);
 }
 
 async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey = "") {
@@ -2575,202 +2540,18 @@ export default function App() {
             const safeStep1 = (currentContextContents[1] && !currentContextContents[1].includes("等待從 Vercel 伺服器獲取資料")) 
                                 ? currentContextContents[1].replace(/<USER_DATA>|<\/USER_DATA>/gi, "") : "";
             
-            let part1Split = currentContextContents['step1Part1'] || "";
-            let part2Split = currentContextContents['step1Part2'] || "";
-            if ((!part1Split || !part2Split) && safeStep1) {
-                if (safeStep1.includes('---')) {
-                    const splitted = safeStep1.split('---');
-                    part1Split = splitted[0].trim();
-                    part2Split = splitted.slice(1).join('---').trim();
-                } else if (safeStep1.includes('### 六、') || safeStep1.includes('【後篇】')) {
-                    const sIdx = safeStep1.indexOf('### 六、') !== -1 ? safeStep1.indexOf('### 六、') : safeStep1.indexOf('【後篇】');
-                    part1Split = safeStep1.slice(0, sIdx).trim();
-                    part2Split = safeStep1.slice(sIdx).trim();
-                } else {
-                    part1Split = safeStep1;
-                    part2Split = safeStep1;
-                }
-            }
-
             const stepContext = {
                 theme: safeTheme || '自訂企劃 (未命名)',
                 step1: safeStep1 || "【缺乏 Step 1 背景資料】",
-                step1Part1: part1Split || safeStep1,
-                step1Part2: part2Split || safeStep1,
                 step2: currentContextContents[2] || "【缺乏 Step 2 資料】",
                 step3: currentContextContents[3] || "【缺乏 Step 3 資料】",
                 step4: currentContextContents[4] || "【缺乏 Step 4 資料】",
                 step5: currentContextContents[5] || "【缺乏 Step 5 資料】",
                 customContext: customContext || ""
             };
-                        const localCurrentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-            
-                        if (i === 1 && audienceTheme === 'heritage' && localPromptFunctions['1.1'] && localPromptFunctions['1.2']) {
-                // 🌟 Step 1 雙段式接力生成：前篇 (1.1 歷史起源與脈絡) + 後篇 (1.2 金身科儀與文資)
-                addLog(`▶️ [Process] 正在執行 Step 1.1: 核心企劃知識 (前篇：歷史起源與社會脈絡)...`, 'info');
-                const prompt1_1 = localPromptFunctions['1.1'](stepContext);
-                const timeInjected1_1 = prompt1_1 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以目標主題【${safeTheme}】為唯一核心查核對象，不可偏離！`;
+            const localCurrentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
 
-                let targetModel = 'gemini-3-flash-preview';
-                let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                let aiResponse1 = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請專注查核目標主題【${safeTheme}】之正史與客觀文獻。` }] },
-                        contents: [{ parts: [{ text: timeInjected1_1 }] }],
-                        generationConfig: { maxOutputTokens: 8192 },
-                        tools: [{ googleSearch: {} }]
-                    })
-                });
-
-                if (!aiResponse1.ok && (aiResponse1.status === 404 || aiResponse1.status === 403 || aiResponse1.status === 400 || aiResponse1.status === 401)) {
-                    targetModel = 'gemini-2.5-flash';
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                    aiResponse1 = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                        body: JSON.stringify({
-                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請專注查核目標主題【${safeTheme}】之正史與客觀文獻。` }] },
-                            contents: [{ parts: [{ text: timeInjected1_1 }] }],
-                            generationConfig: { maxOutputTokens: 8192 },
-                            tools: [{ googleSearch: {} }]
-                        })
-                    });
-                }
-                if (!aiResponse1.ok) {
-                    let errDetail = "";
-                    try { const errData = await aiResponse1.json(); errDetail = errData.error?.message || ""; } catch(e) {}
-                    throw new Error(`Google API 錯誤 (Step 1.1): ${aiResponse1.status} ${errDetail}`);
-                }
-                const data1 = await aiResponse1.json();
-                const parts1 = data1.candidates?.[0]?.content?.parts || [];
-                const part1Text = parts1.find((p: any) => p.text && !p.thought)?.text || parts1[parts1.length - 1]?.text || parts1[0]?.text || data1.candidates?.[0]?.text || "";
-                addLog(`✅ [AI] Step 1.1 前篇生成成功！`, 'success');
-
-                addLog(`▶️ [Process] 接續執行 Step 1.2: 核心企劃知識 (後篇：金身科儀與文資傳承)...`, 'info');
-                const prompt1_2 = localPromptFunctions['1.2']({ ...stepContext, step1Part1: part1Text });
-                const timeInjected1_2 = prompt1_2 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請接續前篇，專注完成目標主題【${safeTheme}】的後篇深入章節。`;
-
-                let aiResponse2 = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請接續前篇查核主題【${safeTheme}】。` }] },
-                        contents: [{ parts: [{ text: timeInjected1_2 }] }],
-                        generationConfig: { maxOutputTokens: 8192 },
-                        tools: [{ googleSearch: {} }]
-                    })
-                });
-
-                if (!aiResponse2.ok && (aiResponse2.status === 404 || aiResponse2.status === 403 || aiResponse2.status === 400 || aiResponse2.status === 401)) {
-                    targetModel = 'gemini-2.5-flash';
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                    aiResponse2 = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                        body: JSON.stringify({
-                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請接續前篇查核主題【${safeTheme}】。` }] },
-                            contents: [{ parts: [{ text: timeInjected1_2 }] }],
-                            generationConfig: { maxOutputTokens: 8192 },
-                            tools: [{ googleSearch: {} }]
-                        })
-                    });
-                }
-                if (!aiResponse2.ok) {
-                    let errDetail = "";
-                    try { const errData = await aiResponse2.json(); errDetail = errData.error?.message || ""; } catch(e) {}
-                    throw new Error(`Google API 錯誤 (Step 1.2): ${aiResponse2.status} ${errDetail}`);
-                }
-                const data2 = await aiResponse2.json();
-                const parts2 = data2.candidates?.[0]?.content?.parts || [];
-                const part2Text = parts2.find((p: any) => p.text && !p.thought)?.text || parts2[parts2.length - 1]?.text || parts2[0]?.text || data2.candidates?.[0]?.text || "";
-                addLog(`✅ [AI] Step 1.2 後篇生成成功！已自動組裝為完整 Step 1 企劃知識庫！`, 'success');
-
-                outputText = part1Text.trim() + "\n\n---\n\n" + part2Text.trim();
-                currentContextContents['step1Part1'] = part1Text.trim();
-                currentContextContents['step1Part2'] = part2Text.trim();
-            } else if (i === 2 && audienceTheme === 'heritage' && localPromptFunctions['2.1'] && localPromptFunctions['2.2']) {
-                // 🌟 方案 A：全自動接力組裝（2.1 + 2.2），徹底避免 60 秒逾時！
-                addLog(`▶️ [Process] 正在執行 Step 2.1: 主軸腳本 (前段 00:00 - 06:30，共 26 節點)...`, 'info');
-                const prompt2_1 = localPromptFunctions['2.1'](stepContext);
-                const timeInjected2_1 = prompt2_1 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
-
-                let targetModel = 'gemini-3-flash-preview';
-                let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                let aiResponse1 = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
-                        contents: [{ parts: [{ text: timeInjected2_1 }] }],
-                        generationConfig: { maxOutputTokens: 16384 }
-                    })
-                });
-
-                if (!aiResponse1.ok && (aiResponse1.status === 404 || aiResponse1.status === 403 || aiResponse1.status === 400 || aiResponse1.status === 401)) {
-                    targetModel = 'gemini-2.5-flash';
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                    aiResponse1 = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                        body: JSON.stringify({
-                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
-                            contents: [{ parts: [{ text: timeInjected2_1 }] }],
-                            generationConfig: { maxOutputTokens: 16384 }
-                        })
-                    });
-                }
-                if (!aiResponse1.ok) {
-                    let errDetail = "";
-                    try { const errData = await aiResponse1.json(); errDetail = errData.error?.message || ""; } catch(e) {}
-                    throw new Error(`Google API 錯誤 (Step 2.1): ${aiResponse1.status} ${errDetail}`);
-                }
-                const data1 = await aiResponse1.json();
-                const parts1 = data1.candidates?.[0]?.content?.parts || [];
-                const part1Text = parts1.find((p: any) => p.text && !p.thought)?.text || parts1[parts1.length - 1]?.text || parts1[0]?.text || data1.candidates?.[0]?.text || "";
-                addLog(`✅ [AI] Step 2.1 前段生成成功！`, 'success');
-
-                addLog(`▶️ [Process] 接續執行 Step 2.2: 主軸腳本 (後段 06:30 - 13:00，共 26 節點)...`, 'info');
-                const prompt2_2 = localPromptFunctions['2.2']({ ...stepContext, step2Part1: part1Text });
-                const timeInjected2_2 = prompt2_2 + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
-
-                let aiResponse2 = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
-                        contents: [{ parts: [{ text: timeInjected2_2 }] }],
-                        generationConfig: { maxOutputTokens: 16384 }
-                    })
-                });
-
-                if (!aiResponse2.ok && (aiResponse2.status === 404 || aiResponse2.status === 403 || aiResponse2.status === 400 || aiResponse2.status === 401)) {
-                    targetModel = 'gemini-2.5-flash';
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
-                    aiResponse2 = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': activeApiKey },
-                        body: JSON.stringify({
-                            systemInstruction: { parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行分析。` }] },
-                            contents: [{ parts: [{ text: timeInjected2_2 }] }],
-                            generationConfig: { maxOutputTokens: 16384 }
-                        })
-                    });
-                }
-                if (!aiResponse2.ok) {
-                    let errDetail = "";
-                    try { const errData = await aiResponse2.json(); errDetail = errData.error?.message || ""; } catch(e) {}
-                    throw new Error(`Google API 錯誤 (Step 2.2): ${aiResponse2.status} ${errDetail}`);
-                }
-                const data2 = await aiResponse2.json();
-                const parts2 = data2.candidates?.[0]?.content?.parts || [];
-                const part2Text = parts2.find((p: any) => p.text && !p.thought)?.text || parts2[parts2.length - 1]?.text || parts2[0]?.text || data2.candidates?.[0]?.text || "";
-                addLog(`✅ [AI] Step 2.2 後段生成成功！已自動組裝成完整的 13 分鐘腳本！`, 'success');
-
-                outputText = part1Text.trim() + "\n\n" + part2Text.trim();
-            } else {
-                const masterPrompt = promptFunc(stepContext);
+            const masterPrompt = promptFunc(stepContext);
                 const timeInjectedMasterPrompt = masterPrompt + `\n\n【系統即時資訊】：當前台灣時間為 ${localCurrentDate}。請以此時間點作為基準，確保所有數據、時事或情境描述皆符合當下最新時空。`;
 
                 const isSearchStep = (i === 1 && !safeStep1);
@@ -2832,8 +2613,6 @@ export default function App() {
                     throw new Error(`Google API 未回傳有效候選內容 (${blockReason})`);
                 }
                 outputText = textPart;
-            }
-            
         } else {
             // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
             outputText = await callVercelApi(i, context, audienceTheme, activeApiKey);
