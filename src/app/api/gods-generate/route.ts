@@ -43,13 +43,19 @@ export async function POST(req: Request) {
       // 視覺圖層文字：動態疊加第二變數的藝術字，多個變數以換行分隔，直行書寫
       const visualVariablesText = extraVariables.length > 0 ? extraVariables.join('\\n') : localSecondVariable;
       
+      // 定義新中式質感書法與篆刻印章排版指令
+      const calligraphyStyleSpec = "字體為典雅深墨色毛筆行書（直排、由上到下、由右到左、無標點符號），字旁點綴一枚精緻的朱紅色小篆印章，文字穩重融入畫面留白處，嚴禁發光特效或立體描邊";
+
       const imageTextInstruction1 = visualVariablesText
-        ? `[藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下，由右到左，不要標點符號）]`
-        : `[藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）]`;
+        ? `[直排書法主標：神明聖號] [直排書法副標：${visualVariablesText}]（${calligraphyStyleSpec}）`
+        : `[直排書法主標：神明聖號]（${calligraphyStyleSpec}）`;
 
       const imageTextInstruction3 = visualVariablesText
-        ? `[藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）][藝術書法文字：${visualVariablesText}（由上到下，由右到左，不要標點符號）]`
-        : `[藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）]`;
+        ? `[直排書法主標：宮廟名稱] [直排書法副標：${visualVariablesText}]（${calligraphyStyleSpec}）`
+        : `[直排書法主標：宮廟名稱]（${calligraphyStyleSpec}）`;
+
+      // 共用高質感視覺基底（宋代留白美學 + 低飽和傳統色）
+      const aestheticBase = "宋代美學極簡留白構圖（畫面保留 40% 乾淨宣紙米白或天際留白供題字呼吸），低飽和度中國傳統色調（赭石、黛藍、竹青、淡金），細膩宣紙肌理與柔和自然光影，高級文創藝術海報質感，無雜亂背景，無現代商業廣告字體";
 
       return `你是一位台灣民俗文化、宗教信仰、歷史研究與節氣文化專屬策展人與內容生成專家，請務必優先使用 Google 搜尋查證最準確的文獻再回答。
 
@@ -72,8 +78,7 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下，由右到左，不要標點符號）",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "「藝術書法文字：神明聖號（由上到下，由右到左，不要標點符號）${name}」形象特徵，壯闊河山、山水、名勝古蹟為背景,周圍特效,充滿意境史詩感的氛圍，[${poemInstruction}（由上到下，由右到左，不要標點符號）]
-[${imageTextInstruction1}（由上到下，由右到左，不要標點符號）]。"
+  "imagePrompt": "東方文創美學與新中式靜物攝影，描繪象徵「${name}」的核心法器或精神器物（如古樸香爐、經卷、或特定植物與信物），背景為水墨暈染的遠山雲霧與溫潤晨曦微光。${aestheticBase}。畫面右側留白處配置直排題字：${imageTextInstruction1}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」。""
 }
 
 如果判斷為【第二類：節氣】，請輸出：
@@ -86,16 +91,10 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。（由上到下，由右到左，不要標點符號）",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "請針對此節氣生成『純無人風景與靜物微距特寫』的視覺描述，[藝術書法文字：節氣名稱（由上到下，由右到左，不要標點符號）]${localSecondVariable ? `[藝術書法文字：${localSecondVariable}（由上到下，由右到左，不要標點符號）]` : ''}[${poemInstruction}（由上到下，由右到左，不要標點符號）][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或人造物。請將畫面視覺焦點 100% 集中於『特定植物、天候光影變化、自然地貌或空景』，並可加上 --no humans, people, person 參數。"
+  "imagePrompt": "東方禪意靜物與日系空氣感（Kinfolk 風格）微距攝影，精準捕捉「${name}」時節的特定植物枝葉、露水霜雪或自然光影變化，柔和淺景深（Bokeh）。${aestheticBase}。畫面留白處配置直排題字：[直排書法主標：節氣名稱]${localSecondVariable ? `[直排書法副標：${localSecondVariable}]` : ''}（${calligraphyStyleSpec}），並以細宋體直排點綴「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或現代人造物，並加上 --no humans, people, person, neon, 3d render。"
 }
 
-如果判斷為【第三類：宮廟】，
-【最高原則】
-🌟 視覺特徵與建築藝術（實地取景必備）
-【⚠️ 強制圖像查證指令】：請透過 Google 搜尋『${name}』的相關報導與圖庫資料。
-請務必「提供 3 組真實且有效的圖片網址（Image URL）」。
-
-請輸出：3 組真實且有效的圖片網址（Image URL）
+如果判斷為【第三類：宮廟】，請輸出：
 {
   "category": "宮廟",
   "reason": "請簡述判斷為此類的原因",
@@ -105,9 +104,8 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。需以『建廟歷史、建築特色、在地信仰意義』的角度切入（由上到下，由右到左，不要標點符號）",
   "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左，不要標點符號）'}",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
-  "tags": ["標籤1", "標籤2", "標籤3"]
-  "imagePrompt": "「藝術書法文字：宮廟名稱（由上到下，由右到左，不要標點符號）${name}」的視覺描述，無人物、充滿禪意或史詩感的氛圍，【⚠️ 強制圖像查證指令】「隨機填入一個圖片網址（Image URL）」，
-[藝術書法文字：（由上到下，由右到左，不要標點符號）${imageTextInstruction3}${poemInstruction}][10-15 字的精煉副標題，${titleInstruction}（由上到下，由右到左，不要標點符號）]。"
+  "tags": ["標籤1", "標籤2", "標籤3"],
+  "imagePrompt": "東方建築幾何美學與人文紀實攝影，取景「${name}」極具代表性的傳統建築局部（如交趾陶剪黏飛簷仰望天際、斑駁紅磚牆上的光影、或晨光穿透線香裊裊青煙的丁達爾效應），空靈寧靜且避開雜亂電線與人潮。${aestheticBase}。畫面留白處配置直排題字：${imageTextInstruction3}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」，--no humans, crowd, neon。"
 }`;
     });
 
