@@ -1,0 +1,59 @@
+{
+  "schema_version": "3.0",
+  "doc_type": "DataPack",
+  "team_id": "TEAM_12006",
+  "trade_date": "2026-11-17",
+  "as_of_date": "2026-11-16",
+  "generated_at": "2026-11-16T20:31:08.639483+08:00",
+  "missing": [],
+  "prev_day_orders": {
+    "outcome": "executed",
+    "void_reasons": [],
+    "excluded_codes": []
+  },
+  "account": {
+    "cash": 49297501.8,
+    "cash_ratio_tradable": 0.05459,
+    "nav_tradable": 903044101.8,
+    "aum": 903044101.8,
+    "receivable_cash": 0.0,
+    "holdings_count": 23
+  },
+  "holdings": [
+    { "code": "1216", "shares": 70000, "receivable_shares": 0, "close_price": 78.5, "tradable_weight": 0.006085 },
+    { "code": "2303", "shares": 140000, "receivable_shares": 0, "close_price": 95.2, "tradable_weight": 0.014759 },
+    { "code": "2308", "shares": 45000, "receivable_shares": 0, "close_price": 1120.0, "tradable_weight": 0.055811 },
+    { "code": "2317", "shares": 275000, "receivable_shares": 0, "close_price": 218.5, "tradable_weight": 0.066539 },
+    { "code": "2330", "shares": 100000, "receivable_shares": 0, "close_price": 2215.0, "tradable_weight": 0.245281 },
+    { "code": "2345", "shares": 24000, "receivable_shares": 0, "close_price": 1380.0, "tradable_weight": 0.036676 },
+    { "code": "2357", "shares": 24000, "receivable_shares": 0, "close_price": 836.0, "tradable_weight": 0.022218 },
+    { "code": "2382", "shares": 85000, "receivable_shares": 0, "close_price": 264.5, "tradable_weight": 0.024896 },
+    { "code": "2412", "shares": 126000, "receivable_shares": 0, "close_price": 163.5, "tradable_weight": 0.022813 },
+    { "code": "2454", "shares": 21000, "receivable_shares": 0, "close_price": 3795.0, "tradable_weight": 0.088252 },
+    { "code": "2603", "shares": 115000, "receivable_shares": 0, "close_price": 257.0, "tradable_weight": 0.032728 },
+    { "code": "2881", "shares": 295000, "receivable_shares": 0, "close_price": 152.0, "tradable_weight": 0.049654 },
+    { "code": "2882", "shares": 396000, "receivable_shares": 0, "close_price": 110.0, "tradable_weight": 0.048237 },
+    { "code": "2884", "shares": 301000, "receivable_shares": 0, "close_price": 48.3, "tradable_weight": 0.016099 },
+    { "code": "2886", "shares": 370000, "receivable_shares": 0, "close_price": 54.5, "tradable_weight": 0.02233 },
+    { "code": "2892", "shares": 510000, "receivable_shares": 0, "close_price": 42.35, "tradable_weight": 0.023917 },
+    { "code": "2912", "shares": 66000, "receivable_shares": 0, "close_price": 214.0, "tradable_weight": 0.01564 },
+    { "code": "3008", "shares": 4000, "receivable_shares": 0, "close_price": 4780.0, "tradable_weight": 0.021173 },
+    { "code": "3231", "shares": 90000, "receivable_shares": 0, "close_price": 159.0, "tradable_weight": 0.015846 },
+    { "code": "3711", "shares": 80000, "receivable_shares": 0, "close_price": 550.0, "tradable_weight": 0.048724 },
+    { "code": "5876", "shares": 183000, "receivable_shares": 0, "close_price": 53.1, "tradable_weight": 0.010761 },
+    { "code": "5880", "shares": 534000, "receivable_shares": 0, "close_price": 28.25, "tradable_weight": 0.016705 },
+    { "code": "6669", "shares": 24000, "receivable_shares": 0, "close_price": 1515.0, "tradable_weight": 0.040264 }
+  ],
+  "compliance": {
+    "violations": 0,
+    "notices": 1,
+    "incidents": [
+      {
+        "date": "2026-10-29",
+        "check_code": "single_stock_cap",
+        "status": "warn",
+        "message": "2330 權重 25.1351% 超過上限 25.0%，當日未加碼，僅提示不計次"
+      }
+    ]
+  }
+}
