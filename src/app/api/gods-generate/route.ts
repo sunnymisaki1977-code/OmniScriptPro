@@ -78,7 +78,7 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。需以『考證文獻、文化脈絡、社會現象』的角度切入（由上到下，由右到左，不要標點符號）",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "東方文創美學與新中式靜物攝影，描繪象徵「${name}」的核心法器或精神器物（如古樸香爐、經卷、或特定植物與信物），背景為水墨暈染的遠山雲霧與溫潤晨曦微光。${aestheticBase}。畫面右側留白處配置直排題字：${imageTextInstruction1}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」。""
+  "imagePrompt": "東方文創美學與新中式靜物攝影，描繪象徵「${name}」的核心法器或精神器物，背景為水墨暈染的遠山雲霧與溫潤晨曦微光。${aestheticBase}。畫面右側配置直排題字：${imageTextInstruction1}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」。""
 }
 
 如果判斷為【第二類：節氣】，請輸出：
@@ -91,7 +91,7 @@ ${combineInstruction}
   "desc": "35-50 字的簡介。（由上到下，由右到左，不要標點符號）",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "東方禪意靜物與日系空氣感（Kinfolk 風格）微距攝影，精準捕捉「${name}」時節的特定植物枝葉、露水霜雪或自然光影變化，柔和淺景深（Bokeh）。${aestheticBase}。畫面留白處配置直排題字：[直排書法主標：節氣名稱]${localSecondVariable ? `[直排書法副標：${localSecondVariable}]` : ''}（${calligraphyStyleSpec}），並以細宋體直排點綴「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或現代人造物，並加上 --no humans, people, person, neon, 3d render。"
+  "imagePrompt": "東方禪意靜物與日系空氣感（Kinfolk 風格）微距攝影，精準捕捉「${name}」時節的特定植物枝葉、露水霜雪或自然光影變化，柔和淺景深（Bokeh）。${aestheticBase}。畫面配置直排題字：[直排書法主標：節氣名稱]${localSecondVariable ? `[直排書法副標：${localSecondVariable}]` : ''}（${calligraphyStyleSpec}），並以細宋體直排點綴「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」。強烈要求：畫面絕對禁止出現任何人物、人類輪廓、剪影或現代人造物，並加上 --no humans, people, person, neon, 3d render。"
 }
 
 如果判斷為【第三類：宮廟】，請輸出：
@@ -105,7 +105,7 @@ ${combineInstruction}
   "solar_term": "${localSecondVariable ? localSecondVariable : '請填入最適合該廟宇主要祭典的節氣名稱（由上到下，由右到左，不要標點符號）'}",
   "poem": "${poemInstruction}（由上到下，由右到左，不要標點符號）",
   "tags": ["標籤1", "標籤2", "標籤3"],
-  "imagePrompt": "東方建築幾何美學與人文紀實攝影，取景「${name}」極具代表性的傳統建築局部（如交趾陶剪黏飛簷仰望天際、斑駁紅磚牆上的光影、或晨光穿透線香裊裊青煙的丁達爾效應），空靈寧靜且避開雜亂電線與人潮。${aestheticBase}。畫面留白處配置直排題字：${imageTextInstruction3}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」，--no humans, crowd, neon。"
+  "imagePrompt": "東方建築幾何美學與人文紀實攝影，取景「${name}」極具代表性的傳統建築局部（如交趾陶剪黏飛簷仰望天際、斑駁紅磚牆上的光影、或晨光穿透線香裊裊青煙的丁達爾效應），空靈寧靜且避開雜亂電線與人潮。${aestheticBase}。畫面配置直排題字：${imageTextInstruction3}，搭配細宋體直排詩詞「[${poemInstruction}（無標點符號）]」與「[10-15 字的精煉副標題（無標點符號）]」，--no humans, crowd, neon。"
 }`;
     });
 
