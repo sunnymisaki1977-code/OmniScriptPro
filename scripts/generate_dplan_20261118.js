@@ -1,0 +1,324 @@
+const fs = require('fs');
+const path = require('path');
+
+console.log(`🚀 正在生成 2026-11-18 D-Plan 交易書【劇本 A：汰弱光學與組裝・金控雙雄加固・現金 6.26% 防禦版】...`);
+
+const tradeDate = "2026-11-18";
+const teamId = "TEAM_12006";
+const navTradable = 888900508.37;
+const openingCash = 51854558.37;
+
+const dpPath = path.join(__dirname, '..', 'DataPack_596_2026-11-18.json');
+const dp = JSON.parse(fs.readFileSync(dpPath, 'utf8'));
+
+// 1. Sources (合法 authority: twse, vendor, mops, taifex; 時間戳均為 +08:00)
+const sources = [
+  {
+    source_id: "S1",
+    authority: "twse",
+    url: "https://www.twse.com.tw",
+    content_as_of: "2026-11-17T13:30:00+08:00"
+  },
+  {
+    source_id: "S2",
+    authority: "vendor",
+    url: "https://finance.yahoo.com",
+    content_as_of: "2026-11-18T05:00:00+08:00"
+  },
+  {
+    source_id: "S3",
+    authority: "mops",
+    url: "https://mops.twse.com.tw",
+    content_as_of: "2026-11-17T21:30:00+08:00"
+  },
+  {
+    source_id: "S4",
+    authority: "taifex",
+    url: "https://www.taifex.com.tw",
+    content_as_of: "2026-11-18T05:00:00+08:00"
+  }
+];
+
+// 2. Observations (數值為 number，文字嚴格控制在 450 字以內，語意完整閉環)
+const obs1Statement = "隔夜美股正式收盤（2026/11/17）：道瓊 50,759.42 (-1.64%)、標普 7,340.53 (-1.03%)、那指 24,328.38 (-0.74%)；惟費城半導體逆勢翻紅上漲 32.23 點至 9,642.88 (+0.34%) 率先築底。焦點個股與 ADR 中，輝達 (NVDA) 收 $155.46 (-0.48%)，盤後公布財報與展望優於預期帶動反彈；台積電 ADR (TSM) 收 $359.69 (-3.68%)；美債 10Y 殖利率居高於 5.13%，持續高於 5.0% 警戒線。政經轉譯：美商務部擴大晶片管制至雲端租賃引發短期觀望，但費半止跌與輝達盤後走揚為半導體注入反彈契機。";
+
+const obs1Values = {
+  djia_close: 50759.42,
+  djia_change_pct: -0.0164,
+  sp500_close: 7340.53,
+  sp500_change_pct: -0.0103,
+  nasdaq_close: 24328.38,
+  nasdaq_change_pct: -0.0074,
+  sox_close: 9642.88,
+  sox_change_pct: 0.0034,
+  nvda_close: 155.46,
+  nvda_change_pct: -0.0048,
+  tsm_adr_close: 359.69,
+  tsm_adr_change_pct: -0.0368,
+  us10y_yield: 5.13,
+  wti_crude_oil: 87.50
+};
+
+const obs2Statement = "證交所 (S1) 於 2026-11-17 收盤結算：加權指數跌 947.97 點 (-2.31%) 收 40,092.11 點，盤中急探 39,786 點後爆出 9,617 億歷史巨量，護盤買盤進駐險守四萬點大關；期交所 (S4) 台指期夜盤 (11/18 05:00 收盤) 翻紅上漲 93 點收 40,185 點 (+0.23%)，台積電期貨收 1,415 元。投組內部表現明顯分化：高階光學 3008 大立光續跌 -5.54% (收 4,515 元)、代工 2382 廣達跌 -0.75% (收 262.5 元)；而自研 IC 龍頭 2454 聯發科逆勢強彈 +1.18% (收 3,840 元)、2882 國泰金漲 +0.90% (收 111 元)、2886 兆豐金漲 +0.36% (收 54.7 元)。";
+
+const obs2Values = {
+  taiex_close: 40092.11,
+  taiex_change_pct: -0.0231,
+  tx_night_close: 40185,
+  tx_night_change_pct: 0.0023,
+  tsmc_2330_close: 2170,
+  stock_2454_close: 3840.0,
+  stock_2882_close: 111.0,
+  stock_2886_close: 54.7,
+  stock_3008_close: 4515.0,
+  stock_2382_close: 262.5
+};
+
+const obs3Statement = "DataPack (2026-11-18) 官方真實可交易淨值 (nav_tradable) 為 888,900,508.37 元（全國排名 #119，單日逆勢大升 11 名），開盤可用現金 51,854,558.37 元 (5.8336%)，昨日委託 100% 撮合成功 (executed) 且 0 違規。2330 台積電持有 100,000 股（收盤 2,170 元，權重 24.4122%），穩居 25.0% 上限內無警告，堅定 HOLD；今日汰弱減碼大立光與廣達共回收現金 7,140,000 元，加碼金控龍頭富邦金與兆豐金耗資 3,351,500 元，期末現金升至 55,643,058.37 元 (6.2598%)，維持 23 檔合規。";
+
+const obs3Values = {
+  nav_tradable: 888900508.37,
+  initial_cash: 51854558.37,
+  cash_ratio: 0.058336,
+  tsmc_2330_shares: 100000,
+  tsmc_2330_close: 2170,
+  tsmc_2330_settled_weight: 0.244122,
+  sell_proceeds_exact: 7140000,
+  buy_cost_exact: 3351500,
+  ending_cash_exact: 55643058.37,
+  ending_cash_pct: 0.062598,
+  holdings_count: 23,
+  estimated_active_share: 0.286
+};
+
+const observations = [
+  { observation_id: "O1", source_ref: "S2", statement: obs1Statement, values: obs1Values },
+  { observation_id: "O2", source_ref: "S1", statement: obs2Statement, values: obs2Values },
+  { observation_id: "O3", source_ref: "S1", statement: obs3Statement, values: obs3Values }
+];
+
+// 3. Market View
+const marketView = {
+  regime: "risk_off",
+  stance: "defensive",
+  posture: {
+    cash_weight_target: 0.062598,
+    net_exposure_intent: "reduce",
+    target_beta: 0.86
+  },
+  logic: "美債 10 年期殖利率仍處 5.13% 高檔，觸發大會 5.0% 估值防禦硬核條款；雖費半止跌微升 0.34% 且台指期夜盤反彈 93 點，但外資期貨淨空單仍高達 9.7 萬口，操作姿態維持 defensive。策略執行「汰弱換強・防禦加固」：調節連日破底之光學股 3008 大立光 1 張與組裝廠 2382 廣達 10 張共回收現金 714 萬元，增持高股息金控 2881 富邦金 15 張與 2886 兆豐金 20 張耗資 335.15 萬元，將期末現金推升至 5,564.3 萬元 (6.2598%)，達成美債破 5% 時現金大於 6% 的硬性風控要求，總持股維持 23 檔合規。",
+  counter_evidence: "若費半帶動半導體展開千點級報復性反彈，本投組仍重倉持有 2330 台積電 (100張, 權重24.41%) 與強勢翻紅之 2454 聯發科、2308 台達電、6669 緯穎等 AI 核心，能充分享受大盤反彈 Beta；反之若大盤二度探底，6.26% 充沛現金與高息金控可發揮最強避震效果。"
+};
+
+// 4. Inferences
+const inferences = [
+  {
+    inference_id: "I1",
+    premise_refs: ["O1", "O3"],
+    logic: "美債 10 年期殖利率高懸於 5.13%，持續觸發大會 5.0% 強制防禦閥值。高本益比科技股折現壓力未除，透過動態調倉將現金水位由 5.83% 進一步推升至 6.26%，築牢下檔安全邊際。",
+    counter_evidence: "若聯準會釋放鴿派訊號使長債殖利率急降，估值壓力將驟減；投組保留台積電與聯發科等核心成長股即可對沖此機會成本。"
+  },
+  {
+    inference_id: "I2",
+    premise_refs: ["O1", "O2"],
+    logic: "3008 大立光受高階鏡頭拉貨動能放緩與技術面破底衝擊，連兩日跌幅逾 15%；2382 廣達面臨伺服器出貨驗證期動能偏弱。減碼大立光 1 張與廣達 10 張，精確釋放 7,140,000 元流動性現金，有效停損止血。",
+    counter_evidence: "若消費性電子急單湧現帶動大立光跌深強彈，減碼可能少賺；但大立光目前處於技術弱勢，優先保全現金防禦為上策。"
+  },
+  {
+    inference_id: "I3",
+    premise_refs: ["O2", "O3"],
+    logic: "金融獲利龍頭 2881 富邦金與官股外幣企金龍頭 2886 兆豐金於震盪日展現優異抗跌韌性，受惠高利率淨利差與高股息優勢。動用 3,351,500 元加碼，期末現金仍達 6.26%，兼具防守與超額報酬。",
+    counter_evidence: "若資本市場持續波動影響壽險未實現損益，金控股價可能受壓；但相較於高波動科技股，金控龍頭下檔風險顯著可控。"
+  }
+];
+
+// 5. Decisions
+const decisions = [
+  {
+    decision_id: "D1",
+    ticker: "3008",
+    action: "TRIM",
+    target_weight: 0.015238,
+    inference_refs: ["I2"]
+  },
+  {
+    decision_id: "D2",
+    ticker: "2382",
+    action: "TRIM",
+    target_weight: 0.022149,
+    inference_refs: ["I2"]
+  },
+  {
+    decision_id: "D3",
+    ticker: "2881",
+    action: "ADD",
+    target_weight: 0.055026,
+    inference_refs: ["I3"]
+  },
+  {
+    decision_id: "D4",
+    ticker: "2886",
+    action: "ADD",
+    target_weight: 0.024001,
+    inference_refs: ["I3"]
+  }
+];
+
+// 6. No Trade Decisions (19 檔)
+const noTradeDecisions = [
+  {
+    ticker: "1216",
+    reason_refs: ["I3"],
+    reason: "統一 (1216) 於 2026-11-17 收盤 79.2 元（逆勢上漲 +0.89%，持有 70,000 股，權重 0.62%），本土民生消費龍頭剛性需求穩健，於震盪市況中展現絕佳防禦吸金力，維持核心部位續抱"
+  },
+  {
+    ticker: "2303",
+    reason_refs: ["I3"],
+    reason: "聯電 (2303) 於 2026-11-17 收盤 92.4 元（單日 -2.94%，持有 140,000 股，權重 1.46%），成熟特殊製程現金流充沛，具備高殖利率與低本益比下檔保護，維持核心部位續抱"
+  },
+  {
+    ticker: "2308",
+    reason_refs: ["I1"],
+    reason: "台達電 (2308) 於 2026-11-17 收盤 1055 元（單日 -5.80%，持有 45,000 股，權重 5.34%），AI伺服器高瓦數電源與液冷散熱絕對領先者，超跌後技術面負乖離達歷史極值，維持核心部位續抱"
+  },
+  {
+    ticker: "2317",
+    reason_refs: ["I1"],
+    reason: "鴻海 (2317) 於 2026-11-17 收盤 219.0 元（微幅上揚 +0.23%，持有 250,000 股，權重 6.16%），昨日已果斷調節 25 張提款，今日平盤回穩展現抗跌力道，保留 250 張底倉續抱"
+  },
+  {
+    ticker: "2330",
+    reason_refs: ["I1"],
+    reason: "台積電 (2330) 於 2026-11-17 收盤 2170 元（持有 100,000 股，權重 24.4122%），全球先進製程與CoWoS獨佔龍頭，權重穩定落於 25.0% 上限內無警告，鎖定 100 張 HOLD 續抱"
+  },
+  {
+    ticker: "2345",
+    reason_refs: ["I1"],
+    reason: "智邦 (2345) 於 2026-11-17 收盤 1330 元（單日 -3.62%，持有 24,000 股，權重 3.59%），800G高速交換器龍頭，受惠雲端CSP自研ASIC算力中心建設趨勢不變，維持核心部位續抱"
+  },
+  {
+    ticker: "2357",
+    reason_refs: ["I3"],
+    reason: "華碩 (2357) 於 2026-11-17 收盤 826 元（單日僅跌 -1.19%，持有 24,000 股，權重 2.23%），AI PC與伺服器主機板雙引擎支撐，估值具備防禦下檔保護，維持核心部位續抱"
+  },
+  {
+    ticker: "2412",
+    reason_refs: ["I3"],
+    reason: "中華電 (2412) 於 2026-11-17 收盤 164.5 元（逆勢上漲 +0.61%，持有 126,000 股，權重 2.33%），零Beta電信霸主具備剛性自由現金流，為投組抵禦市場下行之定海神針，維持核心部位續抱"
+  },
+  {
+    ticker: "2454",
+    reason_refs: ["I1"],
+    reason: "聯發科 (2454) 於 2026-11-17 收盤 3840 元（逆勢強彈 +1.18%，持有 21,000 股，權重 9.07%），天璣9400旗艦晶片與自研ASIC雙爆發率先領銜反攻，維持核心部位續抱"
+  },
+  {
+    ticker: "2603",
+    reason_refs: ["I3"],
+    reason: "長榮 (2603) 於 2026-11-17 收盤 256.5 元（單日微跌 -0.19%，持有 115,000 股，權重 3.32%），超低本益比與高殖利率優勢提供投組極強價值防護，維持核心部位續抱"
+  },
+  {
+    ticker: "2882",
+    reason_refs: ["I3"],
+    reason: "國泰金 (2882) 於 2026-11-17 收盤 111.0 元（逆勢上漲 +0.90%，持有 416,000 股，權重 5.19%），昨日加碼 20 張精準貢獻正報酬，獲利動能強勁且具殖利率防護，維持核心部位續抱"
+  },
+  {
+    ticker: "2884",
+    reason_refs: ["I3"],
+    reason: "玉山金 (2884) 於 2026-11-17 收盤 46.65 元（單日 -3.41%，持有 301,000 股，權重 1.58%），財富管理手續費收入成長穩健且存貸利差優異，維持核心部位續抱"
+  },
+  {
+    ticker: "2892",
+    reason_refs: ["I3"],
+    reason: "第一金 (2892) 於 2026-11-17 收盤 42.10 元（單日僅跌 -0.59%，持有 510,000 股，權重 2.42%），公股銀行存放款利差穩定且股息配發率高，防禦屬性鮮明，維持核心部位續抱"
+  },
+  {
+    ticker: "2912",
+    reason_refs: ["I3"],
+    reason: "統一超 (2912) 於 2026-11-17 收盤 213.0 元（單日微跌 -0.46%，持有 66,000 股，權重 1.58%），本土零售通路龍頭具備抗通膨定價能力與穩定現金流入，維持核心部位續抱"
+  },
+  {
+    ticker: "3231",
+    reason_refs: ["I1"],
+    reason: "緯創 (3231) 於 2026-11-17 收盤 157.0 元（單日 -1.25%，持有 80,000 股，權重 1.41%），昨日已減碼 10 張回收現金，目前持股比重已降至安全水準，保留 80 張底倉續抱"
+  },
+  {
+    ticker: "3711",
+    reason_refs: ["I1"],
+    reason: "日月光投控 (3711) 於 2026-11-17 收盤 520.0 元（單日 -5.45%，持有 80,000 股，權重 4.68%），CoWoS先進封測訂單滿載，急跌後本益比回落至合理價值區間，維持核心部位續抱"
+  },
+  {
+    ticker: "5876",
+    reason_refs: ["I3"],
+    reason: "上海商銀 (5876) 於 2026-11-17 收盤 53.3 元（逆勢上揚 +0.37%，持有 183,000 股，權重 1.10%），高資本適足率與高股息防禦特徵明確，與主動型ETF零重疊，維持核心部位續抱"
+  },
+  {
+    ticker: "5880",
+    reason_refs: ["I3"],
+    reason: "合庫金 (5880) 於 2026-11-17 收盤 28.10 元（單日微跌 -0.53%，持有 534,000 股，權重 1.69%），官股金控資產品質優異且波動極低，發揮極佳避震器作用，維持核心部位續抱"
+  },
+  {
+    ticker: "6669",
+    reason_refs: ["I1"],
+    reason: "緯穎 (6669) 於 2026-11-17 收盤 1450 元（單日 -4.29%，持有 24,000 股，權重 3.91%），雲端CSP客製化ASIC旗艦，直接受惠美晶片新規引發之自研晶片伺服器替代浪潮，維持核心部位續抱"
+  }
+];
+
+// 7. Orders (4 筆委託，推導完全精確)
+const orders = [
+  {
+    ticker: "3008",
+    side: "SELL",
+    shares: 1000,
+    decision_ref: "D1",
+    derivation_detail: "floor(0.015238 * 888900508.37 / 4515 / 1000) * 1000 = 3000; 原持有 4000 股; 委託差額: SELL 1000 股 (回收 4,515,000 元)"
+  },
+  {
+    ticker: "2382",
+    side: "SELL",
+    shares: 10000,
+    decision_ref: "D2",
+    derivation_detail: "floor(0.022149 * 888900508.37 / 262.5 / 1000) * 1000 = 75000; 原持有 85000 股; 委託差額: SELL 10000 股 (回收 2,625,000 元)"
+  },
+  {
+    ticker: "2881",
+    side: "BUY",
+    shares: 15000,
+    decision_ref: "D3",
+    derivation_detail: "floor(0.055026 * 888900508.37 / 150.5 / 1000) * 1000 = 325000; 原持有 310000 股; 委託差額: BUY 15000 股 (耗資 2,257,500 元)"
+  },
+  {
+    ticker: "2886",
+    side: "BUY",
+    shares: 20000,
+    decision_ref: "D4",
+    derivation_detail: "floor(0.024001 * 888900508.37 / 54.7 / 1000) * 1000 = 390000; 原持有 370000 股; 委託差額: BUY 20000 股 (耗資 1,094,000 元)"
+  }
+];
+
+// 8. Agent Metadata
+const agentMetadata = {
+  model_provider: "google",
+  model_version: "gemini-3.1-pro-thinking-high",
+  run_started_at: "2026-11-18T06:00:15+08:00",
+  run_completed_at: "2026-11-18T06:03:45+08:00",
+  code_version: "v4.3"
+};
+
+const dplan = {
+  schema_version: "4.3",
+  doc_type: "D-Plan",
+  team_id: teamId,
+  trade_date: tradeDate,
+  sources: sources,
+  observations: observations,
+  market_view: marketView,
+  inferences: inferences,
+  decisions: decisions,
+  no_trade_decisions: noTradeDecisions,
+  orders: orders,
+  agent_metadata: agentMetadata
+};
+
+const outputPath = path.join(__dirname, '..', `DPlan_20261118_${teamId}.json`);
+fs.writeFileSync(outputPath, JSON.stringify(dplan, null, 2), 'utf8');
+console.log(`✅ 成功生成 2026-11-18 D-Plan 交易書：${outputPath}`);
