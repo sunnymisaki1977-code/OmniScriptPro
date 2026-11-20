@@ -230,10 +230,10 @@ export const AUDIENCE_THEMES = {
     actionBtnOutline: 'bg-blue-500/10 text-blue-600 hover:text-blue-700 border border-blue-500/20 hover:border-blue-500/50 hover:bg-blue-500/20',
     themeLogMessage: '[Theme] 已切換至「FinTech 財經知識 (Bloomberg Blue)」模式。啟動量化金融圖表渲染，調適金藍彭博終端視覺 🟢'
   },
-  "fairy tales": {
-    id: 'fairy tales',
+  "thesis": {
+    id: 'thesis',
     ambientGlow: 'bg-purple-500',
-    title: '文化轉譯・銘印童話',
+    title: '論文轉譯',
     subtitle: 'Magical Purple 奇幻紫',
     desc: '充滿魔法與想像力的柔和紫粉色調。專為兒童奇幻故事與經典童話改編設計。',
     gradient: 'from-[#8B5CF6] to-[#D946EF]',
