@@ -1,5 +1,6 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { reportTokenUsage, getLocalSummary, clearLocalSummary } from './tokenUsageClient';
 import ReactMarkdown from 'react-markdown';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
@@ -26,6 +27,88 @@ const IMAGE_ENGINES = [
   }
   
 ];
+
+// ============================================================================
+// 🔢 Token 使用量浮動顯示元件
+// ============================================================================
+function TokenUsageWidget() {
+  const [summary, setSummary] = React.useState(() => {
+    try { return getLocalSummary(); } catch { return null; }
+  });
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      try { setSummary(getLocalSummary()); } catch {}
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (!summary || summary.totalCalls === 0) return null;
+
+  const fmtCost = (v) => v < 0.0001 ? '<$0.0001' : `$${v.toFixed(4)}`;
+  const fmtNum  = (v) => Number(v).toLocaleString();
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: 16, right: 16, zIndex: 9999,
+      background: 'rgba(15,23,42,0.95)', border: '1px solid #334155',
+      borderRadius: 12, padding: isOpen ? '12px 16px' : '8px 14px',
+      color: '#e2e8f0', fontSize: 12, fontFamily: 'monospace',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.5)', minWidth: isOpen ? 260 : 'auto',
+      cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'all 0.2s',
+    }} onClick={() => setIsOpen(o => !o)}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 14 }}>📊</span>
+        <span style={{ color: '#94a3b8' }}>{summary.totalCalls} calls</span>
+        <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>{fmtNum(summary.totalTokens)} tk</span>
+        <span style={{ color: '#34d399', fontWeight: 'bold' }}>{fmtCost(summary.totalCostUsd)}</span>
+        <span style={{ color: '#64748b', fontSize: 10 }}>{isOpen ? '▲' : '▼'}</span>
+      </div>
+      {isOpen && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ color: '#64748b', marginBottom: 6, fontSize: 11 }}>本 Session 累計</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['呼叫次數', summary.totalCalls],
+                ['Prompt Tokens', fmtNum(summary.totalPromptTokens)],
+                ['Output Tokens', fmtNum(summary.totalOutputTokens)],
+                ['總 Tokens', fmtNum(summary.totalTokens)],
+                ['估算費用 (USD)', fmtCost(summary.totalCostUsd)],
+                ['最後模型', summary.lastModel || '-'],
+              ].map(([label, val]) => (
+                <tr key={label}>
+                  <td style={{ color: '#94a3b8', padding: '2px 0', paddingRight: 12 }}>{label}</td>
+                  <td style={{ color: '#e2e8f0', textAlign: 'right' }}>{val}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {summary.history.length > 0 && (
+            <>
+              <div style={{ color: '#64748b', fontSize: 11, margin: '8px 0 4px' }}>最近呼叫</div>
+              {summary.history.slice(0, 5).map((h, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 10, marginBottom: 2 }}>
+                  <span style={{ color: '#7c3aed' }}>{h.endpoint}</span>
+                  <span>{fmtNum(h.total)} tk</span>
+                  <span style={{ color: '#34d399' }}>{fmtCost(h.costUsd)}</span>
+                  <span>{h.durationMs}ms</span>
+                </div>
+              ))}
+            </>
+          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); clearLocalSummary(); setSummary(getLocalSummary()); }}
+            style={{ marginTop: 10, width: '100%', padding: '4px 0', background: '#1e293b', border: '1px solid #475569', color: '#94a3b8', borderRadius: 6, cursor: 'pointer', fontSize: 11 }}>
+            🗑 清除本 Session 統計
+          </button>
+          <div style={{ color: '#475569', fontSize: 10, marginTop: 6, textAlign: 'center' }}>後端已持久化至 logs/token-usage.jsonl</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ============================================================================
 // --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
@@ -118,6 +201,7 @@ const geminiPayload = {
     
     let targetModel = 'gemini-3-flash-preview';
     let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+    const _callStartMs = Date.now(); // ⏱️ 計時起點
     let aiResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -141,6 +225,16 @@ const geminiPayload = {
     }
     
     const data = await aiResponse.json();
+
+    // 📊 追蹤真實 usageMetadata（前端直呼 Gemini 的情況）
+    reportTokenUsage({
+        model: targetModel,
+        endpoint: 'canva-os-gemini',
+        usage: data.usageMetadata,
+        durationMs: Date.now() - _callStartMs,
+        tags: [String(stepId), audienceTheme || 'unknown'],
+    });
+
     const callParts = data.candidates?.[0]?.content?.parts || [];
     let cleanText = callParts.find((p: any) => p.text && !p.thought)?.text
         || callParts[callParts.length - 1]?.text
@@ -606,6 +700,15 @@ function TtsStudio({
 
           if (response.ok) {
             const result = await response.json();
+            if (result?.usageMetadata) {
+              reportTokenUsage({
+                model: 'gemini-2.5-flash-preview-tts',
+                endpoint: 'canva-tts',
+                usage: result.usageMetadata,
+                durationMs: 0,
+                tags: ['tts', chunkVoiceName]
+              });
+            }
             const part = result?.candidates?.[0]?.content?.parts?.[0];
             if (part?.inlineData?.data && part?.inlineData?.mimeType) {
               const rateMatch = part.inlineData.mimeType.match(/rate=(\d+)/);
@@ -5390,6 +5493,8 @@ const handleLogin = async (e: React.FormEvent) => {
         })}
       </div>
 
+      {/* Token 使用量即時監控浮動元件 */}
+      <TokenUsageWidget />
     </div>
   );
 }

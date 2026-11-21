@@ -4,10 +4,11 @@
  * GET  /api/token-usage           → 彙總統計
  * GET  /api/token-usage?raw=true  → 完整歷史 JSONL 記錄
  * GET  /api/token-usage?days=7    → 最近 N 天
+ * POST /api/token-usage           → 前端（Canva App）回報 usageMetadata
  */
 
 import { NextResponse } from "next/server";
-import { readAllRecords, computeSummary } from "@/utils/tokenTracker";
+import { readAllRecords, computeSummary, trackGeminiUsage } from "@/utils/tokenTracker";
 
 export const dynamic = "force-dynamic"; // 每次都重新讀取最新資料
 
@@ -34,6 +35,49 @@ export async function GET(req: Request) {
 
   } catch (error: any) {
     console.error("[token-usage API] Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/token-usage
+ * 
+ * 前端 Canva App 在直接呼叫 Gemini API 後，把 usageMetadata 回報到此端點，
+ * 讓後端可以持久化記錄並合併計算費用。
+ * 
+ * Body:
+ * {
+ *   model: string,
+ *   endpoint: string,
+ *   usage: { promptTokenCount, candidatesTokenCount, totalTokenCount, thoughtsTokenCount? },
+ *   durationMs: number,
+ *   tags?: string[]
+ * }
+ */
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { model, endpoint, usage, durationMs, tags } = body;
+
+    if (!model || !usage) {
+      return NextResponse.json(
+        { error: "Missing required fields: model, usage" },
+        { status: 400 }
+      );
+    }
+
+    const record = trackGeminiUsage({
+      model,
+      endpoint: endpoint ?? "canva-frontend",
+      usage,
+      durationMs: durationMs ?? 0,
+      tags: tags ?? ["canva-app"],
+    });
+
+    return NextResponse.json({ ok: true, record });
+
+  } catch (error: any) {
+    console.error("[token-usage POST] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
