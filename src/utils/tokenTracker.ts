@@ -12,20 +12,31 @@ import * as path from "path";
 
 // ─── 型別定義 ───────────────────────────────────────────────────────────────
 
+export type ModelFunctionalRole = 
+  | "general_content"     // 通用內容產製主力 (gemini-3-flash-preview)
+  | "deep_reasoning"      // 深度邏輯推理與即時查核 (gemini-3-flash-thinking)
+  | "fallback"            // 容錯降級保證服務 SLA (gemini-2.5-flash)
+  | "visual_standard"     // 標準視覺影像生成 (gemini-2.5-flash-image-preview)
+  | "visual_hd"           // 高階 4K 旗艦影像生成 (gemini-3.1-flash-image-preview)
+  | "audio_tts"           // 多模態語音旁白合成 (gemini-2.5-flash-preview-tts)
+  | "other";
+
 export interface GeminiUsageRecord {
   type: "gemini_call";
   timestamp: string;             // ISO 8601 +08:00
   requestId: string;             // 唯一請求 ID（uuid-like）
   model: string;                 // 實際使用的模型
-  endpoint: string;              // 呼叫來源（如 "generate", "generate-context"）
+  functionalRole: ModelFunctionalRole; // 學術論文核心：以「模型功能/模態角色」分類
+  endpoint: string;              // 呼叫來源（如 "generate", "canva-os"）
   promptTokenCount: number;
   candidatesTokenCount: number;
   totalTokenCount: number;
   thoughtsTokenCount?: number;   // 若模型有 thinking 模式
   cachedContentTokenCount?: number;
+  outputChars?: number;          // 產出文字字元長度 (供計算 Token 實質文字轉換率)
   estimatedCostUsd: number;      // 估算費用（USD）
   durationMs: number;            // 呼叫耗時（毫秒）
-  tags?: string[];               // 額外標籤（如主題、stepId）
+  tags?: string[];               // 額外標籤
 }
 
 export interface NotionCacheRecord {
@@ -43,16 +54,28 @@ export interface NotionCacheRecord {
 
 export type TokenRecord = GeminiUsageRecord | NotionCacheRecord;
 
-// ─── Gemini 模型定價（USD per 1M tokens，2026 Q4 定價） ─────────────────────
-// 參考：https://ai.google.dev/pricing
+// ─── 論文核心：系統六大功能模型定價（USD per 1M tokens / 每張圖） ─────────
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  "gemini-2.5-pro":        { input: 1.25,  output: 10.0  }, // ≤200k ctx
-  "gemini-2.5-flash":      { input: 0.075, output: 0.30  },
-  "gemini-2.5-flash-lite": { input: 0.0375,output: 0.15  },
-  "gemini-2.0-flash":      { input: 0.075, output: 0.30  },
-  "gemini-1.5-pro":        { input: 1.25,  output: 5.00  },
-  "gemini-1.5-flash":      { input: 0.075, output: 0.30  },
+  "gemini-3-flash-preview":       { input: 0.075,  output: 0.30  }, // 通用產製
+  "gemini-3-flash-thinking":      { input: 1.25,   output: 10.0  }, // 深度推理
+  "gemini-2.5-flash":             { input: 0.075,  output: 0.30  }, // 容錯降級
+  "gemini-2.5-flash-image-preview": { input: 0.03, output: 0.03  }, // 標準影像 (約每張 $0.03)
+  "gemini-3.1-flash-image-preview": { input: 0.06, output: 0.06  }, // 4K 旗艦影像 (約每張 $0.06)
+  "gemini-2.5-flash-preview-tts": { input: 0.075,  output: 0.30  }, // 語音合成
+  "gemini-2.5-pro":               { input: 1.25,   output: 10.0  },
+  "gemini-2.5-flash-lite":        { input: 0.0375, output: 0.15  },
 };
+
+export function inferFunctionalRole(model: string, endpoint?: string): ModelFunctionalRole {
+  if (model.includes("thinking")) return "deep_reasoning";
+  if (model.includes("image-preview") || endpoint?.includes("image")) {
+    return model.includes("3.1") ? "visual_hd" : "visual_standard";
+  }
+  if (model.includes("tts") || endpoint?.includes("tts")) return "audio_tts";
+  if (model === "gemini-2.5-flash") return "fallback";
+  if (model.includes("3-flash") || model.includes("preview")) return "general_content";
+  return "other";
+}
 
 function getModelPrice(model: string): { input: number; output: number } {
   // 嘗試精確匹配，否則前綴匹配
@@ -133,6 +156,8 @@ function appendRecord(record: TokenRecord): void {
 export function trackGeminiUsage(params: {
   model: string;
   endpoint: string;
+  functionalRole?: ModelFunctionalRole;
+  outputChars?: number;
   usage: {
     promptTokenCount?: number;
     candidatesTokenCount?: number;
@@ -146,26 +171,29 @@ export function trackGeminiUsage(params: {
   const promptTokens    = params.usage?.promptTokenCount     ?? 0;
   const candidateTokens = params.usage?.candidatesTokenCount ?? 0;
   const totalTokens     = params.usage?.totalTokenCount      ?? (promptTokens + candidateTokens);
+  const role            = params.functionalRole ?? inferFunctionalRole(params.model, params.endpoint);
 
   const record: GeminiUsageRecord = {
     type: "gemini_call",
     timestamp: nowTW(),
     requestId: generateId(),
     model: params.model,
+    functionalRole: role,
     endpoint: params.endpoint,
     promptTokenCount: promptTokens,
     candidatesTokenCount: candidateTokens,
     totalTokenCount: totalTokens,
     thoughtsTokenCount: params.usage?.thoughtsTokenCount,
     cachedContentTokenCount: params.usage?.cachedContentTokenCount,
+    outputChars: params.outputChars,
     estimatedCostUsd: calcCost(params.model, promptTokens, candidateTokens),
     durationMs: params.durationMs,
     tags: params.tags,
   };
 
   appendRecord(record);
-  console.log(`[TokenTracker] 📊 ${params.endpoint} | ${params.model} | ` +
-    `prompt=${promptTokens} out=${candidateTokens} total=${totalTokens} | ` +
+  console.log(`[TokenTracker] 📊 [${role}] ${params.endpoint} | ${params.model} | ` +
+    `in=${promptTokens} out=${candidateTokens} total=${totalTokens} | ` +
     `cost=$${record.estimatedCostUsd.toFixed(6)} | ${params.durationMs}ms`);
 
   return record;
@@ -266,6 +294,20 @@ export function computeSummary(records: TokenRecord[]) {
     byEndpoint[r.endpoint].costUsd += r.estimatedCostUsd;
   }
 
+  // 依「模型功能角色 (Functional Role)」分組 (學術論文核心架構)
+  const byFunctionalRole: Record<string, { calls: number; tokens: number; costUsd: number; avgLatencyMs: number }> = {};
+  for (const r of geminiRecords) {
+    const roleKey = r.functionalRole || inferFunctionalRole(r.model, r.endpoint);
+    if (!byFunctionalRole[roleKey]) {
+      byFunctionalRole[roleKey] = { calls: 0, tokens: 0, costUsd: 0, avgLatencyMs: 0 };
+    }
+    const cur = byFunctionalRole[roleKey];
+    cur.avgLatencyMs = (cur.avgLatencyMs * cur.calls + r.durationMs) / (cur.calls + 1);
+    cur.calls++;
+    cur.tokens += r.totalTokenCount;
+    cur.costUsd += r.estimatedCostUsd;
+  }
+
   return {
     geminiCalls:         geminiRecords.length,
     notionCacheHits:     notionRecords.length,
@@ -278,6 +320,113 @@ export function computeSummary(records: TokenRecord[]) {
     netCostUsd:          totalCostUsd - totalSavingsUsd,
     byModel,
     byEndpoint,
+    byFunctionalRole,
     generatedAt:         nowTW(),
   };
+}
+
+/**
+ * 🎓 學術研究專用：匯出乾淨 CSV 資料集 (可直接匯入 SPSS / R / Pandas)
+ */
+export function exportToCsv(records: TokenRecord[]): string {
+  const headers = [
+    "timestamp",
+    "record_type",
+    "request_id",
+    "model",
+    "functional_role",
+    "endpoint",
+    "prompt_tokens",
+    "candidate_tokens",
+    "total_tokens",
+    "thoughts_tokens",
+    "output_chars",
+    "duration_ms",
+    "cost_usd",
+    "savings_usd",
+    "tags"
+  ];
+
+  const rows = records.map((r) => {
+    if (r.type === "gemini_call") {
+      return [
+        r.timestamp,
+        r.type,
+        r.requestId,
+        `"${r.model}"`,
+        r.functionalRole,
+        `"${r.endpoint}"`,
+        r.promptTokenCount,
+        r.candidatesTokenCount,
+        r.totalTokenCount,
+        r.thoughtsTokenCount ?? 0,
+        r.outputChars ?? 0,
+        r.durationMs,
+        r.estimatedCostUsd.toFixed(6),
+        "0.000000",
+        `"${(r.tags || []).join(";")}"`
+      ].join(",");
+    } else {
+      return [
+        r.timestamp,
+        r.type,
+        r.requestId,
+        "notion_cache",
+        "cache_avoidance",
+        `"${r.endpoint}"`,
+        r.savedPromptTokens,
+        r.savedCompletionTokens,
+        r.savedTotalTokens,
+        0,
+        0,
+        0,
+        "0.000000",
+        r.estimatedSavingsUsd.toFixed(6),
+        `"${(r.tags || []).join(";")}"`
+      ].join(",");
+    }
+  });
+
+  return [headers.join(","), ...rows].join("\n");
+}
+
+/**
+ * 🎓 學術論文專用：一鍵生成 LaTeX 標準三線表 (Booktabs)
+ */
+export function exportToLatex(records: TokenRecord[]): string {
+  const summary = computeSummary(records);
+
+  const roleNameMap: Record<string, string> = {
+    general_content:  "General Content Production (gemini-3-flash-preview)",
+    deep_reasoning:   "Deep Reasoning & Fact-Checking (gemini-3-flash-thinking)",
+    fallback:         "Fault-Tolerant Fallback (gemini-2.5-flash)",
+    visual_standard:  "Standard Visual Generation (gemini-2.5-flash-image-preview)",
+    visual_hd:        "High-Fidelity Visual (gemini-3.1-flash-image-preview)",
+    audio_tts:        "Speech Synthesis TTS (gemini-2.5-flash-preview-tts)",
+    other:            "Other Experimental Models"
+  };
+
+  let tableRows = "";
+  for (const [role, data] of Object.entries(summary.byFunctionalRole)) {
+    const displayName = roleNameMap[role] || role;
+    tableRows += `  ${displayName} & ${data.calls} & ${data.tokens.toLocaleString()} & ${data.avgLatencyMs.toFixed(0)}~ms & \\$${data.costUsd.toFixed(4)} \\\\\n`;
+  }
+
+  return `% 論文第四章「模型功能階層調度之成本效益實證分析」標準三線表
+\\begin{table}[htbp]
+  \\centering
+  \\caption{Gemini 多模態功能架構在中小企業內容產製之呼叫次數、Token 消耗與成本對照表}
+  \\label{tab:gemini_model_roles_cost}
+  \\begin{tabular}{lrrrr}
+    \\toprule
+    \\textbf{模型功能角色 (Functional Role)} & \\textbf{呼叫次數 (Calls)} & \\textbf{總 Token 數} & \\textbf{平均延遲} & \\textbf{累積成本 (USD)} \\\\
+    \\midrule
+${tableRows}    \\midrule
+    \\textbf{Notion 快取省下效益 (Cache Avoidance)} & ${summary.notionCacheHits} 筆快取 & ${summary.totalSavedTokens.toLocaleString()} tk & --- & -\\$${summary.totalSavingsUsd.toFixed(4)} \\\\
+    \\midrule
+    \\textbf{總計實質淨成本 (Net Operational Cost)} & ${summary.geminiCalls} 呼叫 & ${summary.totalTokens.toLocaleString()} tk & --- & \\$${summary.netCostUsd.toFixed(4)} \\\\
+    \\bottomrule
+  \\end{tabular}
+\\end{table}
+`;
 }

@@ -8,15 +8,16 @@
  */
 
 import { NextResponse } from "next/server";
-import { readAllRecords, computeSummary, trackGeminiUsage } from "@/utils/tokenTracker";
+import { readAllRecords, computeSummary, trackGeminiUsage, exportToCsv, exportToLatex } from "@/utils/tokenTracker";
 
 export const dynamic = "force-dynamic"; // 每次都重新讀取最新資料
 
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const raw  = url.searchParams.get("raw") === "true";
-    const days = parseInt(url.searchParams.get("days") ?? "0", 10);
+    const raw    = url.searchParams.get("raw") === "true";
+    const exp    = url.searchParams.get("export")?.toLowerCase();
+    const days   = parseInt(url.searchParams.get("days") ?? "0", 10);
 
     let records = readAllRecords();
 
@@ -24,6 +25,29 @@ export async function GET(req: Request) {
     if (days > 0) {
       const cutoff = new Date(Date.now() - days * 86_400_000).getTime();
       records = records.filter((r) => new Date(r.timestamp).getTime() >= cutoff);
+    }
+
+    // 🎓 論文匯出模式：CSV (供 SPSS / R / Pandas 統計分析)
+    if (exp === "csv") {
+      const csvData = exportToCsv(records);
+      return new NextResponse(csvData, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": `attachment; filename="gemini_sme_token_dataset_${new Date().toISOString().slice(0, 10)}.csv"`,
+        },
+      });
+    }
+
+    // 🎓 論文匯出模式：LaTeX (標準三線表 Booktabs)
+    if (exp === "latex" || exp === "tex") {
+      const latexData = exportToLatex(records);
+      return new NextResponse(latexData, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+        },
+      });
     }
 
     if (raw) {
