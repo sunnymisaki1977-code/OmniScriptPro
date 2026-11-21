@@ -1,6 +1,5 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { reportTokenUsage, getLocalSummary, clearLocalSummary } from './tokenUsageClient';
 import ReactMarkdown from 'react-markdown';
 import { 
   LayoutDashboard, FileText, Image as ImageIcon, Settings, 
@@ -27,6 +26,126 @@ const IMAGE_ENGINES = [
   }
   
 ];
+
+// ============================================================================
+// 📊 Token 使用量追蹤與定價估算核心 (Self-Contained)
+// ============================================================================
+const TOKEN_MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  "gemini-2.5-pro":           { input: 1.25,   output: 10.0  },
+  "gemini-2.5-flash":         { input: 0.075,  output: 0.30  },
+  "gemini-2.5-flash-lite":    { input: 0.0375, output: 0.15  },
+  "gemini-3-flash-preview":   { input: 0.075,  output: 0.30  },
+  "gemini-3-flash-thinking":  { input: 1.25,   output: 10.0  },
+  "gemini-3.1-flash-preview": { input: 0.075,  output: 0.30  },
+  "gemini-2.0-flash":         { input: 0.075,  output: 0.30  },
+  "gemini-2.5-flash-preview-tts": { input: 0.075, output: 0.30 },
+};
+
+function getTokenPrice(model: string) {
+  if (TOKEN_MODEL_PRICING[model]) return TOKEN_MODEL_PRICING[model];
+  for (const key of Object.keys(TOKEN_MODEL_PRICING)) {
+    if (model.startsWith(key) || key.startsWith(model.split("-preview")[0])) {
+      return TOKEN_MODEL_PRICING[key];
+    }
+  }
+  return { input: 0.075, output: 0.30 };
+}
+
+function calcTokenCost(model: string, promptTokens: number, completionTokens: number): number {
+  const p = getTokenPrice(model);
+  return (promptTokens / 1_000_000) * p.input + (completionTokens / 1_000_000) * p.output;
+}
+
+const TOKEN_LS_KEY = "omniscript_token_usage";
+
+function getLocalSummary() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_LS_KEY) : null;
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {
+    totalCalls: 0,
+    totalPromptTokens: 0,
+    totalOutputTokens: 0,
+    totalTokens: 0,
+    totalCostUsd: 0,
+    lastModel: "",
+    lastUpdated: "",
+    history: [],
+  };
+}
+
+function clearLocalSummary() {
+  try {
+    if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_LS_KEY);
+  } catch {}
+}
+
+async function reportTokenUsage(params: {
+  model: string;
+  endpoint: string;
+  usage: any;
+  durationMs: number;
+  tags?: string[];
+  apiBaseUrl?: string;
+}) {
+  const promptTokens    = params.usage?.promptTokenCount     ?? 0;
+  const outputTokens    = params.usage?.candidatesTokenCount ?? 0;
+  const totalTokens     = params.usage?.totalTokenCount      ?? (promptTokens + outputTokens);
+  const costUsd         = calcTokenCost(params.model, promptTokens, outputTokens);
+  const now             = new Date().toISOString();
+
+  // 1. 本地 localStorage 即時累加
+  try {
+    if (typeof window !== 'undefined') {
+      const session = getLocalSummary();
+      session.totalCalls++;
+      session.totalPromptTokens  += promptTokens;
+      session.totalOutputTokens  += outputTokens;
+      session.totalTokens        += totalTokens;
+      session.totalCostUsd       += costUsd;
+      session.lastModel           = params.model;
+      session.lastUpdated         = now;
+
+      session.history.unshift({
+        ts: now,
+        model: params.model,
+        endpoint: params.endpoint,
+        prompt: promptTokens,
+        output: outputTokens,
+        total: totalTokens,
+        costUsd,
+        durationMs: params.durationMs,
+      });
+      if (session.history.length > 50) session.history = session.history.slice(0, 50);
+
+      localStorage.setItem(TOKEN_LS_KEY, JSON.stringify(session));
+    }
+  } catch (e) {
+    console.warn("[TokenUsage] localStorage 寫入失敗:", e);
+  }
+
+  // 2. 後端持久化 (非阻塞)
+  try {
+    const base = params.apiBaseUrl ?? "https://omni-script-pro.vercel.app";
+    const url = (typeof window !== "undefined" &&
+      (window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")))
+      ? "/api/token-usage"
+      : `${base}/api/token-usage`;
+
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: params.model,
+        endpoint: params.endpoint,
+        usage: params.usage,
+        durationMs: params.durationMs,
+        tags: params.tags ?? ["canva-app"],
+      }),
+    }).catch(() => {});
+  } catch {}
+}
 
 // ============================================================================
 // 🔢 Token 使用量浮動顯示元件
