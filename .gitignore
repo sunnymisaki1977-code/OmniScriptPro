@@ -38,3 +38,6 @@ output/
 
 # scratch scripts
 scratch/
+
+# Token usage logs (keep JSONL, ignore if you prefer privacy)
+# logs/token-usage.jsonl

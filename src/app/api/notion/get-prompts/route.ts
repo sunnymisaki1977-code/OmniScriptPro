@@ -1,5 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NextResponse } from "next/server";
+import { trackNotionCacheHit } from "@/utils/tokenTracker";
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
@@ -80,6 +81,22 @@ export async function POST(req: Request) {
           prompts[currentStep] += (prompts[currentStep] ? "\n\n" : "") + content;
         }
       }
+    }
+
+    // 📊 估算 Notion 快取省下的 token
+    const totalSavedChars = Object.values(prompts).reduce(
+      (sum, text) => sum + (typeof text === "string" ? text.length : 0), 0
+    );
+    const savedPromptTokens     = Math.ceil(totalSavedChars / 4);
+    const savedCompletionTokens = Math.ceil(savedPromptTokens * 0.6);
+    if (savedPromptTokens > 0) {
+      trackNotionCacheHit({
+        endpoint: "get-prompts",
+        pageId,
+        savedPromptTokens,
+        savedCompletionTokens,
+        tags: ["notion-prompts"],
+      });
     }
 
     return NextResponse.json({ prompts });

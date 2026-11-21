@@ -1,8 +1,12 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { trackGeminiUsage } from "@/utils/tokenTracker";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-export async function fetchWithModelFallback(prompt: string, options: { useSearch?: boolean } = {}) {
+export async function fetchWithModelFallback(
+  prompt: string,
+  options: { useSearch?: boolean; endpoint?: string; tags?: string[] } = {}
+) {
   // 模型優先順序：Pro -> Flash -> Flash-Lite
   const MODELS = [
     "gemini-2.5-pro",
@@ -43,8 +47,18 @@ export async function fetchWithModelFallback(prompt: string, options: { useSearc
       const model = genAI.getGenerativeModel(modelParams);
       console.log(`[API 呼叫] 嘗試使用模型: ${modelName}`);
 
+      const startMs = Date.now();
       const result = await model.generateContent(prompt);
       
+      // 📊 記錄真實 usageMetadata
+      trackGeminiUsage({
+        model: modelName,
+        endpoint: options.endpoint ?? "modelFallback",
+        usage: result.response.usageMetadata,
+        durationMs: Date.now() - startMs,
+        tags: options.tags,
+      });
+
       // 成功生成，回傳結果與「最終成功使用的模型名稱」
       return { result, modelUsed: modelName };
 

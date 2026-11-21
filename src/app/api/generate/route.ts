@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { getWorkflowSteps } from "@/utils/promptConfigs";
+import { trackGeminiUsage } from "@/utils/tokenTracker";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -51,12 +52,22 @@ export async function POST(req: Request) {
       const model = genAI.getGenerativeModel(modelParams);
 
       try {
+        const startMs = Date.now();
         const result = await model.generateContent(prompt);
         const response = await result.response;
         let text = response.text();
 
         // ✅ 修正 2：不需要清理 JSON 標籤了，但可以保留 trim() 確保字串乾淨
         text = text.trim();
+
+        // 📊 記錄真實 usageMetadata
+        trackGeminiUsage({
+          model: modelParams.model,
+          endpoint: "generate",
+          usage: response.usageMetadata,
+          durationMs: Date.now() - startMs,
+          tags: [String(stepId), audienceTheme || "heritage"].filter(Boolean),
+        });
 
         // Next.js 會負責把這個字串包裝成標準的 JSON 回傳給前端
         return NextResponse.json({ text, modelUsed: modelParams.model });
