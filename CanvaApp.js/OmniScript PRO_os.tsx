@@ -230,12 +230,12 @@ function TokenUsageWidget() {
 }
 
 // ============================================================================
-// --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 ---
-async function callVercelApi(stepId, context, audienceTheme, userApiKey = "") {
-    return await callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey);
+// --- 結合 Vercel 邏輯與 Gemini Canva API 的全新生成函數 (支援串流) ---
+async function callVercelApi(stepId, context, audienceTheme, userApiKey = "", onStreamChunk = null) {
+    return await callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey, onStreamChunk);
 }
 
-async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey = "") {
+async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKey = "", onStreamChunk = null) {
     // 取得 API Key 的邏輯保持不變
     const apiKey = userApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -277,6 +277,7 @@ async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKe
         if (!vercelData.success || !vercelData.output) {
             throw new Error(vercelData.error || "Vercel 伺服器生成失敗 (可能未設定伺服器端 GEMINI_API_KEY)");
         }
+        if (onStreamChunk) onStreamChunk(vercelData.output);
         return vercelData.output;
     }
 
@@ -329,23 +330,13 @@ const geminiPayload = {
     
     // 🌟 動態選擇模型：Step 1 需要 Google Search 時 
     let targetModel = (audienceTheme === 'fintech') ? 'gemini-3-flash-thinking' : 'gemini-2.5-flash';
-    let finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+    let streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
     const _callStartMs = Date.now(); // ⏱️ 計時起點
+    let cleanText = "";
+    let usageMetadata = null;
 
-    let aiResponse = await fetch(finalApiUrl, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-        },
-        body: JSON.stringify(geminiPayload)
-    });
-
-    if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
-        console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
-        if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; finalApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`; }
-        delete geminiPayload.tools;
-        aiResponse = await fetch(finalApiUrl, {
+    try {
+        let aiResponse = await fetch(streamApiUrl, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -353,24 +344,91 @@ const geminiPayload = {
             },
             body: JSON.stringify(geminiPayload)
         });
-    }
 
-    if (!aiResponse.ok) {
-        let errorDetails = "";
-        try {
-            const errData = await aiResponse.json();
-            errorDetails = errData.error?.message || JSON.stringify(errData);
-        } catch(e) {}
-        throw new Error(`Google API 錯誤: ${aiResponse.status} - ${errorDetails}`);
+        if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400)) {
+            console.warn(`[API 警告] Google Search 可能無權限 (403/400)。自動移除 Search 並重試...`);
+            if (targetModel === 'gemini-3-flash-thinking') { targetModel = 'gemini-2.5-flash'; }
+            streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
+            delete geminiPayload.tools;
+            aiResponse = await fetch(streamApiUrl, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': apiKey
+                },
+                body: JSON.stringify(geminiPayload)
+            });
+        }
+
+        if (!aiResponse.ok) {
+            let errorDetails = "";
+            try {
+                const errData = await aiResponse.json();
+                errorDetails = errData.error?.message || JSON.stringify(errData);
+            } catch(e) {}
+            throw new Error(`Google API 錯誤: ${aiResponse.status} - ${errorDetails}`);
+        }
+
+        // 🌊 SSE 串流解析
+        if (aiResponse.body && aiResponse.body.getReader) {
+            const reader = aiResponse.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let buffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop() || "";
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || !trimmed.startsWith("data:")) continue;
+                    const jsonStr = trimmed.replace(/^data:\s*/, "");
+                    if (!jsonStr || jsonStr === "[DONE]") continue;
+
+                    try {
+                        const parsed = JSON.parse(jsonStr);
+                        if (parsed.usageMetadata) usageMetadata = parsed.usageMetadata;
+                        const parts = parsed.candidates?.[0]?.content?.parts || [];
+                        for (const part of parts) {
+                            if (part.text && !part.thought) {
+                                cleanText += part.text;
+                                if (onStreamChunk) onStreamChunk(cleanText);
+                            }
+                        }
+                    } catch(e) {}
+                }
+            }
+        } else {
+            const data = await aiResponse.json();
+            usageMetadata = data.usageMetadata;
+            const parts = data.candidates?.[0]?.content?.parts || [];
+            cleanText = parts.find((p: any) => p.text && !p.thought)?.text || parts[0]?.text || data.candidates?.[0]?.text || "";
+            if (onStreamChunk) onStreamChunk(cleanText);
+        }
+    } catch(streamErr) {
+        console.warn(`[Stream API] 串流異常，切換至標準端點:`, streamErr);
+        let fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+        let fallbackRes = await fetch(fallbackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify(geminiPayload)
+        });
+        if (!fallbackRes.ok) throw streamErr;
+        const data = await fallbackRes.json();
+        usageMetadata = data.usageMetadata;
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        cleanText = parts.find((p: any) => p.text && !p.thought)?.text || parts[0]?.text || data.candidates?.[0]?.text || "{}";
+        if (onStreamChunk) onStreamChunk(cleanText);
     }
-    
-    const data = await aiResponse.json();
 
     // 📊 追蹤真實 usageMetadata（前端直呼 Gemini 的情況）
     reportTokenUsage({
         model: targetModel,
         endpoint: 'canva-os',
-        usage: data.usageMetadata,
+        usage: usageMetadata,
         durationMs: Date.now() - _callStartMs,
         tags: [String(stepId), audienceTheme || 'unknown'],
     });
@@ -1960,10 +2018,14 @@ export default function App() {
   const [loadingVideoIdx, setLoadingVideoIndex] = useState(0);
 
   const [isGenerating, setIsGenerating] = useState(false);
-   
-  
-  
-  
+  const [genViewMode, setGenViewMode] = useState<'video' | 'stream'>(() => {
+    try {
+      return (localStorage.getItem('omniscript_gen_view_mode') as 'video' | 'stream') || 'stream';
+    } catch {
+      return 'stream';
+    }
+  });
+  const [streamingText, setStreamingText] = useState<string>('');
   const [isGeneratingBatch, setIsGeneratingBatch] = useState(false); 
    const [geminiApiKey, setGeminiApiKey] = useState('');
    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -2798,6 +2860,7 @@ export default function App() {
         currentRunningStep = i;
         addLog(`▶️ [Process] 正在執行 Step ${i}: ${STEPS[i-1].name}...`, 'info');
         setActiveStep(i);
+        setStreamingText('');
 
         const activeApiKey = geminiApiKey || (typeof window !== 'undefined' && (window as any).__GEMINI_API_KEY__ ? (window as any).__GEMINI_API_KEY__ : "");
 
@@ -2901,7 +2964,7 @@ export default function App() {
                 outputText = textPart;
         } else {
             // [Vercel 環境 或 Fallback]：維持原有邏輯，單步向 Vercel 拿 Prompt (或在Vercel生成)
-            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey);
+            outputText = await callVercelApi(i, context, audienceTheme, activeApiKey, (chunk) => setStreamingText(chunk));
         }
         if (outputText) {
           // 若 AI 因為某些原因拋出「拒絕生成」的訊息（例如缺乏背景資料），強制中斷以避免後續步驟受損
@@ -2936,6 +2999,7 @@ export default function App() {
       addLog(`🛑 [Error] 流水線在 Step ${currentRunningStep} 發生致命中斷: ${error.message}，已為您保留先前進度。點擊「接續自動生成」即可恢復。`, 'error');
     } finally {
       setIsGenerating(false);
+      setStreamingText('');
     }
   };
 
@@ -3230,7 +3294,8 @@ export default function App() {
     }
     
     addLog(`[AI] 正在雲端請求... 重新撰寫 Step ${activeStep}`, 'info');
-        setIsGenerating(true);
+    setIsGenerating(true);
+    setStreamingText('');
     
     try {
       const context = {
@@ -3243,7 +3308,7 @@ export default function App() {
         step5: stepContents[5] || "",
       };
 
-      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey);
+      const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey, (chunk) => setStreamingText(chunk));
 
       setStepContents(prev => ({ ...prev, [activeStep]: content }));
       setCompletedSteps(prev => [...new Set([...prev, activeStep])]);
@@ -3255,6 +3320,7 @@ export default function App() {
       safeAlert(`API 呼叫失敗，錯誤原因: ${error.message}`);
     } finally {
       setIsGenerating(false);
+      setStreamingText('');
     }
   };
 // --- 匯出資料至 Notion ---
@@ -4279,33 +4345,120 @@ const handleLogin = async (e: React.FormEvent) => {
                       </div>
 
                       <div className="flex-1 relative min-h-[500px]">
-                        {/* AI 撰寫時，顯示 MP4 讀取動畫 */}
+                        {/* AI 撰寫時，顯示雙模式切換 (MP4 動畫過場 vs 即時編寫 Live Stream) */}
                         {isGenerating ? (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#F8FAFC]/60 z-10 backdrop-blur-md">
-                            <div className="relative group w-[600px] h-[340px] mb-6">
-                              <video 
-                                src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
-                                autoPlay 
-                                muted={isVideoMuted}
-                                playsInline
-                                webkit-playsinline="true"
-                                onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
-                                className="w-full h-full object-cover rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.15)] pointer-events-none"
-                              />
-                              <button
-                                onClick={() => setIsVideoMuted(!isVideoMuted)}
-                                className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-[#1E293B] p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-slate-200 shadow-lg pointer-events-auto"
-                              >
-                                {isVideoMuted ? <VolumeX className="w-5 h-5 text-[#1E293B]" /> : <Volume2 className="w-5 h-5 text-[#10B981]" />}
-                              </button>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 z-20 backdrop-blur-xl p-6 transition-all duration-300">
+                            
+                            {/* 🌟 頂部雙模式切換控制列 */}
+                            <div className="mb-4 flex items-center justify-between w-full max-w-[680px]">
+                              <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+                                <span className="text-emerald-400 font-bold">Step {activeStep} 運算中</span>
+                                <span>•</span>
+                                <span className="text-slate-400">{STEPS[activeStep - 1]?.name || '自動化生成'}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 p-1 bg-slate-800/90 rounded-xl border border-slate-700 shadow-inner">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setGenViewMode('stream');
+                                    try { localStorage.setItem('omniscript_gen_view_mode', 'stream'); } catch {}
+                                  }}
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                    genViewMode === 'stream'
+                                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+                                      : 'text-slate-400 hover:text-slate-200'
+                                  }`}
+                                >
+                                  <Terminal className="w-3.5 h-3.5" />
+                                  <span>💻 即時編寫 (Live Stream)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setGenViewMode('video');
+                                    try { localStorage.setItem('omniscript_gen_view_mode', 'video'); } catch {}
+                                  }}
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                    genViewMode === 'video'
+                                      ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md'
+                                      : 'text-slate-400 hover:text-slate-200'
+                                  }`}
+                                >
+                                  <Video className="w-3.5 h-3.5" />
+                                  <span>🎥 動畫過場 (Video)</span>
+                                </button>
+                              </div>
                             </div>
-                            <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 animate-pulse tracking-wider">
-                              AI 核心引擎高速運算中...
-                            </h3>
-                            <p className="text-[#64748B] mt-3 text-sm flex items-center gap-2">
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                              正在抓取資料，請稍候
-                            </p>
+
+                            {/* 🌟 模式 A：動畫過場 */}
+                            {genViewMode === 'video' ? (
+                              <div className="flex flex-col items-center">
+                                <div className="relative group w-[600px] h-[340px] mb-4">
+                                  <video 
+                                    src={LOADING_VIDEOS_LIST[loadingVideoIdx]} 
+                                    autoPlay 
+                                    muted={isVideoMuted}
+                                    playsInline
+                                    webkit-playsinline="true"
+                                    onEnded={() => setLoadingVideoIndex(prev => (prev + 1) % LOADING_VIDEOS_LIST.length)}
+                                    className="w-full h-full object-cover rounded-2xl shadow-[0_0_50px_rgba(168,85,247,0.25)] border border-slate-700/60 pointer-events-none"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsVideoMuted(!isVideoMuted)}
+                                    className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full opacity-80 group-hover:opacity-100 transition-opacity backdrop-blur-sm border border-slate-600 shadow-lg pointer-events-auto"
+                                  >
+                                    {isVideoMuted ? <VolumeX className="w-5 h-5 text-slate-300" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
+                                  </button>
+                                </div>
+                                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 animate-pulse tracking-wider">
+                                  AI 核心引擎高速運算中...
+                                </h3>
+                                <p className="text-slate-400 mt-2 text-xs flex items-center gap-2 max-w-[560px] truncate font-mono">
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-purple-400 shrink-0" />
+                                  <span>{streamingText ? `[即時進度] ${streamingText.slice(-60)}` : "正在連線模型並檢索資料，請稍候..."}</span>
+                                </p>
+                              </div>
+                            ) : (
+                              /* 🌟 模式 B：即時編寫 (Live Stream Console) */
+                              <div className="w-full max-w-[680px] h-[380px] bg-slate-950/95 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-md">
+                                <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex gap-1.5">
+                                      <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
+                                      <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
+                                      <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+                                    </div>
+                                    <span className="text-slate-400 ml-2">omniscript-live-writer.md</span>
+                                  </div>
+                                  <div className="text-slate-400">
+                                    {streamingText ? (
+                                      <span className="text-emerald-400">已輸出 {streamingText.length} 字元</span>
+                                    ) : (
+                                      <span className="text-amber-400 animate-pulse">連線檢索中...</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex-1 p-5 overflow-y-auto font-mono text-sm leading-relaxed text-slate-200 select-text whitespace-pre-wrap custom-scrollbar">
+                                  {streamingText ? (
+                                    <>
+                                      {streamingText}
+                                      <span className="inline-block w-2 h-4 bg-indigo-400 ml-1 animate-pulse align-middle" />
+                                    </>
+                                  ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-3">
+                                      <RefreshCw className="w-6 h-6 animate-spin text-indigo-400" />
+                                      <p className="text-xs">⚡ AI 正在進行盤前時空定錨與深度資料檢索，首批字句即將噴湧而出...</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
                           </div>
                         ) : (
                           /* 生成完畢後，顯示原本的文字編輯器 */
