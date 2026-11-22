@@ -432,13 +432,6 @@ const geminiPayload = {
         durationMs: Date.now() - _callStartMs,
         tags: [String(stepId), audienceTheme || 'unknown'],
     });
-
-    const callParts = data.candidates?.[0]?.content?.parts || [];
-    let cleanText = callParts.find((p: any) => p.text && !p.thought)?.text
-        || callParts[callParts.length - 1]?.text
-        || callParts[0]?.text
-        || data.candidates?.[0]?.text
-        || "{}";
     
     // 🛡️ 強健版 JSON 解析器
     const cleanAndParseJSON = (rawText, stepId) => {
