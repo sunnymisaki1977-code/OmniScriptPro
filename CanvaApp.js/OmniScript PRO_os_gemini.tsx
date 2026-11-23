@@ -9,7 +9,7 @@ import {
   Sliders, Link, RefreshCw, Key, HelpCircle, HardDrive, 
   Eye, Check, ListTodo, Send, Volume2, VolumeX, Download, Zap, X, Copy,
   Users, Palette, ShieldAlert, BookOpen, Sun, ChevronDown, Award, Lock, ExternalLink, Trash2, Menu, Globe,
-  Square, FileCode, Filter, GraduationCap, EyeOff, PenLine, Loader2, Star, Gift, Type } from 'lucide-react';
+  Square, CheckSquare, FileCode, Filter, GraduationCap, EyeOff, PenLine, Loader2, Star, Gift, Type } from 'lucide-react';
 
 
 const IMAGE_ENGINES = [
@@ -302,9 +302,15 @@ const now = new Date();
 });    
 
 const isFintech = audienceTheme === 'fintech';
+const isProposal = audienceTheme === 'proposal';
+const isThesis = audienceTheme === 'thesis';
 const systemInstructionText = isFintech
     ? `【絕對時間定錨與強制搜尋指令】：\n系統精確時間戳記：${isoTimestamp}\n今天是 ${currentDate}（標準格式：${today}）。\n請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。`
-    : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`;
+    : (isProposal
+        ? `你是一位兼具世界級科研敏銳度與專業學術轉化能力的「頂尖科學文獻架構師」與「影音視覺導演」。現在參考時間是 ${currentDate}。\n請客觀、精準、結構化地解讀使用者提供的文獻與多模態資料，深入理解文獻原創架構、圖表與數據，嚴禁憑空捏造無根據的內容。`
+        : (isThesis
+            ? `你是一位頂尖學術轉化專家與內容策展人。現在參考時間是 ${currentDate}。\n請將學術文獻轉化為深入淺出、具啟發性的企劃底稿。`
+            : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`));
 
 // 🌟 原生多模態注入：Step 1 直接注入已掛載之原始文檔 (PDF / 圖片)
 const geminiDocFile = context.uploadedDocFile;
@@ -2110,6 +2116,7 @@ export default function App() {
   const [ExtremeImages, setExtremeImages] = useState<any[]>([]);
   const [isGeneratingExtreme, setIsGeneratingExtreme] = useState(false);
   const [includeVoiceoverInImage, setIncludeVoiceoverInImage] = useState(false);
+  const [globalIncludeVoiceoverInPrompt, setGlobalIncludeVoiceoverInPrompt] = useState(true);
   const [isExtremeSidebarHidden, setIsExtremeSidebarHidden] = useState(false);
   const [extremeSource, setExtremeSource] = useState<'step2' | 'step4'>('step2');
 
@@ -2180,7 +2187,11 @@ export default function App() {
       })
         .then(res => res.json())
         .then(data => {
-          setExtremeParsedGroups(data.parsedScenes || []);
+          setExtremeParsedGroups((data.parsedScenes || []).map((s: any) => ({
+            ...s,
+            includeVoiceoverInPrompt: s.includeVoiceoverInPrompt !== undefined ? s.includeVoiceoverInPrompt : true,
+            includeVoiceoverJaInPrompt: s.includeVoiceoverJaInPrompt || false
+          })));
           setIsGeneratingExtreme(false);
         })
         .catch(err => {
@@ -2293,18 +2304,34 @@ export default function App() {
       // 🌟 修改 2：移除寫死的 if (imageEngine === 'flash')，改為動態插入 engineConfig.id
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${engineConfig.id}:generateContent?key=${activeApiKey}`;
 
-      let flashPrompt = finalPromptWithStyle;        
+      let flashPrompt = finalPromptWithStyle;
+
+      // 🌟 新增功能：旁白勾選時加入生成圖像 Prompt
+      const shouldIncludeVo = group.includeVoiceoverInPrompt !== undefined
+        ? group.includeVoiceoverInPrompt
+        : globalIncludeVoiceoverInPrompt;
+
+      const activeVoText = group.includeVoiceoverJaInPrompt && group.voiceover_ja
+        ? group.voiceover_ja
+        : (group.voiceover || group.poetry || poetry || "");
+
+      if (shouldIncludeVo && activeVoText && activeVoText.trim()) {
+        const cleanVo = activeVoText.trim().replace(/\s+/g, ' ');
+        flashPrompt += `\n\n【情境旁白故事背景 (Narrative Voiceover Context)】：\n"${cleanVo}"\n（重要生圖指引：請將上述情境旁白中所描繪的角色動態、情緒氛圍、核心寓意與情節張力，自然且深度地融入畫面的視覺構圖、光影氛圍與色彩基調中）`;
+        addLog(`[Extreme] 分鏡 ${groupId}：已成功融入旁白台詞至繪圖 Prompt！`, 'info');
+      }
+
       // 畫面字卡必定繪入圖像，長篇旁白則由開關控制
       const effectiveCaption = subTitle || (prompt.match(/畫面字卡[：:]\s*(.*?)(?=\n|$)/)?.[1]?.trim()) || "";
       const textTitle = effectiveCaption || mainTitle;
 
-      if (textTitle || (includeVoiceoverInImage && poetry)) {
+      if (textTitle || (includeVoiceoverInImage && activeVoText)) {
         flashPrompt += `\n\nMust integrate the following text into the image explicitly with beautiful typography matching the theme:`;
         if (textTitle) {
           flashPrompt += `\nGraphic Caption / Title (畫面字卡): ${textTitle}`;
         }
-        if (includeVoiceoverInImage && poetry) {
-          flashPrompt += `\nVoiceover / Spoken Script (旁白台詞): ${poetry.replace(/\s+/g, ' ')}`;
+        if (includeVoiceoverInImage && activeVoText) {
+          flashPrompt += `\nVoiceover / Spoken Script (旁白台詞): ${activeVoText.replace(/\s+/g, ' ')}`;
         } else {
           flashPrompt += `\n(IMPORTANT: Explicitly render only the Graphic Caption/Title above on the image. DO NOT write out the long spoken voiceover script, body speech paragraphs, or full dialogue.)`;
         }
@@ -2742,7 +2769,7 @@ export default function App() {
     } else if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
-      addLog(`[System] 偵測到您已提供「純文字自訂背景」，系統已自動將其載入為 Step 1 基礎文獻！`, 'success');
+      addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
       usedCustomContextForStep1 = true;
     }
 
@@ -4926,6 +4953,28 @@ const handleLogin = async (e: React.FormEvent) => {
 
                         <button
                           type="button"
+                          onClick={() => {
+                            const nextState = !globalIncludeVoiceoverInPrompt;
+                            setGlobalIncludeVoiceoverInPrompt(nextState);
+                            setExtremeParsedGroups(prev => prev.map((item: any) => ({
+                              ...item,
+                              includeVoiceoverInPrompt: nextState
+                            })));
+                            addLog(`[Extreme] 已${nextState ? '一鍵勾選全部' : '一鍵取消全部'}分鏡旁白加入生圖 Prompt！`, 'info');
+                          }}
+                          className={`flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 border ${
+                            globalIncludeVoiceoverInPrompt
+                              ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/20'
+                              : 'bg-slate-500/10 border-slate-400/40 text-slate-600 hover:bg-slate-500/20'
+                          }`}
+                          title="一鍵全選/取消：是否將所有分鏡卡片的旁白故事內容加入 AI 繪圖提示詞 (Prompt)"
+                        >
+                          <CheckSquare className={`w-4 h-4 ${globalIncludeVoiceoverInPrompt ? 'text-emerald-600' : 'text-slate-500'}`} />
+                          <span>{globalIncludeVoiceoverInPrompt ? '旁白加入生圖 Prompt (開)' : '旁白加入生圖 Prompt (關)'}</span>
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={() => setIncludeVoiceoverInImage(prev => !prev)}
                           className={`flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 border ${
                             includeVoiceoverInImage
@@ -5077,19 +5126,87 @@ const handleLogin = async (e: React.FormEvent) => {
                                   {g.localImage && <span className="text-[9px] text-emerald-500 font-bold">✅ 已載入</span>}
                                 </div>
                                 {(g.voiceover || g.poetry) && (g.voiceover !== g.voiceover_ja) && (
-                                  <div className="mt-1 text-[10px] text-slate-700 bg-emerald-50/90 p-2 rounded-xl border border-emerald-200/80 shadow-xs line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover || g.poetry}>
-                                    <div className="flex items-center gap-1.5 font-bold text-emerald-800 text-[10px] mb-0.5">
-                                      <span className="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] tracking-wide font-bold">中文旁白</span>
+                                  <div 
+                                    className={`mt-1 text-[10px] p-2 rounded-xl border shadow-xs transition-all ${
+                                      g.includeVoiceoverInPrompt !== false 
+                                        ? 'bg-emerald-50/95 border-emerald-300 ring-1 ring-emerald-400/20 text-slate-800' 
+                                        : 'bg-slate-50 border-slate-200 opacity-60 text-slate-500'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between font-bold text-[10px] mb-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className={`px-1.5 py-0.5 rounded text-white text-[9px] tracking-wide font-bold ${
+                                          g.includeVoiceoverInPrompt !== false ? 'bg-emerald-600' : 'bg-slate-400'
+                                        }`}>中文旁白</span>
+                                        {g.includeVoiceoverInPrompt !== false ? (
+                                          <span className="text-[9px] text-emerald-600 font-semibold flex items-center gap-0.5">
+                                            <CheckCircle2 className="w-3 h-3" /> 已納入生圖 Prompt
+                                          </span>
+                                        ) : (
+                                          <span className="text-[9px] text-slate-400">未加入生圖 Prompt</span>
+                                        )}
+                                      </div>
+                                      <label 
+                                        className="flex items-center gap-1 cursor-pointer select-none text-[9px] font-semibold bg-white/80 hover:bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-xs transition-all text-slate-700 hover:text-emerald-700"
+                                        title="勾選此項，生圖時會將本段旁白內容加入 AI 提示詞"
+                                      >
+                                        <input 
+                                          type="checkbox"
+                                          checked={g.includeVoiceoverInPrompt !== false}
+                                          onChange={(e) => {
+                                             const checked = e.target.checked;
+                                             setExtremeParsedGroups(prev => prev.map((item: any) => item.id === g.id ? { ...item, includeVoiceoverInPrompt: checked } : item));
+                                          }}
+                                          className="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer"
+                                        />
+                                        <span>加入生圖 Prompt</span>
+                                      </label>
                                     </div>
-                                    <p className="text-slate-800 leading-relaxed font-sans">{g.voiceover || g.poetry}</p>
+                                    <p className="leading-relaxed font-sans line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover || g.poetry}>
+                                      {g.voiceover || g.poetry}
+                                    </p>
                                   </div>
                                 )}
                                 {g.voiceover_ja && (
-                                  <div className="mt-1 text-[10px] text-slate-700 bg-rose-50/90 p-2 rounded-xl border border-rose-200/80 shadow-xs line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover_ja}>
-                                    <div className="flex items-center gap-1.5 font-bold text-rose-800 text-[10px] mb-0.5">
-                                      <span className="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] tracking-wide font-bold">日文旁白</span>
+                                  <div 
+                                    className={`mt-1 text-[10px] p-2 rounded-xl border shadow-xs transition-all ${
+                                      g.includeVoiceoverJaInPrompt === true 
+                                        ? 'bg-rose-50/95 border-rose-300 ring-1 ring-rose-400/20 text-slate-800' 
+                                        : 'bg-slate-50 border-slate-200 opacity-60 text-slate-500'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between font-bold text-[10px] mb-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className={`px-1.5 py-0.5 rounded text-white text-[9px] tracking-wide font-bold ${
+                                          g.includeVoiceoverJaInPrompt === true ? 'bg-rose-600' : 'bg-slate-400'
+                                        }`}>日文旁白</span>
+                                        {g.includeVoiceoverJaInPrompt === true ? (
+                                          <span className="text-[9px] text-rose-600 font-semibold flex items-center gap-0.5">
+                                            <CheckCircle2 className="w-3 h-3" /> 已納入生圖 Prompt
+                                          </span>
+                                        ) : (
+                                          <span className="text-[9px] text-slate-400">未加入生圖 Prompt</span>
+                                        )}
+                                      </div>
+                                      <label 
+                                        className="flex items-center gap-1 cursor-pointer select-none text-[9px] font-semibold bg-white/80 hover:bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-xs transition-all text-slate-700 hover:text-rose-700"
+                                        title="勾選此項，生圖時會將本段日文旁白加入 AI 提示詞"
+                                      >
+                                        <input 
+                                          type="checkbox"
+                                          checked={g.includeVoiceoverJaInPrompt === true}
+                                          onChange={(e) => {
+                                             const checked = e.target.checked;
+                                             setExtremeParsedGroups(prev => prev.map((item: any) => item.id === g.id ? { ...item, includeVoiceoverJaInPrompt: checked } : item));
+                                          }}
+                                          className="w-3.5 h-3.5 text-rose-600 rounded border-slate-300 focus:ring-rose-500 cursor-pointer"
+                                        />
+                                        <span>加入生圖 Prompt</span>
+                                      </label>
                                     </div>
-                                    <p className="text-slate-800 leading-relaxed font-sans">{g.voiceover_ja}</p>
+                                    <p className="leading-relaxed font-sans line-clamp-2 hover:line-clamp-none transition-all cursor-pointer" title={g.voiceover_ja}>
+                                      {g.voiceover_ja}
+                                    </p>
                                   </div>
                                 )}
                               </div>

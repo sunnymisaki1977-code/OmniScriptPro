@@ -115,12 +115,22 @@ export async function POST(req: Request) {
       const wantsSearch = (step.id === 1 || (typeof (step.id as any) === 'string' && (step.id as any).startsWith('0_'))) && !verifiedContext;
       const isSearchEnabled = (wantsSearch && attempt < 3 && !disableSearch);
       const isFintech = audienceTheme === 'fintech';
+      const isProposal = audienceTheme === 'proposal';
+      const isThesis = audienceTheme === 'thesis';
       
       const currentDate = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
       
+      const systemPromptText = isFintech
+          ? `【絕對時間定錨與強制搜尋指令】：\n系統當前時間：${currentDate}。請務必強制調用 Google 搜尋工具，檢索最新市場情報進行深度分析。`
+          : (isProposal
+              ? `你是一位兼具世界級科研敏銳度與專業學術轉化能力的「頂尖科學文獻架構師」與「影音視覺導演」。現在參考時間是 ${currentDate}。請客觀、精準、結構化地解讀使用者提供的文獻資料，完整錨定原論文真實圖表與數據，嚴禁憑空幻想無根據的裝飾特效。`
+              : (isThesis
+                  ? `你是一位頂尖學術轉化專家與內容策展人。現在參考時間是 ${currentDate}。請將學術文獻轉化為深入淺出、具啟發性的企劃底稿。`
+                  : `你是一位專業的文史與企劃分析師。現在參考時間是 ${currentDate}。請嚴格以目標主題【${theme}】為唯一核心進行客觀史實文獻查核與內容撰寫，切勿偏離主題！`));
+
       const geminiPayload: any = {
           systemInstruction: {
-              parts: [{ text: `你是一位專業的文史與企劃分析師。現在參考時間是 ${currentDate}。請嚴格以目標主題【${theme}】為唯一核心進行客觀史實文獻查核與內容撰寫，切勿偏離主題！` }]
+              parts: [{ text: systemPromptText }]
           },
           contents: [{ parts: [{ text: finalPrompt }] }], // finalPrompt 已經在前面加過 timeInjected 邏輯
           generationConfig: {
