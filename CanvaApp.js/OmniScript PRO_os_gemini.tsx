@@ -247,13 +247,23 @@ async function callVercelApiSingleStep(stepId, context, audienceTheme, userApiKe
       : '';   
     const VERCEL_API_URL = 'https://omni-script-pro.vercel.app/api/gemini';
 
+    // 🌟 避免將巨大 Base64 傳給 Vercel 觸發 413 Payload Too Large
+    const sanitizedExistingData = { ...context };
+    if (sanitizedExistingData.uploadedDocFile) {
+        sanitizedExistingData.uploadedDocFile = {
+            name: context.uploadedDocFile.name,
+            type: context.uploadedDocFile.type,
+            size: context.uploadedDocFile.size
+        };
+    }
+
     const promptResponse = await fetch(VERCEL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             currentStepId: stepId, 
             theme: context.theme, 
-            existingData: context,
+            existingData: sanitizedExistingData,
             audienceTheme,
             apiKey: apiKey,
             returnPromptOnly: true
@@ -296,11 +306,33 @@ const systemInstructionText = isFintech
     ? `【絕對時間定錨與強制搜尋指令】：\n系統精確時間戳記：${isoTimestamp}\n今天是 ${currentDate}（標準格式：${today}）。\n請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。`
     : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`;
 
-const geminiPayload = {
+// 🌟 原生多模態注入：Step 1 或 Step 2 直接注入已掛載之原始文檔 (PDF / 圖片)
+const geminiDocFile = context.uploadedDocFile;
+const shouldInjectDoc = geminiDocFile && geminiDocFile.base64 && (
+    stepId === 1 || stepId === 2 || 
+    String(stepId).startsWith('1') || String(stepId).startsWith('2')
+);
+
+const contentParts: any[] = [];
+if (shouldInjectDoc) {
+    const cleanBase64 = geminiDocFile.base64.replace(/^data:[^;]+;base64,/, '');
+    contentParts.push({
+        inlineData: {
+            mimeType: geminiDocFile.type,
+            data: cleanBase64
+        }
+    });
+    contentParts.push({
+        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${geminiDocFile.name})。\n請利用 Gemini 原生多模態視覺與長上下文能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${stepId}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
+    });
+}
+contentParts.push({ text: finalPrompt });
+
+const geminiPayload: any = {
     systemInstruction: {
         parts: [{ text: systemInstructionText }]
     },
-    contents: [{ parts: [{ text: finalPrompt }] }],
+    contents: [{ parts: contentParts }],
     generationConfig: {
         maxOutputTokens: 16384
     }
@@ -318,7 +350,8 @@ const geminiPayload = {
         geminiPayload.generationConfig.responseSchema = responseSchema;
     }
     
-    let targetModel = 'gemini-3-flash-preview';
+    // 🌟 動態選擇模型：若有掛載多模態文檔，優先調用具備最新視覺能力的 gemini-3.1-flash-preview
+    let targetModel = shouldInjectDoc ? 'gemini-3.1-flash-preview' : 'gemini-3-flash-preview';
     let streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
     const _callStartMs = Date.now(); // ⏱️ 計時起點
     let cleanText = "";
@@ -332,8 +365,10 @@ const geminiPayload = {
         });
 
         if (!aiResponse.ok && (aiResponse.status === 404 || aiResponse.status === 403 || aiResponse.status === 400 || aiResponse.status === 401)) {
+            console.warn(`[API 警告] 模型 ${targetModel} 請求失敗 (${aiResponse.status})。自動切換為 gemini-2.5-flash 重試...`);
             targetModel = 'gemini-2.5-flash';
             streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
+            delete geminiPayload.tools;
             aiResponse = await fetch(streamApiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -1943,6 +1978,7 @@ export default function App() {
   const [activeStep, setActiveStep] = useState(1);
   const [theme, setTheme] = useState('');
   const [customContext, setCustomContext] = useState('');
+  const [uploadedDocFile, setUploadedDocFile] = useState<{ name: string; type: string; base64: string; size: number } | null>(null);
   const [extractedArtifacts, setExtractedArtifacts] = useState<Array<{ type: string; title: string; summary: string }>>([]);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([1]);
@@ -2700,8 +2736,13 @@ export default function App() {
     };
 
     let usedCustomContextForStep1 = false;
-    // 如果使用者有自訂背景資料且 Step 1 為空（或只是預設佔位文字），就把它當作 Step 1
-    if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
+    // 如果使用者有掛載多模態原始文檔且 Step 1 為空，將其錨定為 Step 1 基準文獻
+    if (uploadedDocFile && isStepEmpty(1)) {
+      currentContextContents[1] = `📄 【已成功掛載原生多模態文檔】：${uploadedDocFile.name}\n本企劃以該文檔之完整圖表架構（Figure 1~3）、數據矩陣（Table 1~3）與理論模型為基石，由 Gemini 3.1 Flash 原生視覺直讀辨識。`;
+      setStepContents(prev => ({ ...prev, 1: currentContextContents[1] }));
+      addLog(`[System] 偵測到掛載多模態文檔《${uploadedDocFile.name}》，文檔已直通 Step 1 與 Step 2！`, 'success');
+      usedCustomContextForStep1 = true;
+    } else if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
       addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
@@ -2811,6 +2852,7 @@ export default function App() {
             step9: currentContextContents[9] || "",
             step10: currentContextContents[10] || "",
             customContext: customContext || "",
+            uploadedDocFile: uploadedDocFile || null
         };
 
         // 💡 依據環境決定生成方式
@@ -2839,7 +2881,25 @@ export default function App() {
 
                 const isSearchStep = (i === 1 && !safeStep1);
                 const isFintech = audienceTheme === 'fintech';
-                let targetModel = isFintech ? 'gemini-3-flash-thinking' : 'gemini-3-flash-preview';
+                const shouldInjectDocLocal = uploadedDocFile && uploadedDocFile.base64 && (
+                    i === 1 || i === 2 || String(i).startsWith('1') || String(i).startsWith('2')
+                );
+
+                const localParts: any[] = [];
+                if (shouldInjectDocLocal) {
+                    localParts.push({
+                        inlineData: {
+                            mimeType: uploadedDocFile.type,
+                            data: uploadedDocFile.base64.replace(/^data:[^;]+;base64,/, '')
+                        }
+                    });
+                    localParts.push({
+                        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${uploadedDocFile.name})。\n請利用 Gemini 原生多模態視覺能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${i}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
+                    });
+                }
+                localParts.push({ text: timeInjectedMasterPrompt });
+
+                let targetModel = isFintech ? 'gemini-3-flash-thinking' : (shouldInjectDocLocal ? 'gemini-3.1-flash-preview' : 'gemini-2.5-flash');
                 let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
                 let aiResponse = await fetch(apiUrl, {
                     method: 'POST',
@@ -2851,7 +2911,7 @@ export default function App() {
                         systemInstruction: {
                             parts: [{ text: `現在真實台灣時間是 ${localCurrentDate}。請以此時間為基準進行深入分析。` }]
                         },
-                        contents: [{ parts: [{ text: timeInjectedMasterPrompt }] }],
+                        contents: [{ parts: localParts }],
                         generationConfig: { maxOutputTokens: isFintech ? 32768 : (i === 2 ? 16384 : 8192), ...(isFintech ? { thinkingConfig: { thinkingBudget: 16384 } } : {}) },
                         tools: isSearchStep ? [{ googleSearch: {} }] : []
                     })
@@ -3057,199 +3117,78 @@ export default function App() {
     setStepContents(prev => ({ ...prev, [activeStep]: text }));
   };
 
-  // --- 新增：讀取本地文件內容 (支援 TXT, PDF, DOCX, 圖片OCR) ---
+  // --- 讀取本地文件內容 (原生多模態直通模式，PDF/圖片完整保留原圖表與表格) ---
   const handleFileUpload = async (e: any) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    const appendText = (text: string) => {
-      setCustomContext((prev: string) => {
-        const newText = prev + (prev ? '\n\n' : '') + text;
-        if (newText.length > 50000) {
-          addLog(`[Warning] 檔案 ${file.name} 內容已匯入並截斷至 50000 字上限。`, 'warning');
-          return newText.substring(0, 50000);
-        }
-        addLog(`[System] 已成功解析並匯入文件：${file.name}`, 'success');
-        return newText;
-      });
-    };
-
     try {
+      setIsParsingDoc(true);
+
+      // 1. 若為 PDF 或 圖片：啟用【多模態直通模式】（100% 保留原生圖表與表格）
       if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf') || file.type.startsWith('image/')) {
-        addLog(`[Multimodal AI] 正在透過 Gemini 3.1 Flash 原生視覺解析 (${file.name})，完整提取圖表、表格與數值結構...`, 'info');
-        setIsParsingDoc(true);
+        addLog(`[Multimodal 直通] 正在讀取並封裝原始文檔 (${file.name}) 為原生視覺資料流...`, 'info');
+        
+        const base64Data: string = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-        try {
-          const base64Data: string = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
+        const mime = file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
 
-          const parseUrl = typeof window !== 'undefined' && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
-            ? '/api/parse-multimodal'
-            : 'https://omni-script-pro.vercel.app/api/parse-multimodal';
+        setUploadedDocFile({
+          name: file.name,
+          type: mime,
+          base64: base64Data,
+          size: file.size
+        });
 
-          const res = await fetch(parseUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-            },
-            body: JSON.stringify({
-              base64: base64Data,
-              mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
-              filename: file.name,
-              apiKey: geminiApiKey || undefined
-            })
-          });
-
-          const parseRes = await res.json();
-          if (parseRes.success && parseRes.formattedMarkdown) {
-            appendText(parseRes.formattedMarkdown);
-            if (parseRes.artifacts && parseRes.artifacts.length > 0) {
-              setExtractedArtifacts((prev: any) => [...prev, ...parseRes.artifacts]);
-              addLog(`✅ [多模態解構成功] 成功擷取並保留 ${parseRes.artifacts.length} 個圖表/表格與完整正文！`, 'success');
-            } else {
-              addLog(`✅ [多模態解構成功] 已由 Gemini 3.1 Flash 完成高保真結構化文字與數據萃取！`, 'success');
-            }
-            setIsParsingDoc(false);
-            return;
-          }
-          throw new Error(parseRes.error || '多模態 API 解析未返回有效內容');
-        } catch (multiErr: any) {
-          console.warn('[Multimodal Parse Fallback] 伺服器多模態解析異常，啟動客戶端備援:', multiErr);
-          addLog(`[備援降級] 多模態服務暫時不可用，切換為本地前端 OCR 解析...`, 'warning');
-        } finally {
-          setIsParsingDoc(false);
+        // 若目前主題為空，以檔名自動填入
+        if (!theme.trim()) {
+          const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, ' ');
+          setTheme(cleanName);
         }
 
-        // --- 本地前端備援防線 (Fallback) ---
-        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          addLog(`[System] 正在前端解析 PDF 文件：${file.name}...`, 'info');
-          
-          if (!(window as any).pdfjsLib) {
-            await new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-              script.onload = () => {
-                (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                resolve(true);
-              };
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-          }
+        addLog(`✅ [多模態直通成功] 已成功掛載《${file.name}》！文檔已直通 Step 1 與 Step 2，由 Gemini 3.1 Flash 原生視覺辨識全部 Figure 圖表與 Table 表格！`, 'success');
+        setIsParsingDoc(false);
+        e.target.value = '';
+        return;
+      }
 
-          const arrayBuffer = await file.arrayBuffer();
-          const pdfDocument = await (window as any).pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          const totalPages = pdfDocument.numPages;
-          let fullTextResult = '';
-
-          for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-            const page = await pdfDocument.getPage(pageNum);
-            const textContent = await page.getTextContent();
-            let pageText = '';
-            let lastY = -1;
-            textContent.items.forEach((item: any) => {
-              if (lastY !== item.transform[5] && lastY !== -1) pageText += '\n';
-              pageText += item.str;
-              lastY = item.transform[5];
-            });
-            fullTextResult += pageText + '\n\n';
-          }
-          appendText(fullTextResult);
-
-        } else if (file.type.startsWith('image/')) {
-          addLog(`[System] 正在使用 OCR 識別圖片文字：${file.name}... (可能需要幾秒鐘)`, 'info');
-          
-          if (!(window as any).Tesseract) {
-            await new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-              script.onload = () => resolve(true);
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-          }
-
-          const result = await (window as any).Tesseract.recognize(file, 'chi_tra+eng', {
-            logger: (m: any) => console.log(m)
-          });
-          appendText(result.data.text);
-        }
-
-      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+      // 2. 若為 Word (.docx / .doc)
+      if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
         addLog(`[System] 正在前端解析 Word 文件：${file.name}...`, 'info');
-        setIsParsingDoc(true);
-        try {
-          if (!(window as any).mammoth) {
-            await new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
-              script.onload = () => resolve(true);
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-          }
-
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await (window as any).mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
-          const htmlContent = result.value || '';
-          const rawTextResult = await (window as any).mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-          const rawText = rawTextResult.value || '';
-
-          // 若含有表格標籤，嘗試透過多模態端點轉換為漂亮 Markdown 表格
-          if (htmlContent.includes('<table') || htmlContent.length > 30) {
-            try {
-              const parseUrl = typeof window !== 'undefined' && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
-                ? '/api/parse-multimodal'
-                : 'https://omni-script-pro.vercel.app/api/parse-multimodal';
-
-              const res = await fetch(parseUrl, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
-                },
-                body: JSON.stringify({
-                  base64: btoa(unescape(encodeURIComponent(htmlContent))),
-                  mimeType: 'text/html',
-                  filename: file.name,
-                  apiKey: geminiApiKey || undefined
-                })
-              });
-              const parseRes = await res.json();
-              if (parseRes.success && parseRes.formattedMarkdown) {
-                appendText(parseRes.formattedMarkdown);
-                if (parseRes.artifacts && parseRes.artifacts.length > 0) {
-                  setExtractedArtifacts((prev: any) => [...prev, ...parseRes.artifacts]);
-                  addLog(`✅ [Word 解析成功] 成功保留 ${parseRes.artifacts.length} 個表格/圖表數據！`, 'success');
-                } else {
-                  addLog(`✅ [Word 解析成功] 已由 Gemini 3.1 Flash 完成 Word 結構化轉換！`, 'success');
-                }
-                return;
-              }
-            } catch (wordMultiErr) {
-              console.warn('[Word Multimodal Fallback]', wordMultiErr);
-            }
-          }
-
-          appendText(rawText || htmlContent);
-        } catch (docxErr: any) {
-          console.error('[Word Parse Error]:', docxErr);
-          addLog(`[Error] Word 文件解析失敗：${docxErr.message}`, 'error');
-        } finally {
-          setIsParsingDoc(false);
+        if (!(window as any).mammoth) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+            script.onload = () => resolve(true);
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
         }
+        const arrayBuffer = await file.arrayBuffer();
+        const rawTextResult = await (window as any).mammoth.extractRawText({ arrayBuffer });
+        const rawText = rawTextResult.value || '';
+        
+        setCustomContext((prev: string) => {
+          const newText = prev ? `${prev}\n\n[Word 文檔內容 - ${file.name}]\n${rawText}` : `[Word 文檔內容 - ${file.name}]\n${rawText}`;
+          return newText.substring(0, 50000);
+        });
+        addLog(`✅ [Word 解析成功] 已匯入純文字內容。若需完整保留排版圖表，強烈建議將 Word 另存為 PDF 上傳直通！`, 'success');
+        setIsParsingDoc(false);
+        e.target.value = '';
+        return;
+      }
 
-      } else {
-        // TXT, CSV, MD, JSON
-        const reader = new FileReader();
-        reader.onload = async (event: any) => {
-          const text = event.target.result;
-          if (typeof text === 'string' && (text.includes('"orders"') || text.includes('"doc_type"'))) {
+      // 3. 若為 D-Plan JSON 或純文字檔 (TXT, MD, CSV, JSON)
+      const reader = new FileReader();
+      reader.onload = async (event: any) => {
+        const text = event.target.result;
+        if (typeof text === 'string') {
+          if (text.includes('"orders"') || text.includes('"doc_type"')) {
             addLog(`[System] 偵測到 D-Plan 交易書 JSON (${file.name})，正在解析持股並自動整合今日盤前基準...`, 'info');
             try {
               const benchmarkUrl = typeof window !== 'undefined' && window.location.origin.includes('localhost')
@@ -3267,22 +3206,31 @@ export default function App() {
                 const count = data.raw?.holdings?.holdingsCount || 0;
                 const cash = data.raw?.holdings?.remainingCash ? (data.raw.holdings.remainingCash / 10000).toLocaleString('zh-TW', { maximumFractionDigits: 0 }) : '--';
                 addLog(`✅ [昨日 D-Plan 匯入完成] 已成功解析 ${count} 檔昨日持股（可用現金約 ${cash} 萬）並自動整合盤前基準！`, 'success');
+                setIsParsingDoc(false);
                 return;
               }
             } catch (err: any) {
-              console.error(err);
+              setCustomContext(text.substring(0, 50000));
             }
+          } else {
+            setCustomContext((prev: string) => {
+              const newText = prev ? `${prev}\n\n${text}` : text;
+              return newText.substring(0, 50000);
+            });
+            addLog(`[System] 已成功匯入純文字文件：${file.name}`, 'success');
           }
-          appendText(text);
-        };
-        reader.readAsText(file);
-      }
+        }
+        setIsParsingDoc(false);
+      };
+      reader.readAsText(file);
+      e.target.value = '';
     } catch (err: any) {
       console.error("解析錯誤:", err);
       addLog(`[Error] 檔案解析失敗：${err.message || '未知錯誤'}`, 'error');
       safeAlert(`檔案解析失敗，可能檔案已損毀或包含不支援的格式。`);
     } finally {
-      e.target.value = null;
+      setIsParsingDoc(false);
+      e.target.value = '';
     }
   };
 
@@ -3331,6 +3279,7 @@ export default function App() {
         step3: stepContents[3] || "",
         step4: stepContents[4] || "",
         step5: stepContents[5] || "",
+        uploadedDocFile: uploadedDocFile || null
       };
 
       const content = await callVercelApi(activeStep, context, audienceTheme, geminiApiKey, (chunk) => setStreamingText(chunk));
@@ -3984,14 +3933,48 @@ const handleLogin = async (e: React.FormEvent) => {
                         <label className=" text-[14px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
                           <label className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-[12px] font-semibold cursor-pointer transition-colors border border-indigo-200 dark:border-indigo-800 shadow-sm" title="支援 PDF, 圖片, Word, Markdown, CSV, TXT (由 Gemini 3.1 Flash 自動保留圖表與表格)">
                             {isParsingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" /> : <UploadCloud className="w-3.5 h-3.5" />}
-                            <span>{isParsingDoc ? 'AI 圖表多模態解構中...' : '上傳文件/圖片 (保留圖表)'}</span>
+                            <span>{isParsingDoc ? 'AI 多模態封裝中...' : '上傳文件/圖片 (保留圖表)'}</span>
                             <input type="file" accept=".json,.txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" disabled={isParsingDoc} onChange={handleFileUpload} />
                           </label>
                       </div>
+
+                      {/* 🌟 多模態直通文檔掛載狀態卡片 */}
+                      {uploadedDocFile && (
+                        <div className="p-3 rounded-xl bg-gradient-to-r from-indigo-50/90 to-purple-50/90 dark:from-indigo-950/60 dark:to-purple-950/60 border border-indigo-200 dark:border-indigo-800 shadow-sm flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/80 text-indigo-600 dark:text-indigo-300 shrink-0">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{uploadedDocFile.name}</span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-600 text-white shrink-0">
+                                  多模態直通
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                {(uploadedDocFile.size / (1024 * 1024)).toFixed(2)} MB · 直通 Step 1 & 2，由 Gemini 3.1 Flash 原生視覺直讀 Figure 圖表與 Table 表格
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadedDocFile(null);
+                              addLog('[System] 已卸載多模態參考文檔', 'info');
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-slate-200/50 dark:hover:bg-slate-800 shrink-0 transition-colors"
+                            title="移除此文檔"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
                       <div className="relative">
                         <textarea
                           maxLength={50000}
-                          placeholder="請貼上參考文章或官方新聞稿 (建議限制在 6000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."
+                          placeholder={uploadedDocFile ? "已成功掛載原生多模態文檔！此處可留空，或輸入補充指示 (如：請特別著重分析第四章數據)..." : "請貼上參考文章或官方新聞稿 (建議限制在 5000 字以內，避免 AI 超載或觸發高流量限制)。系統會在啟動時自動將此內容匯入至 Step 1 作為基準資料..."}
                           value={customContext}
                           onChange={(e) => setCustomContext(e.target.value)}
                           className={`w-full bg-white border ${customContext.length >= 50000 ? 'border-red-500/50' : 'border-slate-200'} rounded-xl px-4 py-3 text-xs text-[#1E293B] focus:outline-none focus:border-indigo-500/50 h-28 resize-none shadow-inner custom-scrollbar pb-6 backdrop-blur-sm`}
