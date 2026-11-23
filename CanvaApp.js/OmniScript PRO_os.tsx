@@ -313,20 +313,13 @@ const now = new Date();
 });    
 
 const isFintech = audienceTheme === 'fintech';
-const isProposal = audienceTheme === 'proposal';
-const isThesis = audienceTheme === 'thesis';
 const systemInstructionText = isFintech
     ? `【絕對時間定錨與強制搜尋指令】：\n系統精確時間戳記：${isoTimestamp}\n今天是 ${currentDate}（標準格式：${today}）。\n請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。`
-    : (isProposal
-        ? `你是一位兼具世界級科研敏銳度與視覺導演思維的「頂尖學術文獻分析師」與「影音視覺導演」。現在參考時間是 ${currentDate}。\n請客觀、精準、結構化地解讀使用者提供的文獻資料，完整錨定原論文真實圖表與數據，嚴禁憑空幻想無根據的裝飾特效。`
-        : (isThesis
-            ? `你是一位頂尖學術轉化專家與內容策展人。現在參考時間是 ${currentDate}。\n請將學術文獻轉化為深入淺出、具啟發性的企劃底稿。`
-            : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題！`));
+    : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`;
 
 const geminiDocFile = context.uploadedDocFile;
 const shouldInjectDoc = geminiDocFile && geminiDocFile.base64 && (
-    stepId === 1 || stepId === 2 || 
-    String(stepId).startsWith('1') || String(stepId).startsWith('2')
+    stepId === 1 || String(stepId).startsWith('1')
 );
 
 const contentParts: any[] = [];
@@ -339,7 +332,7 @@ if (shouldInjectDoc) {
         }
     });
     contentParts.push({
-        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${geminiDocFile.name})。\n請利用 Gemini 原生多模態視覺與長上下文能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖/實驗照片）、實驗數據表格（Table 數據矩陣/消融實驗/對比表）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${stepId}）時：\n1. 必須直接且精準檢索文檔中真實存在的所有圖表編號與完整名稱（例如：Figure X、Table Y、Algorithm Z），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其直接作為分鏡畫面之調用標的、腳本旁白或企劃底稿！`
+        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${geminiDocFile.name})。\n請利用 Gemini 原生多模態視覺與長上下文能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${stepId}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
     });
 }
 contentParts.push({ text: finalPrompt });
@@ -2947,7 +2940,7 @@ export default function App() {
                 const isSearchStep = (i === 1 && !safeStep1);
                 const isFintech = audienceTheme === 'fintech';
                 const shouldInjectDocLocal = uploadedDocFile && uploadedDocFile.base64 && (
-                    i === 1 || i === 2 || String(i).startsWith('1') || String(i).startsWith('2')
+                    i === 1 || String(i).startsWith('1')
                 );
 
                 const localParts: any[] = [];
@@ -2959,12 +2952,12 @@ export default function App() {
                         }
                     });
                     localParts.push({
-                        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${uploadedDocFile.name})。\n請利用 Gemini 原生多模態視覺能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖/實驗照片）、實驗數據表格（Table 數據矩陣/消融實驗/對比表）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${i}）時：\n1. 必須直接且精準檢索文檔中真實存在的所有圖表編號與完整名稱（例如：Figure X、Table Y、Algorithm Z），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其直接作為分鏡畫面之調用標的、腳本旁白或企劃底稿！`
+                        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${uploadedDocFile.name})。\n請利用 Gemini 原生多模態視覺能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${i}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
                     });
                 }
                 localParts.push({ text: timeInjectedMasterPrompt });
 
-                let targetModel = isFintech ? 'gemini-3-flash-thinking' : ((shouldInjectDocLocal || audienceTheme === 'proposal') ? 'gemini-3.1-flash-preview' : 'gemini-2.5-flash');
+                let targetModel = isFintech ? 'gemini-3-flash-thinking' : (shouldInjectDocLocal ? 'gemini-3.1-flash-preview' : 'gemini-2.5-flash');
                 let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
                 let aiResponse = await fetch(apiUrl, {
                     method: 'POST',
