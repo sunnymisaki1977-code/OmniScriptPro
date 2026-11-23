@@ -1943,6 +1943,8 @@ export default function App() {
   const [activeStep, setActiveStep] = useState(1);
   const [theme, setTheme] = useState('');
   const [customContext, setCustomContext] = useState('');
+  const [extractedArtifacts, setExtractedArtifacts] = useState<Array<{ type: string; title: string; summary: string }>>([]);
+  const [isParsingDoc, setIsParsingDoc] = useState(false);
   const [completedSteps, setCompletedSteps] = useState([1]);
   const [audienceTheme, setAudienceTheme] = useState('heritage');
   const [apiEndpoints, setApiEndpoints] = useState<Record<string, string>>({});
@@ -3073,77 +3075,112 @@ export default function App() {
     };
 
     try {
-      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-        addLog(`[System] 正在前端解析 PDF 文件：${file.name}...`, 'info');
-        
-        if (!(window as any).pdfjsLib) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-            script.onload = () => {
-              (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-              resolve(true);
-            };
-            script.onerror = reject;
-            document.head.appendChild(script);
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf') || file.type.startsWith('image/')) {
+        addLog(`[Multimodal AI] 正在透過 Gemini 3.1 Flash 原生視覺解析 (${file.name})，完整提取圖表、表格與數值結構...`, 'info');
+        setIsParsingDoc(true);
+
+        try {
+          const base64Data: string = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
           });
+
+          const parseUrl = typeof window !== 'undefined' && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
+            ? '/api/parse-multimodal'
+            : 'https://omni-script-pro.vercel.app/api/parse-multimodal';
+
+          const res = await fetch(parseUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+            },
+            body: JSON.stringify({
+              base64: base64Data,
+              mimeType: file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
+              filename: file.name,
+              apiKey: geminiApiKey || undefined
+            })
+          });
+
+          const parseRes = await res.json();
+          if (parseRes.success && parseRes.formattedMarkdown) {
+            appendText(parseRes.formattedMarkdown);
+            if (parseRes.artifacts && parseRes.artifacts.length > 0) {
+              setExtractedArtifacts((prev: any) => [...prev, ...parseRes.artifacts]);
+              addLog(`✅ [多模態解構成功] 成功擷取並保留 ${parseRes.artifacts.length} 個圖表/表格與完整正文！`, 'success');
+            } else {
+              addLog(`✅ [多模態解構成功] 已由 Gemini 3.1 Flash 完成高保真結構化文字與數據萃取！`, 'success');
+            }
+            setIsParsingDoc(false);
+            return;
+          }
+          throw new Error(parseRes.error || '多模態 API 解析未返回有效內容');
+        } catch (multiErr: any) {
+          console.warn('[Multimodal Parse Fallback] 伺服器多模態解析異常，啟動客戶端備援:', multiErr);
+          addLog(`[備援降級] 多模態服務暫時不可用，切換為本地前端 OCR 解析...`, 'warning');
+        } finally {
+          setIsParsingDoc(false);
         }
 
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDocument = await (window as any).pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const totalPages = pdfDocument.numPages;
-        let fullTextResult = '';
+        // --- 本地前端備援防線 (Fallback) ---
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          addLog(`[System] 正在前端解析 PDF 文件：${file.name}...`, 'info');
+          
+          if (!(window as any).pdfjsLib) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+              script.onload = () => {
+                (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                resolve(true);
+              };
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
 
-        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-          const page = await pdfDocument.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          let pageText = '';
-          let lastY = -1;
-          textContent.items.forEach((item: any) => {
-            if (lastY !== item.transform[5] && lastY !== -1) pageText += '\n';
-            pageText += item.str;
-            lastY = item.transform[5];
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfDocument = await (window as any).pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const totalPages = pdfDocument.numPages;
+          let fullTextResult = '';
+
+          for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+            const page = await pdfDocument.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            let pageText = '';
+            let lastY = -1;
+            textContent.items.forEach((item: any) => {
+              if (lastY !== item.transform[5] && lastY !== -1) pageText += '\n';
+              pageText += item.str;
+              lastY = item.transform[5];
+            });
+            fullTextResult += pageText + '\n\n';
+          }
+          appendText(fullTextResult);
+
+        } else if (file.type.startsWith('image/')) {
+          addLog(`[System] 正在使用 OCR 識別圖片文字：${file.name}... (可能需要幾秒鐘)`, 'info');
+          
+          if (!(window as any).Tesseract) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+              script.onload = () => resolve(true);
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+
+          const result = await (window as any).Tesseract.recognize(file, 'chi_tra+eng', {
+            logger: (m: any) => console.log(m)
           });
-          fullTextResult += pageText + '\n\n';
+          appendText(result.data.text);
         }
-        appendText(fullTextResult);
 
       } else if (file.name.toLowerCase().endsWith('.docx')) {
-        addLog(`[System] 正在前端解析 Word 文件：${file.name}...`, 'info');
-        
-        if (!(window as any).mammoth) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
-            script.onload = () => resolve(true);
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        }
-
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await (window as any).mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-        appendText(result.value);
-
-      } else if (file.type.startsWith('image/')) {
-        addLog(`[System] 正在使用 OCR 識別圖片文字：${file.name}... (可能需要幾秒鐘)`, 'info');
-        
-        if (!(window as any).Tesseract) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-            script.onload = () => resolve(true);
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        }
-
-        const result = await (window as any).Tesseract.recognize(file, 'chi_tra+eng', {
-          logger: (m: any) => console.log(m)
-        });
-        appendText(result.data.text);
-
-      } else {
         // TXT, CSV, MD, JSON
         const reader = new FileReader();
         reader.onload = async (event: any) => {
@@ -3881,10 +3918,10 @@ const handleLogin = async (e: React.FormEvent) => {
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
                         <label className=" text-[14px] text-[#64748B] font-bold">自訂背景資料 / 參考文件 (選填)</label>
-                          <label className="flex items-center gap-1 px-2 py-1 rounded bg-slate-50 hover:bg-slate-200 text-[#1E293B] text-[12px] cursor-pointer transition-colors border border-slate-200 shadow-sm" title="支援 txt, md, csv, pdf, docx, 圖片">
-                            <UploadCloud className="w-3 h-3" />
-                            <span>上傳文件/圖片擷取文字</span>
-                            <input type="file" accept=".json,.txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" onChange={handleFileUpload} />
+                          <label className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-[12px] font-semibold cursor-pointer transition-colors border border-indigo-200 dark:border-indigo-800 shadow-sm" title="支援 PDF, 圖片, Word, Markdown, CSV, TXT (由 Gemini 3.1 Flash 自動保留圖表與表格)">
+                            {isParsingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" /> : <UploadCloud className="w-3.5 h-3.5" />}
+                            <span>{isParsingDoc ? 'AI 圖表多模態解構中...' : '上傳文件/圖片 (保留圖表)'}</span>
+                            <input type="file" accept=".json,.txt,.md,.csv,.pdf,.doc,.docx,image/*" className="hidden" disabled={isParsingDoc} onChange={handleFileUpload} />
                           </label>
                       </div>
                       <div className="relative">
@@ -3899,6 +3936,38 @@ const handleLogin = async (e: React.FormEvent) => {
                           {customContext.length} / 50000
                         </div>
                       </div>
+
+                      {/* 🌟 多模態圖表與數據矩陣保留標籤 */}
+                      {extractedArtifacts.length > 0 && (
+                        <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
+                          <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              已由 Gemini 3.1 Flash 解構保留之原文件圖表 ({extractedArtifacts.length})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setExtractedArtifacts([])}
+                              className="text-[11px] text-slate-400 hover:text-red-400 transition-colors"
+                            >
+                              清空圖表標籤
+                            </button>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {extractedArtifacts.map((art, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs shadow-xs"
+                                title={art.summary}
+                              >
+                                <span>{art.type === 'table' ? '📊' : art.type === 'chart' ? '📈' : '🔀'}</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-200">{art.title}</span>
+                                <span className="text-[10px] text-slate-400 max-w-[130px] truncate">({art.summary})</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
 
