@@ -3705,47 +3705,7 @@ ${ctx.step1}
     prompt: (ctx: any) => `你是一位兼具頂尖跨學科洞察力與權威學術素養的「全球科學文獻架構師與深度知識萃取專家」。
 請全面翻閱並精讀使用者提供的原始文獻、PDF 多模態文檔或主題：「${ctx.theme}」。
 
-【核心分析準則（通用於所有科學與專業領域文獻）】：
-無論本篇文獻屬於人工智慧、計算機科學、生醫醫學、材料物理、量化金融、經濟學或跨領域工程，你必須客觀還原文獻的原汁原味，絕不憑空捏造，亦不遺漏任何真實圖表與數據細節。
-
-【第一部分：文獻身分與宏觀研究架構】
-1. [文獻基本發表資訊 (Bibliographic Metadata)]：
-   - 論文/報告完整標題 (Full Title)
-   - 作者群及所屬頂尖機構/實驗室 (Authors & Affiliations)
-   - 發表日期與發表載體 (Publication Date, Venue: 如 Nature/Science/IEEE/ACM/NeurIPS/ICLR/CVPR/ACL/arXiv/頂級期刊或技術白皮書)
-   - 所屬專業學門與關鍵技術領域 (Research Fields & Keywords)
-2. [研究方法論定位 (Methodology Taxonomy)]：
-   - 本文屬於何種科研方法範式？（例如：
-     a. 系統性全景綜述與分類學 Systematic Survey & Taxonomy
-     b. 新型架構/演算法創新與驗證 Architecture/Algorithm Innovation
-     c. 大規模實證研究與消融實驗 Empirical Benchmark & Ablation Study
-     d. 數理理論證明與量化建模 Theoretical Proof & Formal Modeling
-     e. 臨床試驗/實驗室受控測試 Clinical/Laboratory Trial
-     請精準定位其研究範式、評測指標與基準 Baseline）
-3. [核心痛點、研究動機與三大突破性價值貢獻 (Motivation & Core Breakthroughs)]：
-   - 針對該學門/產業界長期懸而未決的哪項根本挑戰？
-   - 本文提出的三大核心創新機制、架構突破或重大實驗發現是什麼？
-
-【第二部分：全論文圖表與文獻全景解析目錄 (Universal Figures & Tables Grounded Catalog)】
-（🔥 極度關鍵：此目錄將作為後續所有分鏡腳本視覺調用、圖表引用與 Notion 雲端資料庫永久封存的基石！請動態、詳盡掃描文獻中「實際出現」的所有圖表，依序建檔，不得遺漏）：
-請逐一動態萃取文檔中的所有【Figure 架構/實驗圖表】、【Table 實驗數據表格】、【Algorithm 演算法流程】與【核心架構矩陣】，每個項目格式如下：
-- 【[類型與編號]】：如 Figure 1, Figure 2... / Table 1, Table 2... / Algorithm 1...
-- 【所在頁碼】：如 論文第 P 頁
-- 【圖表完整英文/原始標題】：
-- 【圖表形態與視覺結構】：（例如：總體端到端管線流程圖、雙軸收斂曲線圖、SOTA 對比矩陣、消融實驗數據表、模組切面拓撲圖、演算法虛擬代碼等）
-- 【核心數據、架構流向與量化結論】：
-  * 深入解讀圖表中的箭頭方向、模組從屬關係、輸入/輸出資料流；
-  * 明確列出圖表中展現的精確數據指標（如準確率 Acc、延遲 Latency、參數量、提升百分比、p 值、AUC 等關鍵 Benchmark 數值）以及與 Baseline 比較的實質差距。
-
-【第三部分：章節骨幹與底層技術/理論推演 (Section-by-Section Theoretical Framework)】
-- 依據文獻各章節（如 Introduction, Methodology, System Design, Experiments, Discussion），提煉各章核心理論骨幹與推導邏輯。
-- 提取文獻中的核心演算法虛擬碼、數學公式定義或系統架構關鍵參數。
-
-【第四部分：極限挑戰、爭議與未來演進路線 (Limitations & Future Roadmap)】
-- 該文獻揭示的技術侷限、邊界條件、算力/資源門檻或尚待解決的開放性難題。
-- 對未來學術研究方向與產業界實務落地的啟發。
-
-（請輸出結構清晰、條理分明、具高度學術典藏價值的繁體中文分析，保留專有名詞與圖表標題之中英雙語對照！）`
+`
   },
   {
     id: 2,
