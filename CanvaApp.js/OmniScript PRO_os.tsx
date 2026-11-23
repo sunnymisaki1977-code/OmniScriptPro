@@ -3242,7 +3242,71 @@ export default function App() {
           appendText(result.data.text);
         }
 
-      } else if (file.name.toLowerCase().endsWith('.docx')) {
+      } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+        addLog(`[System] 正在前端解析 Word 文件：${file.name}...`, 'info');
+        setIsParsingDoc(true);
+        try {
+          if (!(window as any).mammoth) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+              script.onload = () => resolve(true);
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await (window as any).mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+          const htmlContent = result.value || '';
+          const rawTextResult = await (window as any).mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+          const rawText = rawTextResult.value || '';
+
+          // 若含有表格標籤，嘗試透過多模態端點轉換為漂亮 Markdown 表格
+          if (htmlContent.includes('<table') || htmlContent.length > 30) {
+            try {
+              const parseUrl = typeof window !== 'undefined' && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
+                ? '/api/parse-multimodal'
+                : 'https://omni-script-pro.vercel.app/api/parse-multimodal';
+
+              const res = await fetch(parseUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(geminiApiKey ? { 'x-gemini-api-key': geminiApiKey } : {})
+                },
+                body: JSON.stringify({
+                  base64: btoa(unescape(encodeURIComponent(htmlContent))),
+                  mimeType: 'text/html',
+                  filename: file.name,
+                  apiKey: geminiApiKey || undefined
+                })
+              });
+              const parseRes = await res.json();
+              if (parseRes.success && parseRes.formattedMarkdown) {
+                appendText(parseRes.formattedMarkdown);
+                if (parseRes.artifacts && parseRes.artifacts.length > 0) {
+                  setExtractedArtifacts((prev: any) => [...prev, ...parseRes.artifacts]);
+                  addLog(`✅ [Word 解析成功] 成功保留 ${parseRes.artifacts.length} 個表格/圖表數據！`, 'success');
+                } else {
+                  addLog(`✅ [Word 解析成功] 已由 Gemini 3.1 Flash 完成 Word 結構化轉換！`, 'success');
+                }
+                return;
+              }
+            } catch (wordMultiErr) {
+              console.warn('[Word Multimodal Fallback]', wordMultiErr);
+            }
+          }
+
+          appendText(rawText || htmlContent);
+        } catch (docxErr: any) {
+          console.error('[Word Parse Error]:', docxErr);
+          addLog(`[Error] Word 文件解析失敗：${docxErr.message}`, 'error');
+        } finally {
+          setIsParsingDoc(false);
+        }
+
+      } else {
         // TXT, CSV, MD, JSON
         const reader = new FileReader();
         reader.onload = async (event: any) => {
