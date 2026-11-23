@@ -313,9 +313,15 @@ const now = new Date();
 });    
 
 const isFintech = audienceTheme === 'fintech';
+const isProposal = audienceTheme === 'proposal';
+const isThesis = audienceTheme === 'thesis';
 const systemInstructionText = isFintech
     ? `【絕對時間定錨與強制搜尋指令】：\n系統精確時間戳記：${isoTimestamp}\n今天是 ${currentDate}（標準格式：${today}）。\n請務必強制調用 Google 搜尋工具，檢索今天（以 ${today} 基準）最新市場情報、隔夜美股與即時總經時事進行深度分析。`
-    : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題，嚴禁產出與該主題無關之當代政治或科技報告！`;
+    : (isProposal
+        ? `你是一位兼具世界級科研敏銳度與視覺導演思維的「頂尖學術文獻分析師」與「影音視覺導演」。現在參考時間是 ${currentDate}。\n請客觀、精準、結構化地解讀使用者提供的文獻資料，完整錨定原論文真實圖表與數據，嚴禁憑空幻想無根據的裝飾特效。`
+        : (isThesis
+            ? `你是一位頂尖學術轉化專家與內容策展人。現在參考時間是 ${currentDate}。\n請將學術文獻轉化為深入淺出、具啟發性的企劃底稿。`
+            : `你是一位嚴謹客觀的文史、民俗與文化企劃專家。現在參考時間是 ${currentDate}。\n請務必專注以目標主題【${context.theme || '指定主題'}】為唯一核心進行文獻查證，嚴禁偏離主題！`));
 
 const geminiDocFile = context.uploadedDocFile;
 const shouldInjectDoc = geminiDocFile && geminiDocFile.base64 && (
@@ -333,7 +339,7 @@ if (shouldInjectDoc) {
         }
     });
     contentParts.push({
-        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${geminiDocFile.name})。\n請利用 Gemini 原生多模態視覺與長上下文能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${stepId}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
+        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${geminiDocFile.name})。\n請利用 Gemini 原生多模態視覺與長上下文能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖/實驗照片）、實驗數據表格（Table 數據矩陣/消融實驗/對比表）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${stepId}）時：\n1. 必須直接且精準檢索文檔中真實存在的所有圖表編號與完整名稱（例如：Figure X、Table Y、Algorithm Z），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其直接作為分鏡畫面之調用標的、腳本旁白或企劃底稿！`
     });
 }
 contentParts.push({ text: finalPrompt });
@@ -2797,16 +2803,14 @@ export default function App() {
     };
 
     let usedCustomContextForStep1 = false;
-    // 如果使用者有掛載多模態原始文檔且 Step 1 為空，將其錨定為 Step 1 基準文獻
-    if (uploadedDocFile && isStepEmpty(1)) {
-      currentContextContents[1] = `📄 【已成功掛載原生多模態文檔】：${uploadedDocFile.name}\n本企劃以該文檔之完整圖表架構（Figure 1~3）、數據矩陣（Table 1~3）與理論模型為基石，由 Gemini 3.1 Flash 原生視覺直讀辨識。`;
-      setStepContents(prev => ({ ...prev, 1: currentContextContents[1] }));
-      addLog(`[System] 偵測到掛載多模態文檔《${uploadedDocFile.name}》，文檔已直通 Step 1 與 Step 2！`, 'success');
-      usedCustomContextForStep1 = true;
+    // 🌟 核心升級：若有掛載原生多模態文檔，不跳過 Step 1，而是由 Gemini 3.1 Flash 原生直讀萃取全圖表索引底稿，永久沉澱至 Notion！
+    if (uploadedDocFile) {
+      addLog(`[Multimodal 直通] 偵測到掛載多模態文檔《${uploadedDocFile.name}》，啟動 Step 1 由 Gemini 3.1 Flash 直讀萃取全論文圖表目錄與架構底稿，確保寫入 Notion 永久有效！`, 'info');
+      usedCustomContextForStep1 = false;
     } else if (audienceTheme !== 'fintech' && customContext.trim() && isStepEmpty(1)) {
       currentContextContents[1] = customContext;
       setStepContents(prev => ({ ...prev, 1: customContext }));
-      addLog(`[System] 偵測到您已提供「自訂背景資料」，系統已自動將其載入為 Step 1 基礎文獻，為您省下第一階段的查核時間！`, 'success');
+      addLog(`[System] 偵測到您已提供「純文字自訂背景」，系統已自動將其載入為 Step 1 基礎文獻！`, 'success');
       usedCustomContextForStep1 = true;
     }
 
@@ -2955,12 +2959,12 @@ export default function App() {
                         }
                     });
                     localParts.push({
-                        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${uploadedDocFile.name})。\n請利用 Gemini 原生多模態視覺能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖）、實驗數據表格（Table 1~3 等）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${i}）時：\n1. 必須直接且精準引用文檔中真實存在的圖表編號與名稱（例如：Figure 1、Table 2），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其融入分鏡畫面描述、腳本旁白或企劃架構中！`
+                        text: `【🎯 原始多模態文檔全保真直讀指示】：\n上方已注入使用者上傳之原始文檔 (${uploadedDocFile.name})。\n請利用 Gemini 原生多模態視覺能力，翻閱文檔中的所有原生圖表（Figure 架構圖/流程圖/曲線圖/實驗照片）、實驗數據表格（Table 數據矩陣/消融實驗/對比表）以及數學公式/演算法虛擬代碼。\n在產出本步驟（Step ${i}）時：\n1. 必須直接且精準檢索文檔中真實存在的所有圖表編號與完整名稱（例如：Figure X、Table Y、Algorithm Z），嚴禁編造或丟失圖表。\n2. 深入解讀圖表中的幾何箭頭流向、模組關係與精確實驗數值，並將其直接作為分鏡畫面之調用標的、腳本旁白或企劃底稿！`
                     });
                 }
                 localParts.push({ text: timeInjectedMasterPrompt });
 
-                let targetModel = isFintech ? 'gemini-3-flash-thinking' : (shouldInjectDocLocal ? 'gemini-3.1-flash-preview' : 'gemini-2.5-flash');
+                let targetModel = isFintech ? 'gemini-3-flash-thinking' : ((shouldInjectDocLocal || audienceTheme === 'proposal') ? 'gemini-3.1-flash-preview' : 'gemini-2.5-flash');
                 let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${activeApiKey}`;
                 let aiResponse = await fetch(apiUrl, {
                     method: 'POST',
