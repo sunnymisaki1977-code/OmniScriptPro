@@ -262,7 +262,7 @@ export const AUDIENCE_THEMES = {
   proposal: {
     id: 'proposal',
     ambientGlow: 'bg-emerald-500',
-    title: '論文轉譯。AI 25',
+    title: '商務簡報',
     subtitle: 'Emerald Green 翡翠綠',
     desc: '清晰專業的翡翠綠色調。專為全領域知識萃取與提案文案設計。',
     gradient: 'from-[#10B981] to-[#059669]',
