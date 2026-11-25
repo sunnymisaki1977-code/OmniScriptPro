@@ -3575,9 +3575,9 @@ AI Prompt 必須包含：大而醒目藝術文字設計．
     description: "生成 16:9 課程宣傳意象海報。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step1"],
-    prompt: (ctx: any) => `針對「${ctx.step1}」生成 3 組 16:9 課程宣傳意象海報。
-參考背景：${ctx.step1}
+    dependsOn: ["theme", "step2"],
+    prompt: (ctx: any) => `針對「${ctx.step2}」生成 3 組 16:9 課程宣傳意象海報。
+參考背景：${ctx.step2}
 
 【格式絕對鎖定指令】：
 你現在是一個自動化資料轉換 API。禁止任何開場白、問候語、解釋或結語。
@@ -3595,7 +3595,7 @@ AI Prompt 必須包含：大而醒目藝術文字設計．
     description: "生成適合學習與專注的音樂指令。",
     type: "code",
     language: "markdown",
-    dependsOn: ["theme", "step1"],
+    dependsOn: ["theme", "step2"],
     prompt: (ctx: any) => `針對課程內容「${ctx.step1}」，生成 3 組 Suno AI 音樂生成 Prompt。
 
 【格式絕對鎖定指令】：你是一個自動化資料轉換 API。
@@ -3603,15 +3603,15 @@ AI Prompt 必須包含：大而醒目藝術文字設計．
 
 ### 第一組：專注學習 (Lo-Fi Study)
 適用場景：解析複雜理論或概念
-Suno AI Prompt：[如：Lofi hip hop beats, chill ambient, soft piano, relaxing study tempo, clean production]
+Suno AI Prompt：[]
 
 ### 第二組：深度思考 (Ambient Focus)
 適用場景：歷史回顧或底層邏輯探討
-Suno AI Prompt：[如：Deep ambient, binaural beats, minimal drone, atmospheric, concentration]
+Suno AI Prompt：[如]
 
 ### 第三組：激勵解惑 (Upbeat Motivation)
 適用場景：解題成功、實作應用或課程總結
-Suno AI Prompt：[如：Light acoustic pop, inspiring, cheerful, steady rhythm, optimistic]`
+Suno AI Prompt：[]`
   },
   {
     id: 10,
@@ -3619,12 +3619,12 @@ Suno AI Prompt：[如：Light acoustic pop, inspiring, cheerful, steady rhythm, 
     description: "一鍵生成知識懶人包圖卡提示詞與教學社群正文",
     type: "social",
     language: "markdown",
-    dependsOn: ["theme", "step1"],
+    dependsOn: ["theme", "step2"],
     prompt: (ctx: any) => `根據【課程核心企劃】：${ctx.step1}，打造一組社群知識懶人包（Carousel）與貼文。
 
 
 【基礎背景】：
-${ctx.step1}
+${ctx.step2}
 
 請嚴格遵循以下二大任務與格式要求：
 
